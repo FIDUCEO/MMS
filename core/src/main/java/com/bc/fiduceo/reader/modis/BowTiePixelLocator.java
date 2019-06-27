@@ -26,6 +26,7 @@ import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.math.SphericalDistance;
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.esa.snap.core.datamodel.GeoCoding;
 import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.core.datamodel.PixelPos;
@@ -40,6 +41,7 @@ import ucar.ma2.IndexIterator;
 import ucar.ma2.InvalidRangeException;
 
 import java.awt.geom.Point2D;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,7 +60,7 @@ class BowTiePixelLocator implements PixelLocator {
     private int listSize;
 
 
-    BowTiePixelLocator(Array longitudes, Array latitudes, GeometryFactory geometryFactory) throws InvalidRangeException {
+    BowTiePixelLocator(Array longitudes, Array latitudes, GeometryFactory geometryFactory) throws IOException {
         this.geometryFactory = geometryFactory;
         this.longitudes = longitudes;
         this.latitudes = latitudes;
@@ -174,7 +176,7 @@ class BowTiePixelLocator implements PixelLocator {
         longitudes = null;
     }
 
-    private void init() throws InvalidRangeException {
+    private void init() throws IOException {
         boolean cross180 = false;
         geoCodingList = new ArrayList<>();
         centerLinesList = new ArrayList<>();
@@ -192,8 +194,8 @@ class BowTiePixelLocator implements PixelLocator {
             final float[] lons = new float[gcRawSize];
             final float[] lats = new float[gcRawSize];
 
-            final Array lonSection = longitudes.section(origin, shape);
-            final Array latSection = latitudes.section(origin, shape);
+            final Array lonSection = NetCDFUtils.section(longitudes, origin, shape);
+            final Array latSection = NetCDFUtils.section(latitudes, origin, shape);
             final IndexIterator lonIterator = lonSection.getIndexIterator();
             final IndexIterator latIterator = latSection.getIndexIterator();
             int writeIndex = 0;

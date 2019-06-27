@@ -171,7 +171,7 @@ public class AVHRR_GAC_Reader extends NetCDFReader {
     }
 
     @Override
-    public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws InvalidRangeException, IOException {
+    public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException {
         final Array rawArray = arrayCache.get(variableName);
         final Number fillValue = getFillValue(variableName);
 
@@ -180,7 +180,7 @@ public class AVHRR_GAC_Reader extends NetCDFReader {
     }
 
     @Override
-    public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
+    public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException {
         final Array array = readRaw(centerX, centerY, interval, variableName);
 
         final double scaleFactor = getScaleFactorCf(variableName);
@@ -193,7 +193,7 @@ public class AVHRR_GAC_Reader extends NetCDFReader {
     }
 
     @Override
-    public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException {
+    public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException {
         final Array raw = readRaw(x, y, interval, "dtime");
         final Number fillValue = getFillValue("dtime");
         return convertToAcquisitionTime(raw, startTimeMilliSecondsSince1970, fillValue.floatValue());
@@ -268,22 +268,18 @@ public class AVHRR_GAC_Reader extends NetCDFReader {
         final int[] offset = new int[2];
         final int[] subsetShape = new int[2];
         subsetShape[1] = shape[1];
-        try {
-            for (final Interval interval : intervals) {
-                offset[0] = interval.getX();
-                subsetShape[0] = interval.getY() - interval.getX() + 1;
+        for (final Interval interval : intervals) {
+            offset[0] = interval.getX();
+            subsetShape[0] = interval.getY() - interval.getX() + 1;
 
-                final Array lonSection = longitudes.section(offset, subsetShape);
-                final Array latSection = latitudes.section(offset, subsetShape);
+            final Array lonSection = NetCDFUtils.section(longitudes, offset, subsetShape);
+            final Array latSection = NetCDFUtils.section(latitudes, offset, subsetShape);
 
-                final Polygon boundingGeometry = boundingPolygonCreator.createBoundingGeometry(lonSection, latSection);
+            final Polygon boundingGeometry = boundingPolygonCreator.createBoundingGeometry(lonSection, latSection);
 
-                geometryList.add(boundingGeometry);
-                final LineString timeAxis = boundingPolygonCreator.createTimeAxisGeometry(lonSection, latSection);
-                timeAxesList.add(timeAxis);
-            }
-        } catch (InvalidRangeException e) {
-            throw new IOException(e.getMessage());
+            geometryList.add(boundingGeometry);
+            final LineString timeAxis = boundingPolygonCreator.createTimeAxisGeometry(lonSection, latSection);
+            timeAxesList.add(timeAxis);
         }
 
         final MultiPolygon multiPolygon = geometryFactory.createMultiPolygon(geometryList);
@@ -294,7 +290,7 @@ public class AVHRR_GAC_Reader extends NetCDFReader {
         return geometries;
     }
 
-    private Geometries calculateGeometriesSmooth(BoundingPolygonCreator boundingPolygonCreator, Array longitudes, Array latitudes) {
+    private Geometries calculateGeometriesSmooth(BoundingPolygonCreator boundingPolygonCreator, Array longitudes, Array latitudes) throws IOException {
         final Geometries geometries = new Geometries();
 
         Geometry timeAxisGeometry;
@@ -341,14 +337,10 @@ public class AVHRR_GAC_Reader extends NetCDFReader {
             origin[0] = interval.getX();
             final int height = interval.getY() - interval.getX() + 1;
             shape[0] = height;
-            try {
-                final ArrayFloat lonSection = (ArrayFloat) lonStorage.section(origin, shape).copy();
-                final ArrayFloat latSection = (ArrayFloat) latStorage.section(origin, shape).copy();
-                final SnapAvoidCodeDuplicationClass_SwathPixelLocator swathPixelLocator = (SnapAvoidCodeDuplicationClass_SwathPixelLocator) PixelLocatorFactory.getSwathPixelLocator(lonSection, latSection, width, height);
-                pixelLocator.addGeoCoding(swathPixelLocator.getGc(), interval);
-            } catch (InvalidRangeException e) {
-                throw new IOException(e.getMessage());
-            }
+            final ArrayFloat lonSection = (ArrayFloat) NetCDFUtils.section(lonStorage, origin, shape).copy();
+            final ArrayFloat latSection = (ArrayFloat) NetCDFUtils.section(latStorage, origin, shape).copy();
+            final SnapAvoidCodeDuplicationClass_SwathPixelLocator swathPixelLocator = (SnapAvoidCodeDuplicationClass_SwathPixelLocator) PixelLocatorFactory.getSwathPixelLocator(lonSection, latSection, width, height);
+            pixelLocator.addGeoCoding(swathPixelLocator.getGc(), interval);
         }
 
         this.pixelLocator = pixelLocator;

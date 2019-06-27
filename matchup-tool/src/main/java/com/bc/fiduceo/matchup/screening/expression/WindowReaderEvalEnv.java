@@ -21,6 +21,7 @@ package com.bc.fiduceo.matchup.screening.expression;
 
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.esa.snap.core.jexp.EvalEnv;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
@@ -75,7 +76,7 @@ public class WindowReaderEvalEnv implements EvalEnv, WindowVariableSymbol.NoData
             readWindow(name);
         }
         final Array array = windowArrayMap.get(name);
-        return array.section(new int[]{y, x}, pixelShape);
+        return NetCDFUtils.section(array, new int[]{y, x}, pixelShape);
     }
 
     private void resetNoData() {

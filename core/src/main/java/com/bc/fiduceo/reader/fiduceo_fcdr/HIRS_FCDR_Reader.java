@@ -7,6 +7,7 @@ import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.*;
+import com.bc.fiduceo.util.NetCDFUtils;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.InvalidRangeException;
@@ -105,7 +106,7 @@ class HIRS_FCDR_Reader extends FCDR_Reader {
     }
 
     @Override
-    public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
+    public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException {
         final String fullVariableName = ReaderUtils.stripChannelSuffix(variableName);
 
         Array array = arrayCache.get(fullVariableName);
@@ -116,7 +117,7 @@ class HIRS_FCDR_Reader extends FCDR_Reader {
             final int[] shape = array.getShape();
             shape[0] = 1;   // we only want one z-layer
             final int[] offsets = {channelIndex, 0, 0};
-            array = array.section(offsets, shape);
+            array = NetCDFUtils.section(array, offsets, shape);
         }
 
         final Number fillValue = getFillValue(fullVariableName);
@@ -126,7 +127,7 @@ class HIRS_FCDR_Reader extends FCDR_Reader {
     }
 
     @Override
-    public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
+    public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException {
         final Array array = readRaw(centerX, centerY, interval, variableName);
         final String fullVariableName = ReaderUtils.stripChannelSuffix(variableName);
 

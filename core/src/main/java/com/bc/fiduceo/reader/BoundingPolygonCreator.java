@@ -22,11 +22,12 @@ package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.geometry.*;
+import com.bc.fiduceo.util.NetCDFUtils;
 import com.google.common.collect.Lists;
 import ucar.ma2.Array;
 import ucar.ma2.Index;
-import ucar.ma2.InvalidRangeException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,11 +65,11 @@ public class BoundingPolygonCreator {
         return geometryFactory.createPolygon(reverse);
     }
 
-    public Geometry createBoundingGeometrySplitted(Array longitudes, Array latitudes, int numSplits, boolean clockwise) {
+    public Geometry createBoundingGeometrySplitted(Array longitudes, Array latitudes, int numSplits, boolean clockwise) throws IOException {
         final List<Polygon> geometries = new ArrayList<>(numSplits);
 
         final int[] shape = longitudes.getShape();
-        int height = shape[0];
+        final int height = shape[0];
 
         final int[] offsets = new int[]{0, 0};
 
@@ -78,14 +79,8 @@ public class BoundingPolygonCreator {
             shape[0] = subsetHeight;
             offsets[0] = yOffset;
 
-            Array longitudesSubset;
-            Array latitudesSubset;
-            try {
-                longitudesSubset = longitudes.section(offsets, shape);
-                latitudesSubset = latitudes.section(offsets, shape);
-            } catch (InvalidRangeException e) {
-                throw new RuntimeException(e.getMessage());
-            }
+            final Array longitudesSubset = NetCDFUtils.section(longitudes, offsets, shape);
+            final Array latitudesSubset = NetCDFUtils.section(latitudes, offsets, shape);
 
             if (clockwise) {
                 geometries.add(createBoundingGeometryClockwise(longitudesSubset, latitudesSubset));
@@ -129,7 +124,7 @@ public class BoundingPolygonCreator {
         return geometryFactory.createLineString(coordinates);
     }
 
-    public Geometry createTimeAxisGeometrySplitted(Array longitudes, Array latitudes, int numSplits) {
+    public Geometry createTimeAxisGeometrySplitted(Array longitudes, Array latitudes, int numSplits) throws IOException {
         final Geometry[] geometries = new Geometry[numSplits];
 
         final int[] shape = longitudes.getShape();
@@ -143,14 +138,8 @@ public class BoundingPolygonCreator {
             shape[0] = subsetHeight;
             offsets[0] = yOffset;
 
-            Array longitudesSubset;
-            Array latitudesSubset;
-            try {
-                longitudesSubset = longitudes.section(offsets, shape);
-                latitudesSubset = latitudes.section(offsets, shape);
-            } catch (InvalidRangeException e) {
-                throw new RuntimeException(e.getMessage());
-            }
+            final Array longitudesSubset = NetCDFUtils.section(longitudes, offsets, shape);
+            final Array latitudesSubset = NetCDFUtils.section(latitudes, offsets, shape);
 
             geometries[i] = createTimeAxisGeometry(longitudesSubset, latitudesSubset);
 
@@ -208,7 +197,7 @@ public class BoundingPolygonCreator {
         }
         if (currentInterval != null) {
             // if we`re still in a segment of valid data - close this
-            currentInterval.setY(height -1);
+            currentInterval.setY(height - 1);
             intervals.add(currentInterval);
         }
 

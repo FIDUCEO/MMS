@@ -13,6 +13,7 @@ import ucar.ma2.Index;
 import ucar.ma2.InvalidRangeException;
 
 import java.awt.geom.Point2D;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +35,7 @@ class IASI_TP_PixelLocator implements PixelLocator {
     private final TiePointGeoCoding lowerGeocoding;
     private final int split_height;
 
-    IASI_TP_PixelLocator(GeolocationData geolocationData, GeometryFactory geometryFactory) {
+    IASI_TP_PixelLocator(GeolocationData geolocationData, GeometryFactory geometryFactory) throws IOException {
         longitudes = geolocationData.longitudes;
         latitudes = geolocationData.latitudes;
         this.geometryFactory = geometryFactory;

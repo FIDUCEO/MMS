@@ -23,7 +23,10 @@ package com.bc.fiduceo.reader.amsr.amsre;
 
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
-import com.bc.fiduceo.geometry.*;
+import com.bc.fiduceo.geometry.Geometry;
+import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.LineString;
+import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.location.PixelLocatorFactory;
 import com.bc.fiduceo.reader.*;
@@ -134,7 +137,7 @@ class AMSRE_Reader extends NetCDFReader {
     }
 
     @Override
-    public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
+    public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException {
         if (variableName.equals("Land_Ocean_Flag_6")) {
             return readLandOceanFlag(centerX, centerY, interval);
         }
@@ -151,7 +154,7 @@ class AMSRE_Reader extends NetCDFReader {
         return RawDataReader.read(centerX, centerY, interval, fillValue, rawArray, productSize);
     }
 
-    private Array readChannelQualityFlag(String variableName, int centerX, int centerY, Interval interval) throws IOException, InvalidRangeException {
+    private Array readChannelQualityFlag(String variableName, int centerX, int centerY, Interval interval) throws IOException {
         final Array rawArray = arrayCache.get(LO_RES_SWATH_DATA_GROUP, CHANNEL_QUALITY_FLAGS_NAME);
         final Number fillValue = getFillValue(LO_RES_SWATH_DATA_GROUP, CHANNEL_QUALITY_FLAGS_NAME);
         final Dimension productSize = getProductSize();
@@ -160,11 +163,11 @@ class AMSRE_Reader extends NetCDFReader {
         final int[] shape = rawArray.getShape();
         shape[1] = 1;
         final int[] origins = {0, layerIndex};
-        final Array channelLayer = rawArray.section(origins, shape);
+        final Array channelLayer = NetCDFUtils.section(rawArray, origins, shape);
         return RawDataReader.read(centerX, centerY, interval, fillValue, channelLayer, productSize);
     }
 
-    private Array readLandOceanFlag(int centerX, int centerY, Interval interval) throws IOException, InvalidRangeException {
+    private Array readLandOceanFlag(int centerX, int centerY, Interval interval) throws IOException {
         final Array rawArray = arrayCache.get(LO_RES_SWATH_DATA_GROUP, LAND_OCEAN_FLAGS_NAME);
         final Number fillValue = getFillValue(LO_RES_SWATH_DATA_GROUP, LAND_OCEAN_FLAGS_NAME);
         final Dimension productSize = getProductSize();
@@ -172,12 +175,12 @@ class AMSRE_Reader extends NetCDFReader {
         final int[] shape = rawArray.getShape();
         shape[2] = 1;
         final int[] origins = {0, 0, 0};
-        final Array channel6Layer = rawArray.section(origins, shape);
+        final Array channel6Layer = NetCDFUtils.section(rawArray, origins, shape);
         return RawDataReader.read(centerX, centerY, interval, fillValue, channel6Layer, productSize);
     }
 
     @Override
-    public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
+    public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException {
         Array array = readRaw(centerX, centerY, interval, variableName);
         if (variableName.equals("Land_Ocean_Flag_6") || variableName.contains("Channel_Quality_Flag_")) {
             return array;
@@ -195,7 +198,7 @@ class AMSRE_Reader extends NetCDFReader {
     }
 
     @Override
-    public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException {
+    public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException {
         final Array rawTimeTAI = readRaw(x, y, interval, "Time");
         final String groupName = getGroupNameForVariable("Time");
         final double taiFillValue = getFillValue(groupName, "Time").doubleValue();
@@ -246,7 +249,7 @@ class AMSRE_Reader extends NetCDFReader {
                     shortName.contains("Effective_Hot_Load") ||
                     shortName.contains("Res2_Surf") ||
                     shortName.contains("Res3_Surf") ||
-                    shortName.contains("Res4_Surf") ) {
+                    shortName.contains("Res4_Surf")) {
                 continue;
             }
 

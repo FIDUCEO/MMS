@@ -105,7 +105,7 @@ class AMSUB_MHS_L1C_Reader extends NetCDFReader {
     public AcquisitionInfo read() throws IOException {
         final AcquisitionInfo acquisitionInfo = new AcquisitionInfo();
 
-        final int startYear = NetCDFUtils.getGlobalAttributeInt("startdatayr", netcdfFile) ;
+        final int startYear = NetCDFUtils.getGlobalAttributeInt("startdatayr", netcdfFile);
         final int startDay = NetCDFUtils.getGlobalAttributeInt("startdatady", netcdfFile);
         final int startTime = NetCDFUtils.getGlobalAttributeInt("startdatatime_ms", netcdfFile);
 
@@ -187,7 +187,7 @@ class AMSUB_MHS_L1C_Reader extends NetCDFReader {
     }
 
     @Override
-    public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
+    public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException {
         String rawVariableName = ReaderUtils.stripChannelSuffix(variableName);
         if (rawVariableName.contains("azimuth")) {
             rawVariableName = falsifyAzimuth(rawVariableName);
@@ -201,13 +201,13 @@ class AMSUB_MHS_L1C_Reader extends NetCDFReader {
             final int[] shape = array.getShape();
             shape[2] = 1;   // we only want one z-layer
             final int[] offsets = {0, 0, channelLayer};
-            array = array.section(offsets, shape);
+            array = NetCDFUtils.section(array, offsets, shape);
         } else if (rawVariableName.equals("chanqual")) {
             final int channelLayer = getChannelLayer(variableName);
             final int[] shape = array.getShape();
             shape[1] = 1;   // we only want one channel
             final int[] offsets = {0, channelLayer};
-            array = array.section(offsets, shape);
+            array = NetCDFUtils.section(array, offsets, shape);
         }
 
         final Number fillValue = getFillValue(rawVariableName, groupName, array);
@@ -216,7 +216,7 @@ class AMSUB_MHS_L1C_Reader extends NetCDFReader {
     }
 
     @Override
-    public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
+    public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException {
         String rawVariableName = variableName;
         if (rawVariableName.contains("azimuth")) {
             rawVariableName = falsifyAzimuth(rawVariableName);
@@ -236,7 +236,7 @@ class AMSUB_MHS_L1C_Reader extends NetCDFReader {
 
     // @todo 3 tb/** this method does the correct thing but there is room for improvement 2016-04-19
     @Override
-    public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException {
+    public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException {
         final Array scnlinyr = readRaw(x, y, interval, "scnlinyr");
         final int fillValue = getFillValue("scnlinyr", "Data", scnlinyr).intValue();
         final Array acquisitionTimeArray = scnlinyr.copy();

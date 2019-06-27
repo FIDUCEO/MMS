@@ -26,8 +26,11 @@ import org.junit.Test;
 import org.mockito.InOrder;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
+import ucar.ma2.InvalidRangeException;
 import ucar.nc2.*;
 import ucar.nc2.iosp.netcdf3.N3iosp;
+
+import java.io.IOException;
 
 import static com.bc.fiduceo.util.NetCDFUtils.*;
 import static org.junit.Assert.*;
@@ -564,4 +567,35 @@ public class NetCDFUtilsTest {
         final double offset = NetCDFUtils.getOffset(variable);
         assertEquals(0.0, offset, 1e-8);
     }
+
+    @Test
+    public void testSection() throws InvalidRangeException, IOException {
+        final Array array = mock(Array.class);
+        final Array result = mock(Array.class);
+
+        when(array.section(any(), any())).thenReturn(result);
+
+        final Array section = NetCDFUtils.section(array, new int[2], new int[2]);
+        assertSame(section, result);
+
+        verify(array, times(1)).section(any(), any());
+        verifyNoMoreInteractions(array);
+    }
+
+    @Test
+    public void testSection_failure() throws InvalidRangeException {
+        final Array array = mock(Array.class);
+        when(array.section(any(), any())).thenThrow(new InvalidRangeException());
+
+        try {
+            NetCDFUtils.section(array, new int[2], new int[2]);
+            fail("IOException expected");
+        } catch (IOException expected) {
+        }
+
+        verify(array, times(1)).section(any(), any());
+        verifyNoMoreInteractions(array);
+    }
 }
+
+

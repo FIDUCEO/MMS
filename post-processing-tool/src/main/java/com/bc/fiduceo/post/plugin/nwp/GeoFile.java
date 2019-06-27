@@ -21,6 +21,7 @@
 package com.bc.fiduceo.post.plugin.nwp;
 
 
+import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TempFileUtils;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
@@ -99,9 +100,9 @@ class GeoFile {
             targetStart[0] = i;
             sourceStart[0] = i;
 
-            final Array lonSection = longitudesArray.section(sourceStart, sourceShape);
+            final Array lonSection = NetCDFUtils.section(longitudesArray, sourceStart, sourceShape);
             final IndexIterator lonIterator = lonSection.getIndexIterator();
-            final Array latSection = latitudesArray.section(sourceStart, sourceShape);
+            final Array latSection = NetCDFUtils.section(latitudesArray, sourceStart, sourceShape);
             final IndexIterator latIterator = latSection.getIndexIterator();
             final float lon = lonIterator.getFloatNext();
             final float lat = latIterator.getFloatNext();

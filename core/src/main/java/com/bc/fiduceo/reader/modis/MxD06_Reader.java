@@ -29,25 +29,13 @@ import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.hdf.HdfEOSUtil;
 import com.bc.fiduceo.location.PixelLocator;
-import com.bc.fiduceo.reader.AcquisitionInfo;
-import com.bc.fiduceo.reader.BoundingPolygonCreator;
-import com.bc.fiduceo.reader.Geometries;
-import com.bc.fiduceo.reader.RawDataReader;
-import com.bc.fiduceo.reader.ReaderContext;
-import com.bc.fiduceo.reader.ReaderUtils;
-import com.bc.fiduceo.reader.TimeLocator;
-import com.bc.fiduceo.reader.TimeLocator_TAI1993Vector;
+import com.bc.fiduceo.reader.*;
 import com.bc.fiduceo.reader.netcdf.NetCDFReader;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.VariableProxy;
 import org.jdom2.Element;
-import ucar.ma2.Array;
-import ucar.ma2.ArrayInt;
+import ucar.ma2.*;
 import ucar.ma2.DataType;
-import ucar.ma2.Index;
-import ucar.ma2.IndexIterator;
-import ucar.ma2.InvalidRangeException;
-import ucar.ma2.MAMath;
 import ucar.nc2.Attribute;
 import ucar.nc2.Group;
 import ucar.nc2.Variable;
@@ -323,20 +311,13 @@ class MxD06_Reader extends NetCDFReader {
         final int[] offsets = new int[]{0, 0};
         final int[] shape = time.getShape();
         shape[1] = 1;
-        try {
-            final Array section = time.section(offsets, shape);
-            timeLocator = new TimeLocator_TAI1993Vector(section);
-        } catch (InvalidRangeException e) {
-            throw new IOException(e.getMessage());
-        }
+
+        final Array section = NetCDFUtils.section(time, offsets, shape);
+        timeLocator = new TimeLocator_TAI1993Vector(section);
     }
 
     private void createPixelLocator() throws IOException {
-        try {
-            pixelLocator = new BowTiePixelLocator(arrayCache.get(GEOLOCATION_GROUP, "Longitude"), arrayCache.get(GEOLOCATION_GROUP, "Latitude"), geometryFactory);
-        } catch (InvalidRangeException e) {
-            throw new IOException(e.getMessage());
-        }
+        pixelLocator = new BowTiePixelLocator(arrayCache.get(GEOLOCATION_GROUP, "Longitude"), arrayCache.get(GEOLOCATION_GROUP, "Latitude"), geometryFactory);
     }
 
     // package access for testing only tb 2017-08-28
@@ -359,7 +340,7 @@ class MxD06_Reader extends NetCDFReader {
         return maxDim > 1000;
     }
 
-    private Array readRaw1km(int centerX, int centerY, Interval interval, Array array, Number fillValue) throws InvalidRangeException {
+    private Array readRaw1km(int centerX, int centerY, Interval interval, Array array, Number fillValue) throws IOException, InvalidRangeException {
         final int x_1km = centerX * 5 + 2;
         final int y_1km = centerY * 5 + 2;
         final Interval extendedInterval = new Interval(interval.getX() * 5, interval.getY() * 5);
@@ -371,14 +352,14 @@ class MxD06_Reader extends NetCDFReader {
         return fullArray.section(origin, shape, stride);
     }
 
-    private Array readCloudMask5Km(int centerX, int centerY, Interval interval, Array array) throws InvalidRangeException {
+    private Array readCloudMask5Km(int centerX, int centerY, Interval interval, Array array) throws IOException {
         final int[] shape = array.getShape();
         shape[2] = 1;
         final int[] origin = {0, 0, 0};
-        final Array lowByte = array.section(origin, shape);
+        final Array lowByte = NetCDFUtils.section(array, origin, shape);
 
         origin[2] = 1;
-        final Array highByte = array.section(origin, shape);
+        final Array highByte = NetCDFUtils.section(array, origin, shape);
 
         final Array lowSubset = RawDataReader.read(centerX, centerY, interval, 0, lowByte, size5km);
         final Array highSubset = RawDataReader.read(centerX, centerY, interval, 0, highByte, size5km);
@@ -398,12 +379,12 @@ class MxD06_Reader extends NetCDFReader {
         return targetArray;
     }
 
-    private Array readQualiytAssurance5Km(int centerX, int centerY, Interval interval, Array array, String variableName) throws InvalidRangeException {
+    private Array readQualiytAssurance5Km(int centerX, int centerY, Interval interval, Array array, String variableName) throws IOException {
         final int layerIndex = extractLayerIndex(variableName);
         final int[] shape = array.getShape();
         shape[2] = 1;   // we only want one z-layer
         final int[] offsets = {0, 0, layerIndex};
-        final Array layerData = array.section(offsets, shape);
+        final Array layerData = NetCDFUtils.section(array, offsets, shape);
         return RawDataReader.read(centerX, centerY, interval, 0, layerData, size5km);
     }
 

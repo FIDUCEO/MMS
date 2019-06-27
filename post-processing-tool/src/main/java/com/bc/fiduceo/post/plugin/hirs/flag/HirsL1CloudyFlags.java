@@ -25,6 +25,7 @@ import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.post.PostProcessing;
 import com.bc.fiduceo.post.util.DistanceToLandMap;
 import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.util.NetCDFUtils;
 import ucar.ma2.*;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
@@ -101,7 +102,7 @@ class HirsL1CloudyFlags extends PostProcessing {
     }
 
     @Override
-    protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
+    protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) {
         final Variable variable = getVariable(reader, bt_11_1_um_VarName);
         final String dimensions = variable.getDimensionsString();
         final Variable flagVar = writer.addVariable(null, flagVarName, FLAG_VAR_DATA_TYPE, dimensions);
@@ -185,7 +186,7 @@ class HirsL1CloudyFlags extends PostProcessing {
         return new MaximumAndFlags(max, flags);
     }
 
-    static boolean isLand(DistanceToLandMap distanceToLandMap, double lon, double lat) throws IOException {
+    static boolean isLand(DistanceToLandMap distanceToLandMap, double lon, double lat) {
         final double distanceToLand = distanceToLandMap.getDistance(lon, lat);
         return distanceToLand < 0.3;
     }
@@ -225,9 +226,9 @@ class HirsL1CloudyFlags extends PostProcessing {
             final int[] origin3D = {0, 0, 0};
 
             @Override
-            public Array getDomainData_11_1(int z) throws InvalidRangeException {
+            public Array getDomainData_11_1(int z) throws IOException {
                 origin3D[0] = z;
-                return data11_1.section(origin3D, levelShape);
+                return NetCDFUtils.section(data11_1, origin3D, levelShape);
             }
         };
     }

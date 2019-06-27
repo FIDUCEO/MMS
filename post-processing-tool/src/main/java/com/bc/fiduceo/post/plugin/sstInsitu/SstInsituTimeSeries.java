@@ -103,7 +103,7 @@ class SstInsituTimeSeries extends PostProcessing {
             final List<Variable> variables = insituReader.getVariables();
             for (Variable variable1D : variables) {
                 final Array fullSrcData1D = insituReader.getSourceArray(variable1D.getShortName());
-                final Array srcData1D = fullSrcData1D.section(origin1D, shape1D);
+                final Array srcData1D = NetCDFUtils.section(fullSrcData1D, origin1D, shape1D);
                 final String validShortName = makeValidCDLName(variable1D.getShortName());
                 final Variable targetVar2D = writer.findVariable(validShortName);
                 final Array targetData2D = srcData1D.reshape(shape2D);

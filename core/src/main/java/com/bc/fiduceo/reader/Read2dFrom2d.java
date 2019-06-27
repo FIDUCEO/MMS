@@ -22,7 +22,6 @@ package com.bc.fiduceo.reader;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import ucar.ma2.Array;
-import ucar.ma2.InvalidRangeException;
 
 import java.io.IOException;
 
@@ -42,10 +41,6 @@ public class Read2dFrom2d extends WindowReader {
 
     @Override
     public Array read(int centerX, int centerY, Interval interval) throws IOException {
-        try {
-            return RawDataReader.read(centerX, centerY, interval, fillValue, arrayCache.get(shortName), productSize);
-        } catch (InvalidRangeException e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
+        return RawDataReader.read(centerX, centerY, interval, fillValue, arrayCache.get(shortName), productSize);
     }
 }

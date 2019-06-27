@@ -4,7 +4,8 @@ import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import org.junit.Test;
 import ucar.ma2.Array;
-import ucar.ma2.InvalidRangeException;
+
+import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 
@@ -46,7 +47,7 @@ public class Oblique500mTransformTest {
     }
 
     @Test
-    public void testProcess_1x1_noFills() throws InvalidRangeException {
+    public void testProcess_1x1_noFills() throws IOException {
         final Oblique500mTransform transform = new Oblique500mTransform(3000, 2400, 423);
         final float[][] data = new float[][]{{2.f, 3.f}, {4.f, 5.f}};
 
@@ -58,7 +59,7 @@ public class Oblique500mTransformTest {
     }
 
     @Test
-    public void testProcess_1x1_fills() throws InvalidRangeException {
+    public void testProcess_1x1_fills() throws IOException {
         final Oblique500mTransform transform = new Oblique500mTransform(3000, 2400, 423);
         final float[][] data = new float[][]{{0.f, -4.f}, {1.f, 2.f}};
 
@@ -70,7 +71,7 @@ public class Oblique500mTransformTest {
     }
 
     @Test
-    public void testProcess_3x1_noFills() throws InvalidRangeException {
+    public void testProcess_3x1_noFills() throws IOException {
         final Oblique500mTransform transform = new Oblique500mTransform(3000, 2400, 423);
         final float[][] data = new float[][]{{2.f, 3.f, 4.f, 5.f, 6.f, 7.f},
                 {8.f, 9.f, 10.f, 11.f, 12.f, 13.f}};
@@ -85,7 +86,7 @@ public class Oblique500mTransformTest {
     }
 
     @Test
-    public void testProcess_3x3_fills() throws InvalidRangeException {
+    public void testProcess_3x3_fills() throws IOException {
         final Oblique500mTransform transform = new Oblique500mTransform(3000, 2400, 423);
         final float[][] data = new float[][]{{2.f, 3.f, 4.f, 5.f, -1000.f, 6.f},
                 {-1000.f, 7.f, 8.f, 9.f, 10.f, -1000.f},
@@ -110,7 +111,7 @@ public class Oblique500mTransformTest {
     }
 
     @Test
-    public void testProcessFlags_1x1_noFills() throws InvalidRangeException {
+    public void testProcessFlags_1x1_noFills() throws IOException {
         final Oblique500mTransform transform = new Oblique500mTransform(3000, 2400, 423);
         final int[][] data = new int[][]{{2, 3}, {4, 5}};
 
@@ -122,7 +123,7 @@ public class Oblique500mTransformTest {
     }
 
     @Test
-    public void testProcessFlags_3x3_fills() throws InvalidRangeException {
+    public void testProcessFlags_3x3_fills() throws IOException {
         final Oblique500mTransform transform = new Oblique500mTransform(3000, 2400, 423);
         final int[][] data = new int[][]{{1, 2, 3, 4, 5, 6},
                 {7, 65535, 8, 9, 10, 11},

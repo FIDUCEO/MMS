@@ -5,7 +5,8 @@ import com.bc.fiduceo.core.Interval;
 import org.junit.Test;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
-import ucar.ma2.InvalidRangeException;
+
+import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 
@@ -47,7 +48,7 @@ public class Nadir500mTransformTest {
     }
 
     @Test
-    public void testProcess_1x1_noFills() throws InvalidRangeException {
+    public void testProcess_1x1_noFills() throws IOException {
         final Nadir500mTransform transform = new Nadir500mTransform(201, 181);
         final float[][] data = new float[][]{{0.f, 1.f}, {2.f, 3.f}};
 
@@ -59,7 +60,7 @@ public class Nadir500mTransformTest {
     }
 
     @Test
-    public void testProcess_1x1_fills() throws InvalidRangeException {
+    public void testProcess_1x1_fills() throws IOException {
         final Nadir500mTransform transform = new Nadir500mTransform(201, 181);
         final float[][] data = new float[][]{{0.f, -1.f}, {2.f, 3.f}};
 
@@ -71,7 +72,7 @@ public class Nadir500mTransformTest {
     }
 
     @Test
-    public void testProcess_1x1_onlyFills() throws InvalidRangeException {
+    public void testProcess_1x1_onlyFills() throws IOException {
         final Nadir500mTransform transform = new Nadir500mTransform(201, 181);
         final float[][] data = new float[][]{{-11.f, -11.f}, {-11.f, -11.f}};
 
@@ -83,7 +84,7 @@ public class Nadir500mTransformTest {
     }
 
     @Test
-    public void testProcess_3x1_noFills() throws InvalidRangeException {
+    public void testProcess_3x1_noFills() throws IOException {
         final Nadir500mTransform transform = new Nadir500mTransform(202, 182);
         final float[][] data = new float[][]{{1.f, 2.f, 3.f, 4.f, 5.f, 6.f},
                 {10.f, 11.f, 12.f, 13.f, 14.f, 15.f}};
@@ -98,14 +99,14 @@ public class Nadir500mTransformTest {
     }
 
     @Test
-    public void testProcess_3x3_fills() throws InvalidRangeException {
+    public void testProcess_3x3_fills() throws IOException {
         final Nadir500mTransform transform = new Nadir500mTransform(202, 182);
         final float[][] data = new float[][]{{1.f, 2.f, 3.f, 4.f, 5.f, 6.f},
                 {10.f, 11.f, 12.f, 13.f, 14.f, 15.f},
                 {11.f, -4.f, 12.f, 13.f, -4.f, 14.f},
-                {12.f, 13.f, 14.f, 15.f -4.f, -4.f},
+                {12.f, 13.f, 14.f, 15.f - 4.f, -4.f},
                 {11.f, -4.f, 12.f, 13.f, -4.f, 14.f},
-                {12.f, 13.f, 14.f, 15.f -4.f, -4.f}};
+                {12.f, 13.f, 14.f, 15.f - 4.f, -4.f}};
 
         final Array array = Array.factory(data);
         final Array processed = transform.process(array, -4.0);
@@ -123,7 +124,7 @@ public class Nadir500mTransformTest {
     }
 
     @Test
-    public void testProcessFlags_1x1_noFills() throws InvalidRangeException {
+    public void testProcessFlags_1x1_noFills() throws IOException {
         final Nadir500mTransform transform = new Nadir500mTransform(202, 182);
         final int[][] data = new int[][]{{0, 1}, {2, 3}};
 
@@ -135,7 +136,7 @@ public class Nadir500mTransformTest {
     }
 
     @Test
-    public void testProcessFlags_3x1_noFills() throws InvalidRangeException {
+    public void testProcessFlags_3x1_noFills() throws IOException {
         final Nadir500mTransform transform = new Nadir500mTransform(203, 183);
         final int[][] data = new int[][]{{0, 1, 2, 3, 4, 5},
                 {6, 7, 8, 9, 10, 11}};
@@ -150,7 +151,7 @@ public class Nadir500mTransformTest {
     }
 
     @Test
-    public void testProcessFlags_3x3_fills() throws InvalidRangeException {
+    public void testProcessFlags_3x3_fills() throws IOException {
         final Nadir500mTransform transform = new Nadir500mTransform(203, 183);
         final int[][] data = new int[][]{{1, 1, 1, 1, 1, 1},
                 {2, 65535, 2, 2, 2, 2},

@@ -94,20 +94,16 @@ abstract class FCDR_Reader extends NetCDFReader {
 
         final Geometries geometries;
         final Interval[] intervals = boundingPolygonCreator.extractValidIntervals(longitudes, fillValue);
-        try {
-            if (1 == intervals.length) {
-                geometries = calculateGeometriesSmooth(clockwise, boundingPolygonCreator, longitudes, latitudes);
-            } else {
-                geometries = calculateGeometriesGapped(clockwise, boundingPolygonCreator, longitudes, latitudes, intervals);
-            }
-            geometries.setIntervals(intervals);
-            return geometries;
-        } catch (InvalidRangeException e) {
-            throw new IOException(e.getMessage());
+        if (1 == intervals.length) {
+            geometries = calculateGeometriesSmooth(clockwise, boundingPolygonCreator, longitudes, latitudes);
+        } else {
+            geometries = calculateGeometriesGapped(clockwise, boundingPolygonCreator, longitudes, latitudes, intervals);
         }
+        geometries.setIntervals(intervals);
+        return geometries;
     }
 
-    private Geometries calculateGeometriesSmooth(boolean clockwise, BoundingPolygonCreator boundingPolygonCreator, Array longitudes, Array latitudes) {
+    private Geometries calculateGeometriesSmooth(boolean clockwise, BoundingPolygonCreator boundingPolygonCreator, Array longitudes, Array latitudes) throws IOException {
         final Geometries geometries = new Geometries();
         Geometry timeAxisGeometry;
         Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometry(longitudes, latitudes);
@@ -127,7 +123,7 @@ abstract class FCDR_Reader extends NetCDFReader {
         return geometries;
     }
 
-    private Geometries calculateGeometriesGapped(boolean clockwise, BoundingPolygonCreator boundingPolygonCreator, Array longitudes, Array latitudes, Interval[] intervals) throws InvalidRangeException {
+    private Geometries calculateGeometriesGapped(boolean clockwise, BoundingPolygonCreator boundingPolygonCreator, Array longitudes, Array latitudes, Interval[] intervals) throws IOException {
         final Geometries geometries = new Geometries();
         final List<Polygon> geometryList = new ArrayList<>();
         final List<LineString> timeAxesList = new ArrayList<>();
@@ -141,8 +137,8 @@ abstract class FCDR_Reader extends NetCDFReader {
             offset[0] = interval.getX();
             subsetShape[0] = interval.getY() - interval.getX() + 1;
 
-            final Array lonSection = longitudes.section(offset, subsetShape);
-            final Array latSection = latitudes.section(offset, subsetShape);
+            final Array lonSection = NetCDFUtils.section(longitudes, offset, subsetShape);
+            final Array latSection = NetCDFUtils.section(latitudes, offset, subsetShape);
 
             final Polygon boundingGeometry;
             if (clockwise) {

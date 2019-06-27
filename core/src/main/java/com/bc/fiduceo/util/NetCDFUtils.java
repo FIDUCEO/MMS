@@ -106,6 +106,9 @@ public class NetCDFUtils {
     }
 
     public static Array toFloat(Array original) {
+        if (original.getDataType() == DataType.FLOAT) {
+            return original;
+        }
         final Array floatArray = Array.factory(Float.class, original.getShape());
         MAMath.copyFloat(floatArray, original);
         return floatArray;
@@ -333,5 +336,13 @@ public class NetCDFUtils {
             return 0.f;
         }
         return scaleFactor;
+    }
+
+    public static Array section(Array array, int[] offsets, int[] shape) throws IOException {
+        try {
+            return array.section(offsets, shape);
+        } catch (InvalidRangeException e) {
+            throw new IOException(e.getMessage());
+        }
     }
 }

@@ -1,11 +1,17 @@
 package com.bc.fiduceo.reader.slstr;
 
-import ucar.ma2.*;
+import com.bc.fiduceo.util.NetCDFUtils;
+import ucar.ma2.Array;
+import ucar.ma2.DataType;
+import ucar.ma2.Index;
+import ucar.ma2.IndexIterator;
+
+import java.io.IOException;
 
 abstract class Abstract500mTransform implements Transform {
 
     @Override
-    public Array process(Array array, double noDataValue) throws InvalidRangeException {
+    public Array process(Array array, double noDataValue) throws IOException {
         final Array resultArray = createTargetArray(array);
         final boolean isInteger = !resultArray.getDataType().isFloatingPoint();
         final Index writeIndex = resultArray.getIndex();
@@ -24,7 +30,7 @@ abstract class Abstract500mTransform implements Transform {
                 final int twoX = x * 2;
                 offset[1] = twoX;
 
-                final Array section = array.section(offset, section_shape);
+                final Array section = NetCDFUtils.section(array, offset, section_shape);
                 final IndexIterator indexIterator = section.getIndexIterator();
                 for (int i = 0; i < averagingArray.length; i++) {
                     final double value = indexIterator.getDoubleNext();
@@ -57,7 +63,7 @@ abstract class Abstract500mTransform implements Transform {
     }
 
     @Override
-    public Array processFlags(Array array, int noDataValue) throws InvalidRangeException {
+    public Array processFlags(Array array, int noDataValue) throws IOException {
         final Array resultArray = createTargetArray(array);
         final Index writeIndex = resultArray.getIndex();
 
@@ -76,7 +82,7 @@ abstract class Abstract500mTransform implements Transform {
                 final int twoX = x * 2;
                 offset[1] = twoX;
 
-                final Array section = array.section(offset, section_shape);
+                final Array section = NetCDFUtils.section(array, offset, section_shape);
                 final IndexIterator indexIterator = section.getIndexIterator();
                 for (int i = 0; i < 4; i++) {
                     final int value = indexIterator.getIntNext();

@@ -15,7 +15,6 @@ import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 
 public class AVHRR_FCDR_Reader extends FCDR_Reader {
@@ -100,7 +99,7 @@ public class AVHRR_FCDR_Reader extends FCDR_Reader {
     }
 
     @Override
-    public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
+    public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException {
         final Array rawArray = arrayCache.get(variableName);
         final Number fillValue = getFillValue(variableName);
 
@@ -152,7 +151,7 @@ public class AVHRR_FCDR_Reader extends FCDR_Reader {
         final TimeAxis[] timeAxes = new TimeAxis[axesGeometries.length];
 
         int axesIdx = 0;
-        for(final Interval interval: intervals) {
+        for (final Interval interval : intervals) {
             final long intervalStart = timeLocator.getTimeFor(0, interval.getX());
             final long intervalStop = timeLocator.getTimeFor(0, interval.getY());
 

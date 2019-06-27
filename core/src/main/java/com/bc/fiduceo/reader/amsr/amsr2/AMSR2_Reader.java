@@ -19,12 +19,12 @@ import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.zip.GZIPInputStream;
 
 import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
 
@@ -123,7 +123,7 @@ public class AMSR2_Reader extends NetCDFReader {
     }
 
     @Override
-    public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
+    public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException {
         final String escapedName = NetcdfFile.makeValidCDLName(variableName);
         final Array rawArray = arrayCache.get(escapedName);
         final Dimension productSize = getProductSize();
@@ -132,7 +132,7 @@ public class AMSR2_Reader extends NetCDFReader {
     }
 
     @Override
-    public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
+    public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException {
         final Array rawArray = readRaw(centerX, centerY, interval, variableName);
 
         final double scaleFactor = getScaleFactor(variableName, "SCALE_FACTOR");
@@ -148,7 +148,7 @@ public class AMSR2_Reader extends NetCDFReader {
     }
 
     @Override
-    public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException {
+    public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException {
         final Array rawTimeTAI = readRaw(x, y, interval, "Scan_Time");
         final double fillValue = getFillValue("Scan_Time").doubleValue();
 
@@ -214,13 +214,13 @@ public class AMSR2_Reader extends NetCDFReader {
         return LAT_VARIABLE_NAME;
     }
 
-    public Array readScanDataQuality(int scanNumber) throws IOException, InvalidRangeException {
+    public Array readScanDataQuality(int scanNumber) throws IOException {
         final Array scanDataQuality = arrayCache.get("Scan_Data_Quality");
 
         final int[] origin = new int[]{scanNumber, 0};
         final int[] shape = new int[]{1, 512};
 
-        return scanDataQuality.section(origin, shape).copy();
+        return NetCDFUtils.section(scanDataQuality, origin, shape).copy();
     }
 
     // package access for testing only tb 2018-01-15

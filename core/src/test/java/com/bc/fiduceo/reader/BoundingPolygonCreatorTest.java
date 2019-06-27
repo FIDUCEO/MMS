@@ -26,6 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 import ucar.ma2.Array;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -194,7 +195,7 @@ public class BoundingPolygonCreatorTest {
     }
 
     @Test
-    public void testCreateBoundingGeometrySplitted_splitInTwo() {
+    public void testCreateBoundingGeometrySplitted_splitInTwo() throws IOException {
         final Array latitudes = Array.factory(AVHRR_LATITUDES);
         final Array longitudes = Array.factory(AVHRR_LONGITUDES);
 
@@ -240,7 +241,7 @@ public class BoundingPolygonCreatorTest {
     }
 
     @Test
-    public void testCreateBoundingGeometrySplitted_clockwise_splitInTwo() {
+    public void testCreateBoundingGeometrySplitted_clockwise_splitInTwo() throws IOException {
         final Array latitudes = Array.factory(AVHRR_LATITUDES);
         final Array longitudes = Array.factory(AVHRR_LONGITUDES);
 
@@ -286,7 +287,7 @@ public class BoundingPolygonCreatorTest {
     }
 
     @Test
-    public void testCreateBoundingGeometrySplitted_splitInThree() {
+    public void testCreateBoundingGeometrySplitted_splitInThree() throws IOException {
         final Array latitudes = Array.factory(AVHRR_LATITUDES);
         final Array longitudes = Array.factory(AVHRR_LONGITUDES);
 
@@ -360,7 +361,7 @@ public class BoundingPolygonCreatorTest {
     }
 
     @Test
-    public void testCreateTimeAxisGeometrySplitted_twoSegments() {
+    public void testCreateTimeAxisGeometrySplitted_twoSegments() throws IOException {
         final Array longitudes = Array.factory(AVHRR_LONGITUDES);
         final Array latitudes = Array.factory(AVHRR_LATITUDES);
 
@@ -375,7 +376,7 @@ public class BoundingPolygonCreatorTest {
     }
 
     @Test
-    public void testCreateTimeAxisGeometrySplitted_threeSegments() {
+    public void testCreateTimeAxisGeometrySplitted_threeSegments() throws IOException {
         final Array longitudes = Array.factory(AVHRR_LONGITUDES);
         final Array latitudes = Array.factory(AVHRR_LATITUDES);
 

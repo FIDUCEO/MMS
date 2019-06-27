@@ -21,9 +21,11 @@ package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
+import com.bc.fiduceo.util.NetCDFUtils;
 import ucar.ma2.*;
 
 import java.awt.*;
+import java.io.IOException;
 
 /**
  * @author muhammad.bc
@@ -39,7 +41,7 @@ public class RawDataReader {
         SKALAR
     }
 
-    public static Array read(int centerX, int centerY, Interval interval, Number fillValue, Array rawArray, com.bc.fiduceo.core.Dimension productSize) throws InvalidRangeException {
+    public static Array read(int centerX, int centerY, Interval interval, Number fillValue, Array rawArray, com.bc.fiduceo.core.Dimension productSize) throws IOException {
         final int windowWidth = interval.getX();
         final int windowHeight = interval.getY();
 
@@ -67,14 +69,14 @@ public class RawDataReader {
         final int offsetY = centerY - windowHeight / 2;
 
         if (inputDimension == InputDimension.ONE_D
-            || inputDimension == InputDimension.TWO_D_FALSE_DIMENSION) {
+                || inputDimension == InputDimension.TWO_D_FALSE_DIMENSION) {
             return readFrom1DArray(offsetX, offsetY, windowWidth, windowHeight, fillValue, rawArray, rawWidth, rawHeight);
         } else if (inputDimension == InputDimension.SKALAR) {
             return readFromSkalarArray(offsetX, offsetY, windowWidth, windowHeight, fillValue, rawArray, productSize);
-        } else{
+        } else {
             boolean windowInside = isWindowInside(offsetX, offsetY, windowWidth, windowHeight, rawWidth, rawHeight);
             if (windowInside) {
-                return rawArray.section(new int[]{offsetY, offsetX}, new int[]{windowHeight, windowWidth});
+                return NetCDFUtils.section(rawArray, new int[]{offsetY, offsetX}, new int[]{windowHeight, windowWidth});
             }
             return readFrom2DArray(offsetX, offsetY, windowWidth, windowHeight, fillValue, rawArray, rawWidth, rawHeight);
         }
@@ -99,7 +101,7 @@ public class RawDataReader {
         }
     }
 
-    private static Array readFromSkalarArray(int offsetX, int offsetY, int windowWidth, int windowHeight, Number fillValue, Array rawArray, Dimension productSize)  {
+    private static Array readFromSkalarArray(int offsetX, int offsetY, int windowWidth, int windowHeight, Number fillValue, Array rawArray, Dimension productSize) {
         final Class elementType = rawArray.getElementType();
         final Number value = (Number) rawArray.getObject(0);
         final Array targetArray = Array.factory(elementType, new int[]{windowHeight, windowWidth});

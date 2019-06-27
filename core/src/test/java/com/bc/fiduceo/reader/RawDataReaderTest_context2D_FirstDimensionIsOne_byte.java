@@ -1,12 +1,14 @@
 package com.bc.fiduceo.reader;
 
-import static org.junit.Assert.*;
-
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 import ucar.ma2.Array;
-import ucar.ma2.InvalidRangeException;
+
+import java.io.IOException;
+
+import static org.junit.Assert.*;
 
 public class RawDataReaderTest_context2D_FirstDimensionIsOne_byte {
 
@@ -25,7 +27,6 @@ public class RawDataReaderTest_context2D_FirstDimensionIsOne_byte {
 
     @Test
     public void testWindowCenter() throws Exception {
-
         final Array array = RawDataReader.read(3, 3, windowSize, fillValue, rawArray, new Dimension("size", 10, 0));
 
         assertNotNull(array);
@@ -41,7 +42,6 @@ public class RawDataReaderTest_context2D_FirstDimensionIsOne_byte {
 
     @Test
     public void testTopRightWindowOut() throws Exception {
-
         final Array array = RawDataReader.read(9, 0, windowSize, fillValue, rawArray, new Dimension("size", 10, 0));
 
         assertNotNull(array);
@@ -57,7 +57,6 @@ public class RawDataReaderTest_context2D_FirstDimensionIsOne_byte {
 
     @Test
     public void testTopLeftWindowOut() throws Exception {
-
         final Array array = RawDataReader.read(0, 0, windowSize, fillValue, rawArray, new Dimension("size", 10, 0));
 
         assertNotNull(array);
@@ -102,11 +101,11 @@ public class RawDataReaderTest_context2D_FirstDimensionIsOne_byte {
     }
 
     @Test
-    public void testRawArrayHasMoreThanTwoDimensions() throws InvalidRangeException {
+    public void testRawArrayHasMoreThanTwoDimensions() throws IOException {
         final Array rawArray = Array.factory(new byte[][][]{
-                    {{11, 12, 13}, {14, 15, 16}, {17, 18, 19},},
-                    {{21, 22, 23}, {24, 25, 26}, {27, 28, 29},},
-                    {{31, 32, 33}, {34, 35, 36}, {37, 38, 39},}
+                {{11, 12, 13}, {14, 15, 16}, {17, 18, 19},},
+                {{21, 22, 23}, {24, 25, 26}, {27, 28, 29},},
+                {{31, 32, 33}, {34, 35, 36}, {37, 38, 39},}
         });
 
         try {

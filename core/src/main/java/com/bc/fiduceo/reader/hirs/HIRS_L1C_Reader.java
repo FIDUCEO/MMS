@@ -152,7 +152,7 @@ class HIRS_L1C_Reader extends NetCDFReader {
     }
 
     @Override
-    public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
+    public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException {
         if (variableName.equals("scanpos")) {
             return readScanPos(centerX, interval);
         }
@@ -166,7 +166,7 @@ class HIRS_L1C_Reader extends NetCDFReader {
             final int[] shape = array.getShape();
             shape[2] = 1;   // we only want one z-layer
             final int[] offsets = {0, 0, channelIndex};
-            array = array.section(offsets, shape);
+            array = NetCDFUtils.section(array, offsets, shape);
         }
 
         final Number fillValue = getFillValue(fullVariableName);
@@ -176,12 +176,12 @@ class HIRS_L1C_Reader extends NetCDFReader {
     }
 
     @Override
-    public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
+    public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException {
         return readRaw(centerX, centerY, interval, variableName);   // all variables are already scaled tb 2016-08-03
     }
 
     @Override
-    public ArrayInt.D2 readAcquisitionTime(int centerX, int centerY, Interval interval) throws IOException, InvalidRangeException {
+    public ArrayInt.D2 readAcquisitionTime(int centerX, int centerY, Interval interval) throws IOException {
         final Array timeArray = arrayCache.get("time");
         final Number fillValue = NetCDFUtils.getDefaultFillValue(timeArray);
 

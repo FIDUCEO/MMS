@@ -29,29 +29,12 @@ import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.location.PixelLocatorFactory;
-import com.bc.fiduceo.reader.AcquisitionInfo;
-import com.bc.fiduceo.reader.ArrayCache;
-import com.bc.fiduceo.reader.BoundingPolygonCreator;
-import com.bc.fiduceo.reader.Geometries;
-import com.bc.fiduceo.reader.RawDataReader;
-import com.bc.fiduceo.reader.Read1dFrom3dAndExpandTo2d;
-import com.bc.fiduceo.reader.Read2dFrom3d;
-import com.bc.fiduceo.reader.ReaderContext;
-import com.bc.fiduceo.reader.ReaderUtils;
-import com.bc.fiduceo.reader.TimeLocator;
-import com.bc.fiduceo.reader.TimeLocator_YearDoyMs;
-import com.bc.fiduceo.reader.WindowReader;
+import com.bc.fiduceo.reader.*;
 import com.bc.fiduceo.reader.netcdf.NetCDFReader;
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.esa.snap.core.datamodel.ProductData;
-import ucar.ma2.Array;
-import ucar.ma2.ArrayFloat;
-import ucar.ma2.ArrayInt;
+import ucar.ma2.*;
 import ucar.ma2.DataType;
-import ucar.ma2.Index;
-import ucar.ma2.InvalidRangeException;
-import ucar.ma2.MAMath;
-import ucar.ma2.Section;
 import ucar.nc2.Variable;
 
 import java.io.IOException;
@@ -554,11 +537,7 @@ class SSMT2_Reader extends NetCDFReader {
             if (needData) {
                 initData();
             }
-            try {
-                return RawDataReader.read(centerX, centerY, interval, fillValue, dataArray, productSize);
-            } catch (InvalidRangeException e) {
-                throw new RuntimeException(e.getMessage(), e);
-            }
+            return RawDataReader.read(centerX, centerY, interval, fillValue, dataArray, productSize);
         }
 
         void initData() throws IOException {
@@ -584,11 +563,7 @@ class SSMT2_Reader extends NetCDFReader {
 
         @Override
         public Array read(int centerX, int centerY, Interval interval) throws IOException {
-            try {
-                return RawDataReader.read(centerX, centerY, interval, fillValue, arrayCache.get(shortName), productSize);
-            } catch (InvalidRangeException e) {
-                throw new RuntimeException(e.getMessage(), e);
-            }
+            return RawDataReader.read(centerX, centerY, interval, fillValue, arrayCache.get(shortName), productSize);
         }
     }
 
