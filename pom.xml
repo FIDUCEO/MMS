@@ -32,6 +32,12 @@
 
             <dependency>
                 <groupId>org.esa.snap</groupId>
+                <artifactId>snap-engine-utilities</artifactId>
+                <version>6.0.8</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.esa.snap</groupId>
                 <artifactId>snap-envisat-reader</artifactId>
                 <version>6.0.8</version>
             </dependency>

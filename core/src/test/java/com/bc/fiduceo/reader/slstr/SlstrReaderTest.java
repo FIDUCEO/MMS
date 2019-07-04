@@ -12,7 +12,7 @@ public class SlstrReaderTest {
 
     @Test
     public void testGetRegEx() {
-        final String expected = "S3([AB])_SL_1_RBT_.*(.SEN3)?";
+        final String expected = "S3([AB])_SL_1_RBT_.*(.SEN3|zip)?";
 
         final SlstrReader reader = new SlstrReader(new ReaderContext());// we do not need a gemetry factory here tb 2019-05-10
         assertEquals(expected, reader.getRegEx());
@@ -20,6 +20,9 @@ public class SlstrReaderTest {
         final Pattern pattern = Pattern.compile(expected);
 
         Matcher matcher = pattern.matcher("S3A_SL_1_RBT____20181013T222436_20181013T222736_20181015T035102_0179_037_001_1620_LN2_O_NT_003.SEN3");
+        assertTrue(matcher.matches());
+
+        matcher = pattern.matcher("S3A_SL_1_RBT____20181026T231611_20181026T231911_20181028T023445_0180_037_187_0900_LN2_O_NT_003.zip");
         assertTrue(matcher.matches());
 
         matcher = pattern.matcher("AT2_TOA_1PURAL19980424_055754_000000001031_00348_15733_0000.OT");

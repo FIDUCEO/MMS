@@ -13,6 +13,7 @@ import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.TimeLocator;
 import com.bc.fiduceo.reader.snap.SNAP_PixelLocator;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.Array;
@@ -48,6 +49,48 @@ public class SlstrReader_IO_Test {
     @Test
     public void testReadAcquisitionInfo_S3A() throws IOException {
         final File file = getS3AFile();
+
+        try {
+            reader.open(file);
+
+            final AcquisitionInfo acquisitionInfo = reader.read();
+            assertNotNull(acquisitionInfo);
+
+            final Date sensingStart = acquisitionInfo.getSensingStart();
+            TestUtil.assertCorrectUTCDate(2018, 10, 13, 22, 24, 36, 182, sensingStart);
+
+            final Date sensingStop = acquisitionInfo.getSensingStop();
+            TestUtil.assertCorrectUTCDate(2018, 10, 13, 22, 27, 36, 182, sensingStop);
+
+            final NodeType nodeType = acquisitionInfo.getNodeType();
+            assertEquals(NodeType.DESCENDING, nodeType);
+
+            final Geometry boundingGeometry = acquisitionInfo.getBoundingGeometry();
+            assertNotNull(boundingGeometry);
+            assertTrue(boundingGeometry instanceof Polygon);
+            final Point[] coordinates = boundingGeometry.getCoordinates();
+            assertEquals(29, coordinates.length);
+            assertEquals(168.0067138671875, coordinates[0].getLon(), 1e-8);
+            assertEquals(83.76530456542969, coordinates[0].getLat(), 1e-8);
+
+            assertEquals(-141.01283264160156, coordinates[14].getLon(), 1e-8);
+            assertEquals(65.22335052490234, coordinates[14].getLat(), 1e-8);
+
+            final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
+            assertEquals(1, timeAxes.length);
+            Date time = timeAxes[0].getTime(coordinates[0]);
+            TestUtil.assertCorrectUTCDate(2018, 10, 13, 22, 24, 36, 356, time);
+            time = timeAxes[0].getTime(coordinates[15]);
+            TestUtil.assertCorrectUTCDate(2018, 10, 13, 22, 27, 21, 312, time);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    @Ignore
+    public void testReadAcquisitionInfo_S3A_zip() throws IOException {
+        final File file = getS3A_zip_File();
 
         try {
             reader.open(file);
@@ -758,6 +801,11 @@ public class SlstrReader_IO_Test {
 
     private File getS3AFile() {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"slstr-s3a", "1.0", "2018", "10", "13", "S3A_SL_1_RBT____20181013T222436_20181013T222736_20181015T035102_0179_037_001_1620_LN2_O_NT_003.SEN3", "xfdumanifest.xml"}, false);
+        return getFileAsserted(testFilePath);
+    }
+
+    private File getS3A_zip_File() {
+        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"slstr-s3a", "1.0", "2018", "10", "26", "S3A_SL_1_RBT____20181026T231611_20181026T231911_20181028T023445_0180_037_187_0900_LN2_O_NT_003.zip"}, false);
         return getFileAsserted(testFilePath);
     }
 

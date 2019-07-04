@@ -40,7 +40,7 @@ public class TempFileUtils {
 
     public TempFileUtils(String testDir) {
         tempDir = new File(testDir);
-        vaildateTempDir();
+        validateTempDir();
         tempFileList = new ArrayList<>();
         keepAfterCleanup = false;
     }
@@ -85,7 +85,7 @@ public class TempFileUtils {
         keepAfterCleanup = keep;
     }
 
-    private void vaildateTempDir() {
+    private void validateTempDir() {
         if (!tempDir.isDirectory()) {
             throw new RuntimeException("configured tempDir '" + tempDir.getAbsolutePath() + "' does not exist");
         }
