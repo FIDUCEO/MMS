@@ -1,3 +1,6 @@
+### Updates from version 1.4.8 to 1.4.9
+* added support for compressed SLSTR L1B data
+
 ### Updates from version 1.4.7 to 1.4.8
 * implemented support for segmented geo-location data for AVHRR GAC
 * added support for AVHRR GAC v2.10.2 data
