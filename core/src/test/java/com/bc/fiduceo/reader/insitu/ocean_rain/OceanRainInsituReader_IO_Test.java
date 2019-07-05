@@ -64,8 +64,7 @@ public class OceanRainInsituReader_IO_Test {
         reader = new OceanRainInsituReader();
 
         final String relativePath = TestUtil.assembleFileSystemPath(new String[]{"insitu", "ocean-rain-sst", "v1.0", "OceanRAIN_allships_2010-2017_SST.ascii"}, false);
-        final File testDataDirectory = TestUtil.getTestDataDirectory();
-        final File testFile = new File(testDataDirectory, relativePath);
+        final File testFile = TestUtil.getTestDataFileAsserted(relativePath);
         reader.open(testFile);
     }
 

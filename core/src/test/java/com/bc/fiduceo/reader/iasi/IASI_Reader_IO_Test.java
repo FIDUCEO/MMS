@@ -26,12 +26,7 @@ import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.MultiPolygon;
-import com.bc.fiduceo.geometry.Point;
-import com.bc.fiduceo.geometry.Polygon;
-import com.bc.fiduceo.geometry.TimeAxis;
+import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
@@ -40,7 +35,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.Array;
-import ucar.ma2.InvalidRangeException;
 
 import java.awt.geom.Point2D;
 import java.io.File;
@@ -48,11 +42,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 @RunWith(IOTestRunner.class)
 public class IASI_Reader_IO_Test {
@@ -514,7 +504,7 @@ public class IASI_Reader_IO_Test {
 
             final PixelLocator subScenePixelLocator = reader.getSubScenePixelLocator(null);// we ignore the geometry tb 2017-05-03
             assertNotNull(subScenePixelLocator);
-           // assertTrue(subScenePixelLocator instanceof IASI_PixelLocator);
+            // assertTrue(subScenePixelLocator instanceof IASI_PixelLocator);
         } finally {
             reader.close();
         }
@@ -574,7 +564,7 @@ public class IASI_Reader_IO_Test {
     }
 
     @Test
-    public void testReadRaw_MA_v5_perScan_byte() throws IOException, InvalidRangeException {
+    public void testReadRaw_MA_v5_perScan_byte() throws IOException {
         final File iasiFile = IASI_TestUtil.getIasiFile_MA_v5();
 
         try {
@@ -594,7 +584,7 @@ public class IASI_Reader_IO_Test {
     }
 
     @Test
-    public void testReadRaw_MA_v4_perScan_byte() throws IOException, InvalidRangeException {
+    public void testReadRaw_MA_v4_perScan_byte() throws IOException {
         final File iasiFile = IASI_TestUtil.getIasiFile_MA_v4();
 
         try {
@@ -614,7 +604,7 @@ public class IASI_Reader_IO_Test {
     }
 
     @Test
-    public void testReadRaw_MB_perScan_int() throws IOException, InvalidRangeException {
+    public void testReadRaw_MB_perScan_int() throws IOException {
         final File iasiFile = IASI_TestUtil.getIasiFile_MB();
 
         try {
@@ -636,7 +626,7 @@ public class IASI_Reader_IO_Test {
     }
 
     @Test
-    public void testReadRaw_MA_v5_perScan_utc() throws IOException, InvalidRangeException {
+    public void testReadRaw_MA_v5_perScan_utc() throws IOException {
         final File iasiFile = IASI_TestUtil.getIasiFile_MA_v5();
 
         try {
@@ -664,7 +654,7 @@ public class IASI_Reader_IO_Test {
     }
 
     @Test
-    public void testReadRaw_MA_v4_perScan_utc() throws IOException, InvalidRangeException {
+    public void testReadRaw_MA_v4_perScan_utc() throws IOException {
         final File iasiFile = IASI_TestUtil.getIasiFile_MA_v4();
 
         try {
@@ -692,7 +682,7 @@ public class IASI_Reader_IO_Test {
     }
 
     @Test
-    public void testReadRaw_MB_perPixel_short_upperBorder() throws IOException, InvalidRangeException {
+    public void testReadRaw_MB_perPixel_short_upperBorder() throws IOException {
         final File iasiFile = IASI_TestUtil.getIasiFile_MB();
 
         try {
@@ -720,7 +710,7 @@ public class IASI_Reader_IO_Test {
     }
 
     @Test
-    public void testReadRaw_MA_v5_perScan_dualInt_rightBorder() throws IOException, InvalidRangeException {
+    public void testReadRaw_MA_v5_perScan_dualInt_rightBorder() throws IOException {
         final File iasiFile = IASI_TestUtil.getIasiFile_MA_v5();
 
         try {
@@ -748,7 +738,7 @@ public class IASI_Reader_IO_Test {
     }
 
     @Test
-    public void testReadRaw_MA_v4_perScan_dualInt_rightBorder() throws IOException, InvalidRangeException {
+    public void testReadRaw_MA_v4_perScan_dualInt_rightBorder() throws IOException {
         final File iasiFile = IASI_TestUtil.getIasiFile_MA_v4();
 
         try {
@@ -776,7 +766,7 @@ public class IASI_Reader_IO_Test {
     }
 
     @Test
-    public void testReadRaw_MB_perScan_perPixelInt_bottomBorder() throws IOException, InvalidRangeException {
+    public void testReadRaw_MB_perScan_perPixelInt_bottomBorder() throws IOException {
         final File iasiFile = IASI_TestUtil.getIasiFile_MA_v5();
 
         try {
@@ -804,7 +794,7 @@ public class IASI_Reader_IO_Test {
     }
 
     @Test
-    public void testReadRaw_MB_perScan_perEVOFshort_leftBorder() throws IOException, InvalidRangeException {
+    public void testReadRaw_MB_perScan_perEVOFshort_leftBorder() throws IOException {
         final File iasiFile = IASI_TestUtil.getIasiFile_MB();
 
         try {
@@ -832,7 +822,7 @@ public class IASI_Reader_IO_Test {
     }
 
     @Test
-    public void testReadRaw_MB_perScan_perEVOFbyte_leftUpperCorner() throws IOException, InvalidRangeException {
+    public void testReadRaw_MB_perScan_perEVOFbyte_leftUpperCorner() throws IOException {
         final File iasiFile = IASI_TestUtil.getIasiFile_MB();
 
         try {
@@ -860,7 +850,7 @@ public class IASI_Reader_IO_Test {
     }
 
     @Test
-    public void testReadScaled_MB_perScan_int_noScaling() throws IOException, InvalidRangeException {
+    public void testReadScaled_MB_perScan_int_noScaling() throws IOException {
         final File iasiFile = IASI_TestUtil.getIasiFile_MB();
 
         try {
@@ -888,7 +878,7 @@ public class IASI_Reader_IO_Test {
     }
 
     @Test
-    public void testReadScaled_MB_perPixel_dualInt_scaling() throws IOException, InvalidRangeException {
+    public void testReadScaled_MB_perPixel_dualInt_scaling() throws IOException {
         final File iasiFile = IASI_TestUtil.getIasiFile_MB();
 
         try {
@@ -916,7 +906,7 @@ public class IASI_Reader_IO_Test {
     }
 
     @Test
-    public void testReadAcquisitionTime_MB_() throws IOException, InvalidRangeException {
+    public void testReadAcquisitionTime_MB_() throws IOException {
         final File iasiFile = IASI_TestUtil.getIasiFile_MB();
 
         try {

@@ -20,8 +20,6 @@
 
 package com.bc.fiduceo.reader.insitu.sst_cci;
 
-import static org.junit.Assert.*;
-
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
@@ -32,8 +30,10 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.TimeLocator;
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
@@ -44,6 +44,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.junit.Assert.*;
+
 
 @RunWith(IOTestRunner.class)
 public class SSTInsituReader_IO_Test {
@@ -51,12 +53,10 @@ public class SSTInsituReader_IO_Test {
     private static final Interval _3x3 = new Interval(3, 3);
 
     private SSTInsituReader insituReader;
-    private File testDataDirectory;
 
     @Before
     public void setUp() throws Exception {
         insituReader = new SSTInsituReader();
-        testDataDirectory = TestUtil.getTestDataDirectory();
     }
 
     @After
@@ -366,7 +366,7 @@ public class SSTInsituReader_IO_Test {
         assertNotNull(array);
         assertArrayEquals(new int[]{3, 3}, array.getShape());
         assertEquals(DataType.FLOAT, array.getDataType());
-        
+
         NCTestUtils.assertValueAt(-32768, 0, 0, array);
         NCTestUtils.assertValueAt(-32768, 1, 0, array);
         NCTestUtils.assertValueAt(-32768, 2, 0, array);
@@ -484,7 +484,7 @@ public class SSTInsituReader_IO_Test {
         assertNotNull(array);
         assertArrayEquals(new int[]{3, 3}, array.getShape());
         assertEquals(DataType.INT, array.getDataType());
-        
+
         NCTestUtils.assertValueAt(-2147483647, 0, 0, array);
         NCTestUtils.assertValueAt(-2147483647, 1, 0, array);
         NCTestUtils.assertValueAt(-2147483647, 2, 0, array);
@@ -590,7 +590,7 @@ public class SSTInsituReader_IO_Test {
 
     private void openFile(String dataType, String fileName, String version) throws IOException {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"insitu", dataType, version, fileName}, false);
-        final File insituDataFile = new File(testDataDirectory, testFilePath);
+        final File insituDataFile = TestUtil.getTestDataFileAsserted(testFilePath);
         assertTrue(insituDataFile.isFile());
 
         insituReader.open(insituDataFile);

@@ -13,7 +13,6 @@ import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.TimeLocator;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.Array;
@@ -32,13 +31,10 @@ import static org.junit.Assert.*;
 @RunWith(IOTestRunner.class)
 public class AVHRR_FCDR_Reader_IO_Test {
 
-    private File testDataDirectory;
     private AVHRR_FCDR_Reader reader;
 
     @Before
     public void setUp() throws IOException {
-        testDataDirectory = TestUtil.getTestDataDirectory();
-
         final ReaderContext readerContext = new ReaderContext();
         readerContext.setGeometryFactory(new GeometryFactory(GeometryFactory.Type.S2));
 
@@ -47,7 +43,7 @@ public class AVHRR_FCDR_Reader_IO_Test {
 
     @After
     public void tearDown() throws IOException {
-          reader.close();
+        reader.close();
     }
 
     @Test
@@ -819,31 +815,23 @@ public class AVHRR_FCDR_Reader_IO_Test {
         }
     }
 
-    private File createAvhrrNOAA12File() {
+    private File createAvhrrNOAA12File() throws IOException {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n12-fcdr", "vBeta", "1992", "04", "14", "FIDUCEO_FCDR_L1C_AVHRR_NOAA12_19920414141412_19920414155532_EASY_vBeta_fv2.0.0.nc"}, false);
-        final File file = new File(testDataDirectory, testFilePath);
-        assertTrue(file.isFile());
-        return file;
+        return TestUtil.getTestDataFileAsserted(testFilePath);
     }
 
-    private File createAvhrrNOAA19File() {
+    private File createAvhrrNOAA19File() throws IOException {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n19-fcdr", "v0.2Bet", "2011", "07", "05", "FIDUCEO_FCDR_L1C_AVHRR_N19ALL_20110705055721_20110705073927_EASY_v0.2Bet_fv2.0.0.nc"}, false);
-        final File file = new File(testDataDirectory, testFilePath);
-        assertTrue(file.isFile());
-        return file;
+        return TestUtil.getTestDataFileAsserted(testFilePath);
     }
 
-    private File createAvhrrNOAA19_segmented_File() {
+    private File createAvhrrNOAA19_segmented_File() throws IOException {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n19-fcdr", "v0.2Bet", "2009", "04", "11", "FIDUCEO_FCDR_L1C_AVHRR_N19C3A_20090411222732_20090412003906_EASY_v0.2Bet_fv2.0.0.nc"}, false);
-        final File file = new File(testDataDirectory, testFilePath);
-        assertTrue(file.isFile());
-        return file;
+        return TestUtil.getTestDataFileAsserted(testFilePath);
     }
 
-    private File createAvhrrMetopAFile() {
+    private File createAvhrrMetopAFile() throws IOException {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-ma-fcdr", "v0.2.1", "2016", "11", "08", "FIDUCEO_FCDR_L1C_AVHRR_METOPA_20161108073729_20161108082817_EASY_vBeta_fv2.0.0.nc"}, false);
-        final File file = new File(testDataDirectory, testFilePath);
-        assertTrue(file.isFile());
-        return file;
+        return TestUtil.getTestDataFileAsserted(testFilePath);
     }
 }

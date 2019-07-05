@@ -26,11 +26,7 @@ import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.Point;
-import com.bc.fiduceo.geometry.Polygon;
-import com.bc.fiduceo.geometry.TimeAxis;
+import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
@@ -40,11 +36,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import ucar.ma2.Array;
-import ucar.ma2.ArrayInt;
-import ucar.ma2.DataType;
-import ucar.ma2.Index;
-import ucar.ma2.InvalidRangeException;
+import ucar.ma2.*;
 import ucar.nc2.Variable;
 
 import java.awt.geom.Point2D;
@@ -53,21 +45,16 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 @RunWith(IOTestRunner.class)
 public class MxD06_Reader_IO_Test {
 
-    private File dataDirectory;
     private MxD06_Reader reader;
     private GeometryFactory geometryFactory;
 
     @Before
     public void setUp() throws IOException {
-        dataDirectory = TestUtil.getTestDataDirectory();
         geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
 
         final ReaderContext readerContext = new ReaderContext();
@@ -155,7 +142,7 @@ public class MxD06_Reader_IO_Test {
         final Point2D centerLoc = pixelLocator.getGeoLocation(psze.getNx() / 2, psze.getNy() / 2, null);
         final Geometry intersection = boundingGeometry.getIntersection(geometryFactory.createPoint(centerLoc.getX(), centerLoc.getY()));
         assertNotNull(intersection);
-        assertEquals(false, intersection.isEmpty());
+        assertFalse(intersection.isEmpty());
 
         final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
         assertEquals(1, timeAxes.length);
@@ -215,7 +202,7 @@ public class MxD06_Reader_IO_Test {
     }
 
     @Test
-    public void testGetVariables_Terra() throws IOException, InvalidRangeException {
+    public void testGetVariables_Terra() throws IOException {
         final File file = getTerraFile();
 
         reader.open(file);
@@ -280,7 +267,7 @@ public class MxD06_Reader_IO_Test {
     }
 
     @Test
-    public void testReadAcquisitionTime_Terra() throws IOException, InvalidRangeException {
+    public void testReadAcquisitionTime_Terra() throws IOException {
         final File file = getTerraFile();
 
         reader.open(file);
@@ -301,8 +288,8 @@ public class MxD06_Reader_IO_Test {
     }
 
     @Test
-    public void testReadAcquisitionTime_Terra_outside_top() throws IOException, InvalidRangeException {
-        /** fillValue see {@link com.bc.fiduceo.reader.Reader#readAcquisitionTime(int, int, Interval)} */
+    public void testReadAcquisitionTime_Terra_outside_top() throws IOException {
+        // fillValue see {@link com.bc.fiduceo.reader.Reader#readAcquisitionTime(int, int, Interval)}
         final int fillValue = NetCDFUtils.getDefaultFillValue(int.class).intValue();
 
         final File file = getTerraFile();
@@ -327,8 +314,8 @@ public class MxD06_Reader_IO_Test {
     }
 
     @Test
-    public void testReadAcquisitionTime_Terra_outside_bottom() throws IOException, InvalidRangeException {
-        /** fillValue see {@link com.bc.fiduceo.reader.Reader#readAcquisitionTime(int, int, Interval)} */
+    public void testReadAcquisitionTime_Terra_outside_bottom() throws IOException {
+        // fillValue see {@link com.bc.fiduceo.reader.Reader#readAcquisitionTime(int, int, Interval)}
         final int fillValue = NetCDFUtils.getDefaultFillValue(int.class).intValue();
 
         final File file = getTerraFile();
@@ -360,7 +347,7 @@ public class MxD06_Reader_IO_Test {
     }
 
     @Test
-    public void testReadAcquisitionTime_Aqua() throws IOException, InvalidRangeException {
+    public void testReadAcquisitionTime_Aqua() throws IOException {
         final File file = getAquaFile();
 
         reader.open(file);
@@ -383,8 +370,8 @@ public class MxD06_Reader_IO_Test {
     }
 
     @Test
-    public void testReadAcquisitionTime_Aqua_outside_top() throws IOException, InvalidRangeException {
-        /** fillValue see {@link com.bc.fiduceo.reader.Reader#readAcquisitionTime(int, int, Interval)} */
+    public void testReadAcquisitionTime_Aqua_outside_top() throws IOException {
+        // fillValue see {@link com.bc.fiduceo.reader.Reader#readAcquisitionTime(int, int, Interval)}
         final int fillValue = NetCDFUtils.getDefaultFillValue(int.class).intValue();
 
         final File file = getAquaFile();
@@ -409,8 +396,8 @@ public class MxD06_Reader_IO_Test {
     }
 
     @Test
-    public void testReadAcquisitionTime_Aqua_outside_bottom() throws IOException, InvalidRangeException {
-        /** fillValue see {@link com.bc.fiduceo.reader.Reader#readAcquisitionTime(int, int, Interval)} */
+    public void testReadAcquisitionTime_Aqua_outside_bottom() throws IOException {
+        // fillValue see {@link com.bc.fiduceo.reader.Reader#readAcquisitionTime(int, int, Interval)}
         final int fillValue = NetCDFUtils.getDefaultFillValue(int.class).intValue();
 
         final File file = getAquaFile();
@@ -442,7 +429,7 @@ public class MxD06_Reader_IO_Test {
     }
 
     @Test
-    public void testGetVariables_Aqua() throws IOException, InvalidRangeException {
+    public void testGetVariables_Aqua() throws IOException {
         final File file = getAquaFile();
 
         reader.open(file);
@@ -977,24 +964,18 @@ public class MxD06_Reader_IO_Test {
         assertNull(pixelLocator.getGeoLocation(12.5, s.getNy() + 0.5, null)); // outside Y
     }
 
-    private File getTerraFile() {
+    private File getTerraFile() throws IOException {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"mod06-te", "v006", "2013", "037", "MOD06_L2.A2013037.1435.006.2015066015540.hdf"}, false);
-        return getFileAsserted(testFilePath);
+        return TestUtil.getTestDataFileAsserted(testFilePath);
     }
 
-    private File getAquaFile() {
+    private File getAquaFile() throws IOException {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"myd06-aq", "v006", "2009", "133", "MYD06_L2.A2009133.1035.006.2014062050327.hdf"}, false);
-        return getFileAsserted(testFilePath);
+        return TestUtil.getTestDataFileAsserted(testFilePath);
     }
 
-    private File getFileWithLatLonGaps() {
+    private File getFileWithLatLonGaps() throws IOException {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"myd06-aq", "LatLonWithGaps", "MYD06_L2.A2008155.1205.006.2013347220947.hdf"}, false);
-        return getFileAsserted(testFilePath);
-    }
-
-    private File getFileAsserted(String testFilePath) {
-        final File file = new File(dataDirectory, testFilePath);
-        assertTrue(file.isFile());
-        return file;
+        return TestUtil.getTestDataFileAsserted(testFilePath);
     }
 }

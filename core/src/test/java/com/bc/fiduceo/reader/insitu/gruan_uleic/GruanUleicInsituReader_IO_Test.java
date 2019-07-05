@@ -25,14 +25,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
-import static com.bc.fiduceo.util.NetCDFUtils.CF_STANDARD_NAME;
-import static com.bc.fiduceo.util.NetCDFUtils.CF_UNITS_NAME;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static com.bc.fiduceo.util.NetCDFUtils.*;
+import static org.junit.Assert.*;
 
 @RunWith(IOTestRunner.class)
 public class GruanUleicInsituReader_IO_Test {
@@ -44,8 +38,7 @@ public class GruanUleicInsituReader_IO_Test {
         reader = new GruanUleicInsituReader();
 
         final String relativePath = TestUtil.assembleFileSystemPath(new String[]{"insitu", "gruan-uleic", "v1.0", "nya_matchup_points.txt"}, false);
-        final File testDataDirectory = TestUtil.getTestDataDirectory();
-        final File testFile = new File(testDataDirectory, relativePath);
+        final File testFile = TestUtil.getTestDataFileAsserted(relativePath);
         reader.open(testFile);
     }
 

@@ -32,13 +32,10 @@ import static org.junit.Assert.*;
 @RunWith(IOTestRunner.class)
 public class AVHRR_FRAC_Reader_IO_Test {
 
-    private File dataDirectory;
     private AVHRR_FRAC_Reader reader;
 
     @Before
     public void setUp() throws IOException {
-        dataDirectory = TestUtil.getTestDataDirectory();
-
         final ReaderContext readerContext = new ReaderContext();
         readerContext.setGeometryFactory(new GeometryFactory(GeometryFactory.Type.S2));
         readerContext.setTempFileUtils(new TempFileUtils());
@@ -469,19 +466,13 @@ public class AVHRR_FRAC_Reader_IO_Test {
         }
     }
 
-    private File getAvhrrFRACFile() {
+    private File getAvhrrFRACFile() throws IOException {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-frac-ma", "v1", "2018", "05", "11", "NSS.FRAC.M2.D18131.S1404.E1544.B5998081.SV"}, false);
-
-        final File file = new File(dataDirectory, testFilePath);
-        assertTrue(file.isFile());
-        return file;
+        return TestUtil.getTestDataFileAsserted(testFilePath);
     }
 
-    private File getAvhrrFRAC_GZ_File() {
+    private File getAvhrrFRAC_GZ_File() throws IOException {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-frac-ma", "v1", "2014", "11", "09", "NSS.FRAC.M1.D14313.S1746.E1837.B1112525.MM.gz"}, false);
-
-        final File file = new File(dataDirectory, testFilePath);
-        assertTrue(file.isFile());
-        return file;
+        return TestUtil.getTestDataFileAsserted(testFilePath);
     }
 }

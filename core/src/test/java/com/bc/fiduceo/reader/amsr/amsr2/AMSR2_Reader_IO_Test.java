@@ -42,7 +42,6 @@ import org.junit.runner.RunWith;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
-import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 
 import java.awt.geom.Point2D;
@@ -56,13 +55,10 @@ import static org.junit.Assert.*;
 @RunWith(IOTestRunner.class)
 public class AMSR2_Reader_IO_Test {
 
-    private File testDataDirectory;
     private AMSR2_Reader reader;
 
     @Before
     public void setUp() throws IOException {
-        testDataDirectory = TestUtil.getTestDataDirectory();
-
         final ReaderContext readerContext = new ReaderContext();
         readerContext.setGeometryFactory(new GeometryFactory(GeometryFactory.Type.S2));
         readerContext.setTempFileUtils(new TempFileUtils());
@@ -214,7 +210,7 @@ public class AMSR2_Reader_IO_Test {
     }
 
     @Test
-    public void testReadRaw() throws IOException, InvalidRangeException {
+    public void testReadRaw() throws IOException {
         final File amsr2File = getAmsr2File();
 
         try {
@@ -258,7 +254,7 @@ public class AMSR2_Reader_IO_Test {
     }
 
     @Test
-    public void testReadRaw_onBorders() throws IOException, InvalidRangeException {
+    public void testReadRaw_onBorders() throws IOException {
         final File file = getAmsr2File();
 
         try {
@@ -325,7 +321,7 @@ public class AMSR2_Reader_IO_Test {
     }
 
     @Test
-    public void testReadScaled() throws IOException, InvalidRangeException {
+    public void testReadScaled() throws IOException {
         final File file = getAmsr2File();
 
         try {
@@ -368,7 +364,7 @@ public class AMSR2_Reader_IO_Test {
     }
 
     @Test
-    public void testReadAcquisitionTime() throws IOException, InvalidRangeException {
+    public void testReadAcquisitionTime() throws IOException {
         final File file = getAmsr2File();
 
         try {
@@ -385,7 +381,7 @@ public class AMSR2_Reader_IO_Test {
     }
 
     @Test
-    public void testReadAcquisitionTime_withFillValue() throws IOException, InvalidRangeException {
+    public void testReadAcquisitionTime_withFillValue() throws IOException {
         final File file = getAmsr2File();
 
         try {
@@ -478,7 +474,7 @@ public class AMSR2_Reader_IO_Test {
     }
 
     @Test
-    public void testReadScanDataQuality() throws IOException, InvalidRangeException {
+    public void testReadScanDataQuality() throws IOException {
         final File file = getAmsr2File();
 
         try {
@@ -505,17 +501,13 @@ public class AMSR2_Reader_IO_Test {
         }
     }
 
-    private File getAmsr2File() {
+    private File getAmsr2File() throws IOException {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"amsr2-gcw1", "v220", "2013", "07", "01", "GW1AM2_201307010942_035A_L1SGRTBR_2220220.h5"}, false);
-        final File file = new File(testDataDirectory, testFilePath);
-        assertTrue(file.isFile());
-        return file;
+        return TestUtil.getTestDataFileAsserted(testFilePath);
     }
 
-    private File getAmsr2CompressedFile() {
+    private File getAmsr2CompressedFile() throws IOException {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"amsr2-gcw1", "v220", "2017", "07", "16", "GW1AM2_201707160510_232D_L1SGRTBR_2220220.h5.gz"}, false);
-        final File file = new File(testDataDirectory, testFilePath);
-        assertTrue(file.isFile());
-        return file;
+        return TestUtil.getTestDataFileAsserted(testFilePath);
     }
 }

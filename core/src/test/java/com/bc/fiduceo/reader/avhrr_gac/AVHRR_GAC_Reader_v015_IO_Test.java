@@ -38,7 +38,6 @@ import org.junit.runner.RunWith;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.Index;
-import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 
 import java.awt.geom.Point2D;
@@ -49,17 +48,13 @@ import java.util.List;
 
 import static org.junit.Assert.*;
 
-@SuppressWarnings("ThrowFromFinallyBlock")
 @RunWith(IOTestRunner.class)
 public class AVHRR_GAC_Reader_v015_IO_Test {
 
-    private File testDataDirectory;
     private AVHRR_GAC_Reader reader;
 
     @Before
     public void setUp() throws IOException {
-        testDataDirectory = TestUtil.getTestDataDirectory();
-
         final ReaderContext readerContext = new ReaderContext();
         readerContext.setGeometryFactory(new GeometryFactory(GeometryFactory.Type.S2));
 
@@ -144,7 +139,7 @@ public class AVHRR_GAC_Reader_v015_IO_Test {
     }
 
     @Test
-    public void testReadAcquisitionTime() throws IOException, InvalidRangeException {
+    public void testReadAcquisitionTime() throws IOException {
         final File file = createAvhrrNOAA08File();
 
         try {
@@ -350,7 +345,7 @@ public class AVHRR_GAC_Reader_v015_IO_Test {
     }
 
     @Test
-    public void testReadScaled_scalingAndOffset() throws IOException, InvalidRangeException {
+    public void testReadScaled_scalingAndOffset() throws IOException {
         final File file = createAvhrrNOAA08File();
         reader.open(file);
 
@@ -375,7 +370,7 @@ public class AVHRR_GAC_Reader_v015_IO_Test {
     }
 
     @Test
-    public void testReadScaled_onlyScaling_onePixel() throws IOException, InvalidRangeException {
+    public void testReadScaled_onlyScaling_onePixel() throws IOException {
         final File file = createAvhrrNOAA08File();
         reader.open(file);
 
@@ -392,7 +387,7 @@ public class AVHRR_GAC_Reader_v015_IO_Test {
     }
 
     @Test
-    public void testReadScaled_onlyScaling() throws IOException, InvalidRangeException {
+    public void testReadScaled_onlyScaling() throws IOException {
         final File file = createAvhrrNOAA08File();
         reader.open(file);
 
@@ -417,7 +412,7 @@ public class AVHRR_GAC_Reader_v015_IO_Test {
     }
 
     @Test
-    public void testReadScaled_noScale_noOffset() throws IOException, InvalidRangeException {
+    public void testReadScaled_noScale_noOffset() throws IOException {
         final File file = createAvhrrNOAA08File();
         reader.open(file);
 
@@ -513,10 +508,8 @@ public class AVHRR_GAC_Reader_v015_IO_Test {
         }
     }
 
-    private File createAvhrrNOAA08File() {
+    private File createAvhrrNOAA08File() throws IOException {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n08", "v01.5", "1984", "03", "13", "19840313161900-ESACCI-L1C-AVHRR08_G-fv01.0.nc"}, false);
-        final File file = new File(testDataDirectory, testFilePath);
-        assertTrue(file.isFile());
-        return file;
+        return TestUtil.getTestDataFileAsserted(testFilePath);
     }
 }

@@ -31,13 +31,10 @@ import static org.junit.Assert.*;
 @RunWith(IOTestRunner.class)
 public class HIRS_FCDR_Reader_IO_Test {
 
-    private File testDataDirectory;
     private HIRS_FCDR_Reader reader;
 
     @Before
     public void setUp() throws IOException {
-        testDataDirectory = TestUtil.getTestDataDirectory();
-
         final ReaderContext readerContext = new ReaderContext();
         readerContext.setGeometryFactory(new GeometryFactory(GeometryFactory.Type.S2));
 
@@ -335,7 +332,7 @@ public class HIRS_FCDR_Reader_IO_Test {
     }
 
     @Test
-    public void testReadScaled_scalingAndOffset() throws IOException, InvalidRangeException {
+    public void testReadScaled_scalingAndOffset() throws IOException {
         final File file = createHirsNOAA07File();
         reader.open(file);
 
@@ -360,7 +357,7 @@ public class HIRS_FCDR_Reader_IO_Test {
     }
 
     @Test
-    public void testReadScaled_onlyScaling() throws IOException, InvalidRangeException {
+    public void testReadScaled_onlyScaling() throws IOException {
         final File file = createHirsMetopAFile();
         reader.open(file);
 
@@ -385,7 +382,7 @@ public class HIRS_FCDR_Reader_IO_Test {
     }
 
     @Test
-    public void testReadScaled_noScale_noOffset() throws IOException, InvalidRangeException {
+    public void testReadScaled_noScale_noOffset() throws IOException {
         final File file = createHirsNOAA07File();
         reader.open(file);
 
@@ -480,17 +477,13 @@ public class HIRS_FCDR_Reader_IO_Test {
         }
     }
 
-    private File createHirsNOAA07File() {
+    private File createHirsNOAA07File() throws IOException {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"hirs-n07-fcdr", "v0.8rc1", "1983", "10", "04", "FIDUCEO_FCDR_L1C_HIRS2_NOAA07_19831004162422_19831004180614_EASY_v0.8rc1_fv2.0.0.nc"}, false);
-        final File file = new File(testDataDirectory, testFilePath);
-        assertTrue(file.isFile());
-        return file;
+        return TestUtil.getTestDataFileAsserted(testFilePath);
     }
 
-    private File createHirsMetopAFile() {
+    private File createHirsMetopAFile() throws IOException {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"hirs-ma-fcdr", "v0.8rc1", "2015", "03", "26", "FIDUCEO_FCDR_L1C_HIRS4_METOPA_20150326173656_20150326191810_EASY_v0.8rc1_fv2.0.0.nc"}, false);
-        final File file = new File(testDataDirectory, testFilePath);
-        assertTrue(file.isFile());
-        return file;
+        return TestUtil.getTestDataFileAsserted(testFilePath);
     }
 }

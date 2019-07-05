@@ -54,22 +54,34 @@ public class TestUtil {
     private static final String SYSTEM_TEMP_PROPETY = "java.io.tmpdir";
     private static final String TEST_DIRECTORY = "fiduceo_test";
 
+    private static File testDataDirectory = null;
+
     public static File getTestDataDirectory() throws IOException {
-        final InputStream resourceStream = TestUtil.class.getResourceAsStream("dataDirectory.properties");
-        if (resourceStream == null) {
-            fail("missing resource: 'dataDirectory.properties'");
+        if (testDataDirectory == null) {
+            final InputStream resourceStream = TestUtil.class.getResourceAsStream("dataDirectory.properties");
+            if (resourceStream == null) {
+                fail("missing resource: 'dataDirectory.properties'");
+            }
+            final Properties properties = new Properties();
+            properties.load(resourceStream);
+            final String dataDirectoryProperty = properties.getProperty("dataDirectory");
+            if (dataDirectoryProperty == null) {
+                fail("Property 'dataDirectory' is not set.");
+            }
+            final File dataDirectory = new File(dataDirectoryProperty);
+            if (!dataDirectory.isDirectory()) {
+                fail("Property 'dataDirectory' supplied does not exist: '" + dataDirectoryProperty + "'");
+            }
+            testDataDirectory = dataDirectory;
         }
-        final Properties properties = new Properties();
-        properties.load(resourceStream);
-        final String dataDirectoryProperty = properties.getProperty("dataDirectory");
-        if (dataDirectoryProperty == null) {
-            fail("Property 'dataDirectory' is not set.");
-        }
-        final File dataDirectory = new File(dataDirectoryProperty);
-        if (!dataDirectory.isDirectory()) {
-            fail("Property 'dataDirectory' supplied does not exist: '" + dataDirectoryProperty + "'");
-        }
-        return dataDirectory;
+        return testDataDirectory;
+    }
+
+    public static File getTestDataFileAsserted(String testFilePath) throws IOException {
+        final File testDataDirectory = getTestDataDirectory();
+        final File file = new File(testDataDirectory, testFilePath);
+        assertTrue(file.isFile());
+        return file;
     }
 
     public static void writeDatabaseProperties_MongoDb(File configDir) throws IOException {

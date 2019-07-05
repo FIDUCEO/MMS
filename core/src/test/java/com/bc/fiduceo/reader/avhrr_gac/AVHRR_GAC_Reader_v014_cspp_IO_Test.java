@@ -27,12 +27,7 @@ import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.MultiPolygon;
-import com.bc.fiduceo.geometry.Point;
-import com.bc.fiduceo.geometry.Polygon;
-import com.bc.fiduceo.geometry.TimeAxis;
+import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
@@ -44,7 +39,6 @@ import org.junit.runner.RunWith;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.Index;
-import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 
 import java.awt.geom.Point2D;
@@ -53,21 +47,15 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
-@SuppressWarnings("ThrowFromFinallyBlock")
 @RunWith(IOTestRunner.class)
 public class AVHRR_GAC_Reader_v014_cspp_IO_Test {
 
-    private File testDataDirectory;
     private AVHRR_GAC_Reader reader;
 
     @Before
     public void setUp() throws IOException {
-        testDataDirectory = TestUtil.getTestDataDirectory();
-
         final ReaderContext readerContext = new ReaderContext();
         readerContext.setGeometryFactory(new GeometryFactory(GeometryFactory.Type.S2));
 
@@ -240,7 +228,7 @@ public class AVHRR_GAC_Reader_v014_cspp_IO_Test {
     }
 
     @Test
-    public void testReadAcquisitionTime_NOAA10() throws IOException, InvalidRangeException {
+    public void testReadAcquisitionTime_NOAA10() throws IOException {
         final File file = createAvhrrNOAA10File();
 
         try {
@@ -257,7 +245,7 @@ public class AVHRR_GAC_Reader_v014_cspp_IO_Test {
     }
 
     @Test
-    public void testReadAcquisitionTime_NOAA11_singlePixel() throws IOException, InvalidRangeException {
+    public void testReadAcquisitionTime_NOAA11_singlePixel() throws IOException {
         final File file = createAvhrrNOAA11File();
 
         try {
@@ -272,7 +260,7 @@ public class AVHRR_GAC_Reader_v014_cspp_IO_Test {
     }
 
     @Test
-    public void testReadAcquisitionTime_NOAA17_borderPixel() throws IOException, InvalidRangeException {
+    public void testReadAcquisitionTime_NOAA17_borderPixel() throws IOException {
         final File file = createAvhrrNOAA17File();
 
         try {
@@ -484,7 +472,7 @@ public class AVHRR_GAC_Reader_v014_cspp_IO_Test {
     }
 
     @Test
-    public void testReadScaled_scalingAndOffset_NOAA11() throws IOException, InvalidRangeException {
+    public void testReadScaled_scalingAndOffset_NOAA11() throws IOException {
         final File file = createAvhrrNOAA11File();
         reader.open(file);
 
@@ -509,7 +497,7 @@ public class AVHRR_GAC_Reader_v014_cspp_IO_Test {
     }
 
     @Test
-    public void testReadScaled_onlyScaling_onePixel_NOAA17() throws IOException, InvalidRangeException {
+    public void testReadScaled_onlyScaling_onePixel_NOAA17() throws IOException {
         final File file = createAvhrrNOAA17File();
         reader.open(file);
 
@@ -526,7 +514,7 @@ public class AVHRR_GAC_Reader_v014_cspp_IO_Test {
     }
 
     @Test
-    public void testReadScaled_onlyScaling_NOAA18() throws IOException, InvalidRangeException {
+    public void testReadScaled_onlyScaling_NOAA18() throws IOException {
         final File file = createAvhrrNOAA18File();
         reader.open(file);
 
@@ -551,7 +539,7 @@ public class AVHRR_GAC_Reader_v014_cspp_IO_Test {
     }
 
     @Test
-    public void testReadScaled_noScale_noOffset_NOAA19() throws IOException, InvalidRangeException {
+    public void testReadScaled_noScale_noOffset_NOAA19() throws IOException {
         final File file = createAvhrrNOAA19File();
         reader.open(file);
 
@@ -647,38 +635,28 @@ public class AVHRR_GAC_Reader_v014_cspp_IO_Test {
         }
     }
 
-    private File createAvhrrNOAA10File() {
+    private File createAvhrrNOAA10File() throws IOException {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n10", "v01.4-cspp", "1990", "02", "05", "19900205032100-ESACCI-L1C-AVHRR10_G-fv01.0.nc"}, false);
-        final File file = new File(testDataDirectory, testFilePath);
-        assertTrue(file.isFile());
-        return file;
+        return TestUtil.getTestDataFileAsserted(testFilePath);
     }
 
-    private File createAvhrrNOAA11File() {
+    private File createAvhrrNOAA11File() throws IOException {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n11", "v01.4-cspp", "1994", "03", "07", "19940307023300-ESACCI-L1C-AVHRR11_G-fv01.0.nc"}, false);
-        final File file = new File(testDataDirectory, testFilePath);
-        assertTrue(file.isFile());
-        return file;
+        return TestUtil.getTestDataFileAsserted(testFilePath);
     }
 
-    private File createAvhrrNOAA17File() {
+    private File createAvhrrNOAA17File() throws IOException {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n17", "v01.4-cspp", "2009", "10", "25", "20091025080600-ESACCI-L1C-AVHRR17_G-fv01.0.nc"}, false);
-        final File file = new File(testDataDirectory, testFilePath);
-        assertTrue(file.isFile());
-        return file;
+        return TestUtil.getTestDataFileAsserted(testFilePath);
     }
 
-    private File createAvhrrNOAA18File() {
+    private File createAvhrrNOAA18File() throws IOException {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n18", "v01.4-cspp", "2016", "11", "22", "20161122200700-ESACCI-L1C-AVHRR18_G-fv01.0.nc"}, false);
-        final File file = new File(testDataDirectory, testFilePath);
-        assertTrue(file.isFile());
-        return file;
+        return TestUtil.getTestDataFileAsserted(testFilePath);
     }
 
-    private File createAvhrrNOAA19File() {
+    private File createAvhrrNOAA19File() throws IOException {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n19", "v01.4-cspp", "2010", "04", "13", "20100413064800-ESACCI-L1C-AVHRR19_G-fv01.0.nc"}, false);
-        final File file = new File(testDataDirectory, testFilePath);
-        assertTrue(file.isFile());
-        return file;
+        return TestUtil.getTestDataFileAsserted(testFilePath);
     }
 }

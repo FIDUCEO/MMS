@@ -20,7 +20,6 @@ import org.junit.runner.RunWith;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
-import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 
 import java.awt.geom.Point2D;
@@ -34,14 +33,11 @@ import static org.junit.Assert.*;
 @RunWith(IOTestRunner.class)
 public class SlstrReader_IO_Test {
 
-    private File dataDirectory;
     private SlstrReader reader;
     private TempFileUtils tempFileUtils;
 
     @Before
     public void setUp() throws IOException {
-        dataDirectory = TestUtil.getTestDataDirectory();
-
         final ReaderContext readerContext = new ReaderContext();
         readerContext.setGeometryFactory(new GeometryFactory(GeometryFactory.Type.S2));
         tempFileUtils = new TempFileUtils();
@@ -151,6 +147,24 @@ public class SlstrReader_IO_Test {
             assertEquals(1542147896326L, timeLocator.getTimeFor(15, 0));
             assertEquals(1542147896626L, timeLocator.getTimeFor(16, 100));
             assertEquals(1542148072417L, timeLocator.getTimeFor(1189, 1000));
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetTimeLocator_S3A_zip() throws IOException {
+        final File file = getS3A_zip_File();
+
+        try {
+            reader.open(file);
+
+            final TimeLocator timeLocator = reader.getTimeLocator();
+            assertNotNull(timeLocator);
+
+            assertEquals(1543274191832L, timeLocator.getTimeFor(15, 0));
+            assertEquals(1543274192132L, timeLocator.getTimeFor(16, 100));
+            assertEquals(1543274367924L, timeLocator.getTimeFor(1189, 1000));
         } finally {
             reader.close();
         }
@@ -267,7 +281,7 @@ public class SlstrReader_IO_Test {
     }
 
     @Test
-    public void testReadScaled_S3A_1km_nadir() throws IOException, InvalidRangeException {
+    public void testReadScaled_S3A_1km_nadir() throws IOException {
         final File file = getS3AFile();
 
         try {
@@ -299,7 +313,7 @@ public class SlstrReader_IO_Test {
     }
 
     @Test
-    public void testReadScaled_S3A_1km_nadir_bottom() throws IOException, InvalidRangeException {
+    public void testReadScaled_S3A_1km_nadir_bottom() throws IOException {
         final File file = getS3AFile();
 
         try {
@@ -318,7 +332,7 @@ public class SlstrReader_IO_Test {
     }
 
     @Test
-    public void testReadRaw_S3A_1km_nadir() throws IOException, InvalidRangeException {
+    public void testReadRaw_S3A_1km_nadir() throws IOException {
         final File file = getS3AFile();
 
         try {
@@ -345,7 +359,7 @@ public class SlstrReader_IO_Test {
     }
 
     @Test
-    public void testReadRaw_S3A_1km_nadir_left() throws IOException, InvalidRangeException {
+    public void testReadRaw_S3A_1km_nadir_left() throws IOException {
         final File file = getS3AFile();
 
         try {
@@ -364,7 +378,7 @@ public class SlstrReader_IO_Test {
     }
 
     @Test
-    public void testReadScaled_S3A_500m_nadir() throws IOException, InvalidRangeException {
+    public void testReadScaled_S3A_500m_nadir() throws IOException {
         final File file = getS3AFile();
 
         try {
@@ -392,7 +406,7 @@ public class SlstrReader_IO_Test {
     }
 
     @Test
-    public void testReadScaled_S3A_500m_nadir_upper() throws IOException, InvalidRangeException {
+    public void testReadScaled_S3A_500m_nadir_upper() throws IOException {
         final File file = getS3AFile();
 
         try {
@@ -420,7 +434,7 @@ public class SlstrReader_IO_Test {
     }
 
     @Test
-    public void testReadRaw_S3A_500m_nadir() throws IOException, InvalidRangeException {
+    public void testReadRaw_S3A_500m_nadir() throws IOException {
         final File file = getS3AFile();
 
         try {
@@ -442,7 +456,7 @@ public class SlstrReader_IO_Test {
     }
 
     @Test
-    public void testReadRaw_S3A_500m_nadir_bottom() throws IOException, InvalidRangeException {
+    public void testReadRaw_S3A_500m_nadir_bottom() throws IOException {
         final File file = getS3AFile();
 
         try {
@@ -466,7 +480,7 @@ public class SlstrReader_IO_Test {
     }
 
     @Test
-    public void testReadRaw_S3A_500m_nadir_flags() throws IOException, InvalidRangeException {
+    public void testReadRaw_S3A_500m_nadir_flags() throws IOException {
         final File file = getS3AFile();
 
         try {
@@ -488,7 +502,7 @@ public class SlstrReader_IO_Test {
     }
 
     @Test
-    public void testReadRaw_S3A_500m_nadir_flags_top_left() throws IOException, InvalidRangeException {
+    public void testReadRaw_S3A_500m_nadir_flags_top_left() throws IOException {
         final File file = getS3AFile();
 
         try {
@@ -512,7 +526,7 @@ public class SlstrReader_IO_Test {
     }
 
     @Test
-    public void testReadScaled_S3A_1km_oblique() throws IOException, InvalidRangeException {
+    public void testReadScaled_S3A_1km_oblique() throws IOException {
         final File file = getS3AFile();
 
         try {
@@ -543,7 +557,7 @@ public class SlstrReader_IO_Test {
     }
 
     @Test
-    public void testReadScaled_S3A_1km_oblique_top() throws IOException, InvalidRangeException {
+    public void testReadScaled_S3A_1km_oblique_top() throws IOException {
         final File file = getS3AFile();
 
         try {
@@ -562,7 +576,7 @@ public class SlstrReader_IO_Test {
     }
 
     @Test
-    public void testReadScaled_S3A_1km_oblique_rasterLeft() throws IOException, InvalidRangeException {
+    public void testReadScaled_S3A_1km_oblique_rasterLeft() throws IOException {
         final File file = getS3AFile();
 
         try {
@@ -581,7 +595,7 @@ public class SlstrReader_IO_Test {
     }
 
     @Test
-    public void testReadRaw_S3A_1km_oblique() throws IOException, InvalidRangeException {
+    public void testReadRaw_S3A_1km_oblique() throws IOException {
         final File file = getS3AFile();
 
         try {
@@ -608,7 +622,7 @@ public class SlstrReader_IO_Test {
     }
 
     @Test
-    public void testReadRaw_S3A_1km_oblique_bottom() throws IOException, InvalidRangeException {
+    public void testReadRaw_S3A_1km_oblique_bottom() throws IOException {
         final File file = getS3AFile();
 
         try {
@@ -627,7 +641,7 @@ public class SlstrReader_IO_Test {
     }
 
     @Test
-    public void testReadScaled_S3A_500m_oblique() throws IOException, InvalidRangeException {
+    public void testReadScaled_S3A_500m_oblique() throws IOException {
         final File file = getS3AFile();
 
         try {
@@ -655,7 +669,7 @@ public class SlstrReader_IO_Test {
     }
 
     @Test
-    public void testReadScaled_S3A_500m_oblique_top() throws IOException, InvalidRangeException {
+    public void testReadScaled_S3A_500m_oblique_top() throws IOException {
         final File file = getS3AFile();
 
         try {
@@ -683,7 +697,7 @@ public class SlstrReader_IO_Test {
     }
 
     @Test
-    public void testReadRaw_S3A_500m_oblique() throws IOException, InvalidRangeException {
+    public void testReadRaw_S3A_500m_oblique() throws IOException {
         final File file = getS3AFile();
 
         try {
@@ -705,7 +719,7 @@ public class SlstrReader_IO_Test {
     }
 
     @Test
-    public void testReadRaw_S3A_500m_oblique_bottom() throws IOException, InvalidRangeException {
+    public void testReadRaw_S3A_500m_oblique_bottom() throws IOException {
         final File file = getS3AFile();
 
         try {
@@ -729,7 +743,7 @@ public class SlstrReader_IO_Test {
     }
 
     @Test
-    public void testReadRaw_S3A_500m_oblique_flags() throws IOException, InvalidRangeException {
+    public void testReadRaw_S3A_500m_oblique_flags() throws IOException {
         final File file = getS3AFile();
 
         try {
@@ -808,20 +822,13 @@ public class SlstrReader_IO_Test {
         }
     }
 
-    private File getS3AFile() {
+    private File getS3AFile() throws IOException {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"slstr-s3a", "1.0", "2018", "10", "13", "S3A_SL_1_RBT____20181013T222436_20181013T222736_20181015T035102_0179_037_001_1620_LN2_O_NT_003.SEN3", "xfdumanifest.xml"}, false);
-        return getFileAsserted(testFilePath);
+        return TestUtil.getTestDataFileAsserted(testFilePath);
     }
 
-    private File getS3A_zip_File() {
+    private File getS3A_zip_File() throws IOException {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"slstr-s3a", "1.0", "2018", "10", "26", "S3A_SL_1_RBT____20181026T231611_20181026T231911_20181028T023445_0180_037_187_0900_LN2_O_NT_003.zip"}, false);
-        return getFileAsserted(testFilePath);
-    }
-
-    // @todo 3 tb/tb move this to a common location and refactor 2019-05-11
-    private File getFileAsserted(String testFilePath) {
-        final File file = new File(dataDirectory, testFilePath);
-        assertTrue(file.isFile());
-        return file;
+        return TestUtil.getTestDataFileAsserted(testFilePath);
     }
 }

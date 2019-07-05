@@ -26,12 +26,7 @@ import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.MultiPolygon;
-import com.bc.fiduceo.geometry.Point;
-import com.bc.fiduceo.geometry.Polygon;
-import com.bc.fiduceo.geometry.TimeAxis;
+import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
@@ -51,21 +46,15 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 @RunWith(IOTestRunner.class)
 public class HIRS_L1C_Reader_IO_Test {
 
-    private File dataDirectory;
     private HIRS_L1C_Reader reader;
 
     @Before
     public void setUp() throws IOException {
-        dataDirectory = TestUtil.getTestDataDirectory();
-
         final ReaderContext readerContext = new ReaderContext();
         readerContext.setGeometryFactory(new GeometryFactory(GeometryFactory.Type.S2));
 
@@ -475,7 +464,7 @@ public class HIRS_L1C_Reader_IO_Test {
     }
 
     @Test
-    public void testReadAcquisitionTime_METOPA() throws IOException, InvalidRangeException {
+    public void testReadAcquisitionTime_METOPA() throws IOException {
         final File file = getMetopAFile();
 
         try {
@@ -496,7 +485,7 @@ public class HIRS_L1C_Reader_IO_Test {
     }
 
     @Test
-    public void testReadAcquisitionTime_METOPA_borderPixel() throws IOException, InvalidRangeException {
+    public void testReadAcquisitionTime_METOPA_borderPixel() throws IOException {
         final File file = getMetopAFile();
 
         try {
@@ -517,7 +506,7 @@ public class HIRS_L1C_Reader_IO_Test {
     }
 
     @Test
-    public void testReadScaled_TIROSN() throws IOException, InvalidRangeException {
+    public void testReadScaled_TIROSN() throws IOException {
         final File file = getTirosNFile();
 
         try {
@@ -588,7 +577,7 @@ public class HIRS_L1C_Reader_IO_Test {
     }
 
     @Test
-    public void testReadRaw_NOAA10() throws IOException, InvalidRangeException {
+    public void testReadRaw_NOAA10() throws IOException {
         final File file = getNOAA10File();
 
         try {
@@ -648,7 +637,7 @@ public class HIRS_L1C_Reader_IO_Test {
     }
 
     @Test
-    public void testReadRaw_METOPA() throws IOException, InvalidRangeException {
+    public void testReadRaw_METOPA() throws IOException {
         final File file = getMetopAFile();
 
         try {
@@ -729,24 +718,18 @@ public class HIRS_L1C_Reader_IO_Test {
         }
     }
 
-    private File getMetopAFile() {
+    private File getMetopAFile() throws IOException {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"hirs-ma", "1.0", "2011", "08", "23", "190583863.NSS.HIRX.M2.D11235.S1641.E1823.B2513233.SV.nc"}, false);
-        return getFileAsserted(testFilePath);
+        return TestUtil.getTestDataFileAsserted(testFilePath);
     }
 
-    private File getTirosNFile() {
+    private File getTirosNFile() throws IOException {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"hirs-tn", "1.0", "1979", "10", "14", "NSS.HIRX.TN.D79287.S1623.E1807.B0516566.GC.nc"}, false);
-        return getFileAsserted(testFilePath);
+        return TestUtil.getTestDataFileAsserted(testFilePath);
     }
 
-    private File getNOAA10File() {
+    private File getNOAA10File() throws IOException {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"hirs-n10", "1.0", "1989", "03", "17", "NSS.HIRX.NG.D89076.S0608.E0802.B1296162.WI.nc"}, false);
-        return getFileAsserted(testFilePath);
-    }
-
-    private File getFileAsserted(String testFilePath) {
-        final File file = new File(dataDirectory, testFilePath);
-        assertTrue(file.isFile());
-        return file;
+        return TestUtil.getTestDataFileAsserted(testFilePath);
     }
 }

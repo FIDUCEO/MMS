@@ -62,19 +62,16 @@ import ucar.nc2.iosp.netcdf3.N3iosp;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.*;
 
 
-@SuppressWarnings("ThrowFromFinallyBlock")
 @RunWith(IOTestRunner.class)
 public class AMSUB_MHS_L1C_Reader_IO_Test {
 
     private AMSUB_MHS_L1C_Reader reader;
-    private File testDataDirectory;
 
     @Before
     public void setUp() throws IOException {
@@ -82,11 +79,10 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
         readerContext.setGeometryFactory(new GeometryFactory(GeometryFactory.Type.S2));
 
         reader = new AMSUB_MHS_L1C_Reader(readerContext);
-        testDataDirectory = TestUtil.getTestDataDirectory();
     }
 
     @Test
-    public void testReadAcquisitionInfo_AMSUB_NOAA15() throws IOException, ParseException {
+    public void testReadAcquisitionInfo_AMSUB_NOAA15() throws IOException {
         final File amsubFile = createAmsubNOAA15Path("L0496703.NSS.AMBX.NK.D07234.S0630.E0824.B4821011.WI.h5");
 
         try {
@@ -134,7 +130,7 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
     }
 
     @Test
-    public void testReadAcquisitionInfo_AMSUB_NOAA15_laterAcquisition() throws IOException{
+    public void testReadAcquisitionInfo_AMSUB_NOAA15_laterAcquisition() throws IOException {
         final File amsubFile = createAmsubNOAA15Path("L0522933.NSS.AMBX.NK.D07234.S1640.E1824.B4821617.GC.h5");
 
         try {
@@ -182,7 +178,7 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
     }
 
     @Test
-    public void testReadAcquisitionInfo_MHS_NOAA18() throws IOException{
+    public void testReadAcquisitionInfo_MHS_NOAA18() throws IOException {
         final File mhsFile = createMhsNOAA18Path("NSS.MHSX.NN.D07234.S1010.E1156.B1161920.GC.h5");
 
         try {
@@ -289,7 +285,7 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
     }
 
     @Test
-    public void testGetPixelLocator_MHS_NOAA18() throws IOException{
+    public void testGetPixelLocator_MHS_NOAA18() throws IOException {
         final File mhsFile = createMhsNOAA18Path("NSS.MHSX.NN.D07234.S1010.E1156.B1161920.GC.h5");
 
         try {
@@ -376,7 +372,7 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
     }
 
     @Test
-    public void testGetPixelLocator_AMSUB_NOAA15() throws IOException{
+    public void testGetPixelLocator_AMSUB_NOAA15() throws IOException {
         final File amsubFile = createAmsubNOAA15Path("L0496703.NSS.AMBX.NK.D07234.S0630.E0824.B4821011.WI.h5");
 
         try {
@@ -466,7 +462,7 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
     }
 
     @Test
-    public void testSubScenePixelLocator_MHS_NOAA18() throws IOException{
+    public void testSubScenePixelLocator_MHS_NOAA18() throws IOException {
         final File mhsFile = createMhsNOAA18Path("NSS.MHSX.NN.D07234.S1151.E1337.B1162021.GC.h5");
         final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
 
@@ -493,7 +489,7 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
     }
 
     @Test
-    public void testSubScenePixelLocator_AMSUB_NOAA15() throws IOException{
+    public void testSubScenePixelLocator_AMSUB_NOAA15() throws IOException {
         final File mhsFile = createAmsubNOAA15Path("L0522933.NSS.AMBX.NK.D07234.S1640.E1824.B4821617.GC.h5");
         final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
 
@@ -1003,7 +999,7 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
     }
 
     @Test
-    public void testReadAcquisitionTime_AMSUB_NOAA15_centerWindow() throws IOException, InvalidRangeException {
+    public void testReadAcquisitionTime_AMSUB_NOAA15_centerWindow() throws IOException {
         final File amsubFile = createAmsubNOAA15Path("L0522933.NSS.AMBX.NK.D07234.S1640.E1824.B4821617.GC.h5");
 
         try {
@@ -1034,7 +1030,7 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
     }
 
     @Test
-    public void testReadAcquisitionTime_AMSUB_NOAA15_upperLeftOutside() throws IOException, InvalidRangeException {
+    public void testReadAcquisitionTime_AMSUB_NOAA15_upperLeftOutside() throws IOException {
         final File amsubFile = createAmsubNOAA15Path("L0522933.NSS.AMBX.NK.D07234.S1640.E1824.B4821617.GC.h5");
 
         try {
@@ -1064,7 +1060,7 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
     }
 
     @Test
-    public void testGetProductSize_MHS_NOAA18() throws IOException{
+    public void testGetProductSize_MHS_NOAA18() throws IOException {
         final File mhsFile = createMhsNOAA18Path("NSS.MHSX.NN.D07234.S1332.E1518.B1162122.GC.h5");
 
         try {
@@ -1080,7 +1076,7 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
     }
 
     @Test
-    public void testGetProductSize_AMSUB_NOAA15() throws IOException{
+    public void testGetProductSize_AMSUB_NOAA15() throws IOException {
         final File amsubFile = createAmsubNOAA15Path("L0522933.NSS.AMBX.NK.D07234.S1640.E1824.B4821617.GC.h5");
 
         try {
@@ -1095,18 +1091,14 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
         }
     }
 
-    private File createAmsubNOAA15Path(String fileName) {
+    private File createAmsubNOAA15Path(String fileName) throws IOException {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"amsub-n15", "v1.0", "2007", "08", "22", fileName}, false);
-        final File file = new File(testDataDirectory, testFilePath);
-        assertTrue(file.isFile());
-        return file;
+        return TestUtil.getTestDataFileAsserted(testFilePath);
     }
 
-    private File createMhsNOAA18Path(String fileName) {
+    private File createMhsNOAA18Path(String fileName) throws IOException {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"mhs-n18", "v1.0", "2007", "08", "22", fileName}, false);
-        final File file = new File(testDataDirectory, testFilePath);
-        assertTrue(file.isFile());
-        return file;
+        return TestUtil.getTestDataFileAsserted(testFilePath);
     }
 
     private void assertSplittedBoundingGeometry(Geometry boundingGeometry) {

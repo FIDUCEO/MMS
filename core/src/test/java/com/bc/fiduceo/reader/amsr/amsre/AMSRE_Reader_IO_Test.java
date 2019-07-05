@@ -39,7 +39,6 @@ import org.junit.runner.RunWith;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
-import ucar.ma2.Index;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 
@@ -54,13 +53,10 @@ import static org.junit.Assert.*;
 @RunWith(IOTestRunner.class)
 public class AMSRE_Reader_IO_Test {
 
-    private File testDataDirectory;
     private AMSRE_Reader reader;
 
     @Before
     public void setUp() throws IOException {
-        testDataDirectory = TestUtil.getTestDataDirectory();
-
         final ReaderContext readerContext = new ReaderContext();
         readerContext.setGeometryFactory(new GeometryFactory(GeometryFactory.Type.S2));
 
@@ -232,7 +228,7 @@ public class AMSRE_Reader_IO_Test {
     }
 
     @Test
-    public void testReadRaw() throws IOException, InvalidRangeException {
+    public void testReadRaw() throws IOException {
         final File file = getAmsreFile();
 
         try {
@@ -301,7 +297,7 @@ public class AMSRE_Reader_IO_Test {
     }
 
     @Test
-    public void testReadRaw_rightBorder() throws IOException, InvalidRangeException {
+    public void testReadRaw_rightBorder() throws IOException {
         final File file = getAmsreFile();
 
         try {
@@ -353,7 +349,7 @@ public class AMSRE_Reader_IO_Test {
     }
 
     @Test
-    public void testReadScaled() throws IOException, InvalidRangeException {
+    public void testReadScaled() throws IOException {
         final File file = getAmsreFile();
 
         try {
@@ -405,7 +401,7 @@ public class AMSRE_Reader_IO_Test {
     }
 
     @Test
-    public void testReadAcquisitionTime() throws IOException, InvalidRangeException {
+    public void testReadAcquisitionTime() throws IOException {
         final File file = getAmsreFile();
 
         try {
@@ -422,7 +418,7 @@ public class AMSRE_Reader_IO_Test {
     }
 
     @Test
-    public void testReadAcquisitionTime_withFillValue() throws IOException, InvalidRangeException {
+    public void testReadAcquisitionTime_withFillValue() throws IOException {
         final File file = getAmsreFile();
 
         try {
@@ -472,10 +468,8 @@ public class AMSRE_Reader_IO_Test {
         }
     }
 
-    private File getAmsreFile() {
+    private File getAmsreFile() throws IOException {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"amsre-aq", "v12", "2005", "02", "17", "AMSR_E_L2A_BrightnessTemperatures_V12_200502170536_D.hdf"}, false);
-        final File file = new File(testDataDirectory, testFilePath);
-        assertTrue(file.isFile());
-        return file;
+        return TestUtil.getTestDataFileAsserted(testFilePath);
     }
 }

@@ -38,7 +38,6 @@ import org.junit.runner.RunWith;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.Index;
-import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 
 import java.awt.geom.Point2D;
@@ -52,13 +51,10 @@ import static org.junit.Assert.*;
 @RunWith(IOTestRunner.class)
 public class AVHRR_GAC_Reader_v2102_IO_Test {
 
-    private File testDataDirectory;
     private AVHRR_GAC_Reader reader;
 
     @Before
     public void setUp() throws IOException {
-        testDataDirectory = TestUtil.getTestDataDirectory();
-
         final ReaderContext readerContext = new ReaderContext();
         readerContext.setGeometryFactory(new GeometryFactory(GeometryFactory.Type.S2));
 
@@ -259,7 +255,7 @@ public class AVHRR_GAC_Reader_v2102_IO_Test {
     }
 
     @Test
-    public void testReadAcquisitionTime_N19() throws IOException, InvalidRangeException {
+    public void testReadAcquisitionTime_N19() throws IOException {
         final File file = createAvhrrN19File();
 
         try {
@@ -276,7 +272,7 @@ public class AVHRR_GAC_Reader_v2102_IO_Test {
     }
 
     @Test
-    public void testReadAcquisitionTime_MA() throws IOException, InvalidRangeException {
+    public void testReadAcquisitionTime_MA() throws IOException {
         final File file = createAvhrrMAFile();
 
         try {
@@ -629,7 +625,7 @@ public class AVHRR_GAC_Reader_v2102_IO_Test {
     }
 
     @Test
-    public void testReadScaled_scalingAndOffset_N19() throws IOException, InvalidRangeException {
+    public void testReadScaled_scalingAndOffset_N19() throws IOException {
         final File file = createAvhrrN19File();
         reader.open(file);
 
@@ -654,7 +650,7 @@ public class AVHRR_GAC_Reader_v2102_IO_Test {
     }
 
     @Test
-    public void testReadScaled_scalingAndOffset_MA() throws IOException, InvalidRangeException {
+    public void testReadScaled_scalingAndOffset_MA() throws IOException {
         final File file = createAvhrrMAFile();
         reader.open(file);
 
@@ -679,7 +675,7 @@ public class AVHRR_GAC_Reader_v2102_IO_Test {
     }
 
     @Test
-    public void testReadScaled_onlyScaling_onePixel_N19() throws IOException, InvalidRangeException {
+    public void testReadScaled_onlyScaling_onePixel_N19() throws IOException {
         final File file = createAvhrrN19File();
         reader.open(file);
 
@@ -696,7 +692,7 @@ public class AVHRR_GAC_Reader_v2102_IO_Test {
     }
 
     @Test
-    public void testReadScaled_onlyScaling_onePixel_MA() throws IOException, InvalidRangeException {
+    public void testReadScaled_onlyScaling_onePixel_MA() throws IOException {
         final File file = createAvhrrMAFile();
         reader.open(file);
 
@@ -713,7 +709,7 @@ public class AVHRR_GAC_Reader_v2102_IO_Test {
     }
 
     @Test
-    public void testReadScaled_onlyScaling_N19() throws IOException, InvalidRangeException {
+    public void testReadScaled_onlyScaling_N19() throws IOException {
         final File file = createAvhrrN19File();
         reader.open(file);
 
@@ -738,7 +734,7 @@ public class AVHRR_GAC_Reader_v2102_IO_Test {
     }
 
     @Test
-    public void testReadScaled_onlyScaling_MA() throws IOException, InvalidRangeException {
+    public void testReadScaled_onlyScaling_MA() throws IOException {
         final File file = createAvhrrMAFile();
         reader.open(file);
 
@@ -764,7 +760,7 @@ public class AVHRR_GAC_Reader_v2102_IO_Test {
 
 
     @Test
-    public void testReadScaled_noScale_noOffset_N19() throws IOException, InvalidRangeException {
+    public void testReadScaled_noScale_noOffset_N19() throws IOException {
         final File file = createAvhrrN19File();
         reader.open(file);
 
@@ -789,7 +785,7 @@ public class AVHRR_GAC_Reader_v2102_IO_Test {
     }
 
     @Test
-    public void testReadScaled_noScale_noOffset_MA() throws IOException, InvalidRangeException {
+    public void testReadScaled_noScale_noOffset_MA() throws IOException {
         final File file = createAvhrrMAFile();
         reader.open(file);
 
@@ -920,17 +916,13 @@ public class AVHRR_GAC_Reader_v2102_IO_Test {
         }
     }
 
-    private File createAvhrrN19File() {
+    private File createAvhrrN19File() throws IOException {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n19", "v2.10.2", "2011", "03", "15", "20110315021017-ESACCI-L1C-AVHRR19_G-v1.5-fv02.0.nc"}, false);
-        final File file = new File(testDataDirectory, testFilePath);
-        assertTrue(file.isFile());
-        return file;
+        return TestUtil.getTestDataFileAsserted(testFilePath);
     }
 
-    private File createAvhrrMAFile() {
+    private File createAvhrrMAFile() throws IOException {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-ma", "v2.10.2", "2010", "01", "01", "20100101113716-ESACCI-L1C-AVHRRMTA_G-v1.5-fv02.0.nc"}, false);
-        final File file = new File(testDataDirectory, testFilePath);
-        assertTrue(file.isFile());
-        return file;
+        return TestUtil.getTestDataFileAsserted(testFilePath);
     }
 }

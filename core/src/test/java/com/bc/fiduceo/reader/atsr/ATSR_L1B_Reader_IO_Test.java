@@ -26,11 +26,7 @@ import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.Point;
-import com.bc.fiduceo.geometry.Polygon;
-import com.bc.fiduceo.geometry.TimeAxis;
+import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
@@ -50,20 +46,15 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 @RunWith(IOTestRunner.class)
 public class ATSR_L1B_Reader_IO_Test {
 
-    private File dataDirectory;
     private ATSR_L1B_Reader reader;
 
     @Before
     public void setUp() throws IOException {
-        dataDirectory = TestUtil.getTestDataDirectory();
-
         final ReaderContext readerContext = new ReaderContext();
         readerContext.setGeometryFactory(new GeometryFactory(GeometryFactory.Type.S2));
 
@@ -757,24 +748,18 @@ public class ATSR_L1B_Reader_IO_Test {
         }
     }
 
-    private File getAtsr1File() {
+    private File getAtsr1File() throws IOException {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"atsr-e1", "v3", "1993", "08", "05", "AT1_TOA_1PURAL19930805_210030_000000004015_00085_10751_0000.E1"}, false);
-        return getFileAsserted(testFilePath);
+        return TestUtil.getTestDataFileAsserted(testFilePath);
     }
 
-    private File getAtsr2File() {
+    private File getAtsr2File() throws IOException {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"atsr-e2", "v3", "1998", "04", "24", "AT2_TOA_1PURAL19980424_055754_000000001031_00348_15733_0000.E2"}, false);
-        return getFileAsserted(testFilePath);
+        return TestUtil.getTestDataFileAsserted(testFilePath);
     }
 
-    private File getAatsrFile() {
+    private File getAatsrFile() throws IOException {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"aatsr-en", "v3", "2006", "02", "15", "ATS_TOA_1PUUPA20060215_070852_000065272045_00120_20715_4282.N1"}, false);
-        return getFileAsserted(testFilePath);
-    }
-
-    private File getFileAsserted(String testFilePath) {
-        final File file = new File(dataDirectory, testFilePath);
-        assertTrue(file.isFile());
-        return file;
+        return TestUtil.getTestDataFileAsserted(testFilePath);
     }
 }
