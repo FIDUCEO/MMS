@@ -22,10 +22,12 @@ package com.bc.fiduceo.util;
 
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
+import org.esa.snap.core.util.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import sun.net.www.protocol.file.FileURLConnection;
 
 import java.io.File;
 import java.io.IOException;
@@ -193,5 +195,42 @@ public class TempFileUtils_IO_Test {
         assertFalse(file_1.isFile());
         assertFalse(file_2.isFile());
         assertFalse(file_3.isFile());
+    }
+
+    @Test
+    public void testCreateDir() throws IOException {
+        final File tempDir = tempFileUtils.createDir("heffalump_3");
+        assertNotNull(tempDir);
+
+        try {
+            final String systemTemp = System.getProperty("java.io.tmpdir");
+            final File expected = new File(systemTemp, "heffalump_3");
+            assertTrue(expected.isDirectory());
+        } finally {
+            if (!FileUtils.deleteTree(tempDir)) {
+                fail("unable to delete test directory: " + tempDir.getAbsolutePath());
+            }
+        }
+    }
+
+    @Test
+    public void testCreateDir_andCleanup() throws IOException {
+        final File tempDir = tempFileUtils.createDir("heffalump_4");
+        assertNotNull(tempDir);
+
+        try {
+            final String systemTemp = System.getProperty("java.io.tmpdir");
+            final File expected = new File(systemTemp, "heffalump_4");
+            assertTrue(expected.isDirectory());
+
+            tempFileUtils.cleanup();
+            assertFalse(expected.isDirectory());
+        } finally {
+            if (tempDir.isDirectory()) {
+                if (!FileUtils.deleteTree(tempDir)) {
+                    fail("unable to delete test directory: " + tempDir.getAbsolutePath());
+                }
+            }
+        }
     }
 }

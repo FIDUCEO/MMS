@@ -21,6 +21,7 @@
 package com.bc.fiduceo.util;
 
 import com.bc.fiduceo.log.FiduceoLogger;
+import org.esa.snap.core.util.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -57,6 +58,17 @@ public class TempFileUtils {
         return tempFile;
     }
 
+    public File createDir(String directoryName) throws IOException {
+        final File dir = new File(tempDir, directoryName);
+        if (!dir.mkdirs()) {
+            throw new IOException("unable to create temp directory: " + dir.getAbsolutePath());
+        }
+
+        tempFileList.add(dir);
+
+        return dir;
+    }
+
     public void delete(File tempFile) {
         deleteFileIfExists(tempFile);
 
@@ -77,6 +89,11 @@ public class TempFileUtils {
         if (tempFile.isFile()) {
             if (!tempFile.delete()) {
                 FiduceoLogger.getLogger().warning("Unable to delete file: " + tempFile.getAbsolutePath());
+            }
+        }
+        if (tempFile.isDirectory()) {
+            if (!FileUtils.deleteTree(tempFile)) {
+                FiduceoLogger.getLogger().warning("Unable to delete directory: " + tempFile.getAbsolutePath());
             }
         }
     }
@@ -101,7 +118,7 @@ public class TempFileUtils {
 
         final long nanoTime = System.nanoTime();
         final long time = new Date().getTime();
-        final String fileName = prefix + Long.toString(time) + "_" + Long.toString(Math.abs(nanoTime)) + "." + extension;
+        final String fileName = prefix + time + "_" + Math.abs(nanoTime) + "." + extension;
         final File tempFile = new File(tempDir, fileName);
         if (!tempFile.createNewFile()) {
             throw new RuntimeException("Unable to create temp file");
@@ -109,4 +126,6 @@ public class TempFileUtils {
 
         return tempFile;
     }
+
+
 }

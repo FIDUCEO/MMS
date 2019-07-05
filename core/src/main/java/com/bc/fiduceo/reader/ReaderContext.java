@@ -46,6 +46,10 @@ public class ReaderContext {
         return tempFileUtils.create(prefix, extension);
     }
 
+    public File createDirInTempDir(String directoryName) throws IOException {
+        return tempFileUtils.createDir(directoryName);
+    }
+
     public void deleteTempFile(File tempFile) {
         tempFileUtils.delete(tempFile);
     }

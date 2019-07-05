@@ -7,11 +7,14 @@ import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
+import com.bc.fiduceo.reader.ReaderUtils;
 import com.bc.fiduceo.reader.TimeLocator;
 import com.bc.fiduceo.reader.snap.SNAP_Reader;
 import com.bc.fiduceo.reader.snap.VariableProxy;
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.esa.snap.core.datamodel.*;
+import org.esa.snap.core.util.io.FileUtils;
+import org.esa.snap.engine_utilities.util.ZipUtils;
 import ucar.ma2.*;
 import ucar.nc2.Variable;
 
@@ -32,16 +35,58 @@ public class SlstrReader extends SNAP_Reader {
     private final VariableNames variableNames;
     private long[] subs_times;
     private TransformFactory transformFactory;
+    private ReaderContext readerContext;
+    private File productDir;
 
     SlstrReader(ReaderContext readerContext) {
         super(readerContext);
+        this.readerContext = readerContext;
+        productDir = null;
 
         variableNames = new VariableNames();
     }
 
+    // package access for testing only tb 2019-05-13
+    static long[] subSampleTimes(long[] timeStamps) {
+        final long[] subs_times = new long[timeStamps.length / 2];
+
+        int writeIndex = 0;
+        for (int i = 0; i < timeStamps.length; i++) {
+            if (i % 2 == 0) {
+                subs_times[writeIndex] = timeStamps[i];
+                ++writeIndex;
+            }
+        }
+        return subs_times;
+    }
+
     @Override
     public void open(File file) throws IOException {
-        open(file, "Sen3");
+        File manifestFile = file;
+        if (ReaderUtils.isCompressed(file)) {
+            final String fileName = FileUtils.getFilenameWithoutExtension(file);
+            productDir = readerContext.createDirInTempDir(fileName);
+            try {
+                File[] files = ZipUtils.unzipToFolder(file, productDir);
+                if (files.length == 1) {
+                    final File expandedDir = files[0];
+                    files = expandedDir.listFiles();
+                }
+
+                for (final File uncompressedFile : files) {
+                    if (uncompressedFile == null) {
+                        continue;
+                    }
+                    if (uncompressedFile.getName().contains("manifest.xml")) {
+                        manifestFile = uncompressedFile;
+                        break;
+                    }
+                }
+            } catch (Exception e) {
+                throw new IOException(e.getMessage());
+            }
+        }
+        open(manifestFile, "Sen3");
 
         final int obliqueGridOffset = getObliqueGridOffset();
         transformFactory = new TransformFactory(product.getSceneRasterWidth(),
@@ -51,7 +96,12 @@ public class SlstrReader extends SNAP_Reader {
 
     @Override
     public void close() throws IOException {
+        if (productDir != null) {
+            readerContext.deleteTempFile(productDir);
+            productDir = null;
+        }
         transformFactory = null;
+        readerContext = null;
 
         super.close();
     }
@@ -177,7 +227,7 @@ public class SlstrReader extends SNAP_Reader {
     }
 
     @Override
-    public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
+    public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException {
         final VariableType variableType = variableNames.getVariableType(variableName);
         final Transform transform = transformFactory.get(variableType);
 
@@ -264,20 +314,6 @@ public class SlstrReader extends SNAP_Reader {
         }
 
         return super.getRasterDataNode(variableName);
-    }
-
-    // package access for testing only tb 2019-05-13
-    static long[] subSampleTimes(long[] timeStamps) {
-        final long[] subs_times = new long[timeStamps.length / 2];
-
-        int writeIndex = 0;
-        for (int i = 0; i < timeStamps.length; i++) {
-            if (i % 2 == 0) {
-                subs_times[writeIndex] = timeStamps[i];
-                ++writeIndex;
-            }
-        }
-        return subs_times;
     }
 
     private void setOrbitNodeInfo(AcquisitionInfo acquisitionInfo) {

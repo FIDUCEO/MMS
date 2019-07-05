@@ -12,8 +12,9 @@ import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.TimeLocator;
 import com.bc.fiduceo.reader.snap.SNAP_PixelLocator;
+import com.bc.fiduceo.util.TempFileUtils;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.Array;
@@ -35,6 +36,7 @@ public class SlstrReader_IO_Test {
 
     private File dataDirectory;
     private SlstrReader reader;
+    private TempFileUtils tempFileUtils;
 
     @Before
     public void setUp() throws IOException {
@@ -42,8 +44,16 @@ public class SlstrReader_IO_Test {
 
         final ReaderContext readerContext = new ReaderContext();
         readerContext.setGeometryFactory(new GeometryFactory(GeometryFactory.Type.S2));
+        tempFileUtils = new TempFileUtils();
+        readerContext.setTempFileUtils(tempFileUtils);
 
         reader = new SlstrReader(readerContext);
+    }
+
+    @After
+    public void tearDown() {
+        tempFileUtils.cleanup();
+        tempFileUtils = null;
     }
 
     @Test
@@ -88,7 +98,6 @@ public class SlstrReader_IO_Test {
     }
 
     @Test
-    @Ignore
     public void testReadAcquisitionInfo_S3A_zip() throws IOException {
         final File file = getS3A_zip_File();
 
@@ -99,31 +108,31 @@ public class SlstrReader_IO_Test {
             assertNotNull(acquisitionInfo);
 
             final Date sensingStart = acquisitionInfo.getSensingStart();
-            TestUtil.assertCorrectUTCDate(2018, 10, 13, 22, 24, 36, 182, sensingStart);
+            TestUtil.assertCorrectUTCDate(2018, 10, 26, 23, 16, 11, 490, sensingStart);
 
             final Date sensingStop = acquisitionInfo.getSensingStop();
-            TestUtil.assertCorrectUTCDate(2018, 10, 13, 22, 27, 36, 182, sensingStop);
+            TestUtil.assertCorrectUTCDate(2018, 10, 26, 23, 19, 11, 490, sensingStop);
 
             final NodeType nodeType = acquisitionInfo.getNodeType();
-            assertEquals(NodeType.DESCENDING, nodeType);
+            assertEquals(NodeType.ASCENDING, nodeType);
 
             final Geometry boundingGeometry = acquisitionInfo.getBoundingGeometry();
             assertNotNull(boundingGeometry);
             assertTrue(boundingGeometry instanceof Polygon);
             final Point[] coordinates = boundingGeometry.getCoordinates();
             assertEquals(29, coordinates.length);
-            assertEquals(168.0067138671875, coordinates[0].getLon(), 1e-8);
-            assertEquals(83.76530456542969, coordinates[0].getLat(), 1e-8);
+            assertEquals(-15.241932868957521, coordinates[0].getLon(), 1e-8);
+            assertEquals(54.52157592773438, coordinates[0].getLat(), 1e-8);
 
-            assertEquals(-141.01283264160156, coordinates[14].getLon(), 1e-8);
-            assertEquals(65.22335052490234, coordinates[14].getLat(), 1e-8);
+            assertEquals(-52.93038177490235, coordinates[15].getLon(), 1e-8);
+            assertEquals(57.850223541259766, coordinates[15].getLat(), 1e-8);
 
             final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
             assertEquals(1, timeAxes.length);
             Date time = timeAxes[0].getTime(coordinates[0]);
-            TestUtil.assertCorrectUTCDate(2018, 10, 13, 22, 24, 36, 356, time);
-            time = timeAxes[0].getTime(coordinates[15]);
-            TestUtil.assertCorrectUTCDate(2018, 10, 13, 22, 27, 21, 312, time);
+            TestUtil.assertCorrectUTCDate(2018, 10, 26, 23, 16, 11, 787, time);
+            time = timeAxes[0].getTime(coordinates[16]);
+            TestUtil.assertCorrectUTCDate(2018, 10, 26, 23, 18, 41, 454, time);
         } finally {
             reader.close();
         }
