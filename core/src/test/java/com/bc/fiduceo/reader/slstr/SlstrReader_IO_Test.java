@@ -134,6 +134,47 @@ public class SlstrReader_IO_Test {
         }
     }
 
+//    @Test
+//    public void testReadAcquisitionInfo_S3A_zip_strange() throws IOException {
+//        final File file = getS3A_zip_File_strange();
+//
+//        try {
+//            reader.open(file);
+//
+//            final AcquisitionInfo acquisitionInfo = reader.read();
+//            assertNotNull(acquisitionInfo);
+//
+//            final Date sensingStart = acquisitionInfo.getSensingStart();
+//            TestUtil.assertCorrectUTCDate(2018, 10, 26, 23, 16, 11, 490, sensingStart);
+//
+//            final Date sensingStop = acquisitionInfo.getSensingStop();
+//            TestUtil.assertCorrectUTCDate(2018, 10, 26, 23, 19, 11, 490, sensingStop);
+//
+//            final NodeType nodeType = acquisitionInfo.getNodeType();
+//            assertEquals(NodeType.ASCENDING, nodeType);
+//
+//            final Geometry boundingGeometry = acquisitionInfo.getBoundingGeometry();
+//            assertNotNull(boundingGeometry);
+//            assertTrue(boundingGeometry instanceof Polygon);
+//            final Point[] coordinates = boundingGeometry.getCoordinates();
+//            assertEquals(29, coordinates.length);
+//            assertEquals(-15.241932868957521, coordinates[0].getLon(), 1e-8);
+//            assertEquals(54.52157592773438, coordinates[0].getLat(), 1e-8);
+//
+//            assertEquals(-52.93038177490235, coordinates[15].getLon(), 1e-8);
+//            assertEquals(57.850223541259766, coordinates[15].getLat(), 1e-8);
+//
+//            final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
+//            assertEquals(1, timeAxes.length);
+//            Date time = timeAxes[0].getTime(coordinates[0]);
+//            TestUtil.assertCorrectUTCDate(2018, 10, 26, 23, 16, 11, 787, time);
+//            time = timeAxes[0].getTime(coordinates[16]);
+//            TestUtil.assertCorrectUTCDate(2018, 10, 26, 23, 18, 41, 454, time);
+//        } finally {
+//            reader.close();
+//        }
+//    }
+
     @Test
     public void testGetTimeLocator_S3A() throws IOException {
         final File file = getS3AFile();
@@ -831,4 +872,9 @@ public class SlstrReader_IO_Test {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"slstr-s3a", "1.0", "2018", "10", "26", "S3A_SL_1_RBT____20181026T231611_20181026T231911_20181028T023445_0180_037_187_0900_LN2_O_NT_003.zip"}, false);
         return TestUtil.getTestDataFileAsserted(testFilePath);
     }
+//
+//    private File getS3A_zip_File_strange() throws IOException {
+//        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"slstr-s3a", "1.0", "2018", "07", "01", "S3A_SL_1_RBT____20180701T000102_20180701T000402_20180701T010821_0179_033_045_0000_SVL_O_NR_003.zip"}, false);
+//        return TestUtil.getTestDataFileAsserted(testFilePath);
+//    }
 }

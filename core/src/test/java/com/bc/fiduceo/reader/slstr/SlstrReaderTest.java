@@ -12,7 +12,7 @@ public class SlstrReaderTest {
 
     @Test
     public void testGetRegEx() {
-        final String expected = "S3([AB])_SL_1_RBT_.*(.SEN3|zip)?";
+        final String expected = "S3([AB])_SL_1_RBT_.*(.SEN3|zip)";
 
         final SlstrReader reader = new SlstrReader(new ReaderContext());// we do not need a gemetry factory here tb 2019-05-10
         assertEquals(expected, reader.getRegEx());

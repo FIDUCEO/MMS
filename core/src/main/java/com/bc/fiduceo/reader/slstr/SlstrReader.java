@@ -31,7 +31,7 @@ import static ucar.ma2.DataType.INT;
 
 public class SlstrReader extends SNAP_Reader {
 
-    private static final String REGEX = "S3([AB])_SL_1_RBT_.*(.SEN3|zip)?";
+    private static final String REGEX = "S3([AB])_SL_1_RBT_.*(.SEN3|zip)";
     private static final Interval INTERVAL = new Interval(100, 100);
     private static final int NUM_SPLITS = 1;
 
@@ -99,14 +99,14 @@ public class SlstrReader extends SNAP_Reader {
 
     @Override
     public void close() throws IOException {
+        super.close();
+
         if (productDir != null) {
             readerContext.deleteTempFile(productDir);
             productDir = null;
         }
         transformFactory = null;
         readerContext = null;
-
-        super.close();
     }
 
     @Override
