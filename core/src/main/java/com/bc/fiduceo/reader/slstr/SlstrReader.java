@@ -5,6 +5,7 @@ import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
+import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.ReaderUtils;
@@ -36,9 +37,9 @@ public class SlstrReader extends SNAP_Reader {
     private static final int NUM_SPLITS = 1;
 
     private final VariableNames variableNames;
+    final private ReaderContext readerContext;
     private long[] subs_times;
     private TransformFactory transformFactory;
-    private ReaderContext readerContext;
     private File productDir;
 
     SlstrReader(ReaderContext readerContext) {
@@ -65,6 +66,7 @@ public class SlstrReader extends SNAP_Reader {
 
     @Override
     public void open(File file) throws IOException {
+        FiduceoLogger.getLogger().info("Open: " + file.getAbsolutePath());
         File manifestFile = file;
         if (ReaderUtils.isCompressed(file)) {
             final String fileName = FileUtils.getFilenameWithoutExtension(file);
@@ -106,7 +108,6 @@ public class SlstrReader extends SNAP_Reader {
             productDir = null;
         }
         transformFactory = null;
-        readerContext = null;
     }
 
     @Override
