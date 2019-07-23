@@ -30,7 +30,7 @@ public class TimeLocator_MicrosSince2000 implements TimeLocator {
 
     @Override
     public long getTimeFor(int x, int y) {
-        final long timeStampSecs2000 = timeStamps[x];
+        final long timeStampSecs2000 = timeStamps[y];
         return convertToUnixEpochMillis(timeStampSecs2000);
     }
 

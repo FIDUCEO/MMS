@@ -13,8 +13,8 @@ public class TimeLocator_MicrosSince2000Test {
         final TimeLocator_MicrosSince2000 timeLocator = new TimeLocator_MicrosSince2000(time_2000);
 
         assertEquals(1542147894226L, timeLocator.getTimeFor(0, 0));
-        assertEquals(1542147894826L, timeLocator.getTimeFor(2, 1000));
-        assertEquals(1542147895726L, timeLocator.getTimeFor(5, 2000));
+        assertEquals(1542147894826L, timeLocator.getTimeFor(1000, 2));
+        assertEquals(1542147895726L, timeLocator.getTimeFor(2000, 5));
     }
 
     @Test

@@ -1,5 +1,7 @@
 ### Updates from version 1.4.8 to 1.4.9
 * added support for compressed SLSTR L1B data
+* corrected SeedPointMatchupStrategy coordinate rounding
+* corrected SLSTR L1B time coding calculations
 
 ### Updates from version 1.4.7 to 1.4.8
 * implemented support for segmented geo-location data for AVHRR GAC

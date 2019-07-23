@@ -185,9 +185,9 @@ public class SlstrReader_IO_Test {
             final TimeLocator timeLocator = reader.getTimeLocator();
             assertNotNull(timeLocator);
 
-            assertEquals(1542147896326L, timeLocator.getTimeFor(15, 0));
-            assertEquals(1542147896626L, timeLocator.getTimeFor(16, 100));
-            assertEquals(1542148072417L, timeLocator.getTimeFor(1189, 1000));
+            assertEquals(1542147894226L, timeLocator.getTimeFor(15, 0));
+            assertEquals(1542147909225L, timeLocator.getTimeFor(16, 100));
+            assertEquals(1542148044219L, timeLocator.getTimeFor(1189, 1000));
         } finally {
             reader.close();
         }
@@ -203,9 +203,27 @@ public class SlstrReader_IO_Test {
             final TimeLocator timeLocator = reader.getTimeLocator();
             assertNotNull(timeLocator);
 
-            assertEquals(1543274191832L, timeLocator.getTimeFor(15, 0));
-            assertEquals(1543274192132L, timeLocator.getTimeFor(16, 100));
-            assertEquals(1543274367924L, timeLocator.getTimeFor(1189, 1000));
+            assertEquals(1543274189732L, timeLocator.getTimeFor(15, 0));
+            assertEquals(1543274204732L, timeLocator.getTimeFor(16, 100));
+            assertEquals(1543274339725L, timeLocator.getTimeFor(1189, 1000));
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetTimeLocator_S3A_zip_timing_issue() throws IOException {
+        final File file = getS3A_zip_File_timing_issue();
+
+        try {
+            reader.open(file);
+
+            final TimeLocator timeLocator = reader.getTimeLocator();
+            assertNotNull(timeLocator);
+
+            assertEquals(1525564698063L, timeLocator.getTimeFor(16, 0));
+            assertEquals(1525564728062L, timeLocator.getTimeFor(17, 200));
+            assertEquals(1525564818058L, timeLocator.getTimeFor(810, 800));
         } finally {
             reader.close();
         }
@@ -872,9 +890,9 @@ public class SlstrReader_IO_Test {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"slstr-s3a", "1.0", "2018", "10", "26", "S3A_SL_1_RBT____20181026T231611_20181026T231911_20181028T023445_0180_037_187_0900_LN2_O_NT_003.zip"}, false);
         return TestUtil.getTestDataFileAsserted(testFilePath);
     }
-//
-//    private File getS3A_zip_File_strange() throws IOException {
-//        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"slstr-s3a", "1.0", "2018", "07", "01", "S3A_SL_1_RBT____20180701T000102_20180701T000402_20180701T010821_0179_033_045_0000_SVL_O_NR_003.zip"}, false);
-//        return TestUtil.getTestDataFileAsserted(testFilePath);
-//    }
+
+    private File getS3A_zip_File_timing_issue() throws IOException {
+        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"slstr-s3a", "1.0", "2018", "04", "04", "S3A_SL_1_RBT____20180404T235800_20180405T000012_20181006T172032_0132_029_344______LR1_R_NT_003.zip"}, false);
+        return TestUtil.getTestDataFileAsserted(testFilePath);
+    }
 }

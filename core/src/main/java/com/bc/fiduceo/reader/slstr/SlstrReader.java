@@ -51,7 +51,7 @@ public class SlstrReader extends SNAP_Reader {
 
     // package access for testing only tb 2019-05-13
     static long[] subSampleTimes(long[] timeStamps) {
-        final long[] subs_times = new long[timeStamps.length / 2];
+        final long[] subs_times = new long[(int) Math.ceil(timeStamps.length / 2.0)];
 
         int writeIndex = 0;
         for (int i = 0; i < timeStamps.length; i++) {

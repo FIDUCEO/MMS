@@ -222,13 +222,13 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
         for (SamplingPoint psp : primarySeedPoints) {
             final Point2D[] locations = primaryPixelLocator.getPixelLocation(psp.getLon(), psp.getLat());
             for (Point2D loc : locations) {
-                final double x1 = loc.getX();
-                final double y1 = loc.getY();
-                if (x1 >= 0 && y1 >= 0
-                        && x1 < primProductSize.getNx()
-                        && y1 < primProductSize.getNy()) {
-                    final int x = (int) Math.floor(x1);
-                    final int y = (int) Math.floor(y1);
+                final double x_lox = loc.getX();
+                final double y_loc = loc.getY();
+                final int x = (int) Math.floor(x_lox);
+                final int y = (int) Math.floor(y_loc);
+                if (x >= 0 && y >= 0
+                        && x < primProductSize.getNx()
+                        && y < primProductSize.getNy()) {
                     final Point2D geo = primaryPixelLocator.getGeoLocation(x + 0.5, y + 0.5, null);
                     if (geo != null) {
                         primaryMatchups.addPrimary(new Sample(x, y, geo.getX(), geo.getY(), primTimeLocator.getTimeFor(x, y)));

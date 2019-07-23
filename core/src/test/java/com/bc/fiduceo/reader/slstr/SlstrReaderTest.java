@@ -62,6 +62,14 @@ public class SlstrReaderTest {
     }
 
     @Test
+    public void testSubsampleTimes_odd_number() {
+        final long[] full_times = {15L, 16L, 17L, 18L, 19L, 20L, 21L};
+        final long[] subs_times = {15L, 17L, 19L, 21L};
+
+        assertArrayEquals(subs_times, SlstrReader.subSampleTimes(full_times));
+    }
+
+    @Test
     public void testExtractYearMonthDayFromFilename() {
         final SlstrReader reader = new SlstrReader(new ReaderContext());// we do not need a gemetry factory here tb 2019-05-27
 
