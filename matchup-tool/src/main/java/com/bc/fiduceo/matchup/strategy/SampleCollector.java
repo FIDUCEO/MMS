@@ -107,6 +107,9 @@ class SampleCollector {
         for (int y = startY; y <= endY; y++) {
             for (int x = startX; x <= endX; x++) {
                 final Point2D geoLocation = pixelLocator.getGeoLocation(x + .5, y + .5, geoPos);
+                if (geoLocation == null) {
+                    continue;
+                }
                 final double lon = geoLocation.getX();
                 final double lat = geoLocation.getY();
                 final Point geoPoint = factory.createPoint(lon, lat);
