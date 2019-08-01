@@ -84,6 +84,9 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
                 final Geometry[] primaryGeometries = extractGeometries(primaryObservation);
 
                 final List<SamplingPoint> primarySeedPoints = getPrimarySeedPoints(geometryFactory, seedPoints, primaryStartTime, primaryStopTime, primaryGeometries);
+                if (primarySeedPoints.size() == 0) {
+                    continue;
+                }
 
                 final Path primaryObservationDataFilePath = primaryObservation.getDataFilePath();
                 primaryReader.open(primaryObservationDataFilePath.toFile());
@@ -123,15 +126,15 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
                     // todo se multisensor
                     // still only one secondary sensor case
                     try (Reader secondaryReader = readerFactory.getReader(secondarySensorName_CaseOneSecondary)) {
-                        secondaryReader.open(secondaryObservation.getDataFilePath().toFile());
-                        // todo se multisensor
-                        // still only one secondary sensor case
-                        secondaryReaderMap.put(secondarySensorName_CaseOneSecondary, secondaryReader);
-
                         final Intersection[] intersectingIntervals = IntersectionEngine.getIntersectingIntervals(primaryObservation, secondaryObservation);
                         if (intersectingIntervals.length == 0) {
                             continue;
                         }
+
+                        secondaryReader.open(secondaryObservation.getDataFilePath().toFile());
+                        // todo se multisensor
+                        // still only one secondary sensor case
+                        secondaryReaderMap.put(secondarySensorName_CaseOneSecondary, secondaryReader);
 
                         final MatchupSet matchupSet = new MatchupSet();
                         matchupSet.setPrimaryObservationPath(primaryObservationDataFilePath);
@@ -231,7 +234,10 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
                         && y < primProductSize.getNy()) {
                     final Point2D geo = primaryPixelLocator.getGeoLocation(x + 0.5, y + 0.5, null);
                     if (geo != null) {
-                        primaryMatchups.addPrimary(new Sample(x, y, geo.getX(), geo.getY(), primTimeLocator.getTimeFor(x, y)));
+                        final long time = primTimeLocator.getTimeFor(x, y);
+                        if (time >= 0) {
+                            primaryMatchups.addPrimary(new Sample(x, y, geo.getX(), geo.getY(), time));
+                        }
                     }
                 }
             }

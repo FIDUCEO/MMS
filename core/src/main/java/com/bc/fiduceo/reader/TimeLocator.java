@@ -28,7 +28,7 @@ public interface TimeLocator {
      *
      * @param x the pixel x position
      * @param y the pixel y position
-     * @return the acquisition time milliseconds
+     * @return the acquisition time milliseconds or -1 if no acquisition time is available for the location requested
      */
     long getTimeFor(int x, int y);
 }

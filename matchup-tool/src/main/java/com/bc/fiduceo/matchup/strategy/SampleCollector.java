@@ -74,6 +74,10 @@ class SampleCollector {
                     continue;
                 }
                 final long time = timeLocator.getTimeFor(x, y);
+                if (time < 0) {
+                    continue;
+                }
+
                 final Sample sample = new Sample(x, y, geopos.getX(), geopos.getY(), time);
                 if (i > 0) {
                     sampleSet = new SampleSet();
@@ -115,8 +119,10 @@ class SampleCollector {
                 final Point geoPoint = factory.createPoint(lon, lat);
                 if (polygon.contains(geoPoint)) {
                     final long time = timeLocator.getTimeFor(x, y);
-                    final Sample sample = new Sample(x, y, lon, lat, time);
-                    matchupSet.addPrimary(sample);
+                    if (time >= 0) {
+                        final Sample sample = new Sample(x, y, lon, lat, time);
+                        matchupSet.addPrimary(sample);
+                    }
                 }
             }
         }
