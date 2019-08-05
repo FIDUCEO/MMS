@@ -3,6 +3,7 @@
 * corrected SeedPointMatchupStrategy coordinate rounding
 * corrected SLSTR L1B time coding calculations
 * updated AVHRR FCDR naming regular expression
+* corrected post-processing for AVHRR FCDR correlation coefficients
 
 ### Updates from version 1.4.7 to 1.4.8
 * implemented support for segmented geo-location data for AVHRR GAC
