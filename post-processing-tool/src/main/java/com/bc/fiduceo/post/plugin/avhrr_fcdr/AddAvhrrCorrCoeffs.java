@@ -53,6 +53,23 @@ class AddAvhrrCorrCoeffs extends PostProcessing {
         return config;
     }
 
+    static String extractSensorKey(String fileName) {
+        final int index = fileName.indexOf("AVHRR");
+        if (index <= 0) {
+            throw new RuntimeException("Unable to extract sensor key from file name");
+        }
+
+        final String platformPart = fileName.substring(index + 6, index + 9);
+        if (platformPart.contains("MTA") || platformPart.contains("MET")) {
+            return "avhrr-ma-fcdr";
+        }
+
+        final String integerPart = platformPart.substring(1);
+        final int platformIndex = Integer.parseInt(integerPart);
+
+        return "avhrr-n" + platformIndex + "-fcdr";
+    }
+
     private static String getNameAttributeFromChild(Element rootElement, String elementName) {
         final Element element = JDomUtils.getMandatoryChild(rootElement, elementName);
         return JDomUtils.getValueFromNameAttributeMandatory(element);
@@ -116,8 +133,8 @@ class AddAvhrrCorrCoeffs extends PostProcessing {
         final int[] targetShape = new int[3];
         targetShape[0] = 1;
         for (int i = 0; i < fileList.size(); i++) {
-            final String sensorKey = "avhrr-ma-fcdr"; // @todo 3 tb/tb read from filename 2019-06-17 - not of burning importance we only have one reader for all platforms and versions
             final FileDescription fileDescription = fileList.get(i);
+            final String sensorKey = extractSensorKey(fileDescription.fileName);
 
             final AVHRR_FCDR_Reader fcdrReader = (AVHRR_FCDR_Reader) readerCache.getReaderFor(sensorKey, Paths.get(fileDescription.fileName), fileDescription.processingVersion);
             final int[] ymd = fcdrReader.extractYearMonthDayFromFilename(fileDescription.fileName);
