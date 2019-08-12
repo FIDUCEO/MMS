@@ -66,8 +66,10 @@ public class GruanUleicInsituReader implements Reader {
     @Override
     public void close() throws IOException {
         variableList = null;
-        linelist.clear();
-        linelist = null;
+        if (linelist != null) {
+            linelist.clear();
+            linelist = null;
+        }
         if (fileReader != null) {
             fileReader.close();
             fileReader = null;
