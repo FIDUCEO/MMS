@@ -13,7 +13,7 @@ public class TimeLocator_MicrosSince2000 implements TimeLocator {
     static {
         final Calendar utcCalendar = TimeUtils.getUTCCalendar();
         utcCalendar.set(Calendar.YEAR, 2000);
-        utcCalendar.set(Calendar.MONTH, 1);
+        utcCalendar.set(Calendar.MONTH, 0);
         utcCalendar.set(Calendar.DAY_OF_MONTH, 1);
         utcCalendar.set(Calendar.HOUR_OF_DAY, 0);
         utcCalendar.set(Calendar.MINUTE, 0);

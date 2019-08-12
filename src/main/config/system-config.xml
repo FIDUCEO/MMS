@@ -78,5 +78,9 @@
             SENSOR/VERSION/YEAR/DAY_OF_YEAR
         </rule>
 
+        <rule sensors="gruan-uleic">
+            insitu/SENSOR/VERSION
+        </rule>
+
     </archive>
 </system-config>

@@ -10,6 +10,8 @@
 export PROJECT=bc_fiduceo
 export MMS_ENV_NAME=mms-env.sh
 
+export MMS_JAVA_EXEC='/gws/nopw/j04/fiduceo/Software/jdk1.8.0_73/bin/java'
+
 export PM_EXE_DIR=/gws/nopw/j04/fiduceo/Software/mms/bin
 export PM_PYTHON_EXEC='/gws/nopw/j04/fiduceo/Software/miniconda/miniconda3/envs/fiduceo_mms/bin/python'
 

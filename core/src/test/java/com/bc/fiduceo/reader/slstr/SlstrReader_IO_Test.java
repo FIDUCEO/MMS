@@ -185,9 +185,9 @@ public class SlstrReader_IO_Test {
             final TimeLocator timeLocator = reader.getTimeLocator();
             assertNotNull(timeLocator);
 
-            assertEquals(1542147894226L, timeLocator.getTimeFor(15, 0));
-            assertEquals(1542147909225L, timeLocator.getTimeFor(16, 100));
-            assertEquals(1542148044219L, timeLocator.getTimeFor(1189, 1000));
+            assertEquals(1539469494226L, timeLocator.getTimeFor(15, 0));
+            assertEquals(1539469509225L, timeLocator.getTimeFor(16, 100));
+            assertEquals(1539469644219L, timeLocator.getTimeFor(1189, 1000));
         } finally {
             reader.close();
         }
@@ -203,9 +203,9 @@ public class SlstrReader_IO_Test {
             final TimeLocator timeLocator = reader.getTimeLocator();
             assertNotNull(timeLocator);
 
-            assertEquals(1543274189732L, timeLocator.getTimeFor(15, 0));
-            assertEquals(1543274204732L, timeLocator.getTimeFor(16, 100));
-            assertEquals(1543274339725L, timeLocator.getTimeFor(1189, 1000));
+            assertEquals(1540595789732L, timeLocator.getTimeFor(15, 0));
+            assertEquals(1540595804732L, timeLocator.getTimeFor(16, 100));
+            assertEquals(1540595939725L, timeLocator.getTimeFor(1189, 1000));
         } finally {
             reader.close();
         }
@@ -221,9 +221,9 @@ public class SlstrReader_IO_Test {
             final TimeLocator timeLocator = reader.getTimeLocator();
             assertNotNull(timeLocator);
 
-            assertEquals(1525564698063L, timeLocator.getTimeFor(16, 0));
-            assertEquals(1525564728062L, timeLocator.getTimeFor(17, 200));
-            assertEquals(1525564818058L, timeLocator.getTimeFor(810, 800));
+            assertEquals(1522886298063L, timeLocator.getTimeFor(16, 0));
+            assertEquals(1522886328062L, timeLocator.getTimeFor(17, 200));
+            assertEquals(1522886418058L, timeLocator.getTimeFor(810, 800));
         } finally {
             reader.close();
         }
@@ -285,12 +285,12 @@ public class SlstrReader_IO_Test {
             final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(1056, 624, interval);
             assertNotNull(acquisitionTime);
 
-            NCTestUtils.assertValueAt(1542147988, 0, 0, acquisitionTime);
-            NCTestUtils.assertValueAt(1542147988, 0, 1, acquisitionTime);
-            NCTestUtils.assertValueAt(1542147988, 1, 1, acquisitionTime);
-            NCTestUtils.assertValueAt(1542147988, 1, 2, acquisitionTime);
-            NCTestUtils.assertValueAt(1542147988, 2, 2, acquisitionTime);
-            NCTestUtils.assertValueAt(1542147988, 2, 0, acquisitionTime);
+            NCTestUtils.assertValueAt(1539469588, 0, 0, acquisitionTime);
+            NCTestUtils.assertValueAt(1539469588, 0, 1, acquisitionTime);
+            NCTestUtils.assertValueAt(1539469588, 1, 1, acquisitionTime);
+            NCTestUtils.assertValueAt(1539469588, 1, 2, acquisitionTime);
+            NCTestUtils.assertValueAt(1539469588, 2, 2, acquisitionTime);
+            NCTestUtils.assertValueAt(1539469588, 2, 0, acquisitionTime);
         } finally {
             reader.close();
         }
@@ -308,9 +308,9 @@ public class SlstrReader_IO_Test {
             assertNotNull(acquisitionTime);
 
             NCTestUtils.assertValueAt(-2147483647, 0, 0, acquisitionTime);
-            NCTestUtils.assertValueAt(1542147894, 1, 1, acquisitionTime);
-            NCTestUtils.assertValueAt(1542147894, 1, 2, acquisitionTime);
-            NCTestUtils.assertValueAt(1542147894, 2, 2, acquisitionTime);
+            NCTestUtils.assertValueAt(1539469494, 1, 1, acquisitionTime);
+            NCTestUtils.assertValueAt(1539469494, 1, 2, acquisitionTime);
+            NCTestUtils.assertValueAt(1539469494, 2, 2, acquisitionTime);
             NCTestUtils.assertValueAt(-2147483647, 3, 2, acquisitionTime);
             NCTestUtils.assertValueAt(-2147483647, 4, 2, acquisitionTime);
         } finally {
@@ -329,9 +329,9 @@ public class SlstrReader_IO_Test {
             final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(126, 1199, interval);
             assertNotNull(acquisitionTime);
 
-            NCTestUtils.assertValueAt(1542148074, 0, 0, acquisitionTime);
-            NCTestUtils.assertValueAt(1542148074, 1, 1, acquisitionTime);
-            NCTestUtils.assertValueAt(1542148074, 1, 2, acquisitionTime);
+            NCTestUtils.assertValueAt(1539469674, 0, 0, acquisitionTime);
+            NCTestUtils.assertValueAt(1539469674, 1, 1, acquisitionTime);
+            NCTestUtils.assertValueAt(1539469674, 1, 2, acquisitionTime);
             NCTestUtils.assertValueAt(-2147483647, 2, 3, acquisitionTime);
             NCTestUtils.assertValueAt(-2147483647, 3, 4, acquisitionTime);
         } finally {
