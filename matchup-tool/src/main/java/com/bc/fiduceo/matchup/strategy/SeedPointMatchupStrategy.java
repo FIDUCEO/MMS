@@ -167,6 +167,12 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
                                 matchupSet.setSampleSets(completeSamples);
 
                                 if (matchupSet.getNumObservations() > 0) {
+                                    // @todo 1 tb/tb degug code - remove this later!!!
+                                    logger.info("found matches: " + matchupSet.getNumObservations());
+                                    logger.info("primary: " + primaryObservationDataFilePath);
+                                    logger.info("secondary: " + secondaryObservation.getDataFilePath());
+                                    // @todo 1 end of debug code
+
                                     // todo se multisensor
                                     // still only one secondary sensor case
                                     // uses the secondaryReaderMap instantiated above
