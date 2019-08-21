@@ -10,6 +10,7 @@ import com.bc.fiduceo.reader.*;
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.datamodel.*;
+import org.esa.snap.core.gpf.GPF;
 import ucar.ma2.*;
 import ucar.ma2.DataType;
 import ucar.nc2.Variable;
@@ -18,7 +19,9 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static ucar.ma2.DataType.*;
 
@@ -26,6 +29,7 @@ public abstract class SNAP_Reader implements Reader {
 
     protected final GeometryFactory geometryFactory;
 
+    private Product uncachedProduct;
     protected Product product;
     protected PixelLocator pixelLocator;
 
@@ -39,6 +43,20 @@ public abstract class SNAP_Reader implements Reader {
             throw new IOException("Unable to read product of type '" + formatName + "`': " + file.getAbsolutePath());
         }
         pixelLocator = null;
+        uncachedProduct = null;
+    }
+
+    protected void openCached(File file, String formatName) throws IOException {
+        uncachedProduct = ProductIO.readProduct(file, formatName);
+        if (uncachedProduct == null) {
+            throw new IOException("Unable to read product of type '" + formatName + "`': " + file.getAbsolutePath());
+        }
+        final Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("cacheSize", 2048);
+        final Map<String, Product> productMap = new HashMap<>();
+        productMap.put("source", uncachedProduct);
+        this.product = GPF.createProduct("TileCache", parameterMap, productMap);
+        pixelLocator = null;
     }
 
     @Override
@@ -47,6 +65,10 @@ public abstract class SNAP_Reader implements Reader {
         if (product != null) {
             product.dispose();
             product = null;
+        }
+        if (uncachedProduct != null) {
+            uncachedProduct.dispose();
+            uncachedProduct = null;
         }
     }
 

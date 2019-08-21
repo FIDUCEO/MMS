@@ -89,7 +89,7 @@ public class SlstrReader extends SNAP_Reader {
                 throw new IOException(e.getMessage());
             }
         }
-        open(manifestFile, "Sen3");
+        openCached(manifestFile, "Sen3");
 
         final int obliqueGridOffset = getObliqueGridOffset();
         transformFactory = new TransformFactory(product.getSceneRasterWidth(),
