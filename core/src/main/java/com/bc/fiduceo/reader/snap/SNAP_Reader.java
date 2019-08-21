@@ -102,7 +102,7 @@ public abstract class SNAP_Reader implements Reader {
     }
 
     @Override
-    public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
+    public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException {
         final RasterDataNode dataNode = getRasterDataNode(variableName);
 
         final DataType sourceDataType = NetCDFUtils.getNetcdfDataType(dataNode.getGeophysicalDataType());
@@ -224,7 +224,7 @@ public abstract class SNAP_Reader implements Reader {
         final DataType dataType = readArray.getDataType();
 
         final Rectangle subsetRectangle = new Rectangle(xOffset, yOffset, width, height);
-        final Rectangle productRectangle = new Rectangle(0, 0, product.getSceneRasterWidth(), product.getSceneRasterHeight());
+        final Rectangle productRectangle = new Rectangle(0, 0, dataNode.getRasterWidth(), dataNode.getRasterHeight());
         final Rectangle intersection = productRectangle.intersection(subsetRectangle);
 
         if (intersection.isEmpty()) {

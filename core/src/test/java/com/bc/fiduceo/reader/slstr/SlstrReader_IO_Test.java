@@ -134,47 +134,6 @@ public class SlstrReader_IO_Test {
         }
     }
 
-//    @Test
-//    public void testReadAcquisitionInfo_S3A_zip_strange() throws IOException {
-//        final File file = getS3A_zip_File_strange();
-//
-//        try {
-//            reader.open(file);
-//
-//            final AcquisitionInfo acquisitionInfo = reader.read();
-//            assertNotNull(acquisitionInfo);
-//
-//            final Date sensingStart = acquisitionInfo.getSensingStart();
-//            TestUtil.assertCorrectUTCDate(2018, 10, 26, 23, 16, 11, 490, sensingStart);
-//
-//            final Date sensingStop = acquisitionInfo.getSensingStop();
-//            TestUtil.assertCorrectUTCDate(2018, 10, 26, 23, 19, 11, 490, sensingStop);
-//
-//            final NodeType nodeType = acquisitionInfo.getNodeType();
-//            assertEquals(NodeType.ASCENDING, nodeType);
-//
-//            final Geometry boundingGeometry = acquisitionInfo.getBoundingGeometry();
-//            assertNotNull(boundingGeometry);
-//            assertTrue(boundingGeometry instanceof Polygon);
-//            final Point[] coordinates = boundingGeometry.getCoordinates();
-//            assertEquals(29, coordinates.length);
-//            assertEquals(-15.241932868957521, coordinates[0].getLon(), 1e-8);
-//            assertEquals(54.52157592773438, coordinates[0].getLat(), 1e-8);
-//
-//            assertEquals(-52.93038177490235, coordinates[15].getLon(), 1e-8);
-//            assertEquals(57.850223541259766, coordinates[15].getLat(), 1e-8);
-//
-//            final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
-//            assertEquals(1, timeAxes.length);
-//            Date time = timeAxes[0].getTime(coordinates[0]);
-//            TestUtil.assertCorrectUTCDate(2018, 10, 26, 23, 16, 11, 787, time);
-//            time = timeAxes[0].getTime(coordinates[16]);
-//            TestUtil.assertCorrectUTCDate(2018, 10, 26, 23, 18, 41, 454, time);
-//        } finally {
-//            reader.close();
-//        }
-//    }
-
     @Test
     public void testGetTimeLocator_S3A() throws IOException {
         final File file = getS3AFile();
@@ -412,6 +371,32 @@ public class SlstrReader_IO_Test {
             NCTestUtils.assertValueAt(0, 1, 1, array);
             NCTestUtils.assertValueAt(0, 2, 1, array);
             NCTestUtils.assertValueAt(0, 3, 1, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_S3A_1km_nadir_crashed() throws IOException {
+        final File file = getS3A_zip_File_crashed_reading();
+
+        try {
+            reader.open(file);
+
+            final Interval interval = new Interval(5, 5);
+            Array array = reader.readRaw(1453, 10, interval, "bayes_io");
+            NCTestUtils.assertValueAt(-1, 0, 1, array);
+            NCTestUtils.assertValueAt(-1, 1, 1, array);
+            NCTestUtils.assertValueAt(-1, 2, 1, array);
+            NCTestUtils.assertValueAt(-1, 3, 1, array);
+            NCTestUtils.assertValueAt(-1, 4, 1, array);
+
+            array = reader.readRaw(1447, 10, interval, "bayes_io");
+            NCTestUtils.assertValueAt(0, 0, 1, array);
+            NCTestUtils.assertValueAt(0, 1, 1, array);
+            NCTestUtils.assertValueAt(0, 2, 1, array);
+            NCTestUtils.assertValueAt(-1, 3, 1, array);
+            NCTestUtils.assertValueAt(-1, 4, 1, array);
         } finally {
             reader.close();
         }
@@ -888,6 +873,11 @@ public class SlstrReader_IO_Test {
 
     private File getS3A_zip_File() throws IOException {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"slstr-s3a", "1.0", "2018", "10", "26", "S3A_SL_1_RBT____20181026T231611_20181026T231911_20181028T023445_0180_037_187_0900_LN2_O_NT_003.zip"}, false);
+        return TestUtil.getTestDataFileAsserted(testFilePath);
+    }
+
+    private File getS3A_zip_File_crashed_reading() throws IOException {
+        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"slstr-s3a", "1.0", "2018", "06", "17", "S3A_SL_1_RBT____20180617T012237_20180617T012537_20180617T034823_0179_032_231_1080_SVL_O_NR_003.zip"}, false);
         return TestUtil.getTestDataFileAsserted(testFilePath);
     }
 

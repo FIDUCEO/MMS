@@ -22,12 +22,11 @@ import static com.bc.fiduceo.util.JDomUtils.setNamesAttribute;
 
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.core.UseCaseConfigBuilder;
-import com.bc.fiduceo.matchup.condition.ConditionEngine;
-import com.bc.fiduceo.matchup.condition.DistanceConditionPlugin;
-import com.bc.fiduceo.matchup.condition.OverlapRemoveConditionPlugin;
-import com.bc.fiduceo.matchup.condition.TimeDeltaConditionPlugin;
+import com.bc.fiduceo.matchup.condition.*;
 import org.esa.snap.core.util.StringUtils;
 import org.jdom.Element;
+
+import java.awt.*;
 
 public class MatchupToolTestUseCaseConfigBuilder extends UseCaseConfigBuilder {
 
@@ -60,6 +59,23 @@ public class MatchupToolTestUseCaseConfigBuilder extends UseCaseConfigBuilder {
         final Element conditions = ensureChild(getRootElement(), ConditionEngine.TAG_NAME_CONDITIONS);
         final Element overlapRemove = ensureChild(conditions, OverlapRemoveConditionPlugin.TAG_NAME_CONDITION_NAME);
         addChild(overlapRemove, "reference", reference);
+        return this;
+    }
+
+    public MatchupToolTestUseCaseConfigBuilder withBorderDistance(int primary, int secondary) {
+        final Element conditions = ensureChild(getRootElement(), ConditionEngine.TAG_NAME_CONDITIONS);
+        final Element borderDistance = ensureChild(conditions, "border-distance");
+        if(primary > 0) {
+            final Element primaryElem = ensureChild(borderDistance, "primary");
+            addChild(primaryElem, "nx", primary);
+            addChild(primaryElem, "ny", primary);
+        }
+
+        if (secondary > 0) {
+            final Element secondaryElem = ensureChild(borderDistance, "secondary");
+            addChild(secondaryElem, "nx", secondary);
+            addChild(secondaryElem, "ny", secondary);
+        }
         return this;
     }
 

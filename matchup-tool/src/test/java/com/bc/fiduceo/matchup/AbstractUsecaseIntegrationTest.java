@@ -30,6 +30,7 @@ import com.bc.fiduceo.matchup.writer.MmdWriterFactory;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderFactory;
+import com.bc.fiduceo.util.TempFileUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -79,7 +80,7 @@ abstract class AbstractUsecaseIntegrationTest {
     }
 
     SatelliteObservation readSatelliteObservation(String sensorKey, String absolutePath, String version) throws IOException {
-        final ReaderFactory readerFactory = ReaderFactory.create(geometryFactory, null); // we don't need temp file support here tb 2018-01-23
+        final ReaderFactory readerFactory = ReaderFactory.create(geometryFactory, new TempFileUtils());
         try (Reader reader = readerFactory.getReader(sensorKey)) {
             reader.open(new File(absolutePath));
             final AcquisitionInfo acquisitionInfo = reader.read();
