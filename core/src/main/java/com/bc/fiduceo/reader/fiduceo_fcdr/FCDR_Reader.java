@@ -172,19 +172,19 @@ abstract class FCDR_Reader extends NetCDFReader {
     }
 
     protected ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval, String timeVariableName) throws IOException, InvalidRangeException {
-        final Array rawTimeArray = readRaw(x, y, interval, timeVariableName);
+        final Array timeArray = readScaled(x, y, interval, timeVariableName);
 
         final Number fillValue = getFillValue(timeVariableName);
-        final int[] shape = rawTimeArray.getShape();
+        final int[] shape = timeArray.getShape();
         int height = shape[0];
         int width = shape[1];
         final ArrayInt.D2 integerTimeArray = new ArrayInt.D2(height, width);
         final int targetFillValue = (int) NetCDFUtils.getDefaultFillValue(DataType.INT, false);
-        final Index index = rawTimeArray.getIndex();
+        final Index index = timeArray.getIndex();
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
                 index.set(i, j);
-                final double rawTime = rawTimeArray.getDouble(index);
+                final double rawTime = timeArray.getDouble(index);
                 if (!fillValue.equals(rawTime)) {
                     integerTimeArray.set(i, j, (int) Math.round(rawTime));
                 } else {

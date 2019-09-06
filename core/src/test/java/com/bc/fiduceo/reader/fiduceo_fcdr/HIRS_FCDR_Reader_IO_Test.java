@@ -105,6 +105,64 @@ public class HIRS_FCDR_Reader_IO_Test {
     }
 
     @Test
+    public void testReadAcquisitionInfo_NOAA09() throws IOException {
+        final File file = createHirsNOAA09File();
+
+        try {
+            reader.open(file);
+
+            final AcquisitionInfo acquisitionInfo = reader.read();
+            assertNotNull(acquisitionInfo);
+
+            final Date sensingStart = acquisitionInfo.getSensingStart();
+            TestUtil.assertCorrectUTCDate(1988, 10, 12, 7, 22, 19, sensingStart);
+
+            final Date sensingStop = acquisitionInfo.getSensingStop();
+            TestUtil.assertCorrectUTCDate(1988, 10, 12, 9, 4, 18, sensingStop);
+
+            final NodeType nodeType = acquisitionInfo.getNodeType();
+            assertEquals(NodeType.UNDEFINED, nodeType);
+
+            final Geometry boundingGeometry = acquisitionInfo.getBoundingGeometry();
+            assertNotNull(boundingGeometry);
+            assertTrue(boundingGeometry instanceof MultiPolygon);
+            final MultiPolygon multiPolygon = (MultiPolygon) boundingGeometry;
+            final List<Polygon> polygons = multiPolygon.getPolygons();
+            assertEquals(2, polygons.size());
+
+            Point[] coordinates = polygons.get(0).getCoordinates();
+            assertEquals(45, coordinates.length);
+            assertEquals(121.24881729483606, coordinates[0].getLon(), 1e-8);
+            assertEquals(-1.6809595003724098, coordinates[0].getLat(), 1e-8);
+
+            assertEquals(-71.89123196527362, coordinates[22].getLon(), 1e-8);
+            assertEquals(0.4998931847512721, coordinates[22].getLat(), 1e-8);
+
+            coordinates = polygons.get(1).getCoordinates();
+            assertEquals(45, coordinates.length);
+            assertEquals(-51.75817128270865, coordinates[0].getLon(), 1e-8);
+            assertEquals(-2.397839287295937, coordinates[0].getLat(), 1e-8);
+
+            assertEquals(111.58604683354497, coordinates[23].getLon(), 1e-8);
+            assertEquals(0.8212530892342329, coordinates[23].getLat(), 1e-8);
+
+            final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
+            assertEquals(2, timeAxes.length);
+
+            coordinates = polygons.get(0).getCoordinates();
+            Date time = timeAxes[0].getTime(coordinates[0]);
+            TestUtil.assertCorrectUTCDate(1988, 10, 12, 7, 22, 27, time);
+
+            coordinates = polygons.get(1).getCoordinates();
+            time = timeAxes[1].getTime(coordinates[0]);
+            TestUtil.assertCorrectUTCDate(1988, 10, 12, 8, 13, 18, time);
+
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
     public void testReadAcquisitionInfo_MetopA() throws IOException {
         final File file = createHirsMetopAFile();
 
@@ -174,6 +232,22 @@ public class HIRS_FCDR_Reader_IO_Test {
             // todo 1 tb/tb test-files only contain zeros. Update when we have a new FCDR. 2019-02-18
             assertEquals(0L, timeLocator.getTimeFor(169, 0));
             assertEquals(0L, timeLocator.getTimeFor(168, 1));
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetTimeLocatorNOAA09() throws IOException {
+        final File file = createHirsNOAA09File();
+
+        try {
+            reader.open(file);
+            final TimeLocator timeLocator = reader.getTimeLocator();
+            assertNotNull(timeLocator);
+
+            assertEquals(592644139616L, timeLocator.getTimeFor(169, 0));
+            assertEquals(592644158816L, timeLocator.getTimeFor(168, 3));
         } finally {
             reader.close();
         }
@@ -408,16 +482,15 @@ public class HIRS_FCDR_Reader_IO_Test {
 
     @Test
     public void testReadAcquisitionTime() throws IOException, InvalidRangeException {
-        // todo 1 tb/tb test-files only contain zeros. Update when we have a new FCDR. 2019-02-19
-        final File file = createHirsNOAA07File();
+        final File file = createHirsNOAA09File();
 
         try {
             reader.open(file);
 
             final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(39, 218, new Interval(3, 3));
-            NCTestUtils.assertValueAt(0, 0, 0, acquisitionTime);
-            NCTestUtils.assertValueAt(0, 1, 1, acquisitionTime);
-            NCTestUtils.assertValueAt(0, 2, 2, acquisitionTime);
+            NCTestUtils.assertValueAt(592645676, 0, 0, acquisitionTime);
+            NCTestUtils.assertValueAt(592645682, 1, 1, acquisitionTime);
+            NCTestUtils.assertValueAt(592645688, 2, 2, acquisitionTime);
 
         } finally {
             reader.close();
@@ -444,6 +517,31 @@ public class HIRS_FCDR_Reader_IO_Test {
 
             assertEquals(38.317269513397704, pixelLocation[0].getX(), 1e-8);
             assertEquals(781.666865947429, pixelLocation[0].getY(), 1e-8);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetPixelLocator_N09() throws IOException {
+        final File file = createHirsNOAA09File();
+
+        try {
+            reader.open(file);
+            final PixelLocator pixelLocator = reader.getPixelLocator();
+            assertNotNull(pixelLocator);
+
+            final Point2D geoLocation = pixelLocator.getGeoLocation(38.5, 782.5, null);
+            assertNotNull(geoLocation);
+            assertEquals(117.93634033203125, geoLocation.getX(), 1e-8);
+            assertEquals(-35.07767105102539, geoLocation.getY(), 1e-8);
+
+            final Point2D[] pixelLocation = pixelLocator.getPixelLocation(117.93634033203125, -35.07767105102539);
+            assertNotNull(pixelLocation);
+            assertEquals(1, pixelLocation.length);
+
+            assertEquals(38.50497313441438, pixelLocation[0].getX(), 1e-8);
+            assertEquals(783.6241097278424, pixelLocation[0].getY(), 1e-8);
         } finally {
             reader.close();
         }
@@ -479,6 +577,11 @@ public class HIRS_FCDR_Reader_IO_Test {
 
     private File createHirsNOAA07File() throws IOException {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"hirs-n07-fcdr", "v0.8rc1", "1983", "10", "04", "FIDUCEO_FCDR_L1C_HIRS2_NOAA07_19831004162422_19831004180614_EASY_v0.8rc1_fv2.0.0.nc"}, false);
+        return TestUtil.getTestDataFileAsserted(testFilePath);
+    }
+
+    private File createHirsNOAA09File() throws IOException {
+        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"hirs-n09-fcdr", "v1.00", "1988", "10", "12", "FIDUCEO_FCDR_L1C_HIRS2_NOAA09_19881012072219_19881012090418_EASY_v1.00_fv2.0.0.nc"}, false);
         return TestUtil.getTestDataFileAsserted(testFilePath);
     }
 

@@ -27,13 +27,19 @@ public class HIRS_FCDR_ReaderTest {
     @Test
     public void testGetRegEx() {
         final String regEx = reader.getRegEx();
-        assertEquals("FIDUCEO_FCDR_L1C_HIRS(2|3|4)_(METOPA|NOAA[0-9]{2})_[0-9]{14}_[0-9]{14}_EASY_v0.8rc1_fv\\d\\.\\d\\.\\d\\.nc", regEx);
+        assertEquals("FIDUCEO_FCDR_L1C_HIRS(2|3|4)_(METOPA|METOPB|NOAA[0-9]{2})_[0-9]{14}_[0-9]{14}_EASY_v(0.8rc1|[0-9]{1}.[0-9]{2})_fv\\d\\.\\d\\.\\d\\.nc", regEx);
 
         final Pattern pattern = Pattern.compile(regEx);
         Matcher matcher = pattern.matcher("FIDUCEO_FCDR_L1C_HIRS4_METOPA_20150326173656_20150326191810_EASY_v0.8rc1_fv2.0.0.nc");
         assertTrue(matcher.matches());
 
         matcher = pattern.matcher("FIDUCEO_FCDR_L1C_HIRS2_NOAA07_19831004162422_19831004180614_EASY_v0.8rc1_fv2.0.0.nc");
+        assertTrue(matcher.matches());
+
+        matcher = pattern.matcher("FIDUCEO_FCDR_L1C_HIRS4_METOPA_20130526145431_20130526163545_EASY_v1.00_fv2.0.0.nc");
+        assertTrue(matcher.matches());
+
+        matcher = pattern.matcher("FIDUCEO_FCDR_L1C_HIRS2_NOAA09_19881012173442_19881012191627_EASY_v1.00_fv2.0.0.nc");
         assertTrue(matcher.matches());
 
         matcher = pattern.matcher("NSS.AMBX.NK.D15365.S1249.E1420.B9169697.GC");

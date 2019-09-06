@@ -1,3 +1,6 @@
+### Updates from version 1.5.0 to 1.5.1
+* update to support HIRS FCDR v1.00
+
 ### Updates from version 1.4.9 to 1.5.0
 * corrected bug in SLSTR reader - read over product borders
 * added data caching for SLSTR reader
