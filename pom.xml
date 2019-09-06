@@ -7,10 +7,10 @@
     <groupId>com.bc.fiduceo</groupId>
     <artifactId>fiduceo-master</artifactId>
     <packaging>pom</packaging>
-    <version>1.5.0</version>
+    <version>1.5.1</version>
 
     <properties>
-       <mms.version>1.5.0</mms.version>
+       <mms.version>1.5.1</mms.version>
     </properties>
 
     <modules>
