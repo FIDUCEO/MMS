@@ -30,7 +30,7 @@ class HIRS_FCDR_Reader extends FCDR_Reader {
     private static final int CHANNEL_DIMENSION_INDEX = 0;
     private static final int CHANNEL_QUALITY_DIMENSION_INDEX = 1;
 
-    private static final String REG_EX = "FIDUCEO_FCDR_L1C_HIRS(2|3|4)_(METOPA|NOAA[0-9]{2})_[0-9]{14}_[0-9]{14}_EASY_v0.8rc1_fv\\d\\.\\d\\.\\d\\.nc";
+    private static final String REG_EX = "FIDUCEO_FCDR_L1C_HIRS(2|3|4)_(METOPA|METOPB|NOAA[0-9]{2})_[0-9]{14}_[0-9]{14}_EASY_v(0.8rc1|[0-9]{1}.[0-9]{2})_fv\\d\\.\\d\\.\\d\\.nc";
 
     // these variables do not have dimensionality that can be handled by the core MMS engine. They need to be
     // transferred using a post-processing step tb 2019-02-18
