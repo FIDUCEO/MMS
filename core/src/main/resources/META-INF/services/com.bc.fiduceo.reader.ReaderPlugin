@@ -13,6 +13,7 @@ com.bc.fiduceo.reader.insitu.ocean_rain.OceanRainInsituReaderPlugin
 com.bc.fiduceo.reader.caliop.CALIOP_SST_WP100_CLay_ReaderPlugin
 com.bc.fiduceo.reader.amsr.amsr2.AMSR2_ReaderPlugin
 com.bc.fiduceo.reader.fiduceo_fcdr.AVHRR_FCDR_ReaderPlugin
+com.bc.fiduceo.reader.fiduceo_fcdr.HIRS_FCDR_ReaderPlugin
 com.bc.fiduceo.reader.insitu.gruan_uleic.GruanUleicInsituReaderPlugin
 com.bc.fiduceo.reader.avhrr_frac.AVHRR_FRAC_ReaderPlugin
 com.bc.fiduceo.reader.slstr.SlstrReaderPlugin
