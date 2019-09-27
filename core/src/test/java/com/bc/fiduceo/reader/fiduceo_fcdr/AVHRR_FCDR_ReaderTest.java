@@ -25,7 +25,7 @@ public class AVHRR_FCDR_ReaderTest {
     @Test
     public void testGetRegEx() {
         final String regEx = reader.getRegEx();
-        assertEquals("FIDUCEO_FCDR_L1C_AVHRR_(METOPA|NOAA[0-9]{2}|(N[0-9]{2}|MTA)(ALL|C3A|C3B))_[0-9]{14}_[0-9]{14}_EASY_v(Beta|0.2Bet|0.3Bet|[0-9]{2}.[0-9])_fv\\d\\.\\d\\.\\d\\.nc", regEx);
+        assertEquals("FIDUCEO_FCDR_L1C_AVHRR_(METOPA|NOAA[0-9]{2}|(N[0-9]{2}|MTA)(ALL|C3A|C3B))_[0-9]{14}_[0-9]{14}_EASY_v(Beta|0.2Bet|0.3Bet|[0-9]{2}.[0-9]|[0-9].[0-9]{2})_fv\\d\\.\\d\\.\\d\\.nc", regEx);
 
         final Pattern pattern = Pattern.compile(regEx);
         Matcher matcher = pattern.matcher("FIDUCEO_FCDR_L1C_AVHRR_METOPA_20090115151549_20090115160636_EASY_vBeta_fv2.0.0.nc");
@@ -47,6 +47,9 @@ public class AVHRR_FCDR_ReaderTest {
         assertTrue(matcher.matches());
 
         matcher = pattern.matcher("FIDUCEO_FCDR_L1C_AVHRR_MTAC3A_20071115000644_20071115014806_EASY_v0.3Bet_fv2.0.0.nc");
+        assertTrue(matcher.matches());
+
+        matcher = pattern.matcher("FIDUCEO_FCDR_L1C_AVHRR_MTAC3A_20070515065926_20070515084048_EASY_v1.00_fv2.0.0.nc");
         assertTrue(matcher.matches());
 
         matcher = pattern.matcher("NSS.AMBX.NK.D15365.S1249.E1420.B9169697.GC");

@@ -82,7 +82,7 @@ public class AVHRR_FCDR_Reader extends FCDR_Reader {
 
     @Override
     public String getRegEx() {
-        return "FIDUCEO_FCDR_L1C_AVHRR_(METOPA|NOAA[0-9]{2}|(N[0-9]{2}|MTA)(ALL|C3A|C3B))_[0-9]{14}_[0-9]{14}_EASY_v(Beta|0.2Bet|0.3Bet|[0-9]{2}.[0-9])_fv\\d\\.\\d\\.\\d\\.nc";
+        return "FIDUCEO_FCDR_L1C_AVHRR_(METOPA|NOAA[0-9]{2}|(N[0-9]{2}|MTA)(ALL|C3A|C3B))_[0-9]{14}_[0-9]{14}_EASY_v(Beta|0.2Bet|0.3Bet|[0-9]{2}.[0-9]|[0-9].[0-9]{2})_fv\\d\\.\\d\\.\\d\\.nc";
     }
 
     @Override
