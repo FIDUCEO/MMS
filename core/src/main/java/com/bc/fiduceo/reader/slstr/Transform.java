@@ -14,6 +14,10 @@ interface Transform {
 
     int mapCoordinate_Y(int coordinate);
 
+    int inverseCoordinate_X(int coordinate);
+
+    int inverseCoordinate_Y(int coordinate);
+
     int getOffset();
 
     Interval mapInterval(Interval interval);

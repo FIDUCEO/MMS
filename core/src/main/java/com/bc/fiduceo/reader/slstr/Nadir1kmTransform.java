@@ -30,6 +30,18 @@ class Nadir1kmTransform implements Transform {
     }
 
     @Override
+    public int inverseCoordinate_X(int coordinate) {
+        // @todo 1 tb/tb add tests
+        return coordinate;
+    }
+
+    @Override
+    public int inverseCoordinate_Y(int coordinate) {
+        // @todo 1 tb/tb add tests
+        return coordinate;
+    }
+
+    @Override
     public int getOffset() {
         return 0;
     }

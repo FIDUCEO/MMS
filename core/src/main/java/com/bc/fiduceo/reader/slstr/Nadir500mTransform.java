@@ -30,6 +30,18 @@ class Nadir500mTransform extends Abstract500mTransform {
     }
 
     @Override
+    public int inverseCoordinate_X(int coordinate) {
+        // @todo 1 tb/tb add tests
+        return (int) (coordinate * 0.5);
+    }
+
+    @Override
+    public int inverseCoordinate_Y(int coordinate) {
+        // @todo 1 tb/tb add tests
+        return (int) (coordinate * 0.5);
+    }
+
+    @Override
     public int getOffset() {
         return 1;
     }

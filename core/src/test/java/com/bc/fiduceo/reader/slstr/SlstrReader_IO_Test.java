@@ -819,29 +819,57 @@ public class SlstrReader_IO_Test {
             assertNotNull(pixelLocator);
 
             Point2D geoLocation = pixelLocator.getGeoLocation(144.5, 1044.5, null);
-            assertEquals(174.30761038889423, geoLocation.getX(), 1e-8);
-            assertEquals(79.23764763479988, geoLocation.getY(), 1e-8);
+            assertEquals(175.59606804163354, geoLocation.getX(), 1e-8);
+            assertEquals(74.64973231778033, geoLocation.getY(), 1e-8);
+
+            Point2D[] pixelLocation = pixelLocator.getPixelLocation(175.59606804163354, 74.64973231778033);
+            assertEquals(1, pixelLocation.length);
+            assertEquals(144.5, pixelLocation[0].getX(), 1e-8);
+            assertEquals(1044.5, pixelLocation[0].getY(), 1e-8);
 
             geoLocation = pixelLocator.getGeoLocation(667.5, 804.5, null);
-            assertEquals(-171.94496181848604, geoLocation.getX(), 1e-8);
-            assertEquals(79.88080833866053, geoLocation.getY(), 1e-8);
+            assertEquals(-164.62233701811968, geoLocation.getX(), 1e-8);
+            assertEquals(75.49869504387597, geoLocation.getY(), 1e-8);
 
-            Point2D[] pixelLocation = pixelLocator.getPixelLocation(174.3076, 79.2376);
+            geoLocation = pixelLocator.getGeoLocation(1000.5, 850.5, null);
+            assertEquals(-155.51157004968402, geoLocation.getX(), 1e-8);
+            assertEquals(73.69826950929934, geoLocation.getY(), 1e-8);
+
+            pixelLocation = pixelLocator.getPixelLocation(-155.51157004968402, 73.69826950929934);
             assertEquals(1, pixelLocation.length);
-            assertEquals(144.2261387355412, pixelLocation[0].getX(), 1e-8);
-            assertEquals(1044.5746123740746, pixelLocation[0].getY(), 1e-8);
-
-            geoLocation = pixelLocator.getGeoLocation(1000.5, 1250.5, null);
-            assertEquals(-167.92862835138564, geoLocation.getX(), 1e-8);
-            assertEquals(77.53828861030436, geoLocation.getY(), 1e-8);
-
-            pixelLocation = pixelLocator.getPixelLocation(-167.9286, 77.5382);
-            assertEquals(1, pixelLocation.length);
-            assertEquals(1000.5082744467625, pixelLocation[0].getX(), 1e-8);
-            assertEquals(1250.5583951112617, pixelLocation[0].getY(), 1e-8);
+            assertEquals(999.5, pixelLocation[0].getX(), 1e-8);
+            assertEquals(850.5, pixelLocation[0].getY(), 1e-8);
 
             pixelLocation = pixelLocator.getPixelLocation(1724, -89);
             assertEquals(0, pixelLocation.length);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testPixelLocatorConsistentWithLonLatBands() throws IOException {
+        final File file = getS3AFile();
+
+        try {
+            reader.open(file);
+
+            final PixelLocator pixelLocator = reader.getPixelLocator();
+
+            final double x = 244.5;
+            final double y = 1044.5;
+
+            final Point2D geoLocation = pixelLocator.getGeoLocation(x, y, null);
+            assertEquals(178.94019381241702, geoLocation.getX(), 1e-8);
+            assertEquals(74.536338250559, geoLocation.getY(), 1e-8);
+
+            final Interval interval = new Interval(1, 1);
+            final Array lonArray = reader.readRaw((int) x, (int) y, interval, "longitude_tx");
+            final Array latArray = reader.readRaw((int) x, (int) y, interval, "latitude_tx");
+
+            assertEquals(178.94019381241702, lonArray.getFloat(0), 1e-1);
+            assertEquals(74.536338250559, latArray.getFloat(0), 1e-2);
+
         } finally {
             reader.close();
         }

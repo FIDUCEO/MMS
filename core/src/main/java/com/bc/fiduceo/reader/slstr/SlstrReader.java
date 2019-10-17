@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.bc.fiduceo.reader.slstr.VariableType.NADIR_1km;
+import static com.bc.fiduceo.reader.slstr.VariableType.NADIR_500m;
 import static ucar.ma2.DataType.INT;
 
 public class SlstrReader extends SNAP_Reader {
@@ -120,6 +121,11 @@ public class SlstrReader extends SNAP_Reader {
     @Override
     public String getRegEx() {
         return REGEX;
+    }
+
+    @Override
+    public PixelLocator getPixelLocator() {
+        return new SlstrPixelLocator(product.getSceneGeoCoding(), transformFactory.get(NADIR_500m));
     }
 
     @Override
