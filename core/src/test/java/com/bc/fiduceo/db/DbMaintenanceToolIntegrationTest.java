@@ -21,7 +21,7 @@ import java.util.List;
 
 import static org.junit.Assert.*;
 
-@RunWith(DatabaseTestRunner.class)
+@RunWith(DbAndIOTestRunner.class)
 public class DbMaintenanceToolIntegrationTest {
 
     private File configDir;

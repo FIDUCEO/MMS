@@ -27,26 +27,40 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.bc.fiduceo.reader.slstr.VariableType.NADIR_1km;
+import static com.bc.fiduceo.reader.slstr.VariableType.NADIR_500m;
 import static ucar.ma2.DataType.INT;
 
 public class SlstrReader extends SNAP_Reader {
 
-    private static final String REGEX = "S3([AB])_SL_1_RBT_.*(.SEN3|zip)";
+    private static final String REGEX_ALL = "S3([AB])_SL_1_RBT_.*(.SEN3|zip)";
+    private static final String REGEX_NR = "S3([AB])_SL_1_RBT_.*_NR_.*(.SEN3|zip)";
+    private static final String REGEX_NT = "S3([AB])_SL_1_RBT_.*_NT_.*(.SEN3|zip)";
     private static final Interval INTERVAL = new Interval(100, 100);
     private static final int NUM_SPLITS = 1;
 
     private final VariableNames variableNames;
+    private final String regEx;
     final private ReaderContext readerContext;
     private long[] subs_times;
     private TransformFactory transformFactory;
     private File productDir;
 
-    SlstrReader(ReaderContext readerContext) {
+    SlstrReader(ReaderContext readerContext, ProductType productType) {
         super(readerContext);
         this.readerContext = readerContext;
         productDir = null;
 
         variableNames = new VariableNames();
+
+        if (productType == ProductType.ALL) {
+            this.regEx = REGEX_ALL;
+        } else if (productType == ProductType.NR) {
+            this.regEx = REGEX_NR;
+        } else if (productType == ProductType.NT) {
+            this.regEx = REGEX_NT;
+        } else {
+            throw new IllegalArgumentException("Unsupported product type");
+        }
     }
 
     // package access for testing only tb 2019-05-13
@@ -119,7 +133,12 @@ public class SlstrReader extends SNAP_Reader {
 
     @Override
     public String getRegEx() {
-        return REGEX;
+        return regEx;
+    }
+
+    @Override
+    public PixelLocator getPixelLocator() {
+        return new SlstrPixelLocator(product.getSceneGeoCoding(), transformFactory.get(NADIR_500m));
     }
 
     @Override
@@ -197,8 +216,8 @@ public class SlstrReader extends SNAP_Reader {
         final Array readArray = Array.factory(targetDataType, shape);
         final Array targetArray = Array.factory(targetDataType, shape);
 
-        final int mappedX = transform.mapCoordinate_X(centerX);
-        final int mappedY = transform.mapCoordinate_Y(centerY);
+        final int mappedX = (int) (transform.mapCoordinate_X(centerX) + 0.5);
+        final int mappedY = (int) (transform.mapCoordinate_Y(centerY) + 0.5);
 
         final int xOffset = mappedX - width / 2 + transform.getOffset();
         final int yOffset = mappedY - height / 2 + transform.getOffset();
@@ -233,13 +252,10 @@ public class SlstrReader extends SNAP_Reader {
         final VariableType variableType = variableNames.getVariableType(variableName);
         final Transform transform = transformFactory.get(variableType);
 
-        final int mappedX = transform.mapCoordinate_X(centerX);
-        final int mappedY = transform.mapCoordinate_Y(centerY);
-        final Interval mappedInterval = transform.mapInterval(interval);
-
         final RasterDataNode dataNode = getRasterDataNode(variableName);
         final double noDataValue = SlstrReader.getGeophysicalNoDataValue(dataNode);
 
+        final Interval mappedInterval = transform.mapInterval(interval);
         final DataType sourceDataType = NetCDFUtils.getNetcdfDataType(dataNode.getGeophysicalDataType());
         final int[] shape = getShape(mappedInterval);
         final Array readArray = createReadingArray(sourceDataType, shape);
@@ -247,6 +263,8 @@ public class SlstrReader extends SNAP_Reader {
         final int width = mappedInterval.getX();
         final int height = mappedInterval.getY();
 
+        final int mappedX = (int) (transform.mapCoordinate_X(centerX) + 0.5);
+        final int mappedY = (int) (transform.mapCoordinate_Y(centerY) + 0.5);
         final int xOffset = mappedX - width / 2 + transform.getOffset();
         final int yOffset = mappedY - height / 2 + transform.getOffset();
 

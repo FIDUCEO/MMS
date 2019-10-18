@@ -22,12 +22,22 @@ class Oblique1kmTransform implements Transform {
     }
 
     @Override
-    public int mapCoordinate_X(int coordinate) {
+    public double mapCoordinate_X(double coordinate) {
         return coordinate - rasterXOffset;
     }
 
     @Override
-    public int mapCoordinate_Y(int coordinate) {
+    public double mapCoordinate_Y(double coordinate) {
+        return coordinate;
+    }
+
+    @Override
+    public double inverseCoordinate_X(double coordinate) {
+        return coordinate + rasterXOffset;
+    }
+
+    @Override
+    public double inverseCoordinate_Y(double coordinate) {
         return coordinate;
     }
 

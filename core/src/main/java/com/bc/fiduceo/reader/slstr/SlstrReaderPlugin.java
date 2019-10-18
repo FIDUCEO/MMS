@@ -7,16 +7,26 @@ import com.bc.fiduceo.reader.ReaderPlugin;
 
 public class SlstrReaderPlugin implements ReaderPlugin {
 
-    private static final String[] SENSOR_KEYS = {"slstr-s3a", "slstr-s3b"};
+    private final String[] sensorKey;
+    private final ProductType productType;
+
+    public SlstrReaderPlugin() {
+        this(new String[] {"slstr-s3a", "slstr-s3b"}, ProductType.ALL);
+    }
+
+    SlstrReaderPlugin(String[] sensorKeys, ProductType productType) {
+        this.sensorKey = sensorKeys;
+        this.productType = productType;
+    }
 
     @Override
     public Reader createReader(ReaderContext readerContext) {
-        return new SlstrReader(readerContext);
+        return new SlstrReader(readerContext, productType);
     }
 
     @Override
     public String[] getSupportedSensorKeys() {
-        return SENSOR_KEYS;
+        return sensorKey;
     }
 
     @Override

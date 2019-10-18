@@ -10,9 +10,13 @@ interface Transform {
 
     Dimension getRasterSize();
 
-    int mapCoordinate_X(int coordinate);
+    double mapCoordinate_X(double coordinate);
 
-    int mapCoordinate_Y(int coordinate);
+    double mapCoordinate_Y(double coordinate);
+
+    double inverseCoordinate_X(double coordinate);
+
+    double inverseCoordinate_Y(double coordinate);
 
     int getOffset();
 
