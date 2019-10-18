@@ -20,11 +20,7 @@
 
 package com.bc.fiduceo.geometry.s2;
 
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryCollection;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.Point;
-import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.geometry.*;
 import com.google.common.geometry.S2LatLng;
 import com.google.common.geometry.S2Point;
 import com.google.common.geometry.S2Polyline;
@@ -33,12 +29,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class BcS2LineStringTest {
 
@@ -101,7 +92,7 @@ public class BcS2LineStringTest {
     }
 
     @Test
-    public void testIsValidLineString() throws Exception {
+    public void testIsValidLineString() {
         List<S2Point> vertices = new ArrayList<>();
         vertices.add(S2Point.normalize(new S2Point(1, -1.1, 0.8)));
         S2Polyline s2Polyline = new S2Polyline(vertices);

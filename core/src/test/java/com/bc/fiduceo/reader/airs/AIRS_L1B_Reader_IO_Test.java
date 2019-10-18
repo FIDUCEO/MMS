@@ -519,7 +519,7 @@ public class AIRS_L1B_Reader_IO_Test {
         assertCoordinates(expTimeAxisPoints, axisCoordinates);
     }
 
-    private void assertCorrectDate(String expected, Date date) throws ParseException {
+    private void assertCorrectDate(String expected, Date date) {
         assertNotNull(date);
         assertEquals(expected, dateFormat.format(date));
     }

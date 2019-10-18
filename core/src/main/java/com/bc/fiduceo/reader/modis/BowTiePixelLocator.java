@@ -188,7 +188,7 @@ class BowTiePixelLocator implements PixelLocator {
 
         final int gcRawSize = sceneWidth * STRIPE_HEIGHT;
         shape[0] = 2;   // one scan
-        final int origin[] = {0, 0};
+        final int[] origin = {0, 0};
         for (int y = 0; y < sceneHeight; y += STRIPE_HEIGHT) {
             origin[0] = y;
             final float[] lons = new float[gcRawSize];

@@ -407,7 +407,6 @@ public class MongoDbDriver extends AbstractDriver {
     }
 
     // package access for testing only tb 2016-03-04
-    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     static Document convertToDocument(TimeAxis[] timeAxes) {
         final List<Document> timeAxesList = new ArrayList<>();
         for (final TimeAxis axis : timeAxes) {

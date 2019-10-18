@@ -34,9 +34,7 @@ import ucar.nc2.NetcdfFile;
 import java.io.File;
 import java.io.IOException;
 
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 @RunWith(IOTestRunner.class)
 public class PostProcessingToolIntegrationTest_ElevationToSolzen {
@@ -126,10 +124,10 @@ public class PostProcessingToolIntegrationTest_ElevationToSolzen {
                 "    </create-new-files>\n" +
                 "    <post-processings>\n" +
                 "        <elevation-to-solzen-angle>\n" +
-                "            <convert source-name = \"aatsr-en_view_elev_fward\" target-name = \"aatsr-en_view_zenith_fward\" remove-source = \"" + Boolean.toString(removeSource) + "\"/>" +
-                "            <convert source-name = \"aatsr-en_view_elev_nadir\" target-name = \"aatsr-en_view_zenith_nadir\" remove-source = \"" + Boolean.toString(removeSource) + "\"/>" +
-                "            <convert source-name = \"aatsr-en_sun_elev_fward\" target-name = \"aatsr-en_sun_zenith_fward\" remove-source = \"" + Boolean.toString(removeSource) + "\"/>" +
-                "            <convert source-name = \"aatsr-en_sun_elev_nadir\" target-name = \"aatsr-en_sun_zenith_nadir\" remove-source = \"" + Boolean.toString(removeSource) + "\"/>" +
+                "            <convert source-name = \"aatsr-en_view_elev_fward\" target-name = \"aatsr-en_view_zenith_fward\" remove-source = \"" + removeSource + "\"/>" +
+                "            <convert source-name = \"aatsr-en_view_elev_nadir\" target-name = \"aatsr-en_view_zenith_nadir\" remove-source = \"" + removeSource + "\"/>" +
+                "            <convert source-name = \"aatsr-en_sun_elev_fward\" target-name = \"aatsr-en_sun_zenith_fward\" remove-source = \"" + removeSource + "\"/>" +
+                "            <convert source-name = \"aatsr-en_sun_elev_nadir\" target-name = \"aatsr-en_sun_zenith_nadir\" remove-source = \"" + removeSource + "\"/>" +
                 "        </elevation-to-solzen-angle>" +
                 "    </post-processings>\n" +
                 "</post-processing-config>";

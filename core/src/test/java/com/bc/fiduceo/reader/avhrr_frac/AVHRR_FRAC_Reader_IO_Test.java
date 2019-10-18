@@ -35,7 +35,7 @@ public class AVHRR_FRAC_Reader_IO_Test {
     private AVHRR_FRAC_Reader reader;
 
     @Before
-    public void setUp() throws IOException {
+    public void setUp() {
         final ReaderContext readerContext = new ReaderContext();
         readerContext.setGeometryFactory(new GeometryFactory(GeometryFactory.Type.S2));
         readerContext.setTempFileUtils(new TempFileUtils());
@@ -252,7 +252,7 @@ public class AVHRR_FRAC_Reader_IO_Test {
     }
 
     @Test
-    public void testReadScaled() throws IOException, InvalidRangeException {
+    public void testReadScaled() throws IOException {
         final File file = getAvhrrFRACFile();
 
         try {

@@ -20,18 +20,15 @@
 
 package com.bc.fiduceo.matchup.screening;
 
-import static com.bc.fiduceo.util.JDomUtils.ATTRIBUTE;
-import static com.bc.fiduceo.util.JDomUtils.ATTRIBUTE_NAME__NAME;
-import static com.bc.fiduceo.util.JDomUtils.VALUE;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-
 import com.bc.fiduceo.util.JDomUtils;
 import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 
-import java.io.IOException;
+import static com.bc.fiduceo.util.JDomUtils.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.*;
 
 public class AngularCosineProportionScreeningPluginTest {
 
@@ -44,7 +41,7 @@ public class AngularCosineProportionScreeningPluginTest {
     private Element rootElement;
 
     @Before
-    public void setUp() throws JDOMException, IOException {
+    public void setUp() {
         plugin = new AngularCosineProportionScreeningPlugin();
 
         rootElement = new Element("angular-cosine-proportion");
@@ -59,14 +56,14 @@ public class AngularCosineProportionScreeningPluginTest {
     }
 
     @Test
-    public void testCreateScreening() throws JDOMException, IOException {
+    public void testCreateScreening() {
         final Screening screening = plugin.createScreening(rootElement);
 
         assertNotNull(screening);
     }
 
     @Test
-    public void testCreateConfiguration() throws JDOMException, IOException {
+    public void testCreateConfiguration() {
         final AngularCosineProportionScreening.Configuration configuration = AngularCosineProportionScreeningPlugin.createConfiguration(rootElement);
 
         assertNotNull(configuration);
@@ -76,7 +73,7 @@ public class AngularCosineProportionScreeningPluginTest {
     }
 
     @Test
-    public void testCreateConfiguration_NoPrimaryVariable() throws JDOMException, IOException {
+    public void testCreateConfiguration_NoPrimaryVariable() {
         rootElement.removeChild(PRIMARY_VARIABLE);
 
         try {
@@ -88,7 +85,7 @@ public class AngularCosineProportionScreeningPluginTest {
     }
 
     @Test
-    public void testCreateConfiguration_PrimaryVariable_EmptyNameAttribute() throws JDOMException, IOException {
+    public void testCreateConfiguration_PrimaryVariable_EmptyNameAttribute() {
         final Element child = rootElement.getChild(PRIMARY_VARIABLE);
         JDomUtils.setNameAttribute(child, "");
 
@@ -103,7 +100,7 @@ public class AngularCosineProportionScreeningPluginTest {
     }
 
     @Test
-    public void testCreateConfiguration_PrimaryVariable_NoNameAttribute() throws JDOMException, IOException {
+    public void testCreateConfiguration_PrimaryVariable_NoNameAttribute() {
         rootElement.getChild(PRIMARY_VARIABLE).removeAttribute(ATTRIBUTE_NAME__NAME);
 
         try {
@@ -117,7 +114,7 @@ public class AngularCosineProportionScreeningPluginTest {
     }
 
     @Test
-    public void testCreateConfiguration_NoSecondaryVariable() throws JDOMException, IOException {
+    public void testCreateConfiguration_NoSecondaryVariable() {
         rootElement.removeChild(SECONDARY_VARIABLE);
 
         try {
@@ -130,7 +127,7 @@ public class AngularCosineProportionScreeningPluginTest {
 
 
     @Test
-    public void testCreateConfiguration_SecondaryVariable_EmptyNameAttribute() throws JDOMException, IOException {
+    public void testCreateConfiguration_SecondaryVariable_EmptyNameAttribute() {
         final Element child = rootElement.getChild(SECONDARY_VARIABLE);
         JDomUtils.setNameAttribute(child, "");
 
@@ -145,7 +142,7 @@ public class AngularCosineProportionScreeningPluginTest {
     }
 
     @Test
-    public void testCreateConfiguration_SecondaryVariable_NoNameAttribute() throws JDOMException, IOException {
+    public void testCreateConfiguration_SecondaryVariable_NoNameAttribute() {
         rootElement.getChild(SECONDARY_VARIABLE).removeAttribute(ATTRIBUTE_NAME__NAME);
 
         try {
@@ -159,7 +156,7 @@ public class AngularCosineProportionScreeningPluginTest {
     }
 
     @Test
-    public void testCreateConfiguration_NoThreshold() throws JDOMException, IOException {
+    public void testCreateConfiguration_NoThreshold() {
         rootElement.removeChild(THRESHOLD);
 
         try {
@@ -172,7 +169,7 @@ public class AngularCosineProportionScreeningPluginTest {
 
 
     @Test
-    public void testCreateConfiguration_Threshold_EmptyText() throws JDOMException, IOException {
+    public void testCreateConfiguration_Threshold_EmptyText() {
         rootElement.getChild(THRESHOLD).setText("");
 
         try {

@@ -54,7 +54,7 @@ public class ATSR_L1B_Reader_IO_Test {
     private ATSR_L1B_Reader reader;
 
     @Before
-    public void setUp() throws IOException {
+    public void setUp() {
         final ReaderContext readerContext = new ReaderContext();
         readerContext.setGeometryFactory(new GeometryFactory(GeometryFactory.Type.S2));
 
@@ -435,7 +435,7 @@ public class ATSR_L1B_Reader_IO_Test {
     }
 
     @Test
-    public void testReadScaled_ATSR1() throws IOException, InvalidRangeException {
+    public void testReadScaled_ATSR1() throws IOException {
         final File file = getAtsr1File();
 
         try {
@@ -494,7 +494,7 @@ public class ATSR_L1B_Reader_IO_Test {
     }
 
     @Test
-    public void testReadScaled_ATSR2() throws IOException, InvalidRangeException {
+    public void testReadScaled_ATSR2() throws IOException {
         final File file = getAtsr2File();
 
         try {
@@ -554,7 +554,7 @@ public class ATSR_L1B_Reader_IO_Test {
     }
 
     @Test
-    public void testReadScaled_AATSR_borderPixel() throws IOException, InvalidRangeException {
+    public void testReadScaled_AATSR_borderPixel() throws IOException {
         final File file = getAatsrFile();
 
         try {

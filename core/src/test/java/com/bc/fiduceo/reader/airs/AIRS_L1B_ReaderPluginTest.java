@@ -44,14 +44,14 @@ public class AIRS_L1B_ReaderPluginTest {
     }
 
     @Test
-    public void testGetSupportedSensorKeys() throws Exception {
+    public void testGetSupportedSensorKeys() {
         final String[] expected = new String[]{"airs-aq"};
         final String[] keys = plugin.getSupportedSensorKeys();
         assertArrayEquals(expected, keys);
     }
 
     @Test
-    public void testCreateReaderInstance() throws Exception {
+    public void testCreateReaderInstance() {
         //preparation
         final ReaderContext readerContext = new ReaderContext();
 

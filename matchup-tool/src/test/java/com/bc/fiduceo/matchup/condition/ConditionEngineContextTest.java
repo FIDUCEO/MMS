@@ -1,12 +1,14 @@
 package com.bc.fiduceo.matchup.condition;
 
-import static org.junit.Assert.*;
-
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.matchup.SampleSet;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.Date;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class ConditionEngineContextTest {
 
@@ -15,7 +17,7 @@ public class ConditionEngineContextTest {
     private Date endDate;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         conditionEngineContext = new ConditionEngineContext();
         startDate = new Date();
         endDate = new Date(startDate.getTime() + 100);

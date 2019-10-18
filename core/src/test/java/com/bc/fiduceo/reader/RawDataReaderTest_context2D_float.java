@@ -11,7 +11,6 @@ import java.io.IOException;
 import static org.junit.Assert.*;
 
 
-@SuppressWarnings("Duplicates")
 public class RawDataReaderTest_context2D_float {
 
     private Interval windowSize;

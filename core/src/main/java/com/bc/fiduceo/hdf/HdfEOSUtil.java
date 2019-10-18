@@ -50,7 +50,7 @@ public class HdfEOSUtil {
         return metadataArray.toString();
     }
 
-    public static Element getEosElement(String satelliteMeta) throws IOException {
+    public static Element getEosElement(String satelliteMeta) {
         String trimmedMetaString = satelliteMeta.replaceAll("\\s+=\\s+", "=");
         trimmedMetaString = trimmedMetaString.replaceAll("\\?", "_");
 

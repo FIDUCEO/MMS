@@ -34,7 +34,7 @@ public class AVHRR_FCDR_Reader_IO_Test {
     private AVHRR_FCDR_Reader reader;
 
     @Before
-    public void setUp() throws IOException {
+    public void setUp() {
         final ReaderContext readerContext = new ReaderContext();
         readerContext.setGeometryFactory(new GeometryFactory(GeometryFactory.Type.S2));
 
@@ -659,7 +659,7 @@ public class AVHRR_FCDR_Reader_IO_Test {
     }
 
     @Test
-    public void testReadScaled_scalingAndOffset() throws IOException, InvalidRangeException {
+    public void testReadScaled_scalingAndOffset() throws IOException {
         final File file = createAvhrrMetopAFile();
         reader.open(file);
 
@@ -684,7 +684,7 @@ public class AVHRR_FCDR_Reader_IO_Test {
     }
 
     @Test
-    public void testReadScaled_onlyScaling() throws IOException, InvalidRangeException {
+    public void testReadScaled_onlyScaling() throws IOException {
         final File file = createAvhrrNOAA12File();
         reader.open(file);
 
@@ -709,7 +709,7 @@ public class AVHRR_FCDR_Reader_IO_Test {
     }
 
     @Test
-    public void testReadScaled_onlyScalingNOAA19() throws IOException, InvalidRangeException {
+    public void testReadScaled_onlyScalingNOAA19() throws IOException {
         final File file = createAvhrrNOAA19File();
         reader.open(file);
 
@@ -734,7 +734,7 @@ public class AVHRR_FCDR_Reader_IO_Test {
     }
 
     @Test
-    public void testReadScaled_noScale_noOffset() throws IOException, InvalidRangeException {
+    public void testReadScaled_noScale_noOffset() throws IOException {
         final File file = createAvhrrMetopAFile();
         reader.open(file);
 

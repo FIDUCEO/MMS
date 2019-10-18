@@ -13,7 +13,10 @@ import org.esa.s3tbx.dataio.avhrr.AvhrrConstants;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.core.datamodel.VirtualBand;
-import ucar.ma2.*;
+import ucar.ma2.Array;
+import ucar.ma2.ArrayInt;
+import ucar.ma2.DataType;
+import ucar.ma2.Index;
 
 import java.io.File;
 import java.io.IOException;
@@ -81,7 +84,7 @@ public class AVHRR_FRAC_Reader extends SNAP_Reader {
     }
 
     @Override
-    public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
+    public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException {
         if (product.containsTiePointGrid(variableName)) {
             // we do not want raw data access on tie-point grids tb 2016-08-11
             return readScaled(centerX, centerY, interval, variableName);

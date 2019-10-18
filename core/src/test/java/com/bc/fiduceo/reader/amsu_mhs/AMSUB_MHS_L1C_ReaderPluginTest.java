@@ -36,30 +36,28 @@
  */
 package com.bc.fiduceo.reader.amsu_mhs;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import com.bc.fiduceo.reader.DataType;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderContext;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class AMSUB_MHS_L1C_ReaderPluginTest {
 
     private AMSUB_MHS_L1C_ReaderPlugin plugin;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         plugin = new AMSUB_MHS_L1C_ReaderPlugin();
     }
 
     @Test
-    public void testGetSupportedSensorKey() throws Exception {
+    public void testGetSupportedSensorKey() {
         final String[] expected = {"amsub-n15", "amsub-n16", "amsub-n17", "mhs-n18", "mhs-n19", "mhs-ma", "mhs-mb"};
 
-        final String[] sensorKeys= plugin.getSupportedSensorKeys();
+        final String[] sensorKeys = plugin.getSupportedSensorKeys();
         assertArrayEquals(expected, sensorKeys);
     }
 

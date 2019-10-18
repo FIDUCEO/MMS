@@ -46,7 +46,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-@SuppressWarnings("ThrowFromFinallyBlock")
 @RunWith(DbAndIOTestRunner.class)
 public class MatchupToolIntegrationTest_useCase_05 extends AbstractUsecaseIntegrationTest {
 

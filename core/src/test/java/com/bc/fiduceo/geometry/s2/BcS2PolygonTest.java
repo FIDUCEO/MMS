@@ -10,7 +10,6 @@ import com.google.common.geometry.S2Polyline;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +23,7 @@ public class BcS2PolygonTest {
     private S2WKTReader s2WKTReader;
 
     @Before
-    public void setUp() throws IOException {
+    public void setUp() {
         s2WKTReader = new S2WKTReader();
     }
 
@@ -300,29 +299,29 @@ public class BcS2PolygonTest {
     }
 
     @Test
-    public void testIsValid_valid() throws Exception {
+    public void testIsValid_valid() {
         final BcS2Polygon bcS2Polygon = createBcS2Polygon("POLYGON((5 -1, 5 0, 4 0, 4 -1, 5 -1))");
-        assertEquals(true, bcS2Polygon.isValid());
+        assertTrue(bcS2Polygon.isValid());
     }
 
     @Test
-    public void testIsValid_resolvesToInvalid_selfIntersectingPolygon() throws Exception {
+    public void testIsValid_resolvesToInvalid_selfIntersectingPolygon() {
         final BcS2Polygon bcS2Polygon = createBcS2Polygon("POLYGON((0 0, 4 0, 4 3, 1 3, 3 1, 2 1, 2 4, 0 4, 0 0))");
-        assertEquals(false, bcS2Polygon.isValid());
+        assertFalse(bcS2Polygon.isValid());
     }
 
     @Test
-    public void testIsValid_resolvesToValid_polygonIsADonut() throws Exception {
+    public void testIsValid_resolvesToValid_polygonIsADonut() {
         // the donut polygon does not conform the ogc wkt-specification, the inner loop has to be in clockwise order.
         // We suspect google S2 library specific behavior.  tb 24.2.2016
         final BcS2Polygon bcS2Polygon = createBcS2Polygon("POLYGON((0 0, 0 5, 5 5, 5 0, 0 0),(1 2, 4 2, 2 4, 1 2))");
-        assertEquals(true, bcS2Polygon.isValid());
+        assertTrue(bcS2Polygon.isValid());
     }
 
     @Test
-    public void testIsValid_resolvesToInvalid_polygonIsADamagedDonut() throws Exception {
+    public void testIsValid_resolvesToInvalid_polygonIsADamagedDonut() {
         final BcS2Polygon bcS2Polygon = createBcS2Polygon("POLYGON((0 0, 0 5, 5 5, 5 0, 0 0),(4 2, 7 2, 5 4, 4 2))");
-        assertEquals(false, bcS2Polygon.isValid());
+        assertFalse(bcS2Polygon.isValid());
     }
 
     @Test

@@ -1,24 +1,19 @@
 package com.bc.fiduceo.reader.caliop;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.Point;
-import com.bc.fiduceo.geometry.Polygon;
-import com.bc.fiduceo.geometry.TimeAxis;
+import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.*;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
@@ -36,6 +31,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 
 @RunWith(IOTestRunner.class)
 public class CALIOP_L2_VFM_Reader_IO_Test {
@@ -113,7 +111,7 @@ public class CALIOP_L2_VFM_Reader_IO_Test {
     }
 
     @Test
-    public void getProductSize() throws Exception {
+    public void getProductSize() {
         final Dimension productSize = reader.getProductSize();
         assertEquals(1, productSize.getNx());
         assertEquals(4224, productSize.getNy());
@@ -143,7 +141,7 @@ public class CALIOP_L2_VFM_Reader_IO_Test {
     }
 
     @Test
-    public void getVariables() throws Exception {
+    public void getVariables() {
         final List<Variable> variables = reader.getVariables();
         assertNotNull(variables);
         assertEquals(10, variables.size());
@@ -162,7 +160,7 @@ public class CALIOP_L2_VFM_Reader_IO_Test {
     }
 
     @Test
-    public void getRegEx() throws Exception {
+    public void getRegEx() {
 
         final String YYYY = "(19[7-9]\\d|20[0-7]\\d)";
         final String MM = "(0[1-9]|1[0-2])";
@@ -179,10 +177,10 @@ public class CALIOP_L2_VFM_Reader_IO_Test {
         Matcher matcher;
         // valid day                                                                       ⇓
         matcher = pattern.matcher("CAL_LID_L2_VFM-Standard-V4-10.2011-01-02T23-37-04ZD.hdf");
-        assertEquals(true, matcher.matches());
+        assertTrue(matcher.matches());
         // valid night                                                                     ⇓
         matcher = pattern.matcher("CAL_LID_L2_VFM-Standard-V4-10.2011-01-02T23-37-04ZN.hdf");
-        assertEquals(true, matcher.matches());
+        assertTrue(matcher.matches());
 
         // invalid year                                            ⇓⇓
         matcher = pattern.matcher("CAL_LID_L2_VFM-Standard-V4-10.2080-01-02T23-37-04ZD.hdf");
@@ -307,7 +305,7 @@ public class CALIOP_L2_VFM_Reader_IO_Test {
         a2 = reader.readScaled(0, 40, interval, "Profile_ID");
         assertThat(a1.getDataType(), is(equalTo(DataType.INT)));
         expected = new int[]{
-                    81502, 81517, 81532, 81547, 81562
+                81502, 81517, 81532, 81547, 81562
         };
         assertThat(a1.get1DJavaArray(int.class), is(equalTo(expected)));
         assertThat(a1.getDataType(), is(equalTo(a2.getDataType())));
@@ -317,7 +315,7 @@ public class CALIOP_L2_VFM_Reader_IO_Test {
         a2 = reader.readScaled(0, 40, interval, "Latitude");
         assertThat(a1.getDataType(), is(equalTo(DataType.FLOAT)));
         expected = new float[]{
-                    -63.609745f, -63.651947f, -63.694492f, -63.736717f, -63.778946f
+                -63.609745f, -63.651947f, -63.694492f, -63.736717f, -63.778946f
         };
         assertThat(a1.get1DJavaArray(float.class), is(equalTo(expected)));
         assertThat(a1.getDataType(), is(equalTo(a2.getDataType())));
@@ -327,7 +325,7 @@ public class CALIOP_L2_VFM_Reader_IO_Test {
         a2 = reader.readScaled(0, 40, interval, "Longitude");
         assertThat(a1.getDataType(), is(equalTo(DataType.FLOAT)));
         expected = new float[]{
-                    14.952398f, 14.917107f, 14.881485f, 14.84628f, 14.811039f
+                14.952398f, 14.917107f, 14.881485f, 14.84628f, 14.811039f
         };
         assertThat(a1.get1DJavaArray(float.class), is(equalTo(expected)));
         assertThat(a1.getDataType(), is(equalTo(a2.getDataType())));
@@ -337,7 +335,7 @@ public class CALIOP_L2_VFM_Reader_IO_Test {
         a2 = reader.readScaled(0, 40, interval, "Profile_Time");
         assertThat(a1.getDataType(), is(equalTo(DataType.DOUBLE)));
         expected = new double[]{
-                    5.681650570962E8, 5.681650578392E8, 5.681650585832E8, 5.681650593271999E8, 5.681650600711999E8
+                5.681650570962E8, 5.681650578392E8, 5.681650585832E8, 5.681650593271999E8, 5.681650600711999E8
         };
         assertThat(a1.get1DJavaArray(double.class), is(equalTo(expected)));
         assertThat(a1.getDataType(), is(equalTo(a2.getDataType())));
@@ -347,7 +345,7 @@ public class CALIOP_L2_VFM_Reader_IO_Test {
         a2 = reader.readScaled(0, 40, interval, "Profile_UTC_Time");
         assertThat(a1.getDataType(), is(equalTo(DataType.DOUBLE)));
         expected = new double[]{
-                    110102.98437611343, 110102.98438471297, 110102.98439332408, 110102.98440193519, 110102.9844105463
+                110102.98437611343, 110102.98438471297, 110102.98439332408, 110102.98440193519, 110102.9844105463
         };
         assertThat(a1.get1DJavaArray(double.class), is(equalTo(expected)));
         assertThat(a1.getDataType(), is(equalTo(a2.getDataType())));
@@ -357,7 +355,7 @@ public class CALIOP_L2_VFM_Reader_IO_Test {
         a2 = reader.readScaled(0, 40, interval, "Day_Night_Flag");
         assertThat(a1.getDataType(), is(equalTo(DataType.SHORT)));
         expected = new short[]{
-                    0, 0, 0, 0, 0
+                0, 0, 0, 0, 0
         };
         assertThat(a1.get1DJavaArray(short.class), is(equalTo(expected)));
         assertThat(a1.getDataType(), is(equalTo(a2.getDataType())));
@@ -367,7 +365,7 @@ public class CALIOP_L2_VFM_Reader_IO_Test {
         a2 = reader.readScaled(0, 192, new Interval(1, 11), "Land_Water_Mask");
         assertThat(a1.getDataType(), is(equalTo(DataType.BYTE)));
         expected = new byte[]{
-                    7, 7, 2, 2, 2, 2, 2, 2, 2, 1, 1
+                7, 7, 2, 2, 2, 2, 2, 2, 2, 1, 1
         };
         assertThat(a1.get1DJavaArray(byte.class), is(equalTo(expected)));
         assertThat(a1.getDataType(), is(equalTo(a2.getDataType())));
@@ -377,7 +375,7 @@ public class CALIOP_L2_VFM_Reader_IO_Test {
         a2 = reader.readScaled(0, 40, interval, "Spacecraft_Position_x");
         assertThat(a1.getDataType(), is(equalTo(DataType.DOUBLE)));
         expected = new double[]{
-                    3090.2231291304124, 3086.1839169722384, 3082.137038848976, 3078.087931358017, 3074.0365973714943
+                3090.2231291304124, 3086.1839169722384, 3082.137038848976, 3078.087931358017, 3074.0365973714943
         };
         assertThat(a1.get1DJavaArray(double.class), is(equalTo(expected)));
         assertThat(a1.getDataType(), is(equalTo(a2.getDataType())));
@@ -387,7 +385,7 @@ public class CALIOP_L2_VFM_Reader_IO_Test {
         a2 = reader.readScaled(0, 40, interval, "Spacecraft_Position_y");
         assertThat(a1.getDataType(), is(equalTo(DataType.DOUBLE)));
         expected = new double[]{
-                    839.2475400800969, 836.1470677137711, 833.0423484852521, 829.937556835804, 826.8326952132286
+                839.2475400800969, 836.1470677137711, 833.0423484852521, 829.937556835804, 826.8326952132286
         };
         assertThat(a1.get1DJavaArray(double.class), is(equalTo(expected)));
         assertThat(a1.getDataType(), is(equalTo(a2.getDataType())));
@@ -397,7 +395,7 @@ public class CALIOP_L2_VFM_Reader_IO_Test {
         a2 = reader.readScaled(0, 40, interval, "Spacecraft_Position_z");
         assertThat(a1.getDataType(), is(equalTo(DataType.DOUBLE)));
         expected = new double[]{
-                    -6324.418475639274, -6326.80178776186, -6329.1843969925485, -6331.563091989386, -6333.9378710620185
+                -6324.418475639274, -6326.80178776186, -6329.1843969925485, -6331.563091989386, -6333.9378710620185
         };
         assertThat(a1.get1DJavaArray(double.class), is(equalTo(expected)));
         assertThat(a1.getDataType(), is(equalTo(a2.getDataType())));
@@ -451,62 +449,62 @@ public class CALIOP_L2_VFM_Reader_IO_Test {
 
     private Expectation[] getVariables_Expectations() {
         return new Expectation[]{
-                    new Expectation("Profile_ID", DataType.INT, Arrays.asList(
-                                new Attribute("units", "NoUnits"),
-                                new Attribute("format", "Int_32"),
-                                new Attribute("valid_range", "1...3153600000"),
-                                new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(DataType.INT, false)))),
-                    new Expectation("Latitude", DataType.FLOAT, Arrays.asList(
-                                new Attribute("units", "degrees"),
-                                new Attribute("format", "Float_32"),
-                                new Attribute("valid_range", "-90.0...90.0"),
-                                new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(DataType.FLOAT, false)))),
-                    new Expectation("Longitude", DataType.FLOAT, Arrays.asList(
-                                new Attribute("units", "degrees"),
-                                new Attribute("format", "Float_32"),
-                                new Attribute("valid_range", "-180.0...180.0"),
-                                new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(DataType.FLOAT, false)))),
-                    new Expectation("Profile_Time", DataType.DOUBLE, Arrays.asList(
-                                new Attribute("units", "seconds"),
-                                new Attribute("format", "Float_64"),
-                                new Attribute("valid_range", "4.204E8...1.072E9"),
-                                new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(DataType.DOUBLE, false)))),
-                    new Expectation("Profile_UTC_Time", DataType.DOUBLE, Arrays.asList(
-                                new Attribute("units", "NoUnits"),
-                                new Attribute("format", "Float_64"),
-                                new Attribute("valid_range", "60426.0...261231.0"),
-                                new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(DataType.DOUBLE, false)))),
-                    new Expectation("Day_Night_Flag", DataType.SHORT, Arrays.asList(
-                                new Attribute("_Unsigned", "true"),
-                                new Attribute("units", "NoUnits"),
-                                new Attribute("format", "UInt_16"),
-                                new Attribute("valid_range", "0...1"),
-                                new Attribute(NetCDFUtils.CF_FLAG_VALUES_NAME, Array.factory(new short[]{0, 1})),
-                                new Attribute(NetCDFUtils.CF_FLAG_MEANINGS_NAME, "Day Night"),
-                                new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(DataType.SHORT, true)))),
-                    new Expectation("Land_Water_Mask", DataType.BYTE, Arrays.asList(
-                                new Attribute("units", "NoUnits"),
-                                new Attribute("format", "Int_8"),
-                                new Attribute("valid_range", "0...7"),
-                                new Attribute("fillvalue", (byte) -9),
-                                new Attribute(NetCDFUtils.CF_FLAG_VALUES_NAME, Array.factory(new byte[]{0, 1, 2, 3, 4, 5, 6, 7})),
-                                new Attribute(NetCDFUtils.CF_FLAG_MEANINGS_NAME, "shallow_ocean land coastlines shallow_inland_water intermittent_water deep_inland_water continental_ocean deep_ocean"),
-                                new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, (byte) -9))),
-                    new Expectation("Spacecraft_Position_x", DataType.DOUBLE, Arrays.asList(
-                                new Attribute("units", "kilometers"),
-                                new Attribute("format", "Float_64"),
-                                new Attribute("valid_range", "-8000.0...8000.0"),
-                                new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(DataType.DOUBLE, false)))),
-                    new Expectation("Spacecraft_Position_y", DataType.DOUBLE, Arrays.asList(
-                                new Attribute("units", "kilometers"),
-                                new Attribute("format", "Float_64"),
-                                new Attribute("valid_range", "-8000.0...8000.0"),
-                                new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(DataType.DOUBLE, false)))),
-                    new Expectation("Spacecraft_Position_z", DataType.DOUBLE, Arrays.asList(
-                                new Attribute("units", "kilometers"),
-                                new Attribute("format", "Float_64"),
-                                new Attribute("valid_range", "-8000.0...8000.0"),
-                                new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(DataType.DOUBLE, false))))
+                new Expectation("Profile_ID", DataType.INT, Arrays.asList(
+                        new Attribute("units", "NoUnits"),
+                        new Attribute("format", "Int_32"),
+                        new Attribute("valid_range", "1...3153600000"),
+                        new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(DataType.INT, false)))),
+                new Expectation("Latitude", DataType.FLOAT, Arrays.asList(
+                        new Attribute("units", "degrees"),
+                        new Attribute("format", "Float_32"),
+                        new Attribute("valid_range", "-90.0...90.0"),
+                        new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(DataType.FLOAT, false)))),
+                new Expectation("Longitude", DataType.FLOAT, Arrays.asList(
+                        new Attribute("units", "degrees"),
+                        new Attribute("format", "Float_32"),
+                        new Attribute("valid_range", "-180.0...180.0"),
+                        new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(DataType.FLOAT, false)))),
+                new Expectation("Profile_Time", DataType.DOUBLE, Arrays.asList(
+                        new Attribute("units", "seconds"),
+                        new Attribute("format", "Float_64"),
+                        new Attribute("valid_range", "4.204E8...1.072E9"),
+                        new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(DataType.DOUBLE, false)))),
+                new Expectation("Profile_UTC_Time", DataType.DOUBLE, Arrays.asList(
+                        new Attribute("units", "NoUnits"),
+                        new Attribute("format", "Float_64"),
+                        new Attribute("valid_range", "60426.0...261231.0"),
+                        new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(DataType.DOUBLE, false)))),
+                new Expectation("Day_Night_Flag", DataType.SHORT, Arrays.asList(
+                        new Attribute("_Unsigned", "true"),
+                        new Attribute("units", "NoUnits"),
+                        new Attribute("format", "UInt_16"),
+                        new Attribute("valid_range", "0...1"),
+                        new Attribute(NetCDFUtils.CF_FLAG_VALUES_NAME, Array.factory(new short[]{0, 1})),
+                        new Attribute(NetCDFUtils.CF_FLAG_MEANINGS_NAME, "Day Night"),
+                        new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(DataType.SHORT, true)))),
+                new Expectation("Land_Water_Mask", DataType.BYTE, Arrays.asList(
+                        new Attribute("units", "NoUnits"),
+                        new Attribute("format", "Int_8"),
+                        new Attribute("valid_range", "0...7"),
+                        new Attribute("fillvalue", (byte) -9),
+                        new Attribute(NetCDFUtils.CF_FLAG_VALUES_NAME, Array.factory(new byte[]{0, 1, 2, 3, 4, 5, 6, 7})),
+                        new Attribute(NetCDFUtils.CF_FLAG_MEANINGS_NAME, "shallow_ocean land coastlines shallow_inland_water intermittent_water deep_inland_water continental_ocean deep_ocean"),
+                        new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, (byte) -9))),
+                new Expectation("Spacecraft_Position_x", DataType.DOUBLE, Arrays.asList(
+                        new Attribute("units", "kilometers"),
+                        new Attribute("format", "Float_64"),
+                        new Attribute("valid_range", "-8000.0...8000.0"),
+                        new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(DataType.DOUBLE, false)))),
+                new Expectation("Spacecraft_Position_y", DataType.DOUBLE, Arrays.asList(
+                        new Attribute("units", "kilometers"),
+                        new Attribute("format", "Float_64"),
+                        new Attribute("valid_range", "-8000.0...8000.0"),
+                        new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(DataType.DOUBLE, false)))),
+                new Expectation("Spacecraft_Position_z", DataType.DOUBLE, Arrays.asList(
+                        new Attribute("units", "kilometers"),
+                        new Attribute("format", "Float_64"),
+                        new Attribute("valid_range", "-8000.0...8000.0"),
+                        new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(DataType.DOUBLE, false))))
         };
     }
 

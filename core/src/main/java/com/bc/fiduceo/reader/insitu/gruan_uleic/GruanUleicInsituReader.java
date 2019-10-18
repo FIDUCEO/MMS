@@ -27,9 +27,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
-import static com.bc.fiduceo.util.NetCDFUtils.CF_STANDARD_NAME;
-import static com.bc.fiduceo.util.NetCDFUtils.CF_UNITS_NAME;
+import static com.bc.fiduceo.util.NetCDFUtils.*;
 
 public class GruanUleicInsituReader implements Reader {
 
@@ -47,6 +45,21 @@ public class GruanUleicInsituReader implements Reader {
         decoder.put("lon", new LineDecoder.Lon());
         decoder.put("lat", new LineDecoder.Lat());
         decoder.put("source_file_path", new LineDecoder.Source());
+    }
+
+    static Line decodeLine(String lineString) {
+        final String[] tokens = lineString.split(",");
+        final Line line = new Line();
+
+        final long millisSinceEpoch = (long) (Double.parseDouble(tokens[0].trim()) * 1000);
+        line.date = TimeUtils.create(millisSinceEpoch);
+
+        line.lon = Float.parseFloat(tokens[1].trim());
+        line.lat = Float.parseFloat(tokens[2].trim());
+
+        line.path = tokens[3].trim();
+
+        return line;
     }
 
     @Override
@@ -77,7 +90,7 @@ public class GruanUleicInsituReader implements Reader {
     }
 
     @Override
-    public AcquisitionInfo read() throws IOException {
+    public AcquisitionInfo read() {
         final AcquisitionInfo acquisitionInfo = new AcquisitionInfo();
 
         final Line startLine = decodeLine(linelist.get(0));
@@ -183,21 +196,6 @@ public class GruanUleicInsituReader implements Reader {
         final String lineString = linelist.get(y);
         final Line line = decodeLine(lineString);
         return line.path;
-    }
-
-    static Line decodeLine(String lineString) {
-        final String[] tokens = lineString.split(",");
-        final Line line = new Line();
-
-        final long millisSinceEpoch = (long) (Double.parseDouble(tokens[0].trim()) * 1000);
-        line.date = TimeUtils.create(millisSinceEpoch);
-
-        line.lon = Float.parseFloat(tokens[1].trim());
-        line.lat = Float.parseFloat(tokens[2].trim());
-
-        line.path = tokens[3].trim();
-
-        return line;
     }
 
     private Variable findVariable(String name) {

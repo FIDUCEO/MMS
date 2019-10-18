@@ -1,8 +1,9 @@
 package com.bc.fiduceo.reader.caliop;
 
-import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
 
-import org.junit.*;
+import static org.junit.Assert.assertArrayEquals;
 
 /*
  * Copyright (C) 2016 Brockmann Consult GmbH
@@ -40,14 +41,13 @@ import org.junit.*;
      */
 
 
-
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         caliopUtils = new CaliopUtils();
     }
 
     @Test
-    public void testExtractYearMonthDayFromFilename() throws Exception {
+    public void testExtractYearMonthDayFromFilename() {
         String caliopFileName;
         int[] ymd;
 

@@ -32,12 +32,11 @@ import java.nio.file.Paths;
 public class ReaderCacheTest {
 
     private ReaderCache readerCache;
-    private ReaderFactory readerFactory;
 
     @Before
     public void setUp() {
         final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
-        readerFactory = ReaderFactory.create(geometryFactory, null);    // we don't need temp file support here tb 2018-01-23
+        final ReaderFactory readerFactory = ReaderFactory.create(geometryFactory, null);    // we don't need temp file support here tb 2018-01-23
         readerCache = new ReaderCache(2, readerFactory, null);
     }
 

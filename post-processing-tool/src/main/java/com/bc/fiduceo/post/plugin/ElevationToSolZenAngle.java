@@ -7,11 +7,7 @@ import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.IndexIterator;
 import ucar.ma2.InvalidRangeException;
-import ucar.nc2.Attribute;
-import ucar.nc2.Dimension;
-import ucar.nc2.NetcdfFile;
-import ucar.nc2.NetcdfFileWriter;
-import ucar.nc2.Variable;
+import ucar.nc2.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -27,6 +23,21 @@ class ElevationToSolZenAngle extends PostProcessing {
         this.configuration = configuration;
     }
 
+    // package access for testing only tb 2017-06-06
+    static void calculateZenithAngle(Array sourceData, Array targetData, float fillValue) {
+        final IndexIterator sourceIterator = sourceData.getIndexIterator();
+        final IndexIterator targetIterator = targetData.getIndexIterator();
+        while (sourceIterator.hasNext()) {
+            final float elevation = sourceIterator.getFloatNext();
+            if (elevation != fillValue) {
+                final float zenithAngle = 90.f - elevation;
+                targetIterator.setFloatNext(zenithAngle);
+            } else {
+                targetIterator.setFloatNext(NetCDFUtils.getDefaultFillValue(float.class).floatValue());
+            }
+        }
+    }
+
     @Override
     protected List<String> getVariableNamesToRemove() {
         final List<String> namesList = new ArrayList<>();
@@ -39,7 +50,7 @@ class ElevationToSolZenAngle extends PostProcessing {
     }
 
     @Override
-    protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
+    protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) {
         for (final Conversion conversion : configuration.conversions) {
             final Variable variable = NetCDFUtils.getVariable(reader, conversion.sourceName);
             final List<Dimension> dimensions = variable.getDimensions();
@@ -63,21 +74,6 @@ class ElevationToSolZenAngle extends PostProcessing {
             calculateZenithAngle(sourceData, targetData, fillValue.floatValue());
 
             writer.write(targetVariable, targetData);
-        }
-    }
-
-    // package access for testing only tb 2017-06-06
-    static void calculateZenithAngle(Array sourceData, Array targetData, float fillValue) {
-        final IndexIterator sourceIterator = sourceData.getIndexIterator();
-        final IndexIterator targetIterator = targetData.getIndexIterator();
-        while(sourceIterator.hasNext()) {
-            final float elevation = sourceIterator.getFloatNext();
-            if (elevation != fillValue) {
-                final float zenithAngle = 90.f - elevation;
-                targetIterator.setFloatNext(zenithAngle);
-            } else {
-                targetIterator.setFloatNext(NetCDFUtils.getDefaultFillValue(float.class).floatValue());
-            }
         }
     }
 

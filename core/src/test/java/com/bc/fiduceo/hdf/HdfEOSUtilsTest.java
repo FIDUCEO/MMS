@@ -32,7 +32,6 @@ import ucar.nc2.Group;
 import ucar.nc2.Variable;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 
@@ -65,7 +64,7 @@ public class HdfEOSUtilsTest {
     }
 
     @Test
-    public void testGetEosElement() throws IOException {
+    public void testGetEosElement() {
         final Element eosElement = HdfEOSUtil.getEosElement(EOS_CORE_META);
         assertNotNull(eosElement);
         List<Content> content = eosElement.getContent();
@@ -78,7 +77,7 @@ public class HdfEOSUtilsTest {
     }
 
     @Test
-    public void testElementValue() throws IOException {
+    public void testElementValue()  {
         final Element mockElement = mock(Element.class);
         final Element childElement = mock(Element.class);
         when(childElement.getValue()).thenReturn("2015-08-03");
@@ -98,7 +97,7 @@ public class HdfEOSUtilsTest {
     }
 
     @Test
-    public void testParseDate_fullFormat() throws ParseException {
+    public void testParseDate_fullFormat() {
         final Date date = HdfEOSUtil.parseDate("2012-07-11", "14:33:54.876543Z");
         TestUtil.assertCorrectUTCDate(2012, 7, 11, 14, 33, 54, 876, date);
     }

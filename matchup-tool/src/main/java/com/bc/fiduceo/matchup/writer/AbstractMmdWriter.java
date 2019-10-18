@@ -79,7 +79,6 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
      * @throws IOException           on disk access errors
      * @throws InvalidRangeException on dimension errors
      */
-    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     public void writeMMD(MatchupCollection matchupCollection, ToolContext context, IOVariablesList ioVariablesList) throws IOException, InvalidRangeException {
         if (matchupCollection.getNumMatchups() == 0) {
             logger.warning("No matchups in time interval, creation of MMD file skipped.");

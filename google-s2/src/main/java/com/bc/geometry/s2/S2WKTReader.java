@@ -141,16 +141,14 @@ public class S2WKTReader {
      */
     private double getNextNumber() throws IOException, IllegalArgumentException {
         int type = tokenizer.nextToken();
-        switch (type) {
-            case StreamTokenizer.TT_WORD: {
-                if (tokenizer.sval.equalsIgnoreCase(NAN_SYMBOL)) {
-                    return Double.NaN;
-                } else {
-                    try {
-                        return Double.parseDouble(tokenizer.sval);
-                    } catch (NumberFormatException ex) {
-                        parseErrorWithLine("Invalid number: " + tokenizer.sval);
-                    }
+        if (type == StreamTokenizer.TT_WORD) {
+            if (tokenizer.sval.equalsIgnoreCase(NAN_SYMBOL)) {
+                return Double.NaN;
+            } else {
+                try {
+                    return Double.parseDouble(tokenizer.sval);
+                } catch (NumberFormatException ex) {
+                    parseErrorWithLine("Invalid number: " + tokenizer.sval);
                 }
             }
         }

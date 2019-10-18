@@ -54,7 +54,6 @@ class OverlapRemoveCondition implements Condition {
         this.secondaryName = secondaryName;
     }
 
-    @SuppressWarnings("SuspiciousNameCombination")
     @Override
     public void apply(MatchupSet matchupSet, ConditionEngineContext context) {
         final List<SampleSet> sampleSets = matchupSet.getSampleSets();
