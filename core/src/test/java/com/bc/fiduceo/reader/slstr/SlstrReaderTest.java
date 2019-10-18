@@ -11,10 +11,10 @@ import static org.junit.Assert.*;
 public class SlstrReaderTest {
 
     @Test
-    public void testGetRegEx() {
+    public void testGetRegEx_ALL() {
         final String expected = "S3([AB])_SL_1_RBT_.*(.SEN3|zip)";
 
-        final SlstrReader reader = new SlstrReader(new ReaderContext());// we do not need a gemetry factory here tb 2019-05-10
+        final SlstrReader reader = new SlstrReader(new ReaderContext(), ProductType.ALL);// we do not need a geometry factory here tb 2019-05-10
         assertEquals(expected, reader.getRegEx());
 
         final Pattern pattern = Pattern.compile(expected);
@@ -38,17 +38,60 @@ public class SlstrReaderTest {
         assertFalse(matcher.matches());
     }
 
+    @Test
+    public void testGetRegEx_NR() {
+        final String expected = "S3([AB])_SL_1_RBT_.*_NR_.*(.SEN3|zip)";
+
+        final SlstrReader reader = new SlstrReader(new ReaderContext(), ProductType.NR);// we do not need a geometry factory here tb 2019-10-18
+        assertEquals(expected, reader.getRegEx());
+
+        final Pattern pattern = Pattern.compile(expected);
+
+        Matcher matcher = pattern.matcher("S3A_SL_1_RBT____20181123T235558_20181123T235858_20181124T012832_0179_038_201_4860_SVL_O_NR_003.zip");
+        assertTrue(matcher.matches());
+
+        matcher = pattern.matcher("S3A_SL_1_RBT____20190823T235126_20190823T235426_20190824T012621_0180_048_244_3240_LN2_O_NR_003.zip");
+        assertTrue(matcher.matches());
+
+        matcher = pattern.matcher("S3A_SL_1_RBT____20181123T235558_20181123T235858_20181125T082054_0179_038_201_4860_LN2_O_NT_003.zip");
+        assertFalse(matcher.matches());
+
+        matcher = pattern.matcher("S3A_SL_1_RBT____20190823T235126_20190823T235426_20190825T042421_0179_048_244_3240_LN2_O_NT_003.zip");
+        assertFalse(matcher.matches());
+    }
+
+    @Test
+    public void testGetRegEx_NT() {
+        final String expected = "S3([AB])_SL_1_RBT_.*_NT_.*(.SEN3|zip)";
+
+        final SlstrReader reader = new SlstrReader(new ReaderContext(), ProductType.NT);// we do not need a geometry factory here tb 2019-10-18
+        assertEquals(expected, reader.getRegEx());
+
+        final Pattern pattern = Pattern.compile(expected);
+
+        Matcher matcher = pattern.matcher("S3A_SL_1_RBT____20181123T235558_20181123T235858_20181124T012832_0179_038_201_4860_SVL_O_NT_003.zip");
+        assertTrue(matcher.matches());
+
+        matcher = pattern.matcher("S3A_SL_1_RBT____20190823T235126_20190823T235426_20190824T012621_0180_048_244_3240_LN2_O_NT_003.zip");
+        assertTrue(matcher.matches());
+
+        matcher = pattern.matcher("S3A_SL_1_RBT____20181123T235558_20181123T235858_20181125T082054_0179_038_201_4860_LN2_O_NR_003.zip");
+        assertFalse(matcher.matches());
+
+        matcher = pattern.matcher("S3A_SL_1_RBT____20190823T235126_20190823T235426_20190825T042421_0179_048_244_3240_LN2_O_NR_003.zip");
+        assertFalse(matcher.matches());
+    }
 
     @Test
     public void testGetLongitudeVariableName() {
-        final SlstrReader reader = new SlstrReader(new ReaderContext());// we do not need a gemetry factory here tb 2019-05-10
+        final SlstrReader reader = new SlstrReader(new ReaderContext(), ProductType.NR);// we do not need a gemetry factory here tb 2019-05-10
 
         assertEquals("longitude_tx", reader.getLongitudeVariableName());
     }
 
     @Test
     public void testGetLatitudeVariableName() {
-        final SlstrReader reader = new SlstrReader(new ReaderContext());// we do not need a gemetry factory here tb 2019-05-10
+        final SlstrReader reader = new SlstrReader(new ReaderContext(), ProductType.NT);// we do not need a gemetry factory here tb 2019-05-10
 
         assertEquals("latitude_tx", reader.getLatitudeVariableName());
     }
@@ -71,7 +114,7 @@ public class SlstrReaderTest {
 
     @Test
     public void testExtractYearMonthDayFromFilename() {
-        final SlstrReader reader = new SlstrReader(new ReaderContext());// we do not need a gemetry factory here tb 2019-05-27
+        final SlstrReader reader = new SlstrReader(new ReaderContext(), ProductType.ALL);// we do not need a geometry factory here tb 2019-05-27
 
         final int[] ymd = reader.extractYearMonthDayFromFilename("S3A_SL_1_RBT____20181013T222436_20181013T222736_20181015T035102_0179_037_001_1620_LN2_O_NT_003.SEN3");
         assertEquals(2018, ymd[0]);

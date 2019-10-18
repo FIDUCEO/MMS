@@ -17,3 +17,5 @@ com.bc.fiduceo.reader.fiduceo_fcdr.HIRS_FCDR_ReaderPlugin
 com.bc.fiduceo.reader.insitu.gruan_uleic.GruanUleicInsituReaderPlugin
 com.bc.fiduceo.reader.avhrr_frac.AVHRR_FRAC_ReaderPlugin
 com.bc.fiduceo.reader.slstr.SlstrReaderPlugin
+com.bc.fiduceo.reader.slstr.SlstrNRReaderPlugin
+com.bc.fiduceo.reader.slstr.SlstrNTReaderPlugin

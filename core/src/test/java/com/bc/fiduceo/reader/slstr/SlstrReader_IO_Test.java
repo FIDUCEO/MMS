@@ -43,7 +43,7 @@ public class SlstrReader_IO_Test {
         tempFileUtils = new TempFileUtils();
         readerContext.setTempFileUtils(tempFileUtils);
 
-        reader = new SlstrReader(readerContext);
+        reader = new SlstrReader(readerContext, ProductType.ALL);
     }
 
     @After
