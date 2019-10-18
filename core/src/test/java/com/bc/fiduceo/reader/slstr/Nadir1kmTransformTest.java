@@ -22,8 +22,16 @@ public class Nadir1kmTransformTest {
     public void testMapCoordinate_XY() {
         final Nadir1kmTransform transform = new Nadir1kmTransform(200, 180);
 
-        assertEquals(123, transform.mapCoordinate_X(123));
-        assertEquals(4000, transform.mapCoordinate_Y(4000));
+        assertEquals(123, transform.mapCoordinate_X(123), 1e-8);
+        assertEquals(4000, transform.mapCoordinate_Y(4000), 1e-8);
+    }
+
+    @Test
+    public void testInverseCoordinate_XY() {
+        final Nadir1kmTransform transform = new Nadir1kmTransform(200, 180);
+
+        assertEquals(123, transform.inverseCoordinate_X(123), 1e-8);
+        assertEquals(4000, transform.inverseCoordinate_X(4000), 1e-8);
     }
 
     @Test

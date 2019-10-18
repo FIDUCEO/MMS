@@ -20,24 +20,22 @@ class Nadir1kmTransform implements Transform {
     }
 
     @Override
-    public int mapCoordinate_X(int coordinate) {
+    public double mapCoordinate_X(double coordinate) {
         return coordinate;
     }
 
     @Override
-    public int mapCoordinate_Y(int coordinate) {
+    public double mapCoordinate_Y(double coordinate) {
         return coordinate;
     }
 
     @Override
-    public int inverseCoordinate_X(int coordinate) {
-        // @todo 1 tb/tb add tests
+    public double inverseCoordinate_X(double coordinate) {
         return coordinate;
     }
 
     @Override
-    public int inverseCoordinate_Y(int coordinate) {
-        // @todo 1 tb/tb add tests
+    public double inverseCoordinate_Y(double coordinate) {
         return coordinate;
     }
 

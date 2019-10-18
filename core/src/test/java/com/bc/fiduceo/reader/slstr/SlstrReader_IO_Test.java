@@ -824,8 +824,8 @@ public class SlstrReader_IO_Test {
 
             Point2D[] pixelLocation = pixelLocator.getPixelLocation(175.59606804163354, 74.64973231778033);
             assertEquals(1, pixelLocation.length);
-            assertEquals(144.5, pixelLocation[0].getX(), 1e-8);
-            assertEquals(1044.5, pixelLocation[0].getY(), 1e-8);
+            assertEquals(144.51761391998085, pixelLocation[0].getX(), 1e-8);
+            assertEquals(1044.5164233221906, pixelLocation[0].getY(), 1e-8);
 
             geoLocation = pixelLocator.getGeoLocation(667.5, 804.5, null);
             assertEquals(-164.62233701811968, geoLocation.getX(), 1e-8);
@@ -837,8 +837,8 @@ public class SlstrReader_IO_Test {
 
             pixelLocation = pixelLocator.getPixelLocation(-155.51157004968402, 73.69826950929934);
             assertEquals(1, pixelLocation.length);
-            assertEquals(999.5, pixelLocation[0].getX(), 1e-8);
-            assertEquals(850.5, pixelLocation[0].getY(), 1e-8);
+            assertEquals(1000.4942282079284, pixelLocation[0].getX(), 1e-8);
+            assertEquals(850.5098251528784, pixelLocation[0].getY(), 1e-8);
 
             pixelLocation = pixelLocator.getPixelLocation(1724, -89);
             assertEquals(0, pixelLocation.length);

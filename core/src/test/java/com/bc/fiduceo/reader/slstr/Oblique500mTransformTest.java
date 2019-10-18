@@ -24,8 +24,16 @@ public class Oblique500mTransformTest {
     public void testMapCoordinate_XY() {
         final Oblique500mTransform transform = new Oblique500mTransform(3000, 2400, 423);
 
-        assertEquals(1154, transform.mapCoordinate_X(1000));
-        assertEquals(2800, transform.mapCoordinate_Y(1400));
+        assertEquals(1154, transform.mapCoordinate_X(1000), 1e-8);
+        assertEquals(2800, transform.mapCoordinate_Y(1400), 1e-8);
+    }
+
+    @Test
+    public void testInverseCoordinate_XY() {
+        final Oblique500mTransform transform = new Oblique500mTransform(3000, 2400, 423);
+
+        assertEquals(1000, transform.inverseCoordinate_X(1154), 1e-8);
+        assertEquals(1400, transform.inverseCoordinate_Y(2800), 1e-8);
     }
 
     @Test

@@ -203,8 +203,8 @@ public class SlstrReader extends SNAP_Reader {
         final Array readArray = Array.factory(targetDataType, shape);
         final Array targetArray = Array.factory(targetDataType, shape);
 
-        final int mappedX = transform.mapCoordinate_X(centerX);
-        final int mappedY = transform.mapCoordinate_Y(centerY);
+        final int mappedX = (int) (transform.mapCoordinate_X(centerX) + 0.5);
+        final int mappedY = (int) (transform.mapCoordinate_Y(centerY) + 0.5);
 
         final int xOffset = mappedX - width / 2 + transform.getOffset();
         final int yOffset = mappedY - height / 2 + transform.getOffset();
@@ -239,13 +239,10 @@ public class SlstrReader extends SNAP_Reader {
         final VariableType variableType = variableNames.getVariableType(variableName);
         final Transform transform = transformFactory.get(variableType);
 
-        final int mappedX = transform.mapCoordinate_X(centerX);
-        final int mappedY = transform.mapCoordinate_Y(centerY);
-        final Interval mappedInterval = transform.mapInterval(interval);
-
         final RasterDataNode dataNode = getRasterDataNode(variableName);
         final double noDataValue = SlstrReader.getGeophysicalNoDataValue(dataNode);
 
+        final Interval mappedInterval = transform.mapInterval(interval);
         final DataType sourceDataType = NetCDFUtils.getNetcdfDataType(dataNode.getGeophysicalDataType());
         final int[] shape = getShape(mappedInterval);
         final Array readArray = createReadingArray(sourceDataType, shape);
@@ -253,6 +250,8 @@ public class SlstrReader extends SNAP_Reader {
         final int width = mappedInterval.getX();
         final int height = mappedInterval.getY();
 
+        final int mappedX = (int) (transform.mapCoordinate_X(centerX) + 0.5);
+        final int mappedY = (int) (transform.mapCoordinate_Y(centerY) + 0.5);
         final int xOffset = mappedX - width / 2 + transform.getOffset();
         final int yOffset = mappedY - height / 2 + transform.getOffset();
 

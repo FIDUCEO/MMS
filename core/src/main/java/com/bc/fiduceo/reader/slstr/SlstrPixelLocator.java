@@ -9,7 +9,7 @@ public class SlstrPixelLocator extends SNAP_PixelLocator {
 
     private final Transform transform;
 
-    public SlstrPixelLocator(GeoCoding geoCoding, Transform transform) {
+    SlstrPixelLocator(GeoCoding geoCoding, Transform transform) {
         super(geoCoding);
 
         this.transform = transform;
@@ -17,8 +17,8 @@ public class SlstrPixelLocator extends SNAP_PixelLocator {
 
     @Override
     public Point2D getGeoLocation(double x, double y, Point2D point) {
-        final int mappedX = transform.mapCoordinate_X((int) x);
-        final int mappedy = transform.mapCoordinate_Y((int) y);
+        final double mappedX = transform.mapCoordinate_X(x - 0.5);
+        final double mappedy = transform.mapCoordinate_Y(y - 0.5);
         return super.getGeoLocation(mappedX, mappedy, point);
     }
 
@@ -26,8 +26,8 @@ public class SlstrPixelLocator extends SNAP_PixelLocator {
     public Point2D[] getPixelLocation(double lon, double lat) {
         final Point2D[] pixelLocations = super.getPixelLocation(lon, lat);
         for (final Point2D point : pixelLocations) {
-            final int mappedX = transform.inverseCoordinate_X((int) point.getX());
-            final int mappedy = transform.inverseCoordinate_Y((int) point.getY());
+            final double mappedX = transform.inverseCoordinate_X(point.getX());
+            final double mappedy = transform.inverseCoordinate_Y(point.getY());
 
             point.setLocation(mappedX + 0.5, mappedy + 0.5);
         }

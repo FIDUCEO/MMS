@@ -2,8 +2,6 @@ package com.bc.fiduceo.reader.slstr;
 
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
-import ucar.ma2.Array;
-import ucar.ma2.InvalidRangeException;
 
 class Oblique500mTransform extends Abstract500mTransform {
 
@@ -23,25 +21,23 @@ class Oblique500mTransform extends Abstract500mTransform {
     }
 
     @Override
-    public int mapCoordinate_X(int coordinate) {
+    public double mapCoordinate_X(double coordinate) {
         return (coordinate - rasterXOffset) * 2;
     }
 
     @Override
-    public int mapCoordinate_Y(int coordinate) {
+    public double mapCoordinate_Y(double coordinate) {
         return coordinate * 2;
     }
 
     @Override
-    public int inverseCoordinate_X(int coordinate) {
-        // @todo 1 tb/tb add tests
-        return (int) ((coordinate + rasterXOffset) * 0.5);
+    public double inverseCoordinate_X(double coordinate) {
+        return coordinate * 0.5 + rasterXOffset;
     }
 
     @Override
-    public int inverseCoordinate_Y(int coordinate) {
-        // @todo 1 tb/tb add tests
-        return (int) (coordinate * 0.5);
+    public double inverseCoordinate_Y(double coordinate) {
+        return coordinate * 0.5;
     }
 
     @Override

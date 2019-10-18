@@ -22,8 +22,16 @@ public class Oblique1kmTransformTest {
     public void testMapCoordinate_XY() {
         final Oblique1kmTransform transform = new Oblique1kmTransform(2000, 1800, 548);
 
-        assertEquals(-425, transform.mapCoordinate_X(123));
-        assertEquals(4000, transform.mapCoordinate_Y(4000));
+        assertEquals(-425, transform.mapCoordinate_X(123), 1e-8);
+        assertEquals(4000, transform.mapCoordinate_Y(4000), 1e-8);
+    }
+
+    @Test
+    public void testInverseCoordinate_XY() {
+        final Oblique1kmTransform transform = new Oblique1kmTransform(2000, 1800, 548);
+
+        assertEquals(123, transform.inverseCoordinate_X(-425), 1e-8);
+        assertEquals(4000, transform.inverseCoordinate_Y(4000), 1e-8);
     }
 
     @Test

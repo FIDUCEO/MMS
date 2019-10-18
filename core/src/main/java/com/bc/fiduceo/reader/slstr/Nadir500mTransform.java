@@ -2,7 +2,6 @@ package com.bc.fiduceo.reader.slstr;
 
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
-import ucar.ma2.*;
 
 class Nadir500mTransform extends Abstract500mTransform {
 
@@ -20,25 +19,23 @@ class Nadir500mTransform extends Abstract500mTransform {
     }
 
     @Override
-    public int mapCoordinate_X(int coordinate) {
-        return 2 * coordinate;
+    public double mapCoordinate_X(double coordinate) {
+        return 2.0 * coordinate;
     }
 
     @Override
-    public int mapCoordinate_Y(int coordinate) {
-        return 2 * coordinate;
+    public double mapCoordinate_Y(double coordinate) {
+        return 2.0 * coordinate;
     }
 
     @Override
-    public int inverseCoordinate_X(int coordinate) {
-        // @todo 1 tb/tb add tests
-        return (int) (coordinate * 0.5);
+    public double inverseCoordinate_X(double coordinate) {
+        return coordinate * 0.5;
     }
 
     @Override
-    public int inverseCoordinate_Y(int coordinate) {
-        // @todo 1 tb/tb add tests
-        return (int) (coordinate * 0.5);
+    public double inverseCoordinate_Y(double coordinate) {
+        return coordinate * 0.5;
     }
 
     @Override

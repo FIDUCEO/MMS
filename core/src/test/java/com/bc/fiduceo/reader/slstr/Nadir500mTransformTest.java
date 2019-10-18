@@ -25,8 +25,16 @@ public class Nadir500mTransformTest {
     public void testMapCoordinate_XY() {
         final Nadir500mTransform transform = new Nadir500mTransform(200, 180);
 
-        assertEquals(248, transform.mapCoordinate_X(124));
-        assertEquals(7600, transform.mapCoordinate_Y(3800));
+        assertEquals(248, transform.mapCoordinate_X(124), 1e-8);
+        assertEquals(7600, transform.mapCoordinate_Y(3800), 1e-8);
+    }
+
+    @Test
+    public void testInverseCoordinate_XY() {
+        final Nadir500mTransform transform = new Nadir500mTransform(200, 180);
+
+        assertEquals(124, transform.inverseCoordinate_X(248), 1e-8);
+        assertEquals(3800, transform.inverseCoordinate_Y(7600), 1e-8);
     }
 
     @Test
