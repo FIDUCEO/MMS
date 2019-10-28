@@ -18,7 +18,7 @@
  *
  */
 
-package com.bc.fiduceo.post.plugin;
+package com.bc.fiduceo.post.plugin.amsr;
 
 import static com.bc.fiduceo.TestUtil.matchesPattern;
 import static org.hamcrest.CoreMatchers.*;
@@ -26,6 +26,8 @@ import static org.junit.Assert.*;
 
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.post.PostProcessing;
+import com.bc.fiduceo.post.plugin.amsr.AddAmsrSolarAngles;
+import com.bc.fiduceo.post.plugin.amsr.AddAmsrSolarAnglesPlugin;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.junit.*;

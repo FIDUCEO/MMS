@@ -1,7 +1,7 @@
 com.bc.fiduceo.post.plugin.point_distance.SphericalDistancePlugin
 com.bc.fiduceo.post.plugin.sstInsitu.SstInsituTimeSeriesPlugin
-com.bc.fiduceo.post.plugin.AddAmsrSolarAnglesPlugin
-com.bc.fiduceo.post.plugin.AddAmsr2ScanDataQualityPlugin
+com.bc.fiduceo.post.plugin.amsr.AddAmsrSolarAnglesPlugin
+com.bc.fiduceo.post.plugin.amsr.AddAmsr2ScanDataQualityPlugin
 com.bc.fiduceo.post.plugin.nwp.NwpPostProcessingPlugin
 com.bc.fiduceo.post.plugin.hirs.flag.HirsL1CloudyFlagsPlugin
 com.bc.fiduceo.post.plugin.ElevationToSolZenAnglePlugin
