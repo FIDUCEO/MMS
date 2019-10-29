@@ -1,6 +1,10 @@
 package com.bc.fiduceo.matchup.condition;
 
+import com.bc.fiduceo.util.JDomUtils;
+import org.esa.snap.core.util.StringUtils;
 import org.jdom.Element;
+
+import java.util.stream.Stream;
 
 public class PixelPositionConditionPlugin implements ConditionPlugin {
 
@@ -8,7 +12,8 @@ public class PixelPositionConditionPlugin implements ConditionPlugin {
 
     @Override
     public Condition createCondition(Element element) {
-        return new PixelPositionCondition();
+        final PixelPositionCondition.Configuration configuration = parseConfig(element);
+        return new PixelPositionCondition(configuration);
     }
 
     @Override
@@ -39,6 +44,26 @@ public class PixelPositionConditionPlugin implements ConditionPlugin {
             configuration.maxY = Integer.parseInt(value);
         }
 
+        if (configuration.minX >= configuration.maxX) {
+            throw new IllegalArgumentException("Invalid pixel range for x.");
+        }
+        if (configuration.minY >= configuration.maxY) {
+            throw new IllegalArgumentException("Invalid pixel range for y.");
+        }
+
+        final Element referenceElement = JDomUtils.getMandatoryChild(element, "reference");
+        final String referenceValue = referenceElement.getValue();
+        if ("PRIMARY".equalsIgnoreCase(referenceValue)) {
+            configuration.isPrimary = true;
+        } else if("SECONDARY".equalsIgnoreCase(referenceValue)) {
+            configuration.isPrimary = false;
+            final String namesFromAtt = JDomUtils.getValueFromNamesAttribute(referenceElement);
+            if (StringUtils.isNotNullAndNotEmpty(namesFromAtt)) {
+               configuration.secondaryNames =  Stream.of(namesFromAtt.split(",")).map(String::trim).filter(s -> s.length() > 0).toArray(String[]::new);
+            }
+        } else {
+            throw new IllegalArgumentException("Invalid reference.");
+        }
         return configuration;
     }
 }
