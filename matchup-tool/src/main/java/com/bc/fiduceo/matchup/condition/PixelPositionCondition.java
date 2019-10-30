@@ -20,22 +20,64 @@ class PixelPositionCondition implements Condition {
         final List<SampleSet> sampleSets = matchupSet.getSampleSets();
         final List<SampleSet> result = new ArrayList<>();
 
-        final int minX = this.configuration.minX;
-        final int maxX = this.configuration.maxX;
-        final int minY = this.configuration.minY;
-        final int maxY = this.configuration.maxY;
-
-        for(SampleSet sampleSet : sampleSets) {
-            final Sample primary = sampleSet.getPrimary();
-            final int primaryX = primary.getX();
-            final int primaryY = primary.getY();
-            if(primaryX >= minX && primaryX <= maxX && primaryY >= minY && primaryY <= maxY) {
-                result.add(sampleSet);
-            }
+        if (configuration.isPrimary) {
+            applyPrimary(sampleSets, result);
+        } else {
+            applySecondaries(sampleSets, result);
         }
 
         matchupSet.setSampleSets(result);
         sampleSets.clear();
+    }
+
+    private void applyPrimary(List<SampleSet> sampleSets, List<SampleSet> result) {
+        final int minX = configuration.minX;
+        final int maxX = configuration.maxX;
+        final int minY = configuration.minY;
+        final int maxY = configuration.maxY;
+
+        for (SampleSet sampleSet : sampleSets) {
+            final Sample primary = sampleSet.getPrimary();
+            final int primaryX = primary.getX();
+            final int primaryY = primary.getY();
+            if (primaryX < minX || primaryX > maxX || primaryY < minY || primaryY > maxY) {
+                continue;
+            }
+            result.add(sampleSet);
+        }
+    }
+
+    private void applySecondaries(List<SampleSet> sampleSets, List<SampleSet> result) {
+        final int minX = configuration.minX;
+        final int maxX = configuration.maxX;
+        final int minY = configuration.minY;
+        final int maxY = configuration.maxY;
+
+        final String[] secondaryNames;
+        if (configuration.secondaryNames.length == 0) {
+            secondaryNames = new String[]{SampleSet.getOnlyOneSecondaryKey()};
+        } else {
+            secondaryNames = configuration.secondaryNames;
+        }
+
+        for (SampleSet sampleSet : sampleSets) {
+            boolean keep = true;
+            for (final String secondaryName : secondaryNames) {
+                final Sample secondary = sampleSet.getSecondary(secondaryName);
+                if (secondary == null) {
+                    continue;   // we cannot assume all sensors in all matchups tb 2019-10-30
+                }
+                final int primaryX = secondary.getX();
+                final int primaryY = secondary.getY();
+                if (primaryX < minX || primaryX > maxX || primaryY < minY || primaryY > maxY) {
+                    keep = false;
+                }
+            }
+
+            if (keep) {
+                result.add(sampleSet);
+            }
+        }
     }
 
     static class Configuration {
