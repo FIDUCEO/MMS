@@ -40,24 +40,17 @@
 
 package com.bc.fiduceo.geometry.s2;
 
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.LineString;
-import com.bc.fiduceo.geometry.Point;
-import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.math.TimeInterval;
 import com.bc.geometry.s2.S2WKTReader;
 import com.google.common.geometry.S2Point;
 import com.google.common.geometry.S2Polyline;
-import com.vividsolutions.jts.io.ParseException;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Date;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 public class BcS2TimeAxisTest {
 
@@ -92,7 +85,7 @@ public class BcS2TimeAxisTest {
     }
 
     @Test
-    public void testGetIntersectionTime_StraightLineWithSquare_shifted() throws ParseException {
+    public void testGetIntersectionTime_StraightLineWithSquare_shifted() {
         final Polygon polygon = (Polygon) geometryFactory.parse("POLYGON((0 0, 0 4, 4 4, 4 0, 0 0))");
         final S2Polyline polyline = (S2Polyline) wktReader.read("LINESTRING(-1 1,5 7)");
 
@@ -103,7 +96,7 @@ public class BcS2TimeAxisTest {
     }
 
     @Test
-    public void testGetIntersectionTime_StraightLineWithRectangle_lineStart_inside() throws ParseException {
+    public void testGetIntersectionTime_StraightLineWithRectangle_lineStart_inside() {
         final Polygon polygon = (Polygon) geometryFactory.parse("POLYGON((0 0, 0 2, 5 2, 5 0, 0 0))");
         final S2Polyline polyline = (S2Polyline) wktReader.read("LINESTRING(3 1,6 -2)");
 
@@ -114,7 +107,7 @@ public class BcS2TimeAxisTest {
     }
 
     @Test
-    public void testGetIntersectionTime_StraightLineWithRectangle_lineEnd_inside() throws ParseException {
+    public void testGetIntersectionTime_StraightLineWithRectangle_lineEnd_inside() {
         final Polygon polygon = (Polygon) geometryFactory.parse("POLYGON((0 0, 0 2, 5 2, 5 0, 0 0))");
         final S2Polyline polyline = (S2Polyline) wktReader.read("LINESTRING(1 5,1 1)");
 
@@ -125,7 +118,7 @@ public class BcS2TimeAxisTest {
     }
 
     @Test
-    public void testGetIntersectionTime_StraightLineWithRectangle_line_inside() throws ParseException {
+    public void testGetIntersectionTime_StraightLineWithRectangle_line_inside() {
         final Polygon polygon = (Polygon) geometryFactory.parse("POLYGON((0 0, 0 2, 5 2, 5 0, 0 0))");
         final S2Polyline polyline = (S2Polyline) wktReader.read("LINESTRING(1 1,4 1)");
 
@@ -136,7 +129,7 @@ public class BcS2TimeAxisTest {
     }
 
     @Test
-    public void testGetIntersectionTime_SegmentedLineWithParallelogram() throws ParseException {
+    public void testGetIntersectionTime_SegmentedLineWithParallelogram() {
         final Polygon polygon = (Polygon) geometryFactory.parse("POLYGON((2 -2, 7 -2, 9 -5, 4 -5, 2 -2))");
         final S2Polyline polyline = (S2Polyline) wktReader.read("LINESTRING(1 -6, 2 -4, 4 -3, 6 -3,8 -2)");
 
@@ -147,7 +140,7 @@ public class BcS2TimeAxisTest {
     }
 
     @Test
-    public void testGetTime_PointOnLine() throws ParseException {
+    public void testGetTime_PointOnLine() {
         final S2Polyline polyline = (S2Polyline) wktReader.read("LINESTRING(0 0, 4 0)");
         final BcS2TimeAxis timeAxis = new BcS2TimeAxis(new BcS2LineString(polyline), new Date(1000000000000L), new Date(1000001000000L));
 
@@ -157,7 +150,7 @@ public class BcS2TimeAxisTest {
     }
 
     @Test
-    public void testGetTime_threeSegments_PointOnLine() throws ParseException {
+    public void testGetTime_threeSegments_PointOnLine() {
         final S2Polyline lineString = (S2Polyline) wktReader.read("LINESTRING(1 2, -1 2, -3 4, -5 4)");
         final BcS2TimeAxis timeAxis = new BcS2TimeAxis(new BcS2LineString(lineString), new Date(1000000000000L), new Date(1000001000000L));
 
@@ -167,7 +160,7 @@ public class BcS2TimeAxisTest {
     }
 
     @Test
-    public void testGetTime_threeSegments() throws ParseException {
+    public void testGetTime_threeSegments() {
         final S2Polyline lineString = (S2Polyline) wktReader.read("LINESTRING(2 5, 1 3, -1 1, -3 0)");
         final BcS2TimeAxis timeAxis = new BcS2TimeAxis(new BcS2LineString(lineString), new Date(1000000000000L), new Date(1000001000000L));
 
@@ -177,7 +170,7 @@ public class BcS2TimeAxisTest {
     }
 
     @Test
-    public void testGetTime_threeSegments_noProjection_behindLineEnd() throws ParseException {
+    public void testGetTime_threeSegments_noProjection_behindLineEnd() {
         final S2Polyline lineString = (S2Polyline) wktReader.read("LINESTRING(1 2, -1 2, -3 4, -5 4)");
         final BcS2TimeAxis timeAxis = new BcS2TimeAxis(new BcS2LineString(lineString), new Date(1000000000000L), new Date(1000001000000L));
 
@@ -189,7 +182,7 @@ public class BcS2TimeAxisTest {
     }
 
     @Test
-    public void testGetTime_threeSegments_noProjection_beforeLineStart() throws ParseException {
+    public void testGetTime_threeSegments_noProjection_beforeLineStart() {
         final S2Polyline lineString = (S2Polyline) wktReader.read("LINESTRING(1 2, -1 2, -3 4, -5 4)");
         final BcS2TimeAxis timeAxis = new BcS2TimeAxis(new BcS2LineString(lineString), new Date(1000000000000L), new Date(1000001000000L));
 
@@ -337,7 +330,7 @@ public class BcS2TimeAxisTest {
     }
 
     @Test
-    public void testGetStartTime(){
+    public void testGetStartTime() {
         final S2Polyline axisLine = (S2Polyline) wktReader.read("LINESTRING(6 2, 8 -1, 9 -4)");
         final BcS2TimeAxis timeAxis = new BcS2TimeAxis(new BcS2LineString(axisLine), new Date(1000000000000L), new Date(1001000000000L));
 
@@ -346,7 +339,7 @@ public class BcS2TimeAxisTest {
     }
 
     @Test
-    public void testGetEndTime(){
+    public void testGetEndTime() {
         final S2Polyline axisLine = (S2Polyline) wktReader.read("LINESTRING(6 2, 8 -1, 9 -4)");
         final BcS2TimeAxis timeAxis = new BcS2TimeAxis(new BcS2LineString(axisLine), new Date(1000000000000L), new Date(1001000000000L));
 
@@ -355,7 +348,7 @@ public class BcS2TimeAxisTest {
     }
 
     @Test
-    public void testGetDurationInMillis(){
+    public void testGetDurationInMillis() {
         final S2Polyline axisLine = (S2Polyline) wktReader.read("LINESTRING(6 2, 8 -1, 9 -4)");
         final BcS2TimeAxis timeAxis = new BcS2TimeAxis(new BcS2LineString(axisLine), new Date(1000000000000L), new Date(1001000000000L));
 
@@ -363,7 +356,7 @@ public class BcS2TimeAxisTest {
     }
 
     @Test
-    public void testGetGeometry(){
+    public void testGetGeometry() {
         final S2Polyline axisLine = (S2Polyline) wktReader.read("LINESTRING(6 2, 8 -1, 9 -4)");
         final BcS2TimeAxis timeAxis = new BcS2TimeAxis(new BcS2LineString(axisLine), new Date(1000000000000L), new Date(1001000000000L));
 

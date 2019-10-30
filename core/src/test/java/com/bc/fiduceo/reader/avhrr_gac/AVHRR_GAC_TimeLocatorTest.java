@@ -41,7 +41,7 @@ public class AVHRR_GAC_TimeLocatorTest {
     private Array dTime;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         dTime = Array.factory(DTIME_DATA);
     }
 

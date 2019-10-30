@@ -74,7 +74,7 @@ public class AMSUB_MHS_L1C_Reader_IO_Test {
     private AMSUB_MHS_L1C_Reader reader;
 
     @Before
-    public void setUp() throws IOException {
+    public void setUp() {
         final ReaderContext readerContext = new ReaderContext();
         readerContext.setGeometryFactory(new GeometryFactory(GeometryFactory.Type.S2));
 

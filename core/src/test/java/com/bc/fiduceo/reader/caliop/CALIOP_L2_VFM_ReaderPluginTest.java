@@ -14,7 +14,7 @@ public class CALIOP_L2_VFM_ReaderPluginTest {
     private CALIOP_L2_VFM_ReaderPlugin plugin;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp()  {
         plugin = new CALIOP_L2_VFM_ReaderPlugin();
     }
 

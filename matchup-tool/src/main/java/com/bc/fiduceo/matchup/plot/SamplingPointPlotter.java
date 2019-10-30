@@ -179,7 +179,6 @@ final class SamplingPointPlotter {
     }
 
     private MapStrategy getMapStrategy() {
-        //noinspection IfCanBeSwitch
         if (TIME_LAT.equals(mapStrategyName)) {
             return new TimeLatMapStrategy(width, height);
         } else if (LON_LAT.equals(mapStrategyName)) {

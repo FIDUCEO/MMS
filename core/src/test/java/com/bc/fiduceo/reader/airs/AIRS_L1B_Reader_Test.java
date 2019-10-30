@@ -53,7 +53,7 @@ public class AIRS_L1B_Reader_Test {
     }
 
     @Test
-    public void testGetSubScenePixelLocator() throws IOException {
+    public void testGetSubScenePixelLocator() {
         try {
             airsL1bReader.getSubScenePixelLocator(Mockito.mock(Polygon.class));
             fail("RuntimeException expected");

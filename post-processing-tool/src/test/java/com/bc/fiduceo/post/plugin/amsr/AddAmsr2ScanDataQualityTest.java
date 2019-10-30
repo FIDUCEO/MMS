@@ -18,7 +18,7 @@
  *
  */
 
-package com.bc.fiduceo.post.plugin;
+package com.bc.fiduceo.post.plugin.amsr;
 
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -26,6 +26,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 import com.bc.fiduceo.FiduceoConstants;
+import com.bc.fiduceo.post.plugin.amsr.AddAmsr2ScanDataQuality;
 import org.junit.*;
 import ucar.ma2.DataType;
 import ucar.nc2.Dimension;

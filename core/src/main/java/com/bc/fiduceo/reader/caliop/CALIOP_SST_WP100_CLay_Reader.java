@@ -23,34 +23,15 @@ package com.bc.fiduceo.reader.caliop;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.LineString;
-import com.bc.fiduceo.geometry.PaddingFactory;
-import com.bc.fiduceo.geometry.Point;
-import com.bc.fiduceo.geometry.Polygon;
-import com.bc.fiduceo.geometry.TimeAxis;
+import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
-import com.bc.fiduceo.reader.AcquisitionInfo;
-import com.bc.fiduceo.reader.PixelLocatorX1Yn;
-import com.bc.fiduceo.reader.RawDataReader;
-import com.bc.fiduceo.reader.ReaderContext;
-import com.bc.fiduceo.reader.TimeLocator;
-import com.bc.fiduceo.reader.TimeLocator_TAI1993Vector;
+import com.bc.fiduceo.reader.*;
 import com.bc.fiduceo.reader.netcdf.NetCDFReader;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
-import ucar.ma2.Array;
-import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
-import ucar.ma2.IndexIterator;
-import ucar.ma2.InvalidRangeException;
-import ucar.ma2.Section;
-import ucar.ma2.StructureData;
-import ucar.nc2.Attribute;
-import ucar.nc2.Group;
-import ucar.nc2.ProxyReader;
-import ucar.nc2.Structure;
-import ucar.nc2.Variable;
+import ucar.ma2.*;
+import ucar.nc2.*;
 import ucar.nc2.util.CancelTask;
 
 import java.io.File;
@@ -145,20 +126,20 @@ public class CALIOP_SST_WP100_CLay_Reader extends NetCDFReader {
     }
 
     @Override
-    public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
+    public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException {
         final Number fillValue = getFillValue(variableName);
         final Array array = arrayCache.get(variableName);
         return RawDataReader.read(centerX, centerY, interval, fillValue, array, CaliopUtils.productSize);
     }
 
     @Override
-    public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
+    public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException {
         return readRaw(centerX, centerY, interval, variableName);
     }
 
     @SuppressWarnings("Duplicates")
     @Override
-    public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException {
+    public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException {
         ensureValidInterval(interval);
         final int targetFillValue = NetCDFUtils.getDefaultFillValue(int.class).intValue();
         final String variableName = "Profile_Time";

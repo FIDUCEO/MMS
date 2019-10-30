@@ -30,7 +30,7 @@ public class DimensionTest {
     private Dimension dimension;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         dimension = new Dimension();
     }
 

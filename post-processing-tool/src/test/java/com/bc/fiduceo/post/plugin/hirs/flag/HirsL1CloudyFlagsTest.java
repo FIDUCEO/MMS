@@ -60,7 +60,6 @@ public class HirsL1CloudyFlagsTest {
     private String btVarName_6_5_um;
     private DistanceToLandMap distanceToLandMap;
 
-    private NetcdfFile netcdfFile;
     private NetcdfFile netcdfFileFromWriter;
     private NetcdfFileWriter netcdfFileWriter;
 
@@ -80,7 +79,6 @@ public class HirsL1CloudyFlagsTest {
         btVarName_6_5_um = "hirs-n18_bt_ch12";
         distanceToLandMap = mock(DistanceToLandMap.class);
 
-        netcdfFile = mock(NetcdfFile.class);
         netcdfFileFromWriter = mock(NetcdfFile.class);
         netcdfFileWriter = mock(NetcdfFileWriter.class);
 
@@ -91,10 +89,6 @@ public class HirsL1CloudyFlagsTest {
                                                latVarName, lonVarName,
                                                btVarName_11_1_um, btVarName_6_5_um,
                                                distanceToLandMap);
-    }
-
-    @After
-    public void tearDown() throws Exception {
     }
 
     @Test

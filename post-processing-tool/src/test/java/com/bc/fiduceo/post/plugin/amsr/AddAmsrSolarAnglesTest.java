@@ -18,8 +18,9 @@
  *
  */
 
-package com.bc.fiduceo.post.plugin;
+package com.bc.fiduceo.post.plugin.amsr;
 
+import com.bc.fiduceo.post.plugin.amsr.AddAmsrSolarAngles;
 import org.junit.Before;
 import org.junit.Test;
 import ucar.ma2.Array;

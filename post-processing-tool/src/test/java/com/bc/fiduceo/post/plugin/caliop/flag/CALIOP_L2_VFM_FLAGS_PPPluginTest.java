@@ -20,25 +20,25 @@
 
 package com.bc.fiduceo.post.plugin.caliop.flag;
 
+import com.bc.fiduceo.post.PostProcessing;
+import org.jdom.Element;
+import org.junit.Before;
+import org.junit.Test;
+
 import static com.bc.fiduceo.post.plugin.caliop.flag.CALIOP_L2_VFM_FLAGS_PPPlugin.*;
 import static org.junit.Assert.*;
 
-import com.bc.fiduceo.post.PostProcessing;
-import org.jdom.Element;
-import org.junit.*;
-
-@SuppressWarnings("Duplicates")
 public class CALIOP_L2_VFM_FLAGS_PPPluginTest {
 
     private CALIOP_L2_VFM_FLAGS_PPPlugin ppPlugin;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         ppPlugin = new CALIOP_L2_VFM_FLAGS_PPPlugin();
     }
 
     @Test
-    public void tagNames() throws Exception {
+    public void tagNames() {
         assertEquals("caliop-level2-vfm-flags", TAG_POST_PROCESSING_NAME);
         assertEquals("mmd-source-file-variable-name", TAG_MMD_SOURCE_FILE_VARIABE_NAME);
         assertEquals("mmd-processing-version-variable-name", TAG_MMD_PROCESSING_VERSION_VARIABE_NAME);
@@ -47,12 +47,12 @@ public class CALIOP_L2_VFM_FLAGS_PPPluginTest {
     }
 
     @Test
-    public void getPostProcessingName() throws Exception {
+    public void getPostProcessingName() {
         assertEquals("caliop-level2-vfm-flags", ppPlugin.getPostProcessingName());
     }
 
     @Test
-    public void createPostProcessing() throws Exception {
+    public void createPostProcessing() {
         final PostProcessing pp = ppPlugin.createPostProcessing(createValidRootElement());
         assertNotNull(pp);
         assertEquals(CALIOP_L2_VFM_FLAGS_PP.class, pp.getClass());
@@ -64,7 +64,7 @@ public class CALIOP_L2_VFM_FLAGS_PPPluginTest {
     }
 
     @Test
-    public void createPostProcessing_wrongRootTag() throws Exception {
+    public void createPostProcessing_wrongRootTag() {
         final Element rootElement = createValidRootElement();
         try {
             ppPlugin.createPostProcessing(rootElement.setName("wrongRootName"));
@@ -76,7 +76,7 @@ public class CALIOP_L2_VFM_FLAGS_PPPluginTest {
     }
 
     @Test
-    public void createPostProcessing_sourceFileVarName_missingElement() throws Exception {
+    public void createPostProcessing_sourceFileVarName_missingElement() {
         final Element rootElement = createValidRootElement();
         rootElement.removeChild(TAG_MMD_SOURCE_FILE_VARIABE_NAME);
         try {
@@ -89,7 +89,7 @@ public class CALIOP_L2_VFM_FLAGS_PPPluginTest {
     }
 
     @Test
-    public void createPostProcessing_sourceFileVarName_empty() throws Exception {
+    public void createPostProcessing_sourceFileVarName_empty() {
         final Element rootElement = createValidRootElement();
         rootElement.getChild(TAG_MMD_SOURCE_FILE_VARIABE_NAME).setText("   ");
         try {
@@ -103,7 +103,7 @@ public class CALIOP_L2_VFM_FLAGS_PPPluginTest {
 
 
     @Test
-    public void createPostProcessing_processingVersionVarName_missingElement() throws Exception {
+    public void createPostProcessing_processingVersionVarName_missingElement() {
         final Element rootElement = createValidRootElement();
         rootElement.removeChild(TAG_MMD_PROCESSING_VERSION_VARIABE_NAME);
         try {
@@ -116,7 +116,7 @@ public class CALIOP_L2_VFM_FLAGS_PPPluginTest {
     }
 
     @Test
-    public void createPostProcessing_processingVersionVarName_empty() throws Exception {
+    public void createPostProcessing_processingVersionVarName_empty() {
         final Element rootElement = createValidRootElement();
         rootElement.getChild(TAG_MMD_PROCESSING_VERSION_VARIABE_NAME).setText("   ");
         try {
@@ -129,7 +129,7 @@ public class CALIOP_L2_VFM_FLAGS_PPPluginTest {
     }
 
     @Test
-    public void createPostProcessing_yVarName_missingElement() throws Exception {
+    public void createPostProcessing_yVarName_missingElement() {
         final Element rootElement = createValidRootElement();
         rootElement.removeChild(TAG_MMD_Y_VARIABE_NAME);
         try {
@@ -142,7 +142,7 @@ public class CALIOP_L2_VFM_FLAGS_PPPluginTest {
     }
 
     @Test
-    public void createPostProcessing_yVarName_empty() throws Exception {
+    public void createPostProcessing_yVarName_empty() {
         final Element rootElement = createValidRootElement();
         rootElement.getChild(TAG_MMD_Y_VARIABE_NAME).setText("   ");
         try {
@@ -155,7 +155,7 @@ public class CALIOP_L2_VFM_FLAGS_PPPluginTest {
     }
 
     @Test
-    public void createPostProcessing_targetVarName_missingElement() throws Exception {
+    public void createPostProcessing_targetVarName_missingElement() {
         final Element rootElement = createValidRootElement();
         rootElement.removeChild(TAG_TARGET_FCF_VARIABLE_NAME);
         try {
@@ -168,7 +168,7 @@ public class CALIOP_L2_VFM_FLAGS_PPPluginTest {
     }
 
     @Test
-    public void createPostProcessing_targetVarName_empty() throws Exception {
+    public void createPostProcessing_targetVarName_empty() {
         final Element rootElement = createValidRootElement();
         rootElement.getChild(TAG_TARGET_FCF_VARIABLE_NAME).setText("   ");
         try {
@@ -188,5 +188,4 @@ public class CALIOP_L2_VFM_FLAGS_PPPluginTest {
         root.addContent(new Element(TAG_TARGET_FCF_VARIABLE_NAME).setText("caliop_vfm-cal_Center_Feature_Classification_Flags"));
         return root;
     }
-
 }

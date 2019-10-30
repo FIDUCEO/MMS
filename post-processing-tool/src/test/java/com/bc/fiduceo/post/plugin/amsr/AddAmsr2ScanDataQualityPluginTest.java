@@ -18,13 +18,15 @@
  *
  */
 
-package com.bc.fiduceo.post.plugin;
+package com.bc.fiduceo.post.plugin.amsr;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.post.PostProcessing;
+import com.bc.fiduceo.post.plugin.amsr.AddAmsr2ScanDataQuality;
+import com.bc.fiduceo.post.plugin.amsr.AddAmsr2ScanDataQualityPlugin;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.junit.*;

@@ -19,19 +19,22 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.anyDouble;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 public class AddLandDistanceTest {
+
+    static Element createFullConfigElement() throws JDOMException, IOException {
+        final String configXML = "<add-distance-to-land>" +
+                "    <aux-file-path>path-to-file</aux-file-path>" +
+                "    <target-variable name=\"close_or_far\" />" +
+                "    <lon-variable name=\"longi\" />" +
+                "    <lat-variable name=\"latte\" />" +
+                "</add-distance-to-land>";
+
+        return TestUtil.createDomElement(configXML);
+    }
 
     @Test
     public void testCreateConfig() throws JDOMException, IOException {
@@ -89,7 +92,7 @@ public class AddLandDistanceTest {
     }
 
     @Test
-    public void testPrepare() throws IOException, InvalidRangeException {
+    public void testPrepare() {
         final AddLandDistance.Configuration configuration = new AddLandDistance.Configuration();
         configuration.lonVariableName = "longitude";
         configuration.targetVariableName = "distance_to_land";
@@ -106,7 +109,7 @@ public class AddLandDistanceTest {
 
         final NetcdfFileWriter writer = mock(NetcdfFileWriter.class);
         final Variable targetVariable = mock(Variable.class);
-        when(writer.addVariable(any(), eq(configuration.targetVariableName ), eq(DataType.FLOAT), (List<Dimension>) any())).thenReturn(targetVariable);
+        when(writer.addVariable(any(), eq(configuration.targetVariableName), eq(DataType.FLOAT), (List<Dimension>) any())).thenReturn(targetVariable);
 
         final AddLandDistance plugin = new AddLandDistance(configuration);
 
@@ -159,16 +162,5 @@ public class AddLandDistanceTest {
         verify(writer, times(1)).findVariable("distance_to_land");
         verify(writer, times(1)).write(any(), any());
         verifyNoMoreInteractions(reader, writer);
-    }
-
-    static Element createFullConfigElement() throws JDOMException, IOException {
-        final String configXML = "<add-distance-to-land>" +
-                "    <aux-file-path>path-to-file</aux-file-path>" +
-                "    <target-variable name=\"close_or_far\" />" +
-                "    <lon-variable name=\"longi\" />" +
-                "    <lat-variable name=\"latte\" />" +
-                "</add-distance-to-land>";
-
-        return TestUtil.createDomElement(configXML);
     }
 }

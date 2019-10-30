@@ -15,11 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * @author muhammad.bc
@@ -29,7 +25,7 @@ public class BcS2MultiLineStringTest {
     private BcS2GeometryFactory bcS2GeometryFactory;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         bcS2GeometryFactory = new BcS2GeometryFactory();
     }
 

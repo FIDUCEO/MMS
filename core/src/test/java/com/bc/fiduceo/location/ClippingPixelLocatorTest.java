@@ -1,11 +1,12 @@
 package com.bc.fiduceo.location;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
-import org.junit.*;
+import org.junit.Test;
 
 import java.awt.geom.Point2D;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+import static org.mockito.Mockito.*;
 
 /**
  * Created by Sabine on 18.03.2016.
@@ -13,7 +14,7 @@ import java.awt.geom.Point2D;
 public class ClippingPixelLocatorTest {
 
     @Test
-    public void testClipPixelAnswer() throws Exception {
+    public void testClipPixelAnswer() {
         final Point2D.Double yIs2 = new Point2D.Double(200, 2);
         final Point2D.Double yIs3 = new Point2D.Double(200, 3);
         final Point2D.Double yIs7 = new Point2D.Double(200, 7);

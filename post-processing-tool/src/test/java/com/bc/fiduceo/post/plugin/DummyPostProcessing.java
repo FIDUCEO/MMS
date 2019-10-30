@@ -19,11 +19,8 @@
 package com.bc.fiduceo.post.plugin;
 
 import com.bc.fiduceo.post.PostProcessing;
-import ucar.ma2.InvalidRangeException;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriter;
-
-import java.io.IOException;
 
 public class DummyPostProcessing extends PostProcessing {
 
@@ -39,7 +36,7 @@ public class DummyPostProcessing extends PostProcessing {
     }
 
     @Override
-    protected void compute(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
+    protected void compute(NetcdfFile reader, NetcdfFileWriter writer) {
 
     }
 }

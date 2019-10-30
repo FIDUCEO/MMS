@@ -56,10 +56,7 @@ public class PixelLocatorSegmented implements PixelLocator {
 
     boolean isInSegment(PixelPos pixelPos, Interval interval) {
         final int intervalLastLine = interval.getY() - interval.getX();
-        if (pixelPos.x >= 0 && pixelPos.x < this.swathWidth && pixelPos.y >= 0 && pixelPos.y < intervalLastLine) {
-            return true;
-        }
-        return false;
+        return pixelPos.x >= 0 && pixelPos.x < this.swathWidth && pixelPos.y >= 0 && pixelPos.y < intervalLastLine;
     }
 
     static class GeoCodingSegment {

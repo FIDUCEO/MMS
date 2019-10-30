@@ -24,15 +24,15 @@ import static org.junit.Assert.*;
 @RunWith(DbAndIOTestRunner.class)
 public class DbMaintenanceToolIntegrationTest {
 
-    private File configDir;
     private final String fs;
+    private File configDir;
 
     public DbMaintenanceToolIntegrationTest() {
         fs = File.separator;
     }
 
     @Before
-    public void setUp() throws SQLException, IOException {
+    public void setUp() {
         final File testDirectory = TestUtil.createTestDirectory();
         configDir = new File(testDirectory, "config");
         if (!configDir.mkdir()) {

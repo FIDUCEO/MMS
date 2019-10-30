@@ -311,7 +311,7 @@ public class ArchiveTest {
 
 
     @Test
-    public void testValidProductPathCreation() throws Exception {
+    public void testValidProductPathCreation() {
         // preparation
 
         // action

@@ -100,5 +100,4 @@ class SphericalDistance extends PostProcessing {
         }
         writer.write(targetVar, target);
     }
-
 }

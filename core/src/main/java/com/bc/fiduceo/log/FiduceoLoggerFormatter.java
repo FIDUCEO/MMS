@@ -60,7 +60,6 @@ class FiduceoLoggerFormatter extends Formatter {
         logMessage.append(record.getMessage());
         logMessage.append("\n");
 
-        @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
         final Throwable thrown = record.getThrown();
         if (thrown != null) {
             logMessage.append(thrown.toString());

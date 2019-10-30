@@ -19,26 +19,27 @@
  */
 package com.bc.fiduceo.reader.caliop;
 
-import static org.junit.Assert.*;
-import static org.hamcrest.Matchers.*;
-
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.reader.DataType;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderContext;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
 
 public class CALIOP_SST_WP100_CLay_ReaderPluginTest {
 
     private CALIOP_SST_WP100_CLay_ReaderPlugin plugin;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         plugin = new CALIOP_SST_WP100_CLay_ReaderPlugin();
     }
 
     @Test
-    public void testGetSupportedSensorKeys()  {
+    public void testGetSupportedSensorKeys() {
         //execution
         final String[] supportedSensorKeys = plugin.getSupportedSensorKeys();
 
@@ -58,7 +59,7 @@ public class CALIOP_SST_WP100_CLay_ReaderPluginTest {
     }
 
     @Test
-    public void testCreateReader(){
+    public void testCreateReader() {
         //preparation
         final ReaderContext readerContext = new ReaderContext();
         readerContext.setGeometryFactory(new GeometryFactory(GeometryFactory.Type.S2));

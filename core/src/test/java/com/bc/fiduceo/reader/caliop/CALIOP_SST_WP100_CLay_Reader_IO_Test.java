@@ -124,7 +124,7 @@ public class CALIOP_SST_WP100_CLay_Reader_IO_Test {
     }
 
     @Test
-    public void getProductSize() throws Exception {
+    public void getProductSize()  {
         final Dimension productSize = reader.getProductSize();
         assertEquals(1, productSize.getNx());
         assertEquals(3744, productSize.getNy());
@@ -196,10 +196,10 @@ public class CALIOP_SST_WP100_CLay_Reader_IO_Test {
         Matcher matcher;
         // valid day                                                                      ⇓
         matcher = pattern.matcher("CAL_LID_L2_05kmCLay-Standard-V4-10.2011-01-02T23-37-04ZD.hdf");
-        assertEquals(true, matcher.matches());
+        assertTrue(matcher.matches());
         // valid night                                                                    ⇓
         matcher = pattern.matcher("CAL_LID_L2_05kmCLay-Standard-V4-10.2011-01-02T23-37-04ZN.hdf");
-        assertEquals(true, matcher.matches());
+        assertTrue(matcher.matches());
 
         // invalid year                                                 ⇓⇓
         matcher = pattern.matcher("CAL_LID_L2_05kmCLay-Standard-V4-10.2080-01-02T23-37-04ZD.hdf");

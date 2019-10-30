@@ -20,24 +20,25 @@
 
 package com.bc.fiduceo.post.plugin.caliop.sst_wp100;
 
-import static com.bc.fiduceo.post.plugin.caliop.sst_wp100.CALIOP_SST_WP100_CLay_PPPlugin.*;
-import static org.junit.Assert.*;
-
 import com.bc.fiduceo.post.PostProcessing;
 import org.jdom.Element;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
+
+import static com.bc.fiduceo.post.plugin.caliop.sst_wp100.CALIOP_SST_WP100_CLay_PPPlugin.*;
+import static org.junit.Assert.*;
 
 public class CALIOP_SST_WP100_CLay_PPPluginTest {
 
     private CALIOP_SST_WP100_CLay_PPPlugin ppPlugin;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         ppPlugin = new CALIOP_SST_WP100_CLay_PPPlugin();
     }
 
     @Test
-    public void tagNames() throws Exception {
+    public void tagNames() {
         assertEquals("caliop-sst-wp100-clay", TAG_POST_PROCESSING_NAME);
         assertEquals("mmd-source-file-variable-name", TAG_MMD_SOURCE_FILE_VARIABE_NAME);
         assertEquals("processing-version", TAG_MMD_PROCESSING_VERSION);
@@ -46,12 +47,12 @@ public class CALIOP_SST_WP100_CLay_PPPluginTest {
     }
 
     @Test
-    public void getPostProcessingName() throws Exception {
+    public void getPostProcessingName() {
         assertEquals("caliop-sst-wp100-clay", ppPlugin.getPostProcessingName());
     }
 
     @Test
-    public void createPostProcessing() throws Exception {
+    public void createPostProcessing() {
         final PostProcessing pp = ppPlugin.createPostProcessing(createValidRootElement());
         assertNotNull(pp);
         assertEquals(CALIOP_SST_WP100_CLay_PP.class, pp.getClass());
@@ -63,7 +64,7 @@ public class CALIOP_SST_WP100_CLay_PPPluginTest {
     }
 
     @Test
-    public void createPostProcessing_wrongRootTag() throws Exception {
+    public void createPostProcessing_wrongRootTag() {
         final Element rootElement = createValidRootElement();
         try {
             ppPlugin.createPostProcessing(rootElement.setName("wrongRootName"));
@@ -75,7 +76,7 @@ public class CALIOP_SST_WP100_CLay_PPPluginTest {
     }
 
     @Test
-    public void createPostProcessing_sourceFileVarName_missingElement() throws Exception {
+    public void createPostProcessing_sourceFileVarName_missingElement() {
         final Element rootElement = createValidRootElement();
         rootElement.removeChild(TAG_MMD_SOURCE_FILE_VARIABE_NAME);
         try {
@@ -88,7 +89,7 @@ public class CALIOP_SST_WP100_CLay_PPPluginTest {
     }
 
     @Test
-    public void createPostProcessing_sourceFileVarName_empty() throws Exception {
+    public void createPostProcessing_sourceFileVarName_empty() {
         final Element rootElement = createValidRootElement();
         rootElement.getChild(TAG_MMD_SOURCE_FILE_VARIABE_NAME).setText("   ");
         try {
@@ -102,7 +103,7 @@ public class CALIOP_SST_WP100_CLay_PPPluginTest {
 
 
     @Test
-    public void createPostProcessing_processingVersionVarName_missingElement() throws Exception {
+    public void createPostProcessing_processingVersionVarName_missingElement() {
         final Element rootElement = createValidRootElement();
         rootElement.removeChild(TAG_MMD_PROCESSING_VERSION);
         try {
@@ -115,7 +116,7 @@ public class CALIOP_SST_WP100_CLay_PPPluginTest {
     }
 
     @Test
-    public void createPostProcessing_processingVersionVarName_empty() throws Exception {
+    public void createPostProcessing_processingVersionVarName_empty() {
         final Element rootElement = createValidRootElement();
         rootElement.getChild(TAG_MMD_PROCESSING_VERSION).setText("   ");
         try {
@@ -128,7 +129,7 @@ public class CALIOP_SST_WP100_CLay_PPPluginTest {
     }
 
     @Test
-    public void createPostProcessing_yVarName_missingElement() throws Exception {
+    public void createPostProcessing_yVarName_missingElement() {
         final Element rootElement = createValidRootElement();
         rootElement.removeChild(TAG_MMD_Y_VARIABE_NAME);
         try {
@@ -141,7 +142,7 @@ public class CALIOP_SST_WP100_CLay_PPPluginTest {
     }
 
     @Test
-    public void createPostProcessing_yVarName_empty() throws Exception {
+    public void createPostProcessing_yVarName_empty() {
         final Element rootElement = createValidRootElement();
         rootElement.getChild(TAG_MMD_Y_VARIABE_NAME).setText("   ");
         try {
@@ -154,7 +155,7 @@ public class CALIOP_SST_WP100_CLay_PPPluginTest {
     }
 
     @Test
-    public void createPostProcessing_targetPrefix_missingElement() throws Exception {
+    public void createPostProcessing_targetPrefix_missingElement() {
         final Element rootElement = createValidRootElement();
         rootElement.removeChild(TAG_TARGET_VARIABE_PREFIX);
         try {
@@ -167,7 +168,7 @@ public class CALIOP_SST_WP100_CLay_PPPluginTest {
     }
 
     @Test
-    public void createPostProcessing_targetPrefix_empty() throws Exception {
+    public void createPostProcessing_targetPrefix_empty() {
         final Element rootElement = createValidRootElement();
         rootElement.getChild(TAG_TARGET_VARIABE_PREFIX).setText("   ");
         try {
@@ -187,5 +188,4 @@ public class CALIOP_SST_WP100_CLay_PPPluginTest {
         root.addContent(new Element(TAG_TARGET_VARIABE_PREFIX).setText("caliop_clay."));
         return root;
     }
-
 }

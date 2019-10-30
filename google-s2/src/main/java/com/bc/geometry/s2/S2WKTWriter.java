@@ -77,7 +77,6 @@ public class S2WKTWriter {
         }
     }
 
-    @SuppressWarnings("StringBufferReplaceableByString")
     private static String writePointWkt(S2Point geometry) {
         final S2LatLng s2LatLng = new S2LatLng(geometry);
         return writePointWkt(s2LatLng);

@@ -20,16 +20,16 @@
 
 package com.bc.fiduceo.matchup.condition;
 
-import static org.junit.Assert.*;
-
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.matchup.MatchupSet;
-import com.bc.fiduceo.core.Sample;
 import com.bc.fiduceo.matchup.SampleSet;
 import org.esa.snap.core.util.StopWatch;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 
-import java.util.List;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class OverlapRemoveConditionTest {
 
@@ -60,7 +60,7 @@ public class OverlapRemoveConditionTest {
 
     @Test
     public void testRemove_oneMatchup_primary() {
-        addSampleSet(108, 346, 3567, 12056);
+        Util.addSampleSet(108, 346, 3567, 12056, matchupSet);
 
         primaryCondition.apply(matchupSet, context);
 
@@ -69,7 +69,7 @@ public class OverlapRemoveConditionTest {
 
     @Test
     public void testRemove_oneMatchup_secondary() {
-        addSampleSet(22, 105, 1944, 22055);
+        Util.addSampleSet(22, 105, 1944, 22055, matchupSet);
 
         secondaryCondition.apply(matchupSet, context);
 
@@ -78,8 +78,8 @@ public class OverlapRemoveConditionTest {
 
     @Test
     public void testRemove_twoMatchups_primary_nonOverlapping() {
-        addSampleSet(108, 346, 3567, 12056);
-        addSampleSet(208, 446, 3567, 12056);
+        Util.addSampleSet(108, 346, 3567, 12056, matchupSet);
+        Util.addSampleSet(208, 446, 3567, 12056, matchupSet);
 
         primaryCondition.apply(matchupSet, context);
 
@@ -88,8 +88,8 @@ public class OverlapRemoveConditionTest {
 
     @Test
     public void testRemove_twoMatchups_secondary_nonOverlapping() {
-        addSampleSet(108, 346, 3567, 12056);
-        addSampleSet(108, 346, 3577, 12106);
+        Util.addSampleSet(108, 346, 3567, 12056, matchupSet);
+        Util.addSampleSet(108, 346, 3577, 12106, matchupSet);
 
         secondaryCondition.apply(matchupSet, context);
 
@@ -98,8 +98,8 @@ public class OverlapRemoveConditionTest {
 
     @Test
     public void testRemove_twoMatchups_primary_overlapping() {
-        addSampleSet(108, 346, 3567, 12056);
-        addSampleSet(110, 344, 3567, 12056);
+        Util.addSampleSet(108, 346, 3567, 12056, matchupSet);
+        Util.addSampleSet(110, 344, 3567, 12056, matchupSet);
 
         primaryCondition.apply(matchupSet, context);
 
@@ -108,13 +108,13 @@ public class OverlapRemoveConditionTest {
 
     @Test
     public void testRemove_manyMatchups_secondary_mixed() {
-        addSampleSet(108, 346, 3567, 12056); // <- keep
-        addSampleSet(108, 346, 3565, 12056);
-        addSampleSet(108, 346, 4000, 12106); // <- keep
-        addSampleSet(108, 346, 5000, 12106); // <- keep
-        addSampleSet(108, 346, 3568, 12056);
-        addSampleSet(108, 346, 5002, 12106);
-        addSampleSet(108, 346, 4003, 12106);
+        Util.addSampleSet(108, 346, 3567, 12056, matchupSet); // <- keep
+        Util.addSampleSet(108, 346, 3565, 12056, matchupSet);
+        Util.addSampleSet(108, 346, 4000, 12106, matchupSet); // <- keep
+        Util.addSampleSet(108, 346, 5000, 12106, matchupSet); // <- keep
+        Util.addSampleSet(108, 346, 3568, 12056, matchupSet);
+        Util.addSampleSet(108, 346, 5002, 12106, matchupSet);
+        Util.addSampleSet(108, 346, 4003, 12106, matchupSet);
 
         secondaryCondition.apply(matchupSet, context);
 
@@ -123,13 +123,13 @@ public class OverlapRemoveConditionTest {
 
     @Test
     public void testRemove_manyMatchups_secondaryWithName_mixed() {
-        addSampleSet(108, 346, 3567, 12056, "nameA"); // <- keep
-        addSampleSet(108, 346, 3565, 12056, "nameA");
-        addSampleSet(108, 346, 4000, 12106, "nameA"); // <- keep
-        addSampleSet(108, 346, 5000, 12106, "nameA"); // <- keep
-        addSampleSet(108, 346, 3568, 12056, "nameA");
-        addSampleSet(108, 346, 5002, 12106, "nameA");
-        addSampleSet(108, 346, 4003, 12106, "nameA");
+        Util.addSampleSet(108, 346, 3567, 12056, "nameA", matchupSet); // <- keep
+        Util.addSampleSet(108, 346, 3565, 12056, "nameA", matchupSet);
+        Util.addSampleSet(108, 346, 4000, 12106, "nameA", matchupSet); // <- keep
+        Util.addSampleSet(108, 346, 5000, 12106, "nameA", matchupSet); // <- keep
+        Util.addSampleSet(108, 346, 3568, 12056, "nameA", matchupSet);
+        Util.addSampleSet(108, 346, 5002, 12106, "nameA", matchupSet);
+        Util.addSampleSet(108, 346, 4003, 12106, "nameA", matchupSet);
 
         secondaryCondition = new OverlapRemoveCondition("nameA");
         secondaryCondition.apply(matchupSet, context);
@@ -147,7 +147,7 @@ public class OverlapRemoveConditionTest {
             final int secondaryX = (int) (512 * Math.random());
             final int secondaryY = (int) (40000 * Math.random());
 
-            addSampleSet(primaryX, primaryY, secondaryX, secondaryY);
+            Util.addSampleSet(primaryX, primaryY, secondaryX, secondaryY, matchupSet);
         }
 
         final StopWatch stopWatch = new StopWatch();
@@ -177,17 +177,5 @@ public class OverlapRemoveConditionTest {
         assertNotNull(dimension);
         assertEquals(5, dimension.getNx());
         assertEquals(3, dimension.getNy());
-    }
-
-    private void addSampleSet(int primaryX, int primaryY, int secondaryX, int secondaryY) {
-        addSampleSet(primaryX, primaryY, secondaryX, secondaryY, SampleSet.getOnlyOneSecondaryKey());
-    }
-
-    private void addSampleSet(int primaryX, int primaryY, int secondaryX, int secondaryY, String secondaryName) {
-        final List<SampleSet> sampleSets = matchupSet.getSampleSets();
-        final SampleSet sampleSet = new SampleSet();
-        sampleSet.setPrimary(new Sample(primaryX, primaryY, -22.5, 18.98, 111027));
-        sampleSet.setSecondary(secondaryName, new Sample(secondaryX, secondaryY, -23.5, 19.98, 121027));
-        sampleSets.add(sampleSet);
     }
 }

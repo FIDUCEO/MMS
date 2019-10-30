@@ -19,14 +19,6 @@
  */
 package com.bc.fiduceo.post.plugin.caliop.sst_wp100;
 
-import static com.bc.fiduceo.post.plugin.caliop.sst_wp100.CALIOP_SST_WP100_CLay_PP.*;
-import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.isA;
-import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.ArgumentMatchers.same;
-import static org.mockito.Mockito.*;
-
 import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
@@ -38,12 +30,13 @@ import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderFactory;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.VariableProxy;
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InOrder;
-import ucar.ma2.Array;
 import ucar.ma2.DataType;
-import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriter;
@@ -58,9 +51,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.bc.fiduceo.post.plugin.caliop.sst_wp100.CALIOP_SST_WP100_CLay_PP.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 @RunWith(IOTestRunner.class)
 public class CALIOP_SST_WP100_CLay_PP_IOTest {
@@ -76,12 +74,38 @@ public class CALIOP_SST_WP100_CLay_PP_IOTest {
         deleteTempDirectoriesFromPreviousComputations();
     }
 
+    private static boolean deleteTree(File tree) {
+        File[] files = tree.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                file.deleteOnExit();
+                if (file.isDirectory()) {
+                    deleteTree(file);
+                } else {
+                    file.delete();
+                }
+            }
+        }
+
+        tree.deleteOnExit();
+        return tree.delete();
+    }
+
+    private static void deleteTempDirectoriesFromPreviousComputations() {
+        final File[] files = TestUtil.getTestDir().getParentFile().listFiles();
+        for (File file : files) {
+            if (file.getName().startsWith(fiduceoTestDirPefix)) {
+                deleteTree(file.getAbsoluteFile());
+            }
+        }
+    }
+
     @Before
     public void setUp() throws Exception {
         cLay_pp = new CALIOP_SST_WP100_CLay_PP("caliop_vfm.file_name",
-                                               "caliop_vfm.y",
-                                               "4.10",
-                                               PREFIX_CALIOP_CLAY);
+                "caliop_vfm.y",
+                "4.10",
+                PREFIX_CALIOP_CLAY);
         // In regular usage the PostProcessingContext will be set by post processing framework.
         cLay_pp.setContext(createPostProcessingContext());
         // a call setContext(...) generates an framework call to initReaderCache() method
@@ -91,7 +115,7 @@ public class CALIOP_SST_WP100_CLay_PP_IOTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         cLay_pp.forTestsOnly_dispose();
         deleteTempDirectories();
     }
@@ -168,7 +192,7 @@ public class CALIOP_SST_WP100_CLay_PP_IOTest {
     }
 
     @Test
-    public void insertDimensions() throws Exception {
+    public void insertDimensions() {
         //preparation
         final int ny = 25;
         final NetcdfFileWriter writer = mock(NetcdfFileWriter.class);
@@ -230,7 +254,7 @@ public class CALIOP_SST_WP100_CLay_PP_IOTest {
     }
 
     @Test
-    public void addAttributes() throws Exception {
+    public void addAttributes() {
         //preparation
         final Variable mVar = mock(Variable.class);
         final ArrayList<Attribute> attributes = new ArrayList<>();
@@ -248,32 +272,6 @@ public class CALIOP_SST_WP100_CLay_PP_IOTest {
         verifyNoMoreInteractions(mVar);
     }
 
-    private static boolean deleteTree(File tree) {
-        File[] files = tree.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                file.deleteOnExit();
-                if (file.isDirectory()) {
-                    deleteTree(file);
-                } else {
-                    file.delete();
-                }
-            }
-        }
-
-        tree.deleteOnExit();
-        return tree.delete();
-    }
-
-    private static void deleteTempDirectoriesFromPreviousComputations() {
-        final File[] files = TestUtil.getTestDir().getParentFile().listFiles();
-        for (File file : files) {
-            if (file.getName().startsWith(fiduceoTestDirPefix)) {
-                deleteTree(file.getAbsoluteFile());
-            }
-        }
-    }
-
     private void deleteTempDirectories() {
         deleteTree(tempDirectory.toFile());
     }
@@ -283,11 +281,11 @@ public class CALIOP_SST_WP100_CLay_PP_IOTest {
         final Path archivePath = TestUtil.getTestDataDirectory().toPath();
         try (BufferedWriter bufferedWriter = Files.newBufferedWriter(systemConfigPath)) {
             bufferedWriter.write("<system-config>\n" +
-                                 "    <geometry-library name=\"S2\"/>\n" +
-                                 "    <archive>\n" +
-                                 "        <root-path>" + archivePath.toAbsolutePath().toString() + "</root-path>\n" +
-                                 "    </archive>\n" +
-                                 "</system-config>");
+                    "    <geometry-library name=\"S2\"/>\n" +
+                    "    <archive>\n" +
+                    "        <root-path>" + archivePath.toAbsolutePath().toString() + "</root-path>\n" +
+                    "    </archive>\n" +
+                    "</system-config>");
         }
     }
 
@@ -298,20 +296,20 @@ public class CALIOP_SST_WP100_CLay_PP_IOTest {
         try (BufferedWriter bufferedWriter = Files.newBufferedWriter(postProcessingConfigPath)) {
             bufferedWriter.write(
                     "<post-processing-config>\n" +
-                    "    <create-new-files>\n" +
-                    "        <output-directory>\n" +
-                    "            " + outDirPath.toAbsolutePath().toString() + "\n" +
-                    "        </output-directory>\n" +
-                    "    </create-new-files>\n" +
-                    "    <post-processings>\n" +
-                    "        <caliop-sst-wp100-clay>\n" +
-                    "            <mmd-source-file-variable-name>caliop_vfm.file_name</mmd-source-file-variable-name>\n" +
-                    "            <processing-version>4.10</processing-version>\n" +
-                    "            <mmd-y-variable-name>caliop_vfm.y</mmd-y-variable-name>\n" +
-                    "            <target-variable-prefix>" + PREFIX_CALIOP_CLAY + "</target-variable-prefix>\n" +
-                    "        </caliop-sst-wp100-clay>\n" +
-                    "    </post-processings>\n" +
-                    "</post-processing-config>"
+                            "    <create-new-files>\n" +
+                            "        <output-directory>\n" +
+                            "            " + outDirPath.toAbsolutePath().toString() + "\n" +
+                            "        </output-directory>\n" +
+                            "    </create-new-files>\n" +
+                            "    <post-processings>\n" +
+                            "        <caliop-sst-wp100-clay>\n" +
+                            "            <mmd-source-file-variable-name>caliop_vfm.file_name</mmd-source-file-variable-name>\n" +
+                            "            <processing-version>4.10</processing-version>\n" +
+                            "            <mmd-y-variable-name>caliop_vfm.y</mmd-y-variable-name>\n" +
+                            "            <target-variable-prefix>" + PREFIX_CALIOP_CLAY + "</target-variable-prefix>\n" +
+                            "        </caliop-sst-wp100-clay>\n" +
+                            "    </post-processings>\n" +
+                            "</post-processing-config>"
             );
         }
         return name;
@@ -342,34 +340,12 @@ public class CALIOP_SST_WP100_CLay_PP_IOTest {
         final String archivePath = TestUtil.getTestDataDirectory().getAbsolutePath();
         return SystemConfig.load(new ByteArrayInputStream(
                 ("<system-config>" +
-                 "    <geometry-library name=\"S2\"/>" +
-                 "    <reader-cache-size>24</reader-cache-size>" +
-                 "    <archive>" +
-                 "        <root-path>" + archivePath + "</root-path>" +
-                 "    </archive>" +
-                 "</system-config>").getBytes()
+                        "    <geometry-library name=\"S2\"/>" +
+                        "    <reader-cache-size>24</reader-cache-size>" +
+                        "    <archive>" +
+                        "        <root-path>" + archivePath + "</root-path>" +
+                        "    </archive>" +
+                        "</system-config>").getBytes()
         ));
     }
-
-    class CapturingWriter extends NetcdfFileWriter {
-
-        final ArrayList<int[]> origins;
-        final HashSet<Variable> variables;
-        final ArrayList<Array> arrays;
-
-        protected CapturingWriter() throws IOException {
-            super(Version.netcdf3, "test", false, null);
-            origins = new ArrayList<>();
-            variables = new HashSet<>();
-            arrays = new ArrayList<>();
-        }
-
-        @Override
-        public void write(Variable v, int[] origin, Array values) throws IOException, InvalidRangeException {
-            variables.add(v);
-            origins.add(origin.clone());
-            arrays.add(values);
-        }
-    }
-
 }

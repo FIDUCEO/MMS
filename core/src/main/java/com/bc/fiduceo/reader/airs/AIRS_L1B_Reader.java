@@ -289,7 +289,7 @@ public class AIRS_L1B_Reader extends NetCDFReader {
         return NodeType.fromId(nodeType.equals("Ascending") ? 0 : 1);
     }
 
-    private void ensureInitialisation() throws InvalidRangeException {
+    private void ensureInitialisation() {
         if (needVariablesInitialisation) {
             initializeVariables();
         }

@@ -1,4 +1,4 @@
-package com.bc.fiduceo.post.plugin;
+package com.bc.fiduceo.post.plugin.amsr;
 
 import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.post.PostProcessing;

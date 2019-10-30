@@ -36,7 +36,6 @@ import java.util.Date;
 import java.util.List;
 
 
-@SuppressWarnings({"SqlDialectInspection", "SqlNoDataSourceInspection"})
 public class H2Driver extends AbstractDriver {
 
     private GeometryFactory geometryFactory;

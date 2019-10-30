@@ -18,7 +18,7 @@
  *
  */
 
-package com.bc.fiduceo.post.plugin;
+package com.bc.fiduceo.post.plugin.amsr;
 
 import com.bc.fiduceo.post.PostProcessing;
 import com.bc.fiduceo.util.NetCDFUtils;

@@ -28,15 +28,12 @@ import org.esa.snap.core.util.StopWatch;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Path;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 @RunWith(IOTestRunner.class)
 public class DistanceToLandMapTest {
@@ -76,7 +73,7 @@ public class DistanceToLandMapTest {
     }
 
     @Test
-    public void fileDoesNotExist() throws IOException {
+    public void fileDoesNotExist() {
         final FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix());
         final Path path = fileSystem.getPath("not", "existing", "path");
         try {

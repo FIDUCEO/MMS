@@ -9,7 +9,7 @@ import static org.mockito.Mockito.when;
 
 public class BcGeometryCollectionTest {
     @Test
-    public void testGetCoordinates() throws Exception {
+    public void testGetCoordinates() {
         final GeometryCollection geometryCollection = getGeometryCollection();
 
         final Point[] coordinates = geometryCollection.getCoordinates();
@@ -28,14 +28,14 @@ public class BcGeometryCollectionTest {
     }
 
     @Test
-    public void testGetInner() throws Exception {
+    public void testGetInner() {
         final GeometryCollection geometryCollection = getGeometryCollection();
         final Object inner = geometryCollection.getInner();
         assertTrue(inner instanceof Geometry[]);
     }
 
     @Test
-    public void testIsValid_valid(){
+    public void testIsValid_valid() {
         final GeometryCollection geometryCollection = new BcGeometryCollection();
         final Geometry[] geometries = new Geometry[2];
         geometries[0] = mock(Geometry.class);
@@ -48,7 +48,7 @@ public class BcGeometryCollectionTest {
     }
 
     @Test
-    public void testIsValid_invalid(){
+    public void testIsValid_invalid() {
         final GeometryCollection geometryCollection = new BcGeometryCollection();
         final Geometry[] geometries = new Geometry[2];
         geometries[0] = mock(Geometry.class);

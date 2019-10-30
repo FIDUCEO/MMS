@@ -20,14 +20,11 @@
 package com.bc.fiduceo.matchup.writer;
 
 import com.bc.fiduceo.core.Interval;
-import ucar.ma2.InvalidRangeException;
-
-import java.io.IOException;
 
 public class CenterYWritingIOVariable extends AbstractIOVariable {
 
     @Override
-    public void writeData(int centerX, int centerY, Interval interval, int zIndex) throws IOException, InvalidRangeException {
+    public void writeData(int centerX, int centerY, Interval interval, int zIndex) {
         target.write(centerY, targetVariableName, zIndex);
     }
 }

@@ -19,28 +19,14 @@ package com.bc.fiduceo.reader.caliop;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.LineString;
-import com.bc.fiduceo.geometry.PaddingFactory;
-import com.bc.fiduceo.geometry.Point;
-import com.bc.fiduceo.geometry.Polygon;
-import com.bc.fiduceo.geometry.TimeAxis;
+import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
-import com.bc.fiduceo.reader.AcquisitionInfo;
-import com.bc.fiduceo.reader.PixelLocatorX1Yn;
-import com.bc.fiduceo.reader.RawDataReader;
-import com.bc.fiduceo.reader.ReaderContext;
-import com.bc.fiduceo.reader.TimeLocator;
-import com.bc.fiduceo.reader.TimeLocator_TAI1993Vector;
+import com.bc.fiduceo.reader.*;
 import com.bc.fiduceo.reader.netcdf.NetCDFReader;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
-import ucar.ma2.Array;
-import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
-import ucar.ma2.InvalidRangeException;
-import ucar.ma2.Section;
-import ucar.ma2.StructureData;
+import ucar.ma2.*;
 import ucar.nc2.Attribute;
 import ucar.nc2.Group;
 import ucar.nc2.Structure;
@@ -49,12 +35,7 @@ import ucar.nc2.Variable;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
 
@@ -96,6 +77,26 @@ public class CALIOP_L2_VFM_Reader extends NetCDFReader {
             }
         }
         return Array.factory(nadirStorage);
+    }
+
+    static short[] calcalculateIndizes() {
+        final short a1Samples = 55; // altitude region 1
+        final short a1Begin = a1Samples;
+        final short a1End = a1Samples * 2 - 1;
+
+        final short a1Block = a1Samples * 3;
+
+        final short a2Samples = 200; // altitude region 2
+        final short a2Begin = a1Block + a2Samples * 2;
+        final short a2End = a1Block + a2Samples * 3 - 1;
+
+        final short a2Block = a2Samples * 5;
+
+        final short a3Samples = 290; // altitude region 3
+        final short a3Begin = a1Block + a2Block + a3Samples * 7;
+        final short a3End = a1Block + a2Block + a3Samples * 8 - 1;
+
+        return new short[]{a1Begin, a1End, a2Begin, a2End, a3Begin, a3End};
     }
 
     @Override
@@ -198,7 +199,7 @@ public class CALIOP_L2_VFM_Reader extends NetCDFReader {
     }
 
     @Override
-    public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
+    public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException {
         ensureValidInterval(interval);
         final Number fillValue = getFillValue(variableName);
         final Array array = arrayCache.get(variableName);
@@ -206,13 +207,13 @@ public class CALIOP_L2_VFM_Reader extends NetCDFReader {
     }
 
     @Override
-    public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
+    public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException {
         return readRaw(centerX, centerY, interval, variableName);
     }
 
     @SuppressWarnings("Duplicates")
     @Override
-    public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException {
+    public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException {
         ensureValidInterval(interval);
         final String variableName = "Profile_Time";
         final Number fillValue = getFillValue(variableName);
@@ -246,26 +247,6 @@ public class CALIOP_L2_VFM_Reader extends NetCDFReader {
 
     public Variable find(String name) {
         return netcdfFile.findVariable(name);
-    }
-
-    static short[] calcalculateIndizes() {
-        final short a1Samples = 55; // altitude region 1
-        final short a1Begin = a1Samples;
-        final short a1End = a1Samples * 2 - 1;
-
-        final short a1Block = a1Samples * 3;
-
-        final short a2Samples = 200; // altitude region 2
-        final short a2Begin = a1Block + a2Samples * 2;
-        final short a2End = a1Block + a2Samples * 3 - 1;
-
-        final short a2Block = a2Samples * 5;
-
-        final short a3Samples = 290; // altitude region 3
-        final short a3Begin = a1Block + a2Block + a3Samples * 7;
-        final short a3End = a1Block + a2Block + a3Samples * 8 - 1;
-
-        return new short[]{a1Begin, a1End, a2Begin, a2End, a3Begin, a3End};
     }
 
     private void createPixelLocator() throws IOException {

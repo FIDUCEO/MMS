@@ -55,7 +55,7 @@ public class AVHRR_GAC_Reader_v014_cspp_IO_Test {
     private AVHRR_GAC_Reader reader;
 
     @Before
-    public void setUp() throws IOException {
+    public void setUp() {
         final ReaderContext readerContext = new ReaderContext();
         readerContext.setGeometryFactory(new GeometryFactory(GeometryFactory.Type.S2));
 
