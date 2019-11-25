@@ -84,7 +84,8 @@ public class SlstrReader extends SNAP_Reader {
             final String fileName = FileUtils.getFilenameWithoutExtension(file);
             productDir = readerContext.createDirInTempDir(fileName);
             try {
-                File[] files = ZipUtils.unzipToFolder(file, productDir);
+                ZipUtils.unzip(file.toPath(), productDir.toPath(), true);
+                File[] files = productDir.listFiles();
                 if (files.length == 1) {
                     final File expandedDir = files[0];
                     files = expandedDir.listFiles();
