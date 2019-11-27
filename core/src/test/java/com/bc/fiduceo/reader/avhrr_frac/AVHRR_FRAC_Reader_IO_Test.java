@@ -18,7 +18,6 @@ import org.junit.runner.RunWith;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
-import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 
 import java.awt.geom.Point2D;
@@ -311,7 +310,7 @@ public class AVHRR_FRAC_Reader_IO_Test {
     }
 
     @Test
-    public void testReadRaw() throws IOException, InvalidRangeException {
+    public void testReadRaw() throws IOException {
         final File file = getAvhrrFRACFile();
 
         try {
@@ -339,10 +338,10 @@ public class AVHRR_FRAC_Reader_IO_Test {
             NCTestUtils.assertValueAt(27.219499588012695, 2, 3, array);
 
             array = reader.readRaw(219, 33215, interval, "temp_3b");
-            NCTestUtils.assertValueAt(0.0, 2, 0, array);
-            NCTestUtils.assertValueAt(0.0, 2, 1, array);
-            NCTestUtils.assertValueAt(0.0, 2, 2, array);
-            NCTestUtils.assertValueAt(0.0, 2, 3, array);
+            NCTestUtils.assertValueAt(272.4858093261719, 2, 0, array);
+            NCTestUtils.assertValueAt(272.4858093261719, 2, 1, array);
+            NCTestUtils.assertValueAt(272.8327331542969, 2, 2, array);
+            NCTestUtils.assertValueAt(272.2142333984375, 2, 3, array);
 
             array = reader.readRaw(244, 21770, interval, "temp_5");
             NCTestUtils.assertValueAt(264.5557861328125, 0, 2, array);
@@ -361,7 +360,7 @@ public class AVHRR_FRAC_Reader_IO_Test {
     }
 
     @Test
-    public void testReadRaw_corner_pixels() throws IOException, InvalidRangeException {
+    public void testReadRaw_corner_pixels() throws IOException {
         final File file = getAvhrrFRACFile();
 
         try {
