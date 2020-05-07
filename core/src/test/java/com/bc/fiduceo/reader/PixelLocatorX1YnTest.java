@@ -4,6 +4,7 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.esa.snap.core.datamodel.Rotator;
 import org.esa.snap.core.util.math.RsMathUtils;
 import org.junit.*;
@@ -24,8 +25,8 @@ public class PixelLocatorX1YnTest {
 
     @Before
     public void setUp() throws Exception {
-        lons = Array.factory(new float[]{12, 13, 14, 15, 16, 17, 18});
-        lats = Array.factory(new float[]{20, 30, 40, 50, 60, 70, 80});
+        lons = NetCDFUtils.create(new float[]{12, 13, 14, 15, 16, 17, 18});
+        lats = NetCDFUtils.create(new float[]{20, 30, 40, 50, 60, 70, 80});
         maxDistanceKm = 5;
         pixelLocatorX1Yn = new PixelLocatorX1Yn(maxDistanceKm, lons, lats);
     }

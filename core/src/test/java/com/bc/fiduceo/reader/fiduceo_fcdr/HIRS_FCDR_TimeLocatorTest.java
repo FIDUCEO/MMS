@@ -1,5 +1,6 @@
 package com.bc.fiduceo.reader.fiduceo_fcdr;
 
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.junit.Before;
 import org.junit.Test;
 import ucar.ma2.Array;
@@ -15,7 +16,7 @@ public class HIRS_FCDR_TimeLocatorTest {
 
     @Before
     public void setUp() {
-        time = Array.factory(TIMES);
+        time = NetCDFUtils.create(TIMES);
     }
 
     @Test

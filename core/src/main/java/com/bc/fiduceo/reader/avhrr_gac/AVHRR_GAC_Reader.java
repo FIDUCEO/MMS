@@ -60,6 +60,52 @@ public class AVHRR_GAC_Reader extends NetCDFReader {
         this.geometryFactory = readerContext.getGeometryFactory();
     }
 
+    // package access for testing only tb 2016-03-02
+    static Date parseDate(String timeString) throws IOException {
+        if (StringUtils.isNullOrEmpty(timeString)) {
+            throw new IOException("required global attribute '" + START_TIME_ATTRIBUTE_NAME + "' contains no data");
+        }
+        return TimeUtils.parse(timeString, "yyyyMMdd'T'HHmmss'Z'");
+    }
+
+    static ArrayInt.D2 convertToAcquisitionTime(Array rawData, long startTimeMilliSecondsSince1970, float fillValue) {
+        final int rank = rawData.getRank();
+
+        if (rank == 0) {
+            final ArrayInt.D2 times = new ArrayInt.D2(1, 1, false);
+            final float seconds = rawData.getFloat(0);
+            final int secondsSince1970 = getSecondsSince1970(startTimeMilliSecondsSince1970, seconds);
+            times.set(0, 0, secondsSince1970);
+            return times;
+        }
+
+        final int[] shape = rawData.getShape();
+        int height = shape[0];
+        int width = shape[1];
+        final ArrayInt.D2 times = new ArrayInt.D2(height, width, false);
+
+        final int timesFillValue = NetCDFUtils.getDefaultFillValue(int.class).intValue();
+        final Index index = rawData.getIndex();
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                index.set(i, j);
+                final float seconds = rawData.getFloat(index);
+                if (seconds != fillValue) {
+                    final int secondsSince1970 = getSecondsSince1970(startTimeMilliSecondsSince1970, seconds);
+                    times.set(i, j, secondsSince1970);
+                } else {
+                    times.set(i, j, timesFillValue);
+                }
+            }
+        }
+        return times;
+    }
+
+    static int getSecondsSince1970(long startTimeMilliSecondsSince1970, float seconds) {
+        final float milliSeconds = seconds * 1000.f;
+        return (int) Math.round(((double) milliSeconds + startTimeMilliSecondsSince1970) * 0.001);
+    }
+
     @Override
     public void open(File file) throws IOException {
         super.open(file);
@@ -353,51 +399,5 @@ public class AVHRR_GAC_Reader extends NetCDFReader {
         final int width = shape[1];
         final int height = shape[0];
         this.pixelLocator = PixelLocatorFactory.getSwathPixelLocator(lonStorage, latStorage, width, height);
-    }
-
-    // package access for testing only tb 2016-03-02
-    static Date parseDate(String timeString) throws IOException {
-        if (StringUtils.isNullOrEmpty(timeString)) {
-            throw new IOException("required global attribute '" + START_TIME_ATTRIBUTE_NAME + "' contains no data");
-        }
-        return TimeUtils.parse(timeString, "yyyyMMdd'T'HHmmss'Z'");
-    }
-
-    static ArrayInt.D2 convertToAcquisitionTime(Array rawData, long startTimeMilliSecondsSince1970, float fillValue) {
-        final int rank = rawData.getRank();
-
-        if (rank == 0) {
-            final ArrayInt.D2 times = new ArrayInt.D2(1, 1);
-            final float seconds = rawData.getFloat(0);
-            final int secondsSince1970 = getSecondsSince1970(startTimeMilliSecondsSince1970, seconds);
-            times.set(0, 0, secondsSince1970);
-            return times;
-        }
-
-        final int[] shape = rawData.getShape();
-        int height = shape[0];
-        int width = shape[1];
-        final ArrayInt.D2 times = new ArrayInt.D2(height, width);
-
-        final int timesFillValue = NetCDFUtils.getDefaultFillValue(int.class).intValue();
-        final Index index = rawData.getIndex();
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                index.set(i, j);
-                final float seconds = rawData.getFloat(index);
-                if (seconds != fillValue) {
-                    final int secondsSince1970 = getSecondsSince1970(startTimeMilliSecondsSince1970, seconds);
-                    times.set(i, j, secondsSince1970);
-                } else {
-                    times.set(i, j, timesFillValue);
-                }
-            }
-        }
-        return times;
-    }
-
-    static int getSecondsSince1970(long startTimeMilliSecondsSince1970, float seconds) {
-        final float milliSeconds = seconds * 1000.f;
-        return (int) Math.round(((double) milliSeconds + startTimeMilliSecondsSince1970) * 0.001);
     }
 }

@@ -57,7 +57,7 @@ class AddGruanSource extends PostProcessing {
             final int line = yArray.getInt(i);
             final String sourcePath = insituReader.readSourcePath(line);
             final char[][] sourcePathChar = {sourcePath.toCharArray()};
-            final Array sourcePathArray = Array.factory(sourcePathChar[0]);
+            final Array sourcePathArray = NetCDFUtils.create(sourcePathChar[0]);
             Array.arraycopy(sourcePathArray, 0, targetArray, i * fileNameSize, (int) sourcePathArray.getSize());
 
         }

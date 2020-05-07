@@ -40,8 +40,6 @@
 
 package com.bc.fiduceo.reader.iasi;
 
-import static com.bc.fiduceo.util.NetCDFUtils.*;
-
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
@@ -49,19 +47,11 @@ import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
-import com.bc.fiduceo.reader.AcquisitionInfo;
-import com.bc.fiduceo.reader.BoundingPolygonCreator;
-import com.bc.fiduceo.reader.Geometries;
-import com.bc.fiduceo.reader.Reader;
-import com.bc.fiduceo.reader.ReaderContext;
-import com.bc.fiduceo.reader.ReaderUtils;
-import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.*;
+import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.VariableProxy;
-import ucar.ma2.Array;
-import ucar.ma2.ArrayInt;
+import ucar.ma2.*;
 import ucar.ma2.DataType;
-import ucar.ma2.Index;
-import ucar.ma2.MAMath;
 import ucar.nc2.Attribute;
 import ucar.nc2.Variable;
 
@@ -74,6 +64,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import static com.bc.fiduceo.util.NetCDFUtils.*;
+
 
 public class IASI_Reader implements Reader {
 
@@ -82,16 +74,13 @@ public class IASI_Reader implements Reader {
     private static final int SNOT = 30;
     private static final int LON = 0;
     private static final int LAT = 1;
-
+    private final GeometryFactory geometryFactory;
     private ImageInputStream iis;
     private GenericRecordHeader mphrHeader;
     private GiadrScaleFactors giadrScaleFactors;
     private IASI_TimeLocator timeLocator;
     private GeolocationData geolocationData;
     private PixelLocator pixelLocator;
-
-    private final GeometryFactory geometryFactory;
-
     private long firstMdrOffset;
     private long mdrSize;
     private int mdrCount;
@@ -105,6 +94,20 @@ public class IASI_Reader implements Reader {
         iis = null;
         geolocationData = null;
         pixelLocator = null;
+    }
+
+    public static float[] getDefaultFloatSpect() {
+        final float[] gs1cSpectDecoded = new float[EpsMetopConstants.SS];
+        Arrays.fill(gs1cSpectDecoded, getDefaultFillValue(float.class).floatValue());
+        return gs1cSpectDecoded;
+    }
+
+    static void checkRecordSubClass(GenericRecordHeader mdrHeader) {
+        if (mdrHeader.recordSubclassVersion == 4 || mdrHeader.recordSubclassVersion == 5) {
+            return;
+        }
+
+        throw new RuntimeException("Unsupported processing version");
     }
 
     @Override
@@ -206,7 +209,7 @@ public class IASI_Reader implements Reader {
         final Dimension productSize = getProductSize();
 
         final ReadProxy readProxy = proxiesMap.get(variableName);
-        final Number fillValue = getDefaultFillValue(readProxy.getDataType());
+        final Number fillValue = getDefaultFillValue(readProxy.getDataType(), readProxy.isUnsigned());
         final Array array = Array.factory(readProxy.getDataType(), shape);
 
         final Index index = array.getIndex();
@@ -245,7 +248,7 @@ public class IASI_Reader implements Reader {
     @Override
     public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException {
         final Array timeInMillis = readRaw(x, y, interval, "GEPSDatIasi");
-        final Array timeInSeconds = Array.factory(int.class, timeInMillis.getShape());
+        final Array timeInSeconds = Array.factory(DataType.INT, timeInMillis.getShape());
         final long size = timeInMillis.getSize();
         for (int i = 0; i < size; i++) {
             final long millis = timeInMillis.getLong(i);
@@ -263,7 +266,6 @@ public class IASI_Reader implements Reader {
         }
         return variableList;
     }
-
 
     @Override
     public Dimension getProductSize() {
@@ -300,12 +302,6 @@ public class IASI_Reader implements Reader {
                 gs1cSpectDecoded[w] = gs1cSpect[w] * powScale;
             }
         }
-        return gs1cSpectDecoded;
-    }
-
-    public static float[] getDefaultFloatSpect() {
-        final float[] gs1cSpectDecoded = new float[EpsMetopConstants.SS];
-        Arrays.fill(gs1cSpectDecoded, getDefaultFillValue(float.class).floatValue());
         return gs1cSpectDecoded;
     }
 
@@ -371,14 +367,6 @@ public class IASI_Reader implements Reader {
         mdrVersion = mdrHeader.recordSubclassVersion;
         mdrSize = mdrHeader.recordSize;
         mdrCount = (int) ((iis.length() - firstMdrOffset) / mdrSize);
-    }
-
-    static void checkRecordSubClass(GenericRecordHeader mdrHeader) {
-        if (mdrHeader.recordSubclassVersion == 4 || mdrHeader.recordSubclassVersion == 5) {
-            return;
-        }
-
-        throw new RuntimeException("Unsupported processing version");
     }
 
     private long[][] readGEPSDatIasi() throws IOException {
@@ -511,8 +499,8 @@ public class IASI_Reader implements Reader {
         }
 
         final GeolocationData geolocationData = new GeolocationData();
-        geolocationData.longitudes = Array.factory(longitudes);
-        geolocationData.latitudes = Array.factory(latitudes);
+        geolocationData.longitudes = NetCDFUtils.create(longitudes);
+        geolocationData.latitudes = NetCDFUtils.create(latitudes);
         return geolocationData;
     }
 

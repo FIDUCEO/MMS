@@ -5,7 +5,6 @@ import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
-import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriter;
 import ucar.nc2.Variable;
 import ucar.nc2.write.Nc4Chunking;
@@ -33,8 +32,8 @@ public class CreateFake_SST_in_situ {
 
             fileWriter.addDimension(null, "record", 5);
             fileWriter.addGroupAttribute(null, new Attribute("dataset", "gtmba-sst"));
-            
-            final Variable latVariable = fileWriter.addVariable(null,  "insitu.lat", DataType.FLOAT, "record");
+
+            final Variable latVariable = fileWriter.addVariable(null, "insitu.lat", DataType.FLOAT, "record");
             fileWriter.addVariableAttribute(latVariable, new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, -9999.0f));
 
             final Variable lonVariable = fileWriter.addVariable(null, "insitu.lon", DataType.FLOAT, "record");
@@ -51,11 +50,11 @@ public class CreateFake_SST_in_situ {
 
             fileWriter.create();
 
-            fileWriter.write(latVariable, Array.factory(new float[]{-35.72345f, -28.251474f, -12.8269415f, 1.069617f, 19.703432f}));
-            fileWriter.write(lonVariable, Array.factory(new float[]{64.48727f, 61.328587f, 56.472466f, 52.079575f, 46.351933f}));
-            fileWriter.write(timeVariable, Array.factory(new int[]{1120211850, 1120211973, 1120212228, 1120212456, 1120212766}));
-            fileWriter.write(mohcIdVariable, Array.factory(new int[]{10, 11, 12, 13, 14}));
-            fileWriter.write(profIdVariable, Array.factory(new int[]{15, 16, 17, 18, 19}));
+            fileWriter.write(latVariable, NetCDFUtils.create(new float[]{-35.72345f, -28.251474f, -12.8269415f, 1.069617f, 19.703432f}));
+            fileWriter.write(lonVariable, NetCDFUtils.create(new float[]{64.48727f, 61.328587f, 56.472466f, 52.079575f, 46.351933f}));
+            fileWriter.write(timeVariable, NetCDFUtils.create(new int[]{1120211850, 1120211973, 1120212228, 1120212456, 1120212766}));
+            fileWriter.write(mohcIdVariable, NetCDFUtils.create(new int[]{10, 11, 12, 13, 14}));
+            fileWriter.write(profIdVariable, NetCDFUtils.create(new int[]{15, 16, 17, 18, 19}));
 
         }
     }

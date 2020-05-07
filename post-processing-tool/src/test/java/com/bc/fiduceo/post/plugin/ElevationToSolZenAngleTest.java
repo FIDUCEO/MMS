@@ -37,6 +37,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -110,7 +111,7 @@ public class ElevationToSolZenAngleTest {
 
         verify(reader, times(1)).findVariable(null, "elevation");
         verify(writer, times(1)).findVariable("zenith");
-        verify(writer, times(1)).write(any(), any());
+        verify(writer, times(1)).write(any(Variable.class), any());
         verifyNoMoreInteractions(reader, writer);
     }
     
@@ -140,7 +141,7 @@ public class ElevationToSolZenAngleTest {
         verify(reader, times(1)).findVariable(null, "up_angle");
         verify(writer, times(1)).findVariable("zenith");
         verify(writer, times(1)).findVariable("zen_angle");
-        verify(writer, times(2)).write(any(), any());
+        verify(writer, times(2)).write(any(Variable.class), any());
         verifyNoMoreInteractions(reader, writer);
     }
 
@@ -149,8 +150,8 @@ public class ElevationToSolZenAngleTest {
         final float[] source = {34.7f, 35.8f, 33.6f};
         final float[] target = {0.f, 0.f, 0.f};
 
-        final Array sourceArray = Array.factory(source);
-        final Array targetArray = Array.factory(target);
+        final Array sourceArray = NetCDFUtils.create(source);
+        final Array targetArray = NetCDFUtils.create(target);
 
         ElevationToSolZenAngle.calculateZenithAngle(sourceArray, targetArray, Float.NaN);
 
@@ -164,8 +165,8 @@ public class ElevationToSolZenAngleTest {
         final float[] source = {34.7f, -1000.f, 33.6f};
         final float[] target = {0.f, 0.f, 0.f};
 
-        final Array sourceArray = Array.factory(source);
-        final Array targetArray = Array.factory(target);
+        final Array sourceArray = NetCDFUtils.create(source);
+        final Array targetArray = NetCDFUtils.create(target);
 
         ElevationToSolZenAngle.calculateZenithAngle(sourceArray, targetArray, -1000.f);
 
@@ -175,7 +176,7 @@ public class ElevationToSolZenAngleTest {
     }
 
     private Variable createVariableWithData(float[] data) throws IOException {
-        final Array dataArray = Array.factory(data);
+        final Array dataArray = NetCDFUtils.create(data);
 
         final Variable variable = mock(Variable.class);
         when(variable.read()).thenReturn(dataArray);

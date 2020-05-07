@@ -2,6 +2,7 @@ package com.bc.fiduceo.reader.slstr;
 
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.junit.Test;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
@@ -60,7 +61,7 @@ public class Nadir500mTransformTest {
         final Nadir500mTransform transform = new Nadir500mTransform(201, 181);
         final float[][] data = new float[][]{{0.f, 1.f}, {2.f, 3.f}};
 
-        final Array array = Array.factory(data);
+        final Array array = NetCDFUtils.create(data);
         final Array processed = transform.process(array, -1.0);
 
         assertEquals("(1,1)", processed.shapeToString());
@@ -72,7 +73,7 @@ public class Nadir500mTransformTest {
         final Nadir500mTransform transform = new Nadir500mTransform(201, 181);
         final float[][] data = new float[][]{{0.f, -1.f}, {2.f, 3.f}};
 
-        final Array array = Array.factory(data);
+        final Array array = NetCDFUtils.create(data);
         final Array processed = transform.process(array, -1.0);
 
         assertEquals("(1,1)", processed.shapeToString());
@@ -84,7 +85,7 @@ public class Nadir500mTransformTest {
         final Nadir500mTransform transform = new Nadir500mTransform(201, 181);
         final float[][] data = new float[][]{{-11.f, -11.f}, {-11.f, -11.f}};
 
-        final Array array = Array.factory(data);
+        final Array array = NetCDFUtils.create(data);
         final Array processed = transform.process(array, -11.0);
 
         assertEquals("(1,1)", processed.shapeToString());
@@ -97,7 +98,7 @@ public class Nadir500mTransformTest {
         final float[][] data = new float[][]{{1.f, 2.f, 3.f, 4.f, 5.f, 6.f},
                 {10.f, 11.f, 12.f, 13.f, 14.f, 15.f}};
 
-        final Array array = Array.factory(data);
+        final Array array = NetCDFUtils.create(data);
         final Array processed = transform.process(array, -2.0);
 
         assertEquals("(1,3)", processed.shapeToString());
@@ -116,7 +117,7 @@ public class Nadir500mTransformTest {
                 {11.f, -4.f, 12.f, 13.f, -4.f, 14.f},
                 {12.f, 13.f, 14.f, 15.f - 4.f, -4.f}};
 
-        final Array array = Array.factory(data);
+        final Array array = NetCDFUtils.create(data);
         final Array processed = transform.process(array, -4.0);
 
         assertEquals("(3,3)", processed.shapeToString());
@@ -136,7 +137,7 @@ public class Nadir500mTransformTest {
         final Nadir500mTransform transform = new Nadir500mTransform(202, 182);
         final int[][] data = new int[][]{{0, 1}, {2, 3}};
 
-        final Array array = Array.factory(data);
+        final Array array = NetCDFUtils.create(data);
         final Array processed = transform.processFlags(array, -1);
 
         assertEquals("(1,1)", processed.shapeToString());
@@ -149,7 +150,7 @@ public class Nadir500mTransformTest {
         final int[][] data = new int[][]{{0, 1, 2, 3, 4, 5},
                 {6, 7, 8, 9, 10, 11}};
 
-        final Array array = Array.factory(data);
+        final Array array = NetCDFUtils.create(data);
         final Array processed = transform.processFlags(array, -2);
 
         assertEquals("(1,3)", processed.shapeToString());
@@ -168,7 +169,7 @@ public class Nadir500mTransformTest {
                 {65535, 65535, 10, 11, 12, 13},
                 {65535, 65535, 14, 15, 16, 17}};
 
-        final Array array = Array.factory(data);
+        final Array array = NetCDFUtils.create(data);
         final Array processed = transform.processFlags(array, 65535);
 
         assertEquals("(3,3)", processed.shapeToString());

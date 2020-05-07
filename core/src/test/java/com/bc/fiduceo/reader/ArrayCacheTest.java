@@ -21,6 +21,7 @@
 package com.bc.fiduceo.reader;
 
 
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.junit.Before;
 import org.junit.Test;
 import ucar.ma2.Array;
@@ -61,7 +62,7 @@ public class ArrayCacheTest {
         when(netcdfFile.findGroup("a_group")).thenReturn(group);
         when(netcdfFile.findVariable(group, "a_group_variable")).thenReturn(variable);
 
-        final Array array = Array.factory(new int[]{1, 2, 3, 4});
+        final Array array = NetCDFUtils.create(new int[]{1, 2, 3, 4});
         when(variable.read()).thenReturn(array);
 
         arrayCache = new ArrayCache(netcdfFile);
@@ -458,7 +459,7 @@ public class ArrayCacheTest {
         final Variable variable = mock(Variable.class);
         when(variable.getShortName()).thenReturn("injected");
 
-        final Array array = Array.factory(new int[]{2, 3, 4, 5});
+        final Array array = NetCDFUtils.create(new int[]{2, 3, 4, 5});
         when(variable.read()).thenReturn(array);
 
         arrayCache.inject(variable);

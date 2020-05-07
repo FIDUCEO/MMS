@@ -22,6 +22,7 @@ package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.junit.Before;
 import org.junit.Test;
 import ucar.ma2.Array;
@@ -55,6 +56,6 @@ public class RawDataReaderTest_context1D_int {
 
     private Array getIntRawArray() {
         final int[] ints = {22, 23, 24, 25, 26, 27, 28, 29};
-        return Array.factory(ints);
+        return NetCDFUtils.create(ints);
     }
 }

@@ -333,7 +333,7 @@ class PostProcessingTool {
         }
 
         for (Dimension dim : oldGroup.getDimensions()) {
-            writer.addDimension(newGroup, dim.getShortName(), dim.getLength(), true, dim.isUnlimited(), dim.isVariableLength());
+            writer.addDimension(newGroup, dim.getShortName(), dim.getLength(), dim.isUnlimited(), dim.isVariableLength());
         }
 
         for (Variable v : oldGroup.getVariables()) {
@@ -349,7 +349,7 @@ class PostProcessingTool {
                     dim.setName("anonymous" + anonymousDimensionIndex);
                     dim.setShared(true);
                     anonymousDimensionIndex++;
-                    writer.addDimension(newGroup, dim.getShortName(), dim.getLength(), true, dim.isUnlimited(), dim.isVariableLength());
+                    writer.addDimension(newGroup, dim.getShortName(), dim.getLength(), dim.isUnlimited(), dim.isVariableLength());
                 }
             }
 

@@ -24,6 +24,7 @@ package com.bc.fiduceo.reader.avhrr_gac;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.reader.ReaderContext;
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.esa.snap.core.datamodel.ProductData;
 import org.junit.Before;
 import org.junit.Test;
@@ -107,7 +108,7 @@ public class AVHRR_GAC_ReaderTest {
     @Test
     public void testConvertToAcquisitionTime_1970_01_01() {
         final int startTimeMilliSecondsSince1970 = 0;
-        final ArrayFloat.D2 rawData = (ArrayFloat.D2) Array.factory(new float[][]{
+        final ArrayFloat.D2 rawData = (ArrayFloat.D2) NetCDFUtils.create(new float[][]{
                 new float[]{1.1f, 2.2f, 3.3f},
                 new float[]{4.4f, 5.5f, 6.6f},
         });
@@ -124,7 +125,7 @@ public class AVHRR_GAC_ReaderTest {
     @Test
     public void testConvertToAcquisitionTime_1970_01_01_useFillValue() {
         final int startTimeMilliSecondsSince1970 = 0;
-        final ArrayFloat.D2 rawData = (ArrayFloat.D2) Array.factory(new float[][]{
+        final ArrayFloat.D2 rawData = (ArrayFloat.D2) NetCDFUtils.create(new float[][]{
                 new float[]{1.1f, 2.2f, -19.7f},
                 new float[]{4.4f, 5.5f, -19.7f},
         });
@@ -143,7 +144,7 @@ public class AVHRR_GAC_ReaderTest {
         final ProductData.UTC startUTC = ProductData.UTC.parse("2015-03-23 12:34:56", "yyyy-MM-dd HH:mm:ss");
         final long startTimeMilliSecondsSince1970 = startUTC.getAsDate().getTime();
         final int v = (int) (startTimeMilliSecondsSince1970 * 0.001);
-        final ArrayFloat.D2 rawData = (ArrayFloat.D2) Array.factory(new float[][]{
+        final ArrayFloat.D2 rawData = (ArrayFloat.D2) NetCDFUtils.create(new float[][]{
                 new float[]{1.1f, 2.2f, 3.3f},
                 new float[]{4.4f, 5.5f, 6.6f},
         });

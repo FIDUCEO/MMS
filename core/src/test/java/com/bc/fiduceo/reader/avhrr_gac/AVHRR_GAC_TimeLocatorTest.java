@@ -24,6 +24,7 @@ import com.bc.fiduceo.util.TimeUtils;
 import org.junit.Before;
 import org.junit.Test;
 import ucar.ma2.Array;
+import ucar.ma2.DataType;
 
 import java.util.Date;
 
@@ -42,7 +43,7 @@ public class AVHRR_GAC_TimeLocatorTest {
 
     @Before
     public void setUp() {
-        dTime = Array.factory(DTIME_DATA);
+        dTime = Array.makeFromJavaArray(DTIME_DATA);
     }
 
     @Test

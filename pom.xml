@@ -27,37 +27,37 @@
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-core</artifactId>
-                <version>7.0.3</version>
+                <version>8.0.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-engine-utilities</artifactId>
-                <version>7.0.3</version>
+                <version>8.0.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-envisat-reader</artifactId>
-                <version>7.0.3</version>
+                <version>8.0.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>org.esa.s3tbx</groupId>
                 <artifactId>s3tbx-avhrr-reader</artifactId>
-                <version>7.0.2</version>
+                <version>8.0.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>org.esa.s3tbx</groupId>
                 <artifactId>s3tbx-sentinel3-reader</artifactId>
-                <version>7.0.2</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>edu.ucar</groupId>
-                        <artifactId>netcdf</artifactId>
-                    </exclusion>
-                </exclusions>
+                <version>8.0.0-SNAPSHOT</version>
+                <!--<exclusions>-->
+                    <!--<exclusion>-->
+                        <!--<groupId>edu.ucar</groupId>-->
+                        <!--<artifactId>netcdf</artifactId>-->
+                    <!--</exclusion>-->
+                <!--</exclusions>-->
             </dependency>
 
             <dependency>
@@ -108,15 +108,20 @@
 
             <dependency>
                 <groupId>edu.ucar</groupId>
-                <artifactId>netcdf4</artifactId>
-                <version>4.6.12</version>
+                <artifactId>netcdfAll</artifactId>
+                <version>5.3.1</version>
             </dependency>
+            <!--<dependency>-->
+                <!--<groupId>edu.ucar</groupId>-->
+                <!--<artifactId>netcdf4</artifactId>-->
+                <!--<version>4.7.4</version>-->
+            <!--</dependency>-->
 
-            <dependency>
-                <groupId>edu.ucar</groupId>
-                <artifactId>cdm</artifactId>
-                <version>4.6.14</version>
-            </dependency>
+            <!--<dependency>-->
+                <!--<groupId>edu.ucar</groupId>-->
+                <!--<artifactId>cdm</artifactId>-->
+                <!--<version>4.6.14</version>-->
+            <!--</dependency>-->
 
             <!-- test dependencies -->
             <dependency>

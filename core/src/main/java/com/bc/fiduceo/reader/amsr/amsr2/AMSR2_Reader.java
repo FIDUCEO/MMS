@@ -17,6 +17,7 @@ import ucar.ma2.*;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
+import ucar.nc2.NetcdfFiles;
 import ucar.nc2.Variable;
 
 import java.io.File;
@@ -124,11 +125,16 @@ public class AMSR2_Reader extends NetCDFReader {
 
     @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException {
-        final String escapedName = NetcdfFile.makeValidCDLName(variableName);
+        String escapedName = escapeVariableName(variableName);
         final Array rawArray = arrayCache.get(escapedName);
         final Dimension productSize = getProductSize();
         final Number fillValue = getFillValue(escapedName);
         return RawDataReader.read(centerX, centerY, interval, fillValue, rawArray, productSize);
+    }
+
+    private String escapeVariableName(String variableName) {
+        final String escapedName = NetcdfFiles.makeValidCDLName(variableName);
+        return escapedName.replace(".", "\\.");
     }
 
     @Override

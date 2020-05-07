@@ -2,6 +2,7 @@ package com.bc.fiduceo.reader.slstr;
 
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.junit.Test;
 import ucar.ma2.Array;
 
@@ -59,7 +60,7 @@ public class Oblique500mTransformTest {
         final Oblique500mTransform transform = new Oblique500mTransform(3000, 2400, 423);
         final float[][] data = new float[][]{{2.f, 3.f}, {4.f, 5.f}};
 
-        final Array array = Array.factory(data);
+        final Array array = NetCDFUtils.create(data);
         final Array processed = transform.process(array, -1.0);
 
         assertEquals("(1,1)", processed.shapeToString());
@@ -71,7 +72,7 @@ public class Oblique500mTransformTest {
         final Oblique500mTransform transform = new Oblique500mTransform(3000, 2400, 423);
         final float[][] data = new float[][]{{0.f, -4.f}, {1.f, 2.f}};
 
-        final Array array = Array.factory(data);
+        final Array array = NetCDFUtils.create(data);
         final Array processed = transform.process(array, -4.0);
 
         assertEquals("(1,1)", processed.shapeToString());
@@ -84,7 +85,7 @@ public class Oblique500mTransformTest {
         final float[][] data = new float[][]{{2.f, 3.f, 4.f, 5.f, 6.f, 7.f},
                 {8.f, 9.f, 10.f, 11.f, 12.f, 13.f}};
 
-        final Array array = Array.factory(data);
+        final Array array = NetCDFUtils.create(data);
         final Array processed = transform.process(array, -2.0);
 
         assertEquals("(1,3)", processed.shapeToString());
@@ -103,7 +104,7 @@ public class Oblique500mTransformTest {
                 {11.f, -1000.f, 12.f, 13.f, -1000.f, 14.f},
                 {12.f, 13.f, 14.f, 15.f, -1000.f, -1000.f}};
 
-        final Array array = Array.factory(data);
+        final Array array = NetCDFUtils.create(data);
         final Array processed = transform.process(array, -1000.0);
 
         assertEquals("(3,3)", processed.shapeToString());
@@ -123,7 +124,7 @@ public class Oblique500mTransformTest {
         final Oblique500mTransform transform = new Oblique500mTransform(3000, 2400, 423);
         final int[][] data = new int[][]{{2, 3}, {4, 5}};
 
-        final Array array = Array.factory(data);
+        final Array array = NetCDFUtils.create(data);
         final Array processed = transform.processFlags(array, -1);
 
         assertEquals("(1,1)", processed.shapeToString());
@@ -140,7 +141,7 @@ public class Oblique500mTransformTest {
                 {65535, 65535, 10, 11, 12, 13},
                 {65535, 65535, 14, 15, 16, 17}};
 
-        final Array array = Array.factory(data);
+        final Array array = NetCDFUtils.create(data);
         final Array processed = transform.processFlags(array, 65535);
 
         assertEquals("(3,3)", processed.shapeToString());

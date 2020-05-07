@@ -178,7 +178,7 @@ abstract class FCDR_Reader extends NetCDFReader {
         final int[] shape = timeArray.getShape();
         int height = shape[0];
         int width = shape[1];
-        final ArrayInt.D2 integerTimeArray = new ArrayInt.D2(height, width);
+        final ArrayInt.D2 integerTimeArray = new ArrayInt.D2(height, width, false);
         final int targetFillValue = (int) NetCDFUtils.getDefaultFillValue(DataType.INT, false);
         final Index index = timeArray.getIndex();
         for (int i = 0; i < height; i++) {

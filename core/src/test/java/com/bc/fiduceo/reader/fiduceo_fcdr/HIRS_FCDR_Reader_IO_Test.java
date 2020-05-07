@@ -389,14 +389,14 @@ public class HIRS_FCDR_Reader_IO_Test {
             final Array array = reader.readRaw(0, 277, new Interval(5, 5), "quality_channel_bitmask_ch04");
             assertNotNull(array);
 
-            NCTestUtils.assertValueAt(-1, 0, 0, array);
-            NCTestUtils.assertValueAt(-1, 1, 0, array);
+            NCTestUtils.assertValueAt(-127, 0, 0, array);
+            NCTestUtils.assertValueAt(-127, 1, 0, array);
             NCTestUtils.assertValueAt(16, 2, 0, array);
             NCTestUtils.assertValueAt(16, 3, 0, array);
             NCTestUtils.assertValueAt(16, 4, 0, array);
 
-            NCTestUtils.assertValueAt(-1, 0, 4, array);
-            NCTestUtils.assertValueAt(-1, 1, 4, array);
+            NCTestUtils.assertValueAt(-127, 0, 4, array);
+            NCTestUtils.assertValueAt(-127, 1, 4, array);
             NCTestUtils.assertValueAt(16, 2, 4, array);
             NCTestUtils.assertValueAt(16, 3, 4, array);
             NCTestUtils.assertValueAt(16, 4, 4, array);

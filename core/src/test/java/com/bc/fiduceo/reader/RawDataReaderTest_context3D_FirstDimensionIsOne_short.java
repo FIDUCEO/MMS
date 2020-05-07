@@ -2,9 +2,11 @@ package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.junit.Before;
 import org.junit.Test;
 import ucar.ma2.Array;
+import ucar.ma2.DataType;
 
 import java.io.IOException;
 
@@ -107,7 +109,7 @@ public class RawDataReaderTest_context3D_FirstDimensionIsOne_short {
 
     @Test
     public void testRawArrayHasMoreThanTwoDimensions() throws IOException {
-        final Array rawArray = Array.factory(new short[][][]{
+        final Array rawArray = Array.makeFromJavaArray(new short[][][]{
                 {{11, 12, 13}, {14, 15, 16}, {17, 18, 19},},
                 {{21, 22, 23}, {24, 25, 26}, {27, 28, 29},},
                 {{31, 32, 33}, {34, 35, 36}, {37, 38, 39},}
@@ -135,7 +137,7 @@ public class RawDataReaderTest_context3D_FirstDimensionIsOne_short {
         };
         final short[][][] shorts = new short[1][][];
         shorts[0] = array2D;
-        return Array.factory(shorts);
+        return NetCDFUtils.create(array2D);
 
     }
 }

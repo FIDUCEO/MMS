@@ -114,15 +114,15 @@ public class CALIOP_L2_VFM_FLAGS_PP_IOTest {
         pp.targetFlagsVariable = mock(Variable.class);
 
         pp.processingVersionVariable = mock(Variable.class);
-        when(pp.processingVersionVariable.read(new int[]{0, 0}, new int[]{1, 30})).thenReturn(Array.factory("   4.10   ".toCharArray()));
-        when(pp.processingVersionVariable.read(new int[]{1, 0}, new int[]{1, 30})).thenReturn(Array.factory("   v4   ".toCharArray()));
+        when(pp.processingVersionVariable.read(new int[]{0, 0}, new int[]{1, 30})).thenReturn(NetCDFUtils.create("   4.10   ".toCharArray()));
+        when(pp.processingVersionVariable.read(new int[]{1, 0}, new int[]{1, 30})).thenReturn(NetCDFUtils.create("   v4   ".toCharArray()));
 
         pp.fileNameVariable = mock(Variable.class);
-        when(pp.fileNameVariable.read(new int[]{0, 0}, new int[]{1, 200})).thenReturn(Array.factory("   CAL_LID_L2_VFM-Standard-V4-10.2008-06-02T10-39-30ZD.hdf   ".toCharArray()));
-        when(pp.fileNameVariable.read(new int[]{1, 0}, new int[]{1, 200})).thenReturn(Array.factory("   CAL_LID_L2_VFM-Standard-V4-10.2011-01-02T23-37-04ZD.hdf   ".toCharArray()));
+        when(pp.fileNameVariable.read(new int[]{0, 0}, new int[]{1, 200})).thenReturn(NetCDFUtils.create("   CAL_LID_L2_VFM-Standard-V4-10.2008-06-02T10-39-30ZD.hdf   ".toCharArray()));
+        when(pp.fileNameVariable.read(new int[]{1, 0}, new int[]{1, 200})).thenReturn(NetCDFUtils.create("   CAL_LID_L2_VFM-Standard-V4-10.2011-01-02T23-37-04ZD.hdf   ".toCharArray()));
 
         final Variable yVar = mock(Variable.class);
-        when(yVar.read()).thenReturn(Array.factory(new int[]{3, 33}));
+        when(yVar.read()).thenReturn(NetCDFUtils.create(new int[]{3, 33}));
 
         final NetcdfFile reader = mock(NetcdfFile.class);
         when(reader.findDimension("caliop_vfm-cal_ny")).thenReturn(new Dimension("name", 3));

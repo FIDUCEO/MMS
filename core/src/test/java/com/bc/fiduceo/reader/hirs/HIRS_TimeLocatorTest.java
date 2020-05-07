@@ -21,6 +21,7 @@
 package com.bc.fiduceo.reader.hirs;
 
 
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.junit.Before;
 import org.junit.Test;
 import ucar.ma2.Array;
@@ -35,7 +36,7 @@ public class HIRS_TimeLocatorTest {
 
     @Before
     public void setUp() {
-        final Array timeArray = Array.factory(TIME_ARRAY);
+        final Array timeArray = NetCDFUtils.create(TIME_ARRAY);
         timeLocator = new HIRS_TimeLocator(timeArray);
     }
 

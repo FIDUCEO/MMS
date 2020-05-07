@@ -56,7 +56,7 @@ public class NetCDFUtils {
         } else if (float.class == type) {
             return N3iosp.NC_FILL_FLOAT;
         } else if (long.class == type) {
-            return N3iosp.NC_FILL_LONG;
+            return N3iosp.NC_FILL_INT64;
         } else if (int.class == type) {
             return N3iosp.NC_FILL_INT;
         } else if (short.class == type) {
@@ -74,7 +74,7 @@ public class NetCDFUtils {
         } else if (DataType.FLOAT == type) {
             return N3iosp.NC_FILL_FLOAT;
         } else if (DataType.LONG == type) {
-            return N3iosp.NC_FILL_LONG;
+            return N3iosp.NC_FILL_INT64;
         } else if (DataType.INT == type) {
             if (unsigned) {
                 return N3iosp.NC_FILL_UINT;
@@ -85,6 +85,8 @@ public class NetCDFUtils {
                 return N3iosp.NC_FILL_USHORT;
             }
             return N3iosp.NC_FILL_SHORT;
+        } else if (DataType.USHORT == type) {
+            return N3iosp.NC_FILL_USHORT;
         } else if (DataType.BYTE == type) {
             if (unsigned) {
                 return N3iosp.NC_FILL_UBYTE;
@@ -102,14 +104,14 @@ public class NetCDFUtils {
         }
 
         final DataType dataType = variable.getDataType();
-        return getDefaultFillValue(dataType.getClassType());
+        return getDefaultFillValue(dataType.getPrimitiveClassType());
     }
 
     public static Array toFloat(Array original) {
         if (original.getDataType() == DataType.FLOAT) {
             return original;
         }
-        final Array floatArray = Array.factory(Float.class, original.getShape());
+        final Array floatArray = Array.factory(DataType.FLOAT, original.getShape());
         MAMath.copyFloat(floatArray, original);
         return floatArray;
     }
@@ -188,7 +190,7 @@ public class NetCDFUtils {
     }
 
     public static Variable getVariable(NetcdfFile reader, String name) {
-        final String escapedName = NetcdfFile.makeValidCDLName(name);
+        final String escapedName = NetcdfFiles.makeValidCDLName(name);
         final Variable variable = reader.findVariable(null, escapedName);
         if (variable == null) {
             throw new RuntimeException("Input Variable '" + name + "' not present in input file");
@@ -197,7 +199,7 @@ public class NetCDFUtils {
     }
 
     public static Variable getVariable(NetcdfFileWriter fileWriter, String name) {
-        final String escapedName = NetcdfFile.makeValidCDLName(name);
+        final String escapedName = NetcdfFiles.makeValidCDLName(name);
         final Variable variable = fileWriter.findVariable(escapedName);
         if (variable == null) {
             throw new RuntimeException("Input Variable '" + name + "' not present in input file");
@@ -344,5 +346,89 @@ public class NetCDFUtils {
         } catch (InvalidRangeException e) {
             throw new IOException(e.getMessage());
         }
+    }
+
+    // @todo 2 tb/tb write test 2020-05-07
+    public static Array create(byte[] data) {
+        final int[] shape = new int[]{data.length};
+        return Array.factory(DataType.BYTE, shape, data);
+    }
+
+    // @todo 2 tb/tb write test 2020-05-07
+    public static Array create(byte[][] data) {
+        final int linelength = data[0].length;
+        byte[] flatData = new byte[data.length * linelength];
+        for (int n = 0; n < data.length; n++) {
+            System.arraycopy(data[n], 0, flatData, n * linelength, linelength);
+        }
+        final int[] shape = new int[]{data.length, linelength};
+        return Array.factory(DataType.BYTE, shape, flatData);
+    }
+
+    // @todo 2 tb/tb write test 2020-05-07
+    public static Array create(char[] data) {
+        final int[] shape = new int[]{data.length};
+        return Array.factory(DataType.CHAR, shape, data);
+    }
+
+    public static Array create(char[][] data) {
+        return Array.makeFromJavaArray(data);
+    }
+
+    // @todo 2 tb/tb write test 2020-05-07
+    public static Array create(short[] data) {
+        final int[] shape = new int[]{data.length};
+        return Array.factory(DataType.SHORT, shape, data);
+    }
+
+    public static Array create(short[][] data) {
+        return Array.makeFromJavaArray(data);
+    }
+
+    // @todo 2 tb/tb write test 2020-05-07
+    public static Array create(int[] data) {
+        final int[] shape = new int[]{data.length};
+        return Array.factory(DataType.INT, shape, data);
+    }
+
+    public static Array create(int[][] data) {
+        return Array.makeFromJavaArray(data);
+    }
+
+    // @todo 2 tb/tb write test 2020-05-07
+    public static Array create(long[] data) {
+        final int[] shape = new int[]{data.length};
+        return Array.factory(DataType.LONG, shape, data);
+    }
+
+    public static Array create(long[][] data) {
+        return Array.makeFromJavaArray(data);
+    }
+
+    // @todo 2 tb/tb write test 2020-05-07
+    public static Array create(float[] data) {
+        final int[] shape = new int[]{data.length};
+        return Array.factory(DataType.FLOAT, shape, data);
+    }
+
+    public static Array create(float[][] data) {
+        return Array.makeFromJavaArray(data);
+    }
+
+    // @todo 2 tb/tb write test 2020-05-07
+    public static Array create(double[] data) {
+        final int[] shape = new int[]{data.length};
+        return Array.factory(DataType.DOUBLE, shape, data);
+    }
+
+    // @todo 2 tb/tb write test 2020-05-07
+    public static Array create(double[][] data) {
+        final int linelength = data[0].length;
+        double[] flatData = new double[data.length * linelength];
+        for (int n = 0; n < data.length; n++) {
+            System.arraycopy(data[n], 0, flatData, n * linelength, linelength);
+        }
+        final int[] shape = new int[]{data.length, linelength};
+        return Array.factory(DataType.DOUBLE, shape, flatData);
     }
 }

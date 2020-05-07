@@ -20,17 +20,13 @@
 
 package com.bc.fiduceo.post.plugin.amsr;
 
-import com.bc.fiduceo.post.plugin.amsr.AddAmsrSolarAngles;
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.junit.Before;
 import org.junit.Test;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
-import ucar.nc2.Attribute;
-import ucar.nc2.Dimension;
-import ucar.nc2.NetcdfFile;
-import ucar.nc2.NetcdfFileWriter;
-import ucar.nc2.Variable;
+import ucar.nc2.*;
 import ucar.nc2.iosp.netcdf3.N3iosp;
 
 import java.io.IOException;
@@ -38,12 +34,7 @@ import java.util.ArrayList;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class AddAmsrSolarAnglesTest {
 
@@ -124,7 +115,7 @@ public class AddAmsrSolarAnglesTest {
 
         verify(writer, times(1)).findVariable("sun_zenith_angle");
         verify(writer, times(1)).findVariable("sun_azimuth_angle");
-        verify(writer, times(2)).write(any(), any());
+        verify(writer, times(2)).write(any(Variable.class), any());
         verifyNoMoreInteractions(reader, writer);
     }
 
@@ -132,16 +123,16 @@ public class AddAmsrSolarAnglesTest {
     public void testCalculateAngles_3by3_singleLayer() {
         final int[] shape = new int[]{3, 3};
         final float[] earthIncidences = {55.105f, 55.105f, 55.105f, 55.105f, 55.105f, 55.105f, 55.105f, 55.105f, 55.105f};
-        final Array earthIncidenceArray = Array.factory(float.class, shape, earthIncidences);
+        final Array earthIncidenceArray = Array.factory(DataType.FLOAT, shape, earthIncidences);
 
         final float[] sunElevation = {41.4f, 41.4f, 41.5f, 41.5f, 41.5f, 41.6f, 41.5f, 41.6f, 41.7f};
-        final Array sunElevationArray = Array.factory(float.class, shape, sunElevation);
+        final Array sunElevationArray = Array.factory(DataType.FLOAT, shape, sunElevation);
 
         final float[] earthAzimuth = {65.67f, 64.7f, 63.71f, 65.53f, 64.55f, 63.56f, 65.39f, 64.41f, 63.4f};
-        final Array earthAzimuthArray = Array.factory(float.class, shape, earthAzimuth);
+        final Array earthAzimuthArray = Array.factory(DataType.FLOAT, shape, earthAzimuth);
 
         final float[] sunAzimuth = {-125.1f, -125.8f, -126.4f, -125.2f, -125.8f, -126.4f, -125.1f, -125.8f, -126.4f};
-        final Array sunAzimuthArray = Array.factory(float.class, shape, sunAzimuth);
+        final Array sunAzimuthArray = Array.factory(DataType.FLOAT, shape, sunAzimuth);
 
         final Array sza = Array.factory(DataType.FLOAT, shape);
         final Array saa = Array.factory(DataType.FLOAT, shape);
@@ -159,16 +150,16 @@ public class AddAmsrSolarAnglesTest {
     public void testCalculateAngles_3by3_singleLayer_withInvalidPixels() {
         final int[] shape = new int[]{3, 3};
         final float[] earthIncidences = {55.105f, N3iosp.NC_FILL_FLOAT, 55.105f, 55.105f, 55.105f, 55.105f, 55.105f, 55.105f, 55.105f};
-        final Array earthIncidenceArray = Array.factory(float.class, shape, earthIncidences);
+        final Array earthIncidenceArray = Array.factory(DataType.FLOAT, shape, earthIncidences);
 
         final float[] sunElevation = {41.4f, 41.4f, 41.5f, N3iosp.NC_FILL_FLOAT, 41.5f, 41.6f, 41.5f, 41.6f, 41.7f};
-        final Array sunElevationArray = Array.factory(float.class, shape, sunElevation);
+        final Array sunElevationArray = Array.factory(DataType.FLOAT, shape, sunElevation);
 
         final float[] earthAzimuth = {65.67f, 64.7f, 63.71f, 65.53f, 64.55f, N3iosp.NC_FILL_FLOAT, 65.39f, 64.41f, 63.4f};
-        final Array earthAzimuthArray = Array.factory(float.class, shape, earthAzimuth);
+        final Array earthAzimuthArray = Array.factory(DataType.FLOAT, shape, earthAzimuth);
 
         final float[] sunAzimuth = {-125.1f, -125.8f, -126.4f, -125.2f, -125.8f, -126.4f, -125.1f, N3iosp.NC_FILL_FLOAT, -126.4f};
-        final Array sunAzimuthArray = Array.factory(float.class, shape, sunAzimuth);
+        final Array sunAzimuthArray = Array.factory(DataType.FLOAT, shape, sunAzimuth);
 
         final Array sza = Array.factory(DataType.FLOAT, shape);
         final Array saa = Array.factory(DataType.FLOAT, shape);
@@ -183,7 +174,7 @@ public class AddAmsrSolarAnglesTest {
     }
 
     private Variable createVariableWithData(short[] data, double scaleFactor) throws IOException {
-        final Array dataArray = Array.factory(data);
+        final Array dataArray = NetCDFUtils.create(data);
 
         final Variable variable = mock(Variable.class);
         when(variable.read()).thenReturn(dataArray);
@@ -194,5 +185,4 @@ public class AddAmsrSolarAnglesTest {
 
         return variable;
     }
-
 }

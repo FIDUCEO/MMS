@@ -188,13 +188,13 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
 
     @Override
     public void write(int v, String variableName, int zIndex) {
-        final Array data = Array.factory(new int[][]{{v}});
+        final Array data = NetCDFUtils.create(new int[][]{{v}});
         write(data, variableName, zIndex);
     }
 
     @Override
     public void write(float value, String variableName, int zIndex) {
-        final Array data = Array.factory(new float[][]{{value}});
+        final Array data = NetCDFUtils.create(new float[][]{{value}});
         write(data, variableName, zIndex);
     }
 
@@ -203,7 +203,7 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
         final int[] shape = getVariable(variableName).getShape();
         final char[] chars = new char[shape[1]];
         v.getChars(0, v.length(), chars, 0);
-        final Array data = Array.factory(new char[][]{chars});
+        final Array data = NetCDFUtils.create(new char[][]{chars});
         write(data, variableName, zIndex);
     }
 

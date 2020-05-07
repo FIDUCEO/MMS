@@ -28,13 +28,7 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.location.PixelLocatorFactory;
-import com.bc.fiduceo.reader.AcquisitionInfo;
-import com.bc.fiduceo.reader.BoundingPolygonCreator;
-import com.bc.fiduceo.reader.Geometries;
-import com.bc.fiduceo.reader.RawDataReader;
-import com.bc.fiduceo.reader.ReaderContext;
-import com.bc.fiduceo.reader.ReaderUtils;
-import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.*;
 import com.bc.fiduceo.reader.netcdf.NetCDFReader;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
@@ -45,11 +39,7 @@ import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 class HIRS_L1C_Reader extends NetCDFReader {
 
@@ -278,7 +268,7 @@ class HIRS_L1C_Reader extends NetCDFReader {
         final int[] shape = new int[2];
         shape[0] = height;
         shape[1] = width;
-        final Array result = Array.factory(scanpos.getElementType(), shape);
+        final Array result = Array.factory(scanpos.getDataType(), shape);
 
         int originalX = centerX - width / 2;
 

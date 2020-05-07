@@ -94,13 +94,13 @@ class TimeSeriesStrategy extends Strategy {
             analysisNetCDF = NetcdfFile.open(analysisFile.getAbsolutePath());
             final Variable analysisVariable = NetCDFUtils.getVariable(writer, timeSeriesConfiguration.getAnCenterTimeName());
             final int[] analysisCenterTimes = fileMerger.mergeTimeSeriesAnalysisFile(writer, analysisNetCDF);
-            writer.write(analysisVariable, Array.factory(analysisCenterTimes));
+            writer.write(analysisVariable, NetCDFUtils.create(analysisCenterTimes));
 
             forecastNetCDF = NetcdfFile.open(forecastFile.getAbsolutePath());
             final Variable forecastVariable = NetCDFUtils.getVariable(writer, timeSeriesConfiguration.getFcCenterTimeName());
             final int forecastFillValue = NetCDFUtils.getFillValue(forecastVariable).intValue();
             final int[] forecastCenterTimes = fileMerger.mergeForecastFile(writer, forecastNetCDF, forecastFillValue);
-            writer.write(forecastVariable, Array.factory(forecastCenterTimes));
+            writer.write(forecastVariable, NetCDFUtils.create(forecastCenterTimes));
         } finally {
             if (analysisNetCDF != null) {
                 analysisNetCDF.close();

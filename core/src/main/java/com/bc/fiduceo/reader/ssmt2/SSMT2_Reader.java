@@ -183,7 +183,7 @@ class SSMT2_Reader extends NetCDFReader {
         final int maxY = productSize.getNy() - 1;
         final int height = interval.getY();
         final int width = interval.getX();
-        final ArrayInt.D2 arrayInt = new ArrayInt.D2(height, width);
+        final ArrayInt.D2 arrayInt = new ArrayInt.D2(height, width, false);
         final TimeLocator timeLocator = getTimeLocator();
         final int originX = x - width / 2;
         final int originY = y - height / 2;

@@ -510,9 +510,9 @@ public class AVHRR_FCDR_Reader_IO_Test {
             NCTestUtils.assertValueAt(0, 0, 1, array);
             NCTestUtils.assertValueAt(0, 1, 1, array);
             NCTestUtils.assertValueAt(0, 2, 1, array);
-            NCTestUtils.assertValueAt(-1, 0, 2, array);
-            NCTestUtils.assertValueAt(-1, 1, 2, array);
-            NCTestUtils.assertValueAt(-1, 2, 2, array);
+            NCTestUtils.assertValueAt(-127, 0, 2, array);
+            NCTestUtils.assertValueAt(-127, 1, 2, array);
+            NCTestUtils.assertValueAt(-127, 2, 2, array);
         } finally {
             reader.close();
         }

@@ -22,6 +22,7 @@ package com.bc.fiduceo.post.plugin.nwp;
 
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.NCTestUtils;
+import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TempFileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -91,8 +92,8 @@ public class GeoFile_IO_Test {
         final float[] longitudes = {115.39925f, 108.04573f, 108.04573f, 107.99058f, 97.13357f, 97.13357f, 97.13357f, 89.25099f, 89.25099f, 89.25099f, 98.02876f, 98.02876f, 99.472626f, 99.472626f};
         final float[] latitudes = {-46.212715f, -47.560722f, -47.560722f, -47.57288f, -49.25582f, -49.25582f, -49.25582f, -49.821648f, -49.821648f, -49.821648f, -48.872658f, -48.872658f, -48.64003f, -48.64003f};
 
-        final Array longitudesArray = Array.factory(longitudes);
-        final Array latitudesArray = Array.factory(latitudes);
+        final Array longitudesArray = NetCDFUtils.create(longitudes);
+        final Array latitudesArray = NetCDFUtils.create(latitudes);
 
         NetcdfFile geoFileNC = null;
         try {

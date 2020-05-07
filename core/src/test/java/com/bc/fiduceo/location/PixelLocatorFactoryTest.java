@@ -22,6 +22,7 @@ package com.bc.fiduceo.location;
 
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.junit.Before;
 import org.junit.Test;
 import ucar.ma2.Array;
@@ -60,8 +61,8 @@ public class PixelLocatorFactoryTest {
 
     @Test
     public void testGetSwath(){
-        final Array longitudes = Array.factory(new float[] {1.f, 2.f, 3.f, 4.f});
-        final Array latitudes= Array.factory(new float[] {5.f, 6.f, 7.f, 8.f});
+        final Array longitudes = NetCDFUtils.create(new float[] {1.f, 2.f, 3.f, 4.f});
+        final Array latitudes= NetCDFUtils.create(new float[] {5.f, 6.f, 7.f, 8.f});
 
         final PixelLocator pixelLocator = PixelLocatorFactory.getSwathPixelLocator(longitudes, latitudes, 2, 2);
         assertNotNull(pixelLocator);

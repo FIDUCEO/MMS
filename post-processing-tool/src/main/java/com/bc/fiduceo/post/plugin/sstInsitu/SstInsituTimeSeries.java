@@ -210,7 +210,7 @@ class SstInsituTimeSeries extends PostProcessing {
         for (int j = 0; j < y.length; j++) {
             y[j] = range.min + j;
         }
-        final Array yData1D = Array.factory(y);
+        final Array yData1D = NetCDFUtils.create(y);
         return yData1D.reshape(shape2D);
     }
 

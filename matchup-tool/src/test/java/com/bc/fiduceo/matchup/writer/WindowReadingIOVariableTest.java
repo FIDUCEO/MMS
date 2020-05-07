@@ -32,6 +32,7 @@ import static org.mockito.Mockito.when;
 
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.junit.*;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
@@ -95,7 +96,7 @@ public class WindowReadingIOVariableTest {
         final Target target = mock(Target.class);
         final Reader readerMock = mock(Reader.class);
 
-        final Array data = Array.factory(new int[]{1, 2, 3, 4});
+        final Array data = NetCDFUtils.create(new int[]{1, 2, 3, 4});
         when(readerMock.readRaw(anyInt(), anyInt(), any(), anyString())).thenReturn(data);
         final ReaderContainer sourceContainer = new ReaderContainer();
         sourceContainer.setReader(readerMock);

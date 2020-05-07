@@ -32,6 +32,7 @@ import com.bc.fiduceo.core.Sample;
 import com.bc.fiduceo.matchup.SampleSet;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.SimpleNc4ReaderForTestCases;
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.junit.*;
 import org.junit.runner.*;
 import ucar.ma2.Array;
@@ -286,7 +287,7 @@ public class WindowValueScreeningTest {
                     {53, 54, 55, 56, 57, 58, 59}
         };
         try {
-            final Array data = Array.factory(values);
+            final Array data = NetCDFUtils.create(values);
             writer.write(varI, MAMath.convert(data, DataType.INT));
             writer.write(varD, data);
         } finally {

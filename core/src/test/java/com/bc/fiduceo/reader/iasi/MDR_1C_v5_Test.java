@@ -21,6 +21,7 @@
 package com.bc.fiduceo.reader.iasi;
 
 import org.junit.Test;
+import ucar.ma2.DataType;
 
 import java.util.HashMap;
 
@@ -53,27 +54,27 @@ public class MDR_1C_v5_Test {
         assertEquals(38, proxies.size());
 
         ReadProxy readProxy = proxies.get("GEPSDatIasi");
-        assertEquals(long.class, readProxy.getDataType());
+        assertEquals(DataType.LONG, readProxy.getDataType());
         assertTrue(Double.isNaN(readProxy.getScaleFactor()));
 
         readProxy = proxies.get("GGeoSondLoc_Lat");
-        assertEquals(int.class, readProxy.getDataType());
+        assertEquals(DataType.INT, readProxy.getDataType());
         assertEquals(1e-6, readProxy.getScaleFactor(), 1e-8);
 
         readProxy = proxies.get("GCcsRadAnalNbClass");
-        assertEquals(int.class, readProxy.getDataType());
+        assertEquals(DataType.INT, readProxy.getDataType());
         assertTrue(Double.isNaN(readProxy.getScaleFactor()));
 
         readProxy = proxies.get("IDefNslast1b");
-        assertEquals(int.class, readProxy.getDataType());
+        assertEquals(DataType.INT, readProxy.getDataType());
         assertTrue(Double.isNaN(readProxy.getScaleFactor()));
 
         readProxy = proxies.get("GEUMAvhrr1BCldFrac");
-        assertEquals(byte.class, readProxy.getDataType());
+        assertEquals(DataType.BYTE, readProxy.getDataType());
         assertTrue(Double.isNaN(readProxy.getScaleFactor()));
 
         readProxy = proxies.get("GQisQualIndex");
-        assertEquals(float.class, readProxy.getDataType());
+        assertEquals(DataType.FLOAT, readProxy.getDataType());
         assertTrue(Double.isNaN(readProxy.getScaleFactor()));
     }
 }
