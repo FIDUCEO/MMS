@@ -176,7 +176,7 @@ class FileMerger {
 
         final SensorExtractConfiguration sensorExtractConfiguration = configuration.getSensorExtractConfiguration();
         final String targetTimeVariableName = sensorExtractConfiguration.getTimeVariableName();
-        final Variable targetTimeVariable = NetCDFUtils.getVariable(netcdfFileWriter, targetTimeVariableName);
+        final Variable targetTimeVariable = NetCDFUtils.getVariable(netcdfFileWriter, targetTimeVariableName.replace(".", "\\."), false);
         final Array targetTimes = targetTimeVariable.read();
         final int targetTimeFillValue = NetCDFUtils.getFillValue(targetTimeVariable).intValue();
 

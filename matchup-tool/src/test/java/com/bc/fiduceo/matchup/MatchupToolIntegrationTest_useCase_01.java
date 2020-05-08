@@ -67,7 +67,7 @@ public class MatchupToolIntegrationTest_useCase_01 extends AbstractUsecaseIntegr
 
         try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
             final int matchupCount = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, mmd);
-            assertEquals(37605, matchupCount);
+            assertEquals(31283, matchupCount);
             
             NCTestUtils.assert3DVariable("aatsr-en_acquisition_time", 0, 0, 6, 1139989151, mmd);
             NCTestUtils.assert3DVariable("aatsr-en_altitude", 1, 0, 7, -5725.9111328125, mmd);
@@ -121,7 +121,7 @@ public class MatchupToolIntegrationTest_useCase_01 extends AbstractUsecaseIntegr
         assertTrue(mmdFile.isFile());
         try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
             final int matchupCount = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, mmd);
-            assertEquals(1220, matchupCount);
+            assertEquals(1118, matchupCount);
             
             NCTestUtils.assert3DVariable("aatsr-en_acquisition_time", 0, 0, 23, 1139989167, mmd);
             NCTestUtils.assert3DVariable("aatsr-en_altitude", 1, 0, 24, -308.2512512207031, mmd);

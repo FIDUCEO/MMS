@@ -190,7 +190,16 @@ public class NetCDFUtils {
     }
 
     public static Variable getVariable(NetcdfFile reader, String name) {
-        final String escapedName = NetcdfFiles.makeValidCDLName(name);
+        return getVariable(reader, name, true);
+    }
+
+    public static Variable getVariable(NetcdfFile reader, String name, boolean escapeName) {
+        String escapedName;
+        if (escapeName) {
+            escapedName = escapeVariableName(name);
+        } else {
+            escapedName = name;
+        }
         final Variable variable = reader.findVariable(null, escapedName);
         if (variable == null) {
             throw new RuntimeException("Input Variable '" + name + "' not present in input file");
@@ -198,8 +207,26 @@ public class NetCDFUtils {
         return variable;
     }
 
+    public static String escapeVariableName(String name) {
+        String escapedName;
+        escapedName = NetcdfFiles.makeValidCDLName(name);
+        if (escapedName.contains(".")) {
+            escapedName = escapedName.replace(".", "\\.");
+        }
+        return escapedName;
+    }
+
     public static Variable getVariable(NetcdfFileWriter fileWriter, String name) {
-        final String escapedName = NetcdfFiles.makeValidCDLName(name);
+        return getVariable(fileWriter, name, true);
+    }
+
+    public static Variable getVariable(NetcdfFileWriter fileWriter, String name, boolean escapeName) {
+        String escapedName;
+        if (escapeName) {
+            escapedName = escapeVariableName(name);
+        } else {
+            escapedName = name;
+        }
         final Variable variable = fileWriter.findVariable(escapedName);
         if (variable == null) {
             throw new RuntimeException("Input Variable '" + name + "' not present in input file");

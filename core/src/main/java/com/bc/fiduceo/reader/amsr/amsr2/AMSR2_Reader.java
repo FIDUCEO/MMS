@@ -141,7 +141,9 @@ public class AMSR2_Reader extends NetCDFReader {
     public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException {
         final Array rawArray = readRaw(centerX, centerY, interval, variableName);
 
-        final double scaleFactor = getScaleFactor(variableName, "SCALE_FACTOR");
+        // we must use AMSR2 specific name escaping here tb 2020-05-08
+        final String escapedName = escapeVariableName(variableName);
+        final double scaleFactor = getScaleFactor(escapedName, "SCALE_FACTOR", false);
         if (scaleFactor != 1.0) {
             final double offset = 0.0;
             if (ReaderUtils.mustScale(scaleFactor, offset)) {

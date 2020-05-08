@@ -221,11 +221,11 @@ public class AMSR2_Reader_IO_Test {
             NCTestUtils.assertValueAt(1425, 0, 0, array);
             NCTestUtils.assertValueAt(1430, 1, 0, array);
 
-            array = reader.readRaw(103, 248, interval, "Brightness Temperature (res06,10.7GHz,V)");
+            array = reader.readRaw(103, 248, interval, "Brightness_Temperature_(res06,10.7GHz,V)");
             NCTestUtils.assertValueAt(24337, 2, 0, array);
             NCTestUtils.assertValueAt(24504, 0, 1, array);
 
-            array = reader.readRaw(104, 249, interval, "Brightness Temperature (res10,89.0GHz,V)");
+            array = reader.readRaw(104, 249, interval, "Brightness_Temperature_(res10,89.0GHz,V)");
             NCTestUtils.assertValueAt(23899, 1, 1, array);
             NCTestUtils.assertValueAt(23845, 2, 1, array);
 
@@ -262,14 +262,14 @@ public class AMSR2_Reader_IO_Test {
 
             final Interval interval = new Interval(3, 3);
             // upper left
-            Array array = reader.readRaw(0, 0, interval, "Brightness Temperature (res06,10.7GHz,V)");
+            Array array = reader.readRaw(0, 0, interval, "Brightness_Temperature_(res06,10.7GHz,V)");
             NCTestUtils.assertValueAt(-1, 0, 0, array);
             NCTestUtils.assertValueAt(-1, 1, 0, array);
             NCTestUtils.assertValueAt(24946, 1, 1, array);
             NCTestUtils.assertValueAt(24940, 2, 1, array);
 
             // upper center
-            array = reader.readRaw(125, 0, interval, "Brightness Temperature (res10,10.7GHz,H)");
+            array = reader.readRaw(125, 0, interval, "Brightness_Temperature_(res10,10.7GHz,H)");
             NCTestUtils.assertValueAt(-1, 0, 0, array);
             NCTestUtils.assertValueAt(-1, 1, 0, array);
             NCTestUtils.assertValueAt(17707, 1, 1, array);

@@ -26,6 +26,7 @@ import ucar.ma2.DataType;
 import ucar.ma2.Index;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.NetcdfFile;
+import ucar.nc2.NetcdfFiles;
 import ucar.nc2.Variable;
 
 import java.io.IOException;
@@ -139,7 +140,17 @@ public class NCTestUtils {
     }
 
     public static Variable getVariable(String variableName, NetcdfFile netcdfFile) {
-        final String escapedName = NetcdfFile.makeValidCDLName(variableName);
+        final String escapedName = NetcdfFiles.makeValidCDLName(variableName);
+        return netcdfFile.findVariable(escapedName);
+    }
+
+    public static Variable getVariable(String variableName, NetcdfFile netcdfFile, boolean escapeName) {
+        final String escapedName;
+        if (escapeName) {
+            escapedName = NetcdfFiles.makeValidCDLName(variableName);
+        } else {
+            escapedName = variableName;
+        }
         return netcdfFile.findVariable(escapedName);
     }
 
@@ -149,7 +160,7 @@ public class NCTestUtils {
         assertEquals(expected, data.getDouble(0), 1e-8);
     }
 
-    public static void assert1DValueLong(int x, long expected, Variable variable) throws IOException, InvalidRangeException {
+    public static void assert1DValueLong(int x, long expected, Variable variable) throws IOException {
         assertNotNull("NetCDF Variable '" + variable.getShortName() + "' expected", variable);
         final Array array = variable.read();
         final Index index = array.getIndex();

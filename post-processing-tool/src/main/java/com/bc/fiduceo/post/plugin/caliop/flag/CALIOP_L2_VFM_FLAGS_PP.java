@@ -70,10 +70,10 @@ public class CALIOP_L2_VFM_FLAGS_PP extends PostProcessing {
 
     @Override
     protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
-        fileNameVariable = NetCDFUtils.getVariable(reader, srcVariableName_fileName);
+        fileNameVariable = NetCDFUtils.getVariable(reader, srcVariableName_fileName.replace(".", "\\."), false);
         filenameFieldSize = fileNameVariable.getShape(fileNameVariable.getRank() - 1);
 
-        processingVersionVariable = NetCDFUtils.getVariable(reader, srcVariableName_processingVersion);
+        processingVersionVariable = NetCDFUtils.getVariable(reader, srcVariableName_processingVersion.replace(".", "\\."), false);
         processingVersionSize = processingVersionVariable.getShape(processingVersionVariable.getRank() - 1);
 
         final String sourceFileName = getSourceFileName(fileNameVariable, 0, filenameFieldSize, CALIOP_L2_VFM_Reader.REG_EX);
