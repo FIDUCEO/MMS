@@ -28,10 +28,7 @@ import com.bc.fiduceo.util.NetCDFUtils;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
-import ucar.nc2.Attribute;
-import ucar.nc2.NetcdfFile;
-import ucar.nc2.NetcdfFileWriter;
-import ucar.nc2.Variable;
+import ucar.nc2.*;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -128,7 +125,7 @@ public class CALIOP_L2_VFM_FLAGS_PP extends PostProcessing {
     }
 
     private String toValidName(String vName) {
-        return NetcdfFile.makeValidCDLName(vName);
+        return NetcdfFiles.makeValidCDLName(vName);
     }
 
     void forTestsOnly_setReaderCache(ReaderCache rc) {

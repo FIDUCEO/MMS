@@ -140,14 +140,14 @@ public class NCTestUtils {
     }
 
     public static Variable getVariable(String variableName, NetcdfFile netcdfFile) {
-        final String escapedName = NetcdfFiles.makeValidCDLName(variableName);
+        final String escapedName = NetCDFUtils.escapeVariableName(variableName);
         return netcdfFile.findVariable(escapedName);
     }
 
     public static Variable getVariable(String variableName, NetcdfFile netcdfFile, boolean escapeName) {
         final String escapedName;
         if (escapeName) {
-            escapedName = NetcdfFiles.makeValidCDLName(variableName);
+            escapedName = NetCDFUtils.escapeVariableName(variableName);
         } else {
             escapedName = variableName;
         }

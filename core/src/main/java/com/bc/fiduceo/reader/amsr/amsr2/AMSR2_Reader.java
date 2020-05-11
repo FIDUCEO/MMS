@@ -125,24 +125,18 @@ public class AMSR2_Reader extends NetCDFReader {
 
     @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException {
-        String escapedName = escapeVariableName(variableName);
+        String escapedName = NetCDFUtils.escapeVariableName(variableName);
         final Array rawArray = arrayCache.get(escapedName);
         final Dimension productSize = getProductSize();
         final Number fillValue = getFillValue(escapedName);
         return RawDataReader.read(centerX, centerY, interval, fillValue, rawArray, productSize);
     }
 
-    private String escapeVariableName(String variableName) {
-        final String escapedName = NetcdfFiles.makeValidCDLName(variableName);
-        return escapedName.replace(".", "\\.");
-    }
-
     @Override
     public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException {
         final Array rawArray = readRaw(centerX, centerY, interval, variableName);
 
-        // we must use AMSR2 specific name escaping here tb 2020-05-08
-        final String escapedName = escapeVariableName(variableName);
+        final String escapedName = NetCDFUtils.escapeVariableName(variableName);
         final double scaleFactor = getScaleFactor(escapedName, "SCALE_FACTOR", false);
         if (scaleFactor != 1.0) {
             final double offset = 0.0;

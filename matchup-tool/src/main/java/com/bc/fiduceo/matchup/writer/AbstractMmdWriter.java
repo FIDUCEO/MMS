@@ -23,6 +23,7 @@ package com.bc.fiduceo.matchup.writer;
 
 import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.core.*;
+import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.matchup.MatchupCollection;
 import com.bc.fiduceo.matchup.MatchupSet;
@@ -38,10 +39,7 @@ import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.Index;
 import ucar.ma2.InvalidRangeException;
-import ucar.nc2.Attribute;
-import ucar.nc2.NetcdfFile;
-import ucar.nc2.NetcdfFileWriter;
-import ucar.nc2.Variable;
+import ucar.nc2.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -352,7 +350,7 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
 
     private Variable getVariable(String variableName) {
         if (!variableMap.containsKey(variableName)) {
-            final String escapedName = NetcdfFile.makeValidCDLName(variableName);
+            final String escapedName = NetCDFUtils.escapeVariableName(variableName);
             variableMap.put(variableName, netcdfFileWriter.findVariable(escapedName));
         }
         return variableMap.get(variableName);

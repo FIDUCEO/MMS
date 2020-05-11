@@ -38,7 +38,6 @@ import java.util.List;
 import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
 import static com.bc.fiduceo.util.NetCDFUtils.CF_UNITS_NAME;
 import static com.bc.fiduceo.util.TimeUtils.secondsSince1978;
-import static ucar.nc2.NetcdfFile.makeValidCDLName;
 
 class SstInsituTimeSeries extends PostProcessing {
 

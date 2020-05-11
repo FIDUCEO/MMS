@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.reader.amsr.amsr2;
 
+import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.VariablePrototype;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
@@ -27,6 +28,7 @@ import ucar.ma2.InvalidRangeException;
 import ucar.ma2.Section;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
+import ucar.nc2.NetcdfFiles;
 import ucar.nc2.Variable;
 
 import java.io.IOException;
@@ -39,7 +41,7 @@ class GeolocationVariable extends VariablePrototype {
     private final Variable variable;
 
     GeolocationVariable(String name, NetcdfFile netcdfFile) {
-        final String escapedName = NetcdfFile.makeValidCDLName(name);
+        final String escapedName = NetCDFUtils.escapeVariableName(name);
         synchronized (netcdfFile) {
             variable = netcdfFile.findVariable(escapedName);
         }

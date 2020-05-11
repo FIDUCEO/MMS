@@ -94,16 +94,16 @@ public class MatchupToolIntegrationTest_usecase_14_SST extends AbstractUsecaseIn
 
         try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
             final int matchupCount = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, mmd);
-            assertEquals(105, matchupCount);
+            assertEquals(104, matchupCount);
 
             NCTestUtils.assert3DVariable("aatsr-en_acquisition_time", 0, 0, 0, 1108623419, mmd);
-            NCTestUtils.assert3DVariable("aatsr-en_altitude", 1, 0, 1, 275.7359313964844, mmd);
-            NCTestUtils.assert3DVariable("aatsr-en_btemp_fward_0370", 2, 0, 2, 24510, mmd);
+            NCTestUtils.assert3DVariable("aatsr-en_altitude", 1, 0, 1, 239.0496826171875, mmd);
+            NCTestUtils.assert3DVariable("aatsr-en_btemp_fward_0370", 2, 0, 2, 23927, mmd);
 
-            NCTestUtils.assert3DVariable("amsre-aq_10_7H_Res_1_TB", 1, 0, 55, -11828, mmd);
-            NCTestUtils.assert3DVariable("amsre-aq_10_7V_Res_1_TB", 2, 0, 56, -9987, mmd);
-            NCTestUtils.assert3DVariable("amsre-aq_18_7H_Res_1_TB", 3, 0, 57, -12069, mmd);
-            NCTestUtils.assert3DVariable("amsre-aq_Sun_Glint_Angle", 4, 0, 58, 4250, mmd);
+            NCTestUtils.assert3DVariable("amsre-aq_10_7H_Res_1_TB", 1, 0, 55, -13132, mmd);
+            NCTestUtils.assert3DVariable("amsre-aq_10_7V_Res_1_TB", 2, 0, 56, -9683, mmd);
+            NCTestUtils.assert3DVariable("amsre-aq_18_7H_Res_1_TB", 3, 0, 57, -11825, mmd);
+            NCTestUtils.assert3DVariable("amsre-aq_Sun_Glint_Angle", 4, 0, 58, 4287, mmd);
         }
     }
 
@@ -162,35 +162,35 @@ public class MatchupToolIntegrationTest_usecase_14_SST extends AbstractUsecaseIn
 
         try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
             final int matchupCount = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, mmd);
-            assertEquals(105, matchupCount);
+            assertEquals(104, matchupCount);
             
             NCTestUtils.assert3DVariable("atsr.3.time", 0, 0, 0, 1108623419, mmd);
-            NCTestUtils.assert3DVariable("atsr.3.altitude", 1, 0, 1, 275.7359313964844, mmd);
+            NCTestUtils.assert3DVariable("atsr.3.altitude", 1, 0, 1, 239.0496826171875, mmd);
 
-            NCTestUtils.assert3DVariable("atsr.3.brightness_temperature_37_forward", 2, 0, 2, 24510, mmd);
-            NCTestUtils.assert3DVariable("atsr.3.brightness_temperature_37_nadir", 3, 0, 3, 24093, mmd);
-            NCTestUtils.assert3DVariable("atsr.3.brightness_temperature_11_forward", 4, 0, 4, 23695, mmd);
-            NCTestUtils.assert3DVariable("atsr.3.brightness_temperature_11_nadir", 5, 0, 5, 24292, mmd);
-            NCTestUtils.assert3DVariable("atsr.3.brightness_temperature_12_forward", 6, 0, 6, 23887, mmd);
-            NCTestUtils.assert3DVariable("atsr.3.brightness_temperature_12_nadir", 7, 0, 7, 23715, mmd);
+            NCTestUtils.assert3DVariable("atsr.3.brightness_temperature_37_forward", 2, 0, 2, 23927, mmd);
+            NCTestUtils.assert3DVariable("atsr.3.brightness_temperature_37_nadir", 3, 0, 3, 24187, mmd);
+            NCTestUtils.assert3DVariable("atsr.3.brightness_temperature_11_forward", 4, 0, 4, 24240, mmd);
+            NCTestUtils.assert3DVariable("atsr.3.brightness_temperature_11_nadir", 5, 0, 5, 23729, mmd);
+            NCTestUtils.assert3DVariable("atsr.3.brightness_temperature_12_forward", 6, 0, 6, 23945, mmd);
+            NCTestUtils.assert3DVariable("atsr.3.brightness_temperature_12_nadir", 7, 0, 7, 24068, mmd);
 
-            NCTestUtils.assert3DVariable("atsr.3.reflectance_55_forward", 8, 0, 8, 196, mmd);
-            NCTestUtils.assert3DVariable("atsr.3.reflectance_55_nadir", 9, 0, 9, 170, mmd);
-            NCTestUtils.assert3DVariable("atsr.3.reflectance_66_forward", 10, 0, 10, 213, mmd);
-            NCTestUtils.assert3DVariable("atsr.3.reflectance_66_nadir", 0, 1, 11, 167, mmd);
-            NCTestUtils.assert3DVariable("atsr.3.reflectance_87_forward", 1, 1, 12, 279, mmd);
-            NCTestUtils.assert3DVariable("atsr.3.reflectance_87_nadir", 2, 1, 13, 462, mmd);
-            NCTestUtils.assert3DVariable("atsr.3.reflectance_16_forward", 3, 1, 14, 147, mmd);
-            NCTestUtils.assert3DVariable("atsr.3.reflectance_16_nadir", 4, 1, 15, 111, mmd);
+            NCTestUtils.assert3DVariable("atsr.3.reflectance_55_forward", 8, 0, 8, 214, mmd);
+            NCTestUtils.assert3DVariable("atsr.3.reflectance_55_nadir", 9, 0, 9, 134, mmd);
+            NCTestUtils.assert3DVariable("atsr.3.reflectance_66_forward", 10, 0, 10, 238, mmd);
+            NCTestUtils.assert3DVariable("atsr.3.reflectance_66_nadir", 0, 1, 11, 183, mmd);
+            NCTestUtils.assert3DVariable("atsr.3.reflectance_87_forward", 1, 1, 12, 469, mmd);
+            NCTestUtils.assert3DVariable("atsr.3.reflectance_87_nadir", 2, 1, 13, 440, mmd);
+            NCTestUtils.assert3DVariable("atsr.3.reflectance_16_forward", 3, 1, 14, 107, mmd);
+            NCTestUtils.assert3DVariable("atsr.3.reflectance_16_nadir", 4, 1, 15, 73, mmd);
 
             NCTestUtils.assert3DVariable("atsr.3.confidence_word_nadir", 5, 1, 16, 0, mmd);
-            NCTestUtils.assert3DVariable("atsr.3.confidence_word_forward", 6, 1, 17, 0, mmd);
-            NCTestUtils.assert3DVariable("atsr.3.cloud_flags_nadir", 7, 1, 18, 2530, mmd);
-            NCTestUtils.assert3DVariable("atsr.3.cloud_flags_forward", 8, 1, 19, 3426, mmd);
+            NCTestUtils.assert3DVariable("atsr.3.confidence_word_forward", 6, 1, 17, 2, mmd);
+            NCTestUtils.assert3DVariable("atsr.3.cloud_flags_nadir", 7, 1, 18, 2402, mmd);
+            NCTestUtils.assert3DVariable("atsr.3.cloud_flags_forward", 8, 1, 19, 354, mmd);
 
-            NCTestUtils.assert3DVariable("amsre-aq_10_7H_Res_1_TB", 1, 0, 55, -11828, mmd);
-            NCTestUtils.assert3DVariable("amsre-aq_10_7V_Res_1_TB", 2, 0, 56, -9987, mmd);
-            NCTestUtils.assert3DVariable("amsre-aq_18_7H_Res_1_TB", 3, 0, 57, -12069, mmd);
+            NCTestUtils.assert3DVariable("amsre-aq_10_7H_Res_1_TB", 1, 0, 55, -13132, mmd);
+            NCTestUtils.assert3DVariable("amsre-aq_10_7V_Res_1_TB", 2, 0, 56, -9683, mmd);
+            NCTestUtils.assert3DVariable("amsre-aq_18_7H_Res_1_TB", 3, 0, 57, -11825, mmd);
         }
     }
 

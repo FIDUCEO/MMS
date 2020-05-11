@@ -52,7 +52,7 @@ public abstract class NetCDFReader implements Reader {
         return NetCDFUtils.getDefaultFillValue(array);
     }
 
-    protected double getScaleFactor(String variableName, String attributeName) throws IOException {
+    private double getScaleFactor(String variableName, String attributeName) throws IOException {
         return getScaleFactor(variableName, attributeName, true);
     }
 
@@ -62,7 +62,7 @@ public abstract class NetCDFReader implements Reader {
         }
         final String escapedName;
         if (escapeName) {
-            escapedName = NetcdfFiles.makeValidCDLName(variableName);
+            escapedName = NetCDFUtils.escapeVariableName(variableName);
         } else {
             escapedName = variableName;
         }
@@ -83,7 +83,7 @@ public abstract class NetCDFReader implements Reader {
         }
         String escapedName;
         if (escapeName) {
-            escapedName = NetcdfFiles.makeValidCDLName(variableName);
+            escapedName = NetCDFUtils.escapeVariableName(variableName);
         } else {
             escapedName = variableName;
         }
