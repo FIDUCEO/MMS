@@ -16,9 +16,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.List;
 
-import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
-import static com.bc.fiduceo.util.NetCDFUtils.CF_OFFSET_NAME;
-import static com.bc.fiduceo.util.NetCDFUtils.CF_SCALE_FACTOR_NAME;
+import static com.bc.fiduceo.util.NetCDFUtils.*;
 
 public abstract class NetCDFReader implements Reader {
 
@@ -29,7 +27,7 @@ public abstract class NetCDFReader implements Reader {
 
     @Override
     public void open(File file) throws IOException {
-        netcdfFile = NetcdfFile.open(file.getPath());
+        netcdfFile = NetcdfFiles.open(file.getPath());
         arrayCache = new ArrayCache(netcdfFile);
     }
 

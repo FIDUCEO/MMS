@@ -33,20 +33,20 @@ import com.bc.fiduceo.reader.*;
 import com.bc.fiduceo.reader.netcdf.NetCDFReader;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.VariableProxy;
-import org.jdom2.Element;
 import ucar.ma2.*;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
-import ucar.nc2.Group;
 import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
-class MxD06_Reader extends NetCDFReader {
+import static com.bc.fiduceo.reader.modis.ModisConstants.LATITUDE_VAR_NAME;
+import static com.bc.fiduceo.reader.modis.ModisConstants.LONGITUDE_VAR_NAME;
+
+public class MxD06_Reader extends NetCDFReader {
 
     private static final String REG_EX = "M([OY])D06_L2.A\\d{7}.\\d{4}.\\d{3}.\\d{13}.hdf";
 
@@ -54,11 +54,11 @@ class MxD06_Reader extends NetCDFReader {
     private static final String DATA_GROUP = "mod06/Data_Fields";
 
     private final GeometryFactory geometryFactory;
+    private final Dimension size1Km;
+    private final Dimension size5km;
     private TimeLocator timeLocator;
     private BowTiePixelLocator pixelLocator;
     private Dimension productSize;
-    private final Dimension size1Km;
-    private final Dimension size5km;
 
     MxD06_Reader(ReaderContext readerContext) {
         this.size1Km = new Dimension("size", 1354, 0);
@@ -87,7 +87,7 @@ class MxD06_Reader extends NetCDFReader {
     public AcquisitionInfo read() throws IOException {
         final AcquisitionInfo acquisitionInfo = new AcquisitionInfo();
 
-        extractAcquisitionTimes(acquisitionInfo);
+        HdfEOSUtil.extractAcquisitionTimes(acquisitionInfo, netcdfFile);
         extractGeometries(acquisitionInfo);
         acquisitionInfo.setNodeType(NodeType.UNDEFINED);
 
@@ -101,12 +101,12 @@ class MxD06_Reader extends NetCDFReader {
 
     @Override
     public String getLongitudeVariableName() {
-        return "Longitude";
+        return LONGITUDE_VAR_NAME;
     }
 
     @Override
     public String getLatitudeVariableName() {
-        return "Latitude";
+        return LATITUDE_VAR_NAME;
     }
 
     @Override
@@ -264,35 +264,56 @@ class MxD06_Reader extends NetCDFReader {
     @Override
     public Dimension getProductSize() throws IOException {
         if (productSize == null) {
-            final Array longitude = arrayCache.get(GEOLOCATION_GROUP, "Longitude");
+            final Array longitude = arrayCache.get(GEOLOCATION_GROUP, LONGITUDE_VAR_NAME);
             final int[] shape = longitude.getShape();
             productSize = new Dimension("shape", shape[1], shape[0]);
         }
         return productSize;
     }
 
-    private void extractAcquisitionTimes(AcquisitionInfo acquisitionInfo) throws IOException {
-        final Group rootGroup = netcdfFile.getRootGroup();
-        final String coreMetaString = HdfEOSUtil.getEosMetadata("CoreMetadata.0", rootGroup);
-        if (coreMetaString == null) {
-            throw new IOException("'CoreMetadata.0' attribute not found");
+    // package access for testing only tb 2017-08-28
+    static String getGroupName(String variableName) {
+        if (LONGITUDE_VAR_NAME.equals(variableName) || LATITUDE_VAR_NAME.equals(variableName)) {
+            return GEOLOCATION_GROUP;
         }
-        final Element eosElement = HdfEOSUtil.getEosElement(coreMetaString);
-        final String rangeBeginDateElement = HdfEOSUtil.getElementValue(eosElement, HdfEOSUtil.RANGE_BEGINNING_DATE);
-        final String rangeBeginTimeElement = HdfEOSUtil.getElementValue(eosElement, HdfEOSUtil.RANGE_BEGINNING_TIME);
-        final Date sensingStart = HdfEOSUtil.parseDate(rangeBeginDateElement, rangeBeginTimeElement);
-        acquisitionInfo.setSensingStart(sensingStart);
+        return DATA_GROUP;
+    }
 
-        final String rangeEndDateElement = HdfEOSUtil.getElementValue(eosElement, HdfEOSUtil.RANGE_ENDING_DATE);
-        final String rangeEndTimeElement = HdfEOSUtil.getElementValue(eosElement, HdfEOSUtil.RANGE_ENDING_TIME);
-        final Date sensingStop = HdfEOSUtil.parseDate(rangeEndDateElement, rangeEndTimeElement);
-        acquisitionInfo.setSensingStop(sensingStop);
+    static boolean is1KmVariable(Array array) {
+        final int[] shape = array.getShape();
+        int maxDim = Integer.MIN_VALUE;
+        for (int dimLength : shape) {
+            if (dimLength > maxDim) {
+                maxDim = dimLength;
+            }
+        }
+
+        return maxDim > 1000;
+    }
+
+    // package access for testing only tb 2017-08-31
+    static String stripLayerSuffix(String variableName) {
+        if (variableName.contains("Quality_Assurance_5km")) {
+            final int lastUnderscore = variableName.lastIndexOf("_");
+            return variableName.substring(0, lastUnderscore);
+        }
+        return variableName;
+    }
+
+    // package access for testing only tb 2017-08-31
+    static int extractLayerIndex(String variableName) {
+        if (variableName.contains("Quality_Assurance_5km")) {
+            final int lastUnderscore = variableName.lastIndexOf("_");
+            final String intString = variableName.substring(lastUnderscore + 1);
+            return Integer.parseInt(intString);
+        }
+        throw new RuntimeException("Invalid variable name for layer calculations");
     }
 
     private void extractGeometries(AcquisitionInfo acquisitionInfo) throws IOException {
         final BoundingPolygonCreator boundingPolygonCreator = new BoundingPolygonCreator(new Interval(50, 50), geometryFactory);
-        final Array longitude = arrayCache.get(GEOLOCATION_GROUP, "Longitude");
-        final Array latitude = arrayCache.get(GEOLOCATION_GROUP, "Latitude");
+        final Array longitude = arrayCache.get(GEOLOCATION_GROUP, LONGITUDE_VAR_NAME);
+        final Array latitude = arrayCache.get(GEOLOCATION_GROUP, LATITUDE_VAR_NAME);
         final Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometry(longitude, latitude);
         if (!boundingGeometry.isValid()) {
             throw new RuntimeException("Detected invalid bounding geometry");
@@ -317,27 +338,7 @@ class MxD06_Reader extends NetCDFReader {
     }
 
     private void createPixelLocator() throws IOException {
-        pixelLocator = new BowTiePixelLocator(arrayCache.get(GEOLOCATION_GROUP, "Longitude"), arrayCache.get(GEOLOCATION_GROUP, "Latitude"), geometryFactory);
-    }
-
-    // package access for testing only tb 2017-08-28
-    static String getGroupName(String variableName) {
-        if ("Longitude".equals(variableName) || "Latitude".equals(variableName)) {
-            return GEOLOCATION_GROUP;
-        }
-        return DATA_GROUP;
-    }
-
-    static boolean is1KmVariable(Array array) {
-        final int[] shape = array.getShape();
-        int maxDim = Integer.MIN_VALUE;
-        for (int dimLength : shape) {
-            if (dimLength > maxDim) {
-                maxDim = dimLength;
-            }
-        }
-
-        return maxDim > 1000;
+        pixelLocator = new BowTiePixelLocator(arrayCache.get(GEOLOCATION_GROUP, LONGITUDE_VAR_NAME), arrayCache.get(GEOLOCATION_GROUP, LATITUDE_VAR_NAME), geometryFactory);
     }
 
     private Array readRaw1km(int centerX, int centerY, Interval interval, Array array, Number fillValue) throws IOException, InvalidRangeException {
@@ -386,24 +387,5 @@ class MxD06_Reader extends NetCDFReader {
         final int[] offsets = {0, 0, layerIndex};
         final Array layerData = NetCDFUtils.section(array, offsets, shape);
         return RawDataReader.read(centerX, centerY, interval, 0, layerData, size5km);
-    }
-
-    // package access for testing only tb 2017-08-31
-    static String stripLayerSuffix(String variableName) {
-        if (variableName.contains("Quality_Assurance_5km")) {
-            final int lastUnderscore = variableName.lastIndexOf("_");
-            return variableName.substring(0, lastUnderscore);
-        }
-        return variableName;
-    }
-
-    // package access for testing only tb 2017-08-31
-    static int extractLayerIndex(String variableName) {
-        if (variableName.contains("Quality_Assurance_5km")) {
-            final int lastUnderscore = variableName.lastIndexOf("_");
-            final String intString = variableName.substring(lastUnderscore + 1);
-            return Integer.parseInt(intString);
-        }
-        throw new RuntimeException("Invalid variable name for layer calculations");
     }
 }

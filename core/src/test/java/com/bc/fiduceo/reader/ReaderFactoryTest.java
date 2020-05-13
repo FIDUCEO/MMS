@@ -31,7 +31,7 @@ import com.bc.fiduceo.reader.avhrr_gac.AVHRR_GAC_Reader;
 import com.bc.fiduceo.reader.hirs.ForReaderFactoryTest_HIRS_L1C_Reader;
 import com.bc.fiduceo.reader.iasi.IASI_Reader;
 import com.bc.fiduceo.reader.insitu.sst_cci.SSTInsituReader;
-import com.bc.fiduceo.reader.modis.ForReaderFactoryTest_MxD06_Reader;
+import com.bc.fiduceo.reader.modis.MxD06_Reader;
 import org.junit.*;
 
 
@@ -97,7 +97,7 @@ public class ReaderFactoryTest {
         final Reader reader = readerFactory.getReader("myd06-aq");
 
         assertNotNull(reader);
-        ForReaderFactoryTest_MxD06_Reader.checkInstance(reader);
+        assertTrue(reader instanceof MxD06_Reader);
     }
 
     @Test
