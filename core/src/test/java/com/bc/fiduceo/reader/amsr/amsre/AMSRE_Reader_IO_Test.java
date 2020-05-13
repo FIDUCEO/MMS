@@ -158,7 +158,7 @@ public class AMSRE_Reader_IO_Test {
 
             variable = variables.get(7);
             assertEquals("Land_Ocean_Flag_6", variable.getShortName());
-            assertEquals(DataType.BYTE, variable.getDataType());
+            assertEquals(DataType.UBYTE, variable.getDataType());
 
             variable = variables.get(8);
             assertEquals("6_9V_Res_1_TB", variable.getShortName());
@@ -198,7 +198,7 @@ public class AMSRE_Reader_IO_Test {
 
             variable = variables.get(33);
             assertEquals("Res1_Surf", variable.getShortName());
-            assertEquals(DataType.BYTE, variable.getDataType());
+            assertEquals(DataType.UBYTE, variable.getDataType());
 
             variable = variables.get(34);
             assertEquals("Sun_Glint_Angle", variable.getShortName());

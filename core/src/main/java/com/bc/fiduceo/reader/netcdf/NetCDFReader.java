@@ -7,6 +7,7 @@ import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
 import ucar.ma2.Section;
 import ucar.nc2.NetcdfFile;
+import ucar.nc2.NetcdfFiles;
 import ucar.nc2.Variable;
 
 import java.io.File;
@@ -51,12 +52,20 @@ public abstract class NetCDFReader implements Reader {
         return NetCDFUtils.getDefaultFillValue(array);
     }
 
-    protected double getScaleFactor(String variableName, String attributeName) throws IOException {
+    private double getScaleFactor(String variableName, String attributeName) throws IOException {
+        return getScaleFactor(variableName, attributeName, true);
+    }
+
+    protected double getScaleFactor(String variableName, String attributeName, boolean escapeName) throws IOException {
         if (attributeName == null) {
             attributeName = CF_SCALE_FACTOR_NAME;
         }
-
-        final String escapedName = NetcdfFile.makeValidCDLName(variableName);
+        final String escapedName;
+        if (escapeName) {
+            escapedName = NetCDFUtils.escapeVariableName(variableName);
+        } else {
+            escapedName = variableName;
+        }
         final Number scaleFactorValue = arrayCache.getNumberAttributeValue(attributeName, escapedName);
         if (scaleFactorValue != null) {
             return scaleFactorValue.doubleValue();
@@ -74,7 +83,7 @@ public abstract class NetCDFReader implements Reader {
         }
         String escapedName;
         if (escapeName) {
-            escapedName = NetcdfFile.makeValidCDLName(variableName);
+            escapedName = NetCDFUtils.escapeVariableName(variableName);
         } else {
             escapedName = variableName;
         }

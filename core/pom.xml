@@ -80,12 +80,17 @@
 
         <dependency>
             <groupId>edu.ucar</groupId>
-            <artifactId>netcdf4</artifactId>
+            <artifactId>netcdfAll</artifactId>
         </dependency>
-        <dependency>
-            <groupId>edu.ucar</groupId>
-            <artifactId>cdm</artifactId>
-        </dependency>
+
+        <!--<dependency>-->
+            <!--<groupId>edu.ucar</groupId>-->
+            <!--<artifactId>netcdf4</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+        <!--<groupId>edu.ucar</groupId>-->
+        <!--<artifactId>cdm</artifactId>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>junit</groupId>

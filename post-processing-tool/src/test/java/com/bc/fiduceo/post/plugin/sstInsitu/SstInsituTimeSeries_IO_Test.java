@@ -291,7 +291,7 @@ public class SstInsituTimeSeries_IO_Test {
 
         try (NetcdfFile netcdfFile = NetcdfFile.open(target.toAbsolutePath().toString())) {
             // **********  ID  ************
-            final Variable insituId = netcdfFile.findVariable(escape("insitu.id"));
+            final Variable insituId = netcdfFile.findVariable(NetCDFUtils.escapeVariableName("insitu.id"));
             assertEquals("matchup_count insitu.ntime", insituId.getDimensionsString());
             assertEquals(3, insituId.getAttributes().size());
             assertEquals(new Attribute(CF_FILL_VALUE_NAME, -32768L), insituId.findAttribute(CF_FILL_VALUE_NAME));
@@ -320,7 +320,7 @@ public class SstInsituTimeSeries_IO_Test {
             assertArrayEquals(idExpecteds, idStorage);
 
             // **********  dTIME  ************
-            final Variable dtime = netcdfFile.findVariable(escape("insitu.dtime"));
+            final Variable dtime = netcdfFile.findVariable(NetCDFUtils.escapeVariableName("insitu.dtime"));
             assertEquals("matchup_count insitu.ntime", dtime.getDimensionsString());
             assertEquals(2, dtime.getAttributes().size());
             final int fill2 = -2147483647;
@@ -348,7 +348,7 @@ public class SstInsituTimeSeries_IO_Test {
             assertArrayEquals(dtimeExpecteds, dtimeStorage);
 
             // **********  Latitude  ************
-            final Variable latitude = netcdfFile.findVariable(escape("insitu.lat"));
+            final Variable latitude = netcdfFile.findVariable(NetCDFUtils.escapeVariableName("insitu.lat"));
             assertEquals("matchup_count insitu.ntime", latitude.getDimensionsString());
             assertEquals(3, latitude.getAttributes().size());
             // todo fix this test by replacing the insitu file with an insitu file new calculated by gery
@@ -377,7 +377,7 @@ public class SstInsituTimeSeries_IO_Test {
             assertArrayEquals(latExpecteds, latStorage, 1e-7f);
 
             // **********  Longitude  ************
-            final Variable longitude = netcdfFile.findVariable(escape("insitu.lon"));
+            final Variable longitude = netcdfFile.findVariable(NetCDFUtils.escapeVariableName("insitu.lon"));
             assertEquals("matchup_count insitu.ntime", longitude.getDimensionsString());
             assertEquals(3, longitude.getAttributes().size());
             // todo fix this test by replacing the insitu file with an insitu file new calculated by gery
@@ -406,12 +406,12 @@ public class SstInsituTimeSeries_IO_Test {
             assertArrayEquals(lonExpecteds, lonStorage, 1e-7f);
 
             // **********  MOHC_ID  ************
-            assertNotNull(netcdfFile.findVariable(escape("insitu.mohc_id")));
+            assertNotNull(netcdfFile.findVariable(NetCDFUtils.escapeVariableName("insitu.mohc_id")));
             // todo Check attributes, shape, datatype according to avhrr_f.m01-mmd12-2014-07.nc
             // todo Check the data of variable if SstInsituTimeSeries.compute() is implemented
 
             // **********  SEA_SURFACE_TEMPERATURE  ************
-            final Variable temperature = netcdfFile.findVariable(escape("insitu.sea_surface_temperature"));
+            final Variable temperature = netcdfFile.findVariable(NetCDFUtils.escapeVariableName("insitu.sea_surface_temperature"));
             assertNotNull(temperature);
             assertEquals("matchup_count insitu.ntime", temperature.getDimensionsString());
             assertEquals(3, temperature.getAttributes().size());
@@ -442,7 +442,7 @@ public class SstInsituTimeSeries_IO_Test {
             // todo Check the data of variable if SstInsituTimeSeries.compute() is implemented
 
             // **********  SST_UNCERTAINTY  ************
-            final Variable uncertainty = netcdfFile.findVariable(escape("insitu.sst_uncertainty"));
+            final Variable uncertainty = netcdfFile.findVariable(NetCDFUtils.escapeVariableName("insitu.sst_uncertainty"));
             assertNotNull(uncertainty);
             assertEquals("matchup_count insitu.ntime", uncertainty.getDimensionsString());
             assertEquals(3, uncertainty.getAttributes().size());
@@ -472,28 +472,24 @@ public class SstInsituTimeSeries_IO_Test {
             // todo Check the data of variable if SstInsituTimeSeries.compute() is implemented
 
             // **********  SST_DEPTH  ************
-            assertNotNull(netcdfFile.findVariable(escape("insitu.sst_depth")));
+            assertNotNull(netcdfFile.findVariable(NetCDFUtils.escapeVariableName("insitu.sst_depth")));
             // todo Check attributes, shape, datatype according to avhrr_f.m01-mmd12-2014-07.nc
             // todo Check the data of variable if SstInsituTimeSeries.compute() is implemented
 
             // **********  SST_QC_FLAG  ************
-            assertNotNull(netcdfFile.findVariable(escape("insitu.sst_qc_flag")));
+            assertNotNull(netcdfFile.findVariable(NetCDFUtils.escapeVariableName("insitu.sst_qc_flag")));
             // todo Check attributes, shape, datatype according to avhrr_f.m01-mmd12-2014-07.nc
             // todo Check the data of variable if SstInsituTimeSeries.compute() is implemented
 
             // **********  SST_TRACK_FLAG  ************
-            assertNotNull(netcdfFile.findVariable(escape("insitu.sst_track_flag")));
+            assertNotNull(netcdfFile.findVariable(NetCDFUtils.escapeVariableName("insitu.sst_track_flag")));
             // todo Check attributes, shape, datatype according to avhrr_f.m01-mmd12-2014-07.nc
             // todo Check the data of variable if SstInsituTimeSeries.compute() is implemented
 
             // **********  Y  ************
-            assertNotNull(netcdfFile.findVariable(escape("insitu.y")));
+            assertNotNull(netcdfFile.findVariable(NetCDFUtils.escapeVariableName("insitu.y")));
             // todo Check attributes, shape, datatype according to avhrr_f.m01-mmd12-2014-07.nc
             // todo Check the data of variable if SstInsituTimeSeries.compute() is implemented
         }
-    }
-
-    private String escape(String name) {
-        return NetcdfFile.makeValidCDLName(name);
     }
 }

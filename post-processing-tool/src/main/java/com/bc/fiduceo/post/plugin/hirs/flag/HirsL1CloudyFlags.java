@@ -108,7 +108,7 @@ class HirsL1CloudyFlags extends PostProcessing {
         final Variable flagVar = writer.addVariable(null, flagVarName, FLAG_VAR_DATA_TYPE, dimensions);
 
         // add flag meanings and other Attributes to flagVar
-        Array masks = new ArrayByte(new int[]{4});
+        Array masks = new ArrayByte(new int[]{4}, false);
         masks.setByte(0, SPACE_CONTRAST_TEST_ALL_PIXELS_USABLE);
         masks.setByte(1, SPACE_CONTRAST_TEST_WARNING);
         masks.setByte(2, SPACE_CONTRAST_TEST_CLOUDY);

@@ -21,16 +21,17 @@
 package com.bc.fiduceo.reader.iasi;
 
 import com.bc.fiduceo.util.NetCDFUtils;
+import ucar.ma2.DataType;
 
 import java.io.IOException;
 
 abstract class ReadProxy {
 
-    private final double scaleFactor;
     final long offset;
+    private final double scaleFactor;
 
     ReadProxy(long offset) {
-        this(offset,  Double.NaN);
+        this(offset, Double.NaN);
     }
 
     ReadProxy(long offset, double scaleFactor) {
@@ -38,7 +39,11 @@ abstract class ReadProxy {
         this.scaleFactor = scaleFactor;
     }
 
-    abstract Class getDataType();
+    abstract DataType getDataType();
+
+    boolean isUnsigned() {
+        return false;
+    }
 
     abstract Object read(int x, int line, MDR_1C mdr_1C) throws IOException;
 
@@ -51,8 +56,8 @@ abstract class ReadProxy {
             super(offset);
         }
 
-        Class getDataType() {
-            return byte.class;
+        DataType getDataType() {
+            return DataType.BYTE;
         }
 
         Object read(int x, int line, MDR_1C mdr_1C) throws IOException {
@@ -65,8 +70,8 @@ abstract class ReadProxy {
             super(offset);
         }
 
-        Class getDataType() {
-            return int.class;
+        DataType getDataType() {
+            return DataType.INT;
         }
 
         Object read(int x, int line, MDR_1C mdr_1C) throws IOException {
@@ -79,8 +84,8 @@ abstract class ReadProxy {
             super(offset);
         }
 
-        Class getDataType() {
-            return float.class;
+        DataType getDataType() {
+            return DataType.FLOAT;
         }
 
         Object read(int x, int line, MDR_1C mdr_1C) throws IOException {
@@ -93,8 +98,8 @@ abstract class ReadProxy {
             super(offset);
         }
 
-        Class getDataType() {
-            return long.class;
+        DataType getDataType() {
+            return DataType.LONG;
         }
 
         Object read(int x, int line, MDR_1C mdr_1C) throws IOException {
@@ -107,8 +112,8 @@ abstract class ReadProxy {
             super(offset);
         }
 
-        Class getDataType() {
-            return long.class;
+        DataType getDataType() {
+            return DataType.LONG;
         }
 
         Object read(int x, int line, MDR_1C mdr_1C) throws IOException {
@@ -121,8 +126,8 @@ abstract class ReadProxy {
             super(offset);
         }
 
-        Class getDataType() {
-            return byte.class;
+        DataType getDataType() {
+            return DataType.BYTE;
         }
 
         Object read(int x, int line, MDR_1C mdr_1C) throws IOException {
@@ -135,8 +140,8 @@ abstract class ReadProxy {
             super(offset);
         }
 
-        Class getDataType() {
-            return short.class;
+        DataType getDataType() {
+            return DataType.SHORT;
         }
 
         Object read(int x, int line, MDR_1C mdr_1C) throws IOException {
@@ -149,8 +154,8 @@ abstract class ReadProxy {
             super(offset);
         }
 
-        Class getDataType() {
-            return float.class;
+        DataType getDataType() {
+            return DataType.FLOAT;
         }
 
         Object read(int x, int line, MDR_1C mdr_1C) throws IOException {
@@ -163,8 +168,8 @@ abstract class ReadProxy {
             super(offset);
         }
 
-        Class getDataType() {
-            return int.class;
+        DataType getDataType() {
+            return DataType.INT;
         }
 
         Object read(int x, int line, MDR_1C mdr_1C) throws IOException {
@@ -177,8 +182,8 @@ abstract class ReadProxy {
             super(offset);
         }
 
-        Class getDataType() {
-            return byte.class;
+        DataType getDataType() {
+            return DataType.BYTE;
         }
 
         Object read(int x, int line, MDR_1C mdr_1C) throws IOException {
@@ -196,11 +201,11 @@ abstract class ReadProxy {
             fillValue = NetCDFUtils.getDefaultFillValue(byte.class).byteValue();
         }
 
-        Class getDataType() {
-            return byte.class;
+        DataType getDataType() {
+            return DataType.BYTE;
         }
 
-        Object read(int x, int line, MDR_1C mdr_1C) throws IOException {
+        Object read(int x, int line, MDR_1C mdr_1C) {
             return fillValue;
         }
     }
@@ -210,8 +215,8 @@ abstract class ReadProxy {
             super(offset);
         }
 
-        Class getDataType() {
-            return short.class;
+        DataType getDataType() {
+            return DataType.SHORT;
         }
 
         Object read(int x, int line, MDR_1C mdr_1C) throws IOException {
@@ -224,8 +229,8 @@ abstract class ReadProxy {
             super(offset);
         }
 
-        Class getDataType() {
-            return int.class;
+        DataType getDataType() {
+            return DataType.INT;
         }
 
         Object read(int x, int line, MDR_1C mdr_1C) throws IOException {
@@ -241,8 +246,8 @@ abstract class ReadProxy {
             this.fieldOffsetInBytes = fieldOffsetInBytes;
         }
 
-        Class getDataType() {
-            return int.class;
+        DataType getDataType() {
+            return DataType.INT;
         }
 
         Object read(int x, int line, MDR_1C mdr_1C) throws IOException {
@@ -259,11 +264,11 @@ abstract class ReadProxy {
             fillValue = NetCDFUtils.getDefaultFillValue(short.class).shortValue();
         }
 
-        Class getDataType() {
-            return short.class;
+        DataType getDataType() {
+            return DataType.SHORT;
         }
 
-        Object read(int x, int line, MDR_1C mdr_1C) throws IOException {
+        Object read(int x, int line, MDR_1C mdr_1C) {
             return fillValue;
         }
     }
@@ -277,11 +282,11 @@ abstract class ReadProxy {
             fillValue = NetCDFUtils.getDefaultFillValue(float.class).floatValue();
         }
 
-        Class getDataType() {
-            return float.class;
+        DataType getDataType() {
+            return DataType.FLOAT;
         }
 
-        Object read(int x, int line, MDR_1C mdr_1C) throws IOException {
+        Object read(int x, int line, MDR_1C mdr_1C) {
             return fillValue;
         }
     }

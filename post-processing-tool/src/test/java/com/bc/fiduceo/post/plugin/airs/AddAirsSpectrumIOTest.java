@@ -632,12 +632,12 @@ public class AddAirsSpectrumIOTest {
 
         ncWriter.create();
 
-        ncWriter.write(varX, Array.factory(new int[]{
+        ncWriter.write(varX, NetCDFUtils.create(new int[]{
                 1, 45, 88,
                 1, 45, 88,
                 1, 45, 88,
                 }));
-        ncWriter.write(varY, Array.factory(new int[]{
+        ncWriter.write(varY, NetCDFUtils.create(new int[]{
                 1, 1, 1,
                 65, 65, 65,
                 133, 133, 133,
@@ -646,8 +646,8 @@ public class AddAirsSpectrumIOTest {
         final char[][] file = {"AIRS.2010.01.07.001.L1B.AIRS_Rad.v5.0.0.0.G10007112420.hdf".toCharArray()};
         final char[][] version = {"v5.0.0.0".toCharArray()};
 
-        final Array arrayF = Array.factory(file);
-        final Array arrayV = Array.factory(version);
+        final Array arrayF = NetCDFUtils.create(file);
+        final Array arrayV = NetCDFUtils.create(version);
 
         for (int i = 0; i < numMatchups; i++) {
             ncWriter.write(varFN, new int[]{i, 0}, arrayF);

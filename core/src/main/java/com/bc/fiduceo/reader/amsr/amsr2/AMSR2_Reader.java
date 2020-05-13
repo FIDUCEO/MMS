@@ -17,6 +17,7 @@ import ucar.ma2.*;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
+import ucar.nc2.NetcdfFiles;
 import ucar.nc2.Variable;
 
 import java.io.File;
@@ -124,7 +125,7 @@ public class AMSR2_Reader extends NetCDFReader {
 
     @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException {
-        final String escapedName = NetcdfFile.makeValidCDLName(variableName);
+        String escapedName = NetCDFUtils.escapeVariableName(variableName);
         final Array rawArray = arrayCache.get(escapedName);
         final Dimension productSize = getProductSize();
         final Number fillValue = getFillValue(escapedName);
@@ -135,7 +136,8 @@ public class AMSR2_Reader extends NetCDFReader {
     public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException {
         final Array rawArray = readRaw(centerX, centerY, interval, variableName);
 
-        final double scaleFactor = getScaleFactor(variableName, "SCALE_FACTOR");
+        final String escapedName = NetCDFUtils.escapeVariableName(variableName);
+        final double scaleFactor = getScaleFactor(escapedName, "SCALE_FACTOR", false);
         if (scaleFactor != 1.0) {
             final double offset = 0.0;
             if (ReaderUtils.mustScale(scaleFactor, offset)) {

@@ -704,8 +704,8 @@ public class ATSR_L1B_Reader_IO_Test {
 
             Point2D[] pixelLocation = pixelLocator.getPixelLocation(29.54, -69.286);
             assertEquals(1, pixelLocation.length);
-            assertEquals(115.56506597510548, pixelLocation[0].getX(), 1e-8);
-            assertEquals(32231.633357700204, pixelLocation[0].getY(), 1e-8);
+            assertEquals(115.56233317921996, pixelLocation[0].getX(), 1e-8);
+            assertEquals(32231.612908326668, pixelLocation[0].getY(), 1e-8);
 
             pixelLocation = pixelLocator.getPixelLocation(172, -89);
             assertEquals(0, pixelLocation.length);
@@ -734,8 +734,8 @@ public class ATSR_L1B_Reader_IO_Test {
 
             Point2D[] pixelLocation = pixelLocator.getPixelLocation(-112.569, -62.085);
             assertEquals(1, pixelLocation.length);
-            assertEquals(74.49068735477553, pixelLocation[0].getX(), 1e-8);
-            assertEquals(33108.47675488554, pixelLocation[0].getY(), 1e-8);
+            assertEquals(74.4803862445492, pixelLocation[0].getX(), 1e-8);
+            assertEquals(33108.46804440283, pixelLocation[0].getY(), 1e-8);
 
             geoLocation = pixelLocator.getGeoLocation(74.5, 33108.5, null);
             assertEquals(-112.56937827919018, geoLocation.getX(), 1e-8);

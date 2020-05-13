@@ -110,7 +110,7 @@ public class MatchupToolIntegrationTest_useCase_14_SST_2secondarySensors extends
             assertStringVariable("drifter-sst_processing_version", versionDims, pv_Size, 2, "v03.3", mmd);
             assertVariablePresentAnd3DValueLong("drifter-sst_acquisition_time", DataType.INT, insitu3DDims, 0, 0, 0, 1314056988, mmd);
 
-            assertVariablePresentAnd3DValueLong("hirs-n18_time", DataType.INT, hirs3DDims, 2, 2, 0, 1314064551, mmd);
+            assertVariablePresentAnd3DValueLong("hirs-n18_time", DataType.UINT, hirs3DDims, 2, 2, 0, 1314064551, mmd);
             assertVariablePresentAnd3DValueDouble("hirs-n18_lat", DataType.DOUBLE, hirs3DDims, 2, 2, 0, -32.3208, mmd);
             assertVariablePresentAnd3DValueDouble("hirs-n18_lon", DataType.DOUBLE, hirs3DDims, 2, 2, 0, -155.4985, mmd);
 

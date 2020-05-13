@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.reader.insitu.sst_cci;
 
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.junit.Test;
 import ucar.ma2.Array;
 
@@ -99,10 +100,10 @@ public class SSTInsituReaderTest {
     @Test
     public void testCreateIdArray() {
         final int[] mohc_ids = {5674, 11245667, -32768, 10062352, -32768};
-        final Array mohcArray = Array.factory(mohc_ids);
+        final Array mohcArray = NetCDFUtils.create(mohc_ids);
 
         final int[] times = {1112752200, 1116097799, 1118170800, 1123031999, 1123659600};
-        final Array timeArray = Array.factory(times);
+        final Array timeArray = NetCDFUtils.create(times);
 
         final Array idArray = SSTInsituReader.createIdArray(mohcArray, timeArray, -32768);
         assertNotNull(idArray);

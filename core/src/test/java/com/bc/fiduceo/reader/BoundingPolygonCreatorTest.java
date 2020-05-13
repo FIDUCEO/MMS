@@ -22,6 +22,7 @@ package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.geometry.*;
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.junit.Before;
 import org.junit.Test;
 import ucar.ma2.Array;
@@ -97,8 +98,8 @@ public class BoundingPolygonCreatorTest {
 
     @Test
     public void testCreateBoundingGeometry_AIRS() {
-        final Array latitudes = Array.factory(AIRS_LATITUDES);
-        final Array longitudes = Array.factory(AIRS_LONGITUDES);
+        final Array latitudes = NetCDFUtils.create(AIRS_LATITUDES);
+        final Array longitudes = NetCDFUtils.create(AIRS_LONGITUDES);
 
         final Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometry(longitudes, latitudes);
         assertNotNull(boundingGeometry);
@@ -130,8 +131,8 @@ public class BoundingPolygonCreatorTest {
 
     @Test
     public void testCreateBoundingGeometryClockwise_AIRS() {
-        final Array latitudes = Array.factory(AIRS_LATITUDES);
-        final Array longitudes = Array.factory(AIRS_LONGITUDES);
+        final Array latitudes = NetCDFUtils.create(AIRS_LATITUDES);
+        final Array longitudes = NetCDFUtils.create(AIRS_LONGITUDES);
 
         final Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometryClockwise(longitudes, latitudes);
         assertNotNull(boundingGeometry);
@@ -163,8 +164,8 @@ public class BoundingPolygonCreatorTest {
 
     @Test
     public void testCreateBoundingGeometry_AVHRR_intervalVaried() {
-        final Array latitudes = Array.factory(AVHRR_LATITUDES);
-        final Array longitudes = Array.factory(AVHRR_LONGITUDES);
+        final Array latitudes = NetCDFUtils.create(AVHRR_LATITUDES);
+        final Array longitudes = NetCDFUtils.create(AVHRR_LONGITUDES);
 
         final Interval interval = new Interval(2, 3);
         final BoundingPolygonCreator boundingPolygonCreator = new BoundingPolygonCreator(interval, geometryFactory);
@@ -196,8 +197,8 @@ public class BoundingPolygonCreatorTest {
 
     @Test
     public void testCreateBoundingGeometrySplitted_splitInTwo() throws IOException {
-        final Array latitudes = Array.factory(AVHRR_LATITUDES);
-        final Array longitudes = Array.factory(AVHRR_LONGITUDES);
+        final Array latitudes = NetCDFUtils.create(AVHRR_LATITUDES);
+        final Array longitudes = NetCDFUtils.create(AVHRR_LONGITUDES);
 
         final Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometrySplitted(longitudes, latitudes, 2, false);
         assertNotNull(boundingGeometry);
@@ -242,8 +243,8 @@ public class BoundingPolygonCreatorTest {
 
     @Test
     public void testCreateBoundingGeometrySplitted_clockwise_splitInTwo() throws IOException {
-        final Array latitudes = Array.factory(AVHRR_LATITUDES);
-        final Array longitudes = Array.factory(AVHRR_LONGITUDES);
+        final Array latitudes = NetCDFUtils.create(AVHRR_LATITUDES);
+        final Array longitudes = NetCDFUtils.create(AVHRR_LONGITUDES);
 
         final Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometrySplitted(longitudes, latitudes, 2, true);
         assertNotNull(boundingGeometry);
@@ -288,8 +289,8 @@ public class BoundingPolygonCreatorTest {
 
     @Test
     public void testCreateBoundingGeometrySplitted_splitInThree() throws IOException {
-        final Array latitudes = Array.factory(AVHRR_LATITUDES);
-        final Array longitudes = Array.factory(AVHRR_LONGITUDES);
+        final Array latitudes = NetCDFUtils.create(AVHRR_LATITUDES);
+        final Array longitudes = NetCDFUtils.create(AVHRR_LONGITUDES);
 
         final Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometrySplitted(longitudes, latitudes, 3, false);
         assertNotNull(boundingGeometry);
@@ -341,8 +342,8 @@ public class BoundingPolygonCreatorTest {
 
     @Test
     public void testCreateTimeAxisGeometry_AVHRR() {
-        final Array longitudes = Array.factory(AVHRR_LONGITUDES);
-        final Array latitudes = Array.factory(AVHRR_LATITUDES);
+        final Array longitudes = NetCDFUtils.create(AVHRR_LONGITUDES);
+        final Array latitudes = NetCDFUtils.create(AVHRR_LATITUDES);
 
         final LineString lineString = boundingPolygonCreator.createTimeAxisGeometry(longitudes, latitudes);
         assertEquals("LINESTRING(-114.578995 6.376000000000001,-114.591 6.318,-114.604004 6.261,-114.616 6.204)", geometryFactory.format(lineString));
@@ -350,8 +351,8 @@ public class BoundingPolygonCreatorTest {
 
     @Test
     public void testCreateTimeAxisGeometry_AVHRR_intervalVaried() {
-        final Array longitudes = Array.factory(AVHRR_LONGITUDES);
-        final Array latitudes = Array.factory(AVHRR_LATITUDES);
+        final Array longitudes = NetCDFUtils.create(AVHRR_LONGITUDES);
+        final Array latitudes = NetCDFUtils.create(AVHRR_LATITUDES);
 
         final Interval interval = new Interval(2, 4);
         final BoundingPolygonCreator boundingPolygonCreator = new BoundingPolygonCreator(interval, geometryFactory);
@@ -362,8 +363,8 @@ public class BoundingPolygonCreatorTest {
 
     @Test
     public void testCreateTimeAxisGeometrySplitted_twoSegments() throws IOException {
-        final Array longitudes = Array.factory(AVHRR_LONGITUDES);
-        final Array latitudes = Array.factory(AVHRR_LATITUDES);
+        final Array longitudes = NetCDFUtils.create(AVHRR_LONGITUDES);
+        final Array latitudes = NetCDFUtils.create(AVHRR_LATITUDES);
 
         final Geometry geometry = boundingPolygonCreator.createTimeAxisGeometrySplitted(longitudes, latitudes, 2);
         assertTrue(geometry instanceof GeometryCollection);
@@ -377,8 +378,8 @@ public class BoundingPolygonCreatorTest {
 
     @Test
     public void testCreateTimeAxisGeometrySplitted_threeSegments() throws IOException {
-        final Array longitudes = Array.factory(AVHRR_LONGITUDES);
-        final Array latitudes = Array.factory(AVHRR_LATITUDES);
+        final Array longitudes = NetCDFUtils.create(AVHRR_LONGITUDES);
+        final Array latitudes =NetCDFUtils.create(AVHRR_LATITUDES);
 
         final Geometry geometry = boundingPolygonCreator.createTimeAxisGeometrySplitted(longitudes, latitudes, 3);
         assertTrue(geometry instanceof GeometryCollection);
@@ -393,8 +394,8 @@ public class BoundingPolygonCreatorTest {
 
     @Test
     public void testCreateTimeAxisGeometry_AIRS() {
-        final Array longitudes = Array.factory(AIRS_LONGITUDES);
-        final Array latitudes = Array.factory(AIRS_LATITUDES);
+        final Array longitudes = NetCDFUtils.create(AIRS_LONGITUDES);
+        final Array latitudes = NetCDFUtils.create(AIRS_LATITUDES);
 
         final LineString lineString = boundingPolygonCreator.createTimeAxisGeometry(longitudes, latitudes);
         assertEquals("LINESTRING(139.3232587268979 71.69661607793569,138.4586123358709 71.87850964766172,138.01571817610454 71.96597011172345)", geometryFactory.format(lineString));
@@ -402,8 +403,8 @@ public class BoundingPolygonCreatorTest {
 
     @Test
     public void testCreateTimeAxisGeometry_AIRS_intervalVaried() {
-        final Array longitudes = Array.factory(AIRS_LONGITUDES);
-        final Array latitudes = Array.factory(AIRS_LATITUDES);
+        final Array longitudes = NetCDFUtils.create(AIRS_LONGITUDES);
+        final Array latitudes = NetCDFUtils.create(AIRS_LATITUDES);
 
         final Interval interval = new Interval(2, 3);
         final BoundingPolygonCreator boundingPolygonCreator = new BoundingPolygonCreator(interval, geometryFactory);
@@ -414,7 +415,7 @@ public class BoundingPolygonCreatorTest {
 
     @Test
     public void testExtractValidIntervals_noGaps() {
-        final Array longitudes = Array.factory(AVHRR_LONGITUDES);
+        final Array longitudes = NetCDFUtils.create(AVHRR_LONGITUDES);
         final double fillValue = -32768.0;
 
         final Interval[] validIntervals = boundingPolygonCreator.extractValidIntervals(longitudes, fillValue);
@@ -425,7 +426,7 @@ public class BoundingPolygonCreatorTest {
 
     @Test
     public void testExtractValidIntervals_oneGap() {
-        final Array longitudes = Array.factory(AVHRR_LONGITUDES_ONE_GAP);
+        final Array longitudes = NetCDFUtils.create(AVHRR_LONGITUDES_ONE_GAP);
         final double fillValue = -32768.0;
 
         final Interval[] validIntervals = boundingPolygonCreator.extractValidIntervals(longitudes, fillValue);
@@ -439,7 +440,7 @@ public class BoundingPolygonCreatorTest {
 
     @Test
     public void testExtractValidIntervals_twoGaps() {
-        final Array longitudes = Array.factory(AVHRR_LONGITUDES_TWO_GAPS);
+        final Array longitudes = NetCDFUtils.create(AVHRR_LONGITUDES_TWO_GAPS);
         final double fillValue = -32768.0;
 
         final Interval[] validIntervals = boundingPolygonCreator.extractValidIntervals(longitudes, fillValue);
@@ -456,7 +457,7 @@ public class BoundingPolygonCreatorTest {
 
     @Test
     public void testExtractValidIntervals_noGaps_startWithFill() {
-        final Array longitudes = Array.factory(AVHRR_LONGITUDES_START_WITH_FILL);
+        final Array longitudes = NetCDFUtils.create(AVHRR_LONGITUDES_START_WITH_FILL);
         final double fillValue = -32768.0;
 
         final Interval[] validIntervals = boundingPolygonCreator.extractValidIntervals(longitudes, fillValue);
@@ -467,7 +468,7 @@ public class BoundingPolygonCreatorTest {
 
     @Test
     public void testExtractValidIntervals_noGaps_endWithFill() {
-        final Array longitudes = Array.factory(AVHRR_LONGITUDES_END_WITH_FILL);
+        final Array longitudes = NetCDFUtils.create(AVHRR_LONGITUDES_END_WITH_FILL);
         final double fillValue = -32768.0;
 
         final Interval[] validIntervals = boundingPolygonCreator.extractValidIntervals(longitudes, fillValue);

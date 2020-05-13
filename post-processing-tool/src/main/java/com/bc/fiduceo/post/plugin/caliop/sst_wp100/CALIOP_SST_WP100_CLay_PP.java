@@ -81,7 +81,7 @@ public class CALIOP_SST_WP100_CLay_PP extends PostProcessing {
         final int[] shape = var.getShape();
         final char[] chars = new char[shape[1]];
         str.getChars(0, str.length(), chars, 0);
-        final Array data = Array.factory(new char[][]{chars});
+        final Array data = NetCDFUtils.create(new char[][]{chars});
         writer.write(var, new int[]{pos, 0}, data);
     }
 
@@ -151,8 +151,8 @@ public class CALIOP_SST_WP100_CLay_PP extends PostProcessing {
             writer.write(targetVarAT, writeOrigin, caliopReader.readAcquisitionTime(0, y, interval_1).reshape(new int[]{1, ny, 1}));
             writeString(writer, targetVarFN, mu, sourceFileName);
             writeString(writer, targetVarPV, mu, processingVersion);
-            writer.write(targetVarX, new int[]{mu}, Array.factory(new int[]{0}));
-            writer.write(targetVarY, new int[]{mu}, Array.factory(new int[]{y}));
+            writer.write(targetVarX, new int[]{mu}, NetCDFUtils.create(new int[]{0}));
+            writer.write(targetVarY, new int[]{mu}, NetCDFUtils.create(new int[]{y}));
         }
     }
 

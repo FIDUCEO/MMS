@@ -163,19 +163,19 @@ public class AMSR2_Reader_IO_Test {
 
             variable = variables.get(4);
             assertEquals("Brightness_Temperature_(res06,18.7GHz,V)", variable.getShortName());
-            assertEquals(DataType.SHORT, variable.getDataType());
+            assertEquals(DataType.USHORT, variable.getDataType());
 
             variable = variables.get(9);
             assertEquals("Brightness_Temperature_(res06,6.9GHz,H)", variable.getShortName());
-            assertEquals(DataType.SHORT, variable.getDataType());
+            assertEquals(DataType.USHORT, variable.getDataType());
 
             variable = variables.get(13);
             assertEquals("Brightness_Temperature_(res06,89.0GHz,H)", variable.getShortName());
-            assertEquals(DataType.SHORT, variable.getDataType());
+            assertEquals(DataType.USHORT, variable.getDataType());
 
             variable = variables.get(25);
             assertEquals("Brightness_Temperature_(res23,18.7GHz,H)", variable.getShortName());
-            assertEquals(DataType.SHORT, variable.getDataType());
+            assertEquals(DataType.USHORT, variable.getDataType());
 
             variable = variables.get(38);
             assertEquals("Earth_Incidence", variable.getShortName());
@@ -183,11 +183,11 @@ public class AMSR2_Reader_IO_Test {
 
             variable = variables.get(43);
             assertEquals("Land_Ocean_Flag_6", variable.getShortName());
-            assertEquals(DataType.BYTE, variable.getDataType());
+            assertEquals(DataType.UBYTE, variable.getDataType());
 
             variable = variables.get(44);
             assertEquals("Land_Ocean_Flag_23", variable.getShortName());
-            assertEquals(DataType.BYTE, variable.getDataType());
+            assertEquals(DataType.UBYTE, variable.getDataType());
 
             variable = variables.get(45);
             assertEquals("Latitude_of_Observation_Point_for_89A", variable.getShortName());
@@ -195,11 +195,11 @@ public class AMSR2_Reader_IO_Test {
 
             variable = variables.get(46);
             assertEquals("Land_Ocean_Flag_10", variable.getShortName());
-            assertEquals(DataType.BYTE, variable.getDataType());
+            assertEquals(DataType.UBYTE, variable.getDataType());
 
             variable = variables.get(47);
             assertEquals("Land_Ocean_Flag_36", variable.getShortName());
-            assertEquals(DataType.BYTE, variable.getDataType());
+            assertEquals(DataType.UBYTE, variable.getDataType());
 
             variable = variables.get(48);
             assertEquals("Pixel_Data_Quality_6_to_36", variable.getShortName());

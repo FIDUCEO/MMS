@@ -4,6 +4,7 @@ package com.bc.fiduceo.post.plugin.land_distance;
 import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.post.util.DistanceToLandMap;
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.junit.Test;
@@ -129,9 +130,9 @@ public class AddLandDistanceTest {
         configuration.targetVariableName = "distance_to_land";
 
         final double[] longitudes = {100, 101, 102, 103, 104};
-        final Array lonArray = Array.factory(longitudes);
+        final Array lonArray = NetCDFUtils.create(longitudes);
         final double[] latitudes = {10, 11, 12, 13, 14};
-        final Array latArray = Array.factory(latitudes);
+        final Array latArray = NetCDFUtils.create(latitudes);
 
         final Variable lonVariable = mock(Variable.class);
         when(lonVariable.read()).thenReturn(lonArray);
@@ -160,7 +161,7 @@ public class AddLandDistanceTest {
         verify(reader, times(1)).findVariable(null, "latitude");
         verify(latVariable, times(1)).read();
         verify(writer, times(1)).findVariable("distance_to_land");
-        verify(writer, times(1)).write(any(), any());
+        verify(writer, times(1)).write(any(Variable.class), any());
         verifyNoMoreInteractions(reader, writer);
     }
 }

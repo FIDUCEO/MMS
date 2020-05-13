@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.reader.amsr.amsr2;
 
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.junit.Test;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
@@ -58,7 +59,7 @@ public class PixelDataQualityVariableTest {
     @Test
     public void testRead() throws IOException {
         final byte[][] byteData = {{0, 1, 2, 3}, {4, 5, 6, 7}, {8, 9, 10, 11}};
-        final Array originalArray = Array.factory(byteData);
+        final Array originalArray = NetCDFUtils.create(byteData);
         final Variable variable = mock(Variable.class);
         when(variable.read()).thenReturn(originalArray);
 

@@ -94,15 +94,15 @@ public class AddGruanSource_IntegrationTest {
 
         writer.create();
 
-        writer.write(varY, Array.factory(new int[]{
+        writer.write(varY, NetCDFUtils.create(new int[]{
                 127, 129, 157, 6733, 6741, 2078
         }));
 
         final char[][] file = {"nya_matchup_points.txt".toCharArray()};
         final char[][] version = {"v1.0".toCharArray()};
 
-        final Array arrayFile = Array.factory(file);
-        final Array arrayVersion = Array.factory(version);
+        final Array arrayFile = NetCDFUtils.create(file);
+        final Array arrayVersion = NetCDFUtils.create(version);
 
         for (int i = 0; i < NUM_MATCHUPS; i++) {
             writer.write(varFileName, new int[]{i, 0}, arrayFile);

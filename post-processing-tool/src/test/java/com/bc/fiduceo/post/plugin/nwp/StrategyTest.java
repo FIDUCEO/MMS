@@ -3,6 +3,7 @@ package com.bc.fiduceo.post.plugin.nwp;
 
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.TimeRange;
+import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import org.junit.Test;
 import ucar.ma2.Array;
@@ -33,7 +34,7 @@ public class StrategyTest {
     @Test
     public void testExtractTimeRange() {
         final int[] times = {100000000, 110000000, 120000000, 120000000, 130000000, 140000000, 110000000, 150000000};
-        final Array timesArray = Array.factory(times);
+        final Array timesArray = NetCDFUtils.create(times);
 
         final TimeRange timeRange = Strategy.extractTimeRange(timesArray, 12);
         assertNotNull(timeRange);
@@ -45,7 +46,7 @@ public class StrategyTest {
     @Test
     public void testExtractTimeRange_withFillValue() {
         final int[] times = {200000000, 210000000, -32768, 220000000, 230000000, 240000000, -32768, 210000000, 250000000};
-        final Array timesArray = Array.factory(times);
+        final Array timesArray = NetCDFUtils.create(times);
 
         final TimeRange timeRange = Strategy.extractTimeRange(timesArray, -32768);
         assertNotNull(timeRange);

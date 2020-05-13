@@ -23,6 +23,7 @@ package com.bc.fiduceo.matchup.writer;
 
 import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.core.*;
+import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.matchup.MatchupCollection;
 import com.bc.fiduceo.matchup.MatchupSet;
@@ -38,10 +39,7 @@ import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.Index;
 import ucar.ma2.InvalidRangeException;
-import ucar.nc2.Attribute;
-import ucar.nc2.NetcdfFile;
-import ucar.nc2.NetcdfFileWriter;
-import ucar.nc2.Variable;
+import ucar.nc2.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -188,13 +186,13 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
 
     @Override
     public void write(int v, String variableName, int zIndex) {
-        final Array data = Array.factory(new int[][]{{v}});
+        final Array data = NetCDFUtils.create(new int[][]{{v}});
         write(data, variableName, zIndex);
     }
 
     @Override
     public void write(float value, String variableName, int zIndex) {
-        final Array data = Array.factory(new float[][]{{value}});
+        final Array data = NetCDFUtils.create(new float[][]{{value}});
         write(data, variableName, zIndex);
     }
 
@@ -203,7 +201,7 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
         final int[] shape = getVariable(variableName).getShape();
         final char[] chars = new char[shape[1]];
         v.getChars(0, v.length(), chars, 0);
-        final Array data = Array.factory(new char[][]{chars});
+        final Array data = NetCDFUtils.create(new char[][]{chars});
         write(data, variableName, zIndex);
     }
 
@@ -352,7 +350,7 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
 
     private Variable getVariable(String variableName) {
         if (!variableMap.containsKey(variableName)) {
-            final String escapedName = NetcdfFile.makeValidCDLName(variableName);
+            final String escapedName = NetCDFUtils.escapeVariableName(variableName);
             variableMap.put(variableName, netcdfFileWriter.findVariable(escapedName));
         }
         return variableMap.get(variableName);

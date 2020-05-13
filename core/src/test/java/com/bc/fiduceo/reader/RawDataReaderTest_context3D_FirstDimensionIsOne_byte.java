@@ -5,6 +5,7 @@ import com.bc.fiduceo.core.Interval;
 import org.junit.Before;
 import org.junit.Test;
 import ucar.ma2.Array;
+import ucar.ma2.DataType;
 
 import java.io.IOException;
 
@@ -102,7 +103,7 @@ public class RawDataReaderTest_context3D_FirstDimensionIsOne_byte {
 
     @Test
     public void testRawArrayHasMoreThanTwoDimensions() throws IOException {
-        final Array rawArray = Array.factory(new byte[][][]{
+        final Array rawArray = Array.makeFromJavaArray(new byte[][][]{
                 {{11, 12, 13}, {14, 15, 16}, {17, 18, 19},},
                 {{21, 22, 23}, {24, 25, 26}, {27, 28, 29},},
                 {{31, 32, 33}, {34, 35, 36}, {37, 38, 39},}
@@ -130,6 +131,6 @@ public class RawDataReaderTest_context3D_FirstDimensionIsOne_byte {
         };
         final byte[][][] bytes = new byte[1][][];
         bytes[0] = array2D;
-        return Array.factory(bytes);
+        return Array.makeFromJavaArray(bytes);
     }
 }

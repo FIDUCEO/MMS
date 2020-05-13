@@ -21,6 +21,7 @@
 package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.reader.TimeLocator_TAI1993Vector;
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.junit.Test;
 import ucar.ma2.Array;
 
@@ -31,7 +32,7 @@ public class TimeLocator_TAI1993VectorTest {
     @Test
     public void testGetTimeFor() {
         final double[] timeData = {1.8, 2.9, 3.0, 4.2, 5.2, 6.3};
-        final Array timeDataArray = Array.factory(timeData);
+        final Array timeDataArray = NetCDFUtils.create(timeData);
 
         final TimeLocator_TAI1993Vector timeLocator = new TimeLocator_TAI1993Vector(timeDataArray);
 
