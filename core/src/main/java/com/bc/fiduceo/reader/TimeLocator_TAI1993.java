@@ -32,7 +32,7 @@ public class TimeLocator_TAI1993 implements TimeLocator {
 
     public TimeLocator_TAI1993(Array taiArray) {
         this.taiArray = taiArray;
-        index = this.taiArray.getIndex();
+        index = taiArray.getIndex();
     }
 
     @Override

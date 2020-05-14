@@ -36,8 +36,8 @@ public class TimeLocator_TAI1993VectorTest {
 
         final TimeLocator_TAI1993Vector timeLocator = new TimeLocator_TAI1993Vector(timeDataArray);
 
-        assertEquals(7.258463748E11, timeLocator.getTimeFor(0, 0), 1e-8);
-        assertEquals(7.258463748E11, timeLocator.getTimeFor(5, 0), 1e-8);
-        assertEquals(7.258463793E11, timeLocator.getTimeFor(8, 5), 1e-8);
+        assertEquals(725846374800L, timeLocator.getTimeFor(0, 0));
+        assertEquals(725846374800L, timeLocator.getTimeFor(5, 0));
+        assertEquals(725846379300L, timeLocator.getTimeFor(8, 5));
     }
 }

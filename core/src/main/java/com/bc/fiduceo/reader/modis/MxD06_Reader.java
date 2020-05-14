@@ -75,6 +75,7 @@ public class MxD06_Reader extends NetCDFReader {
     @Override
     public void close() throws IOException {
         timeLocator = null;
+        productSize = null;
 
         if (pixelLocator != null) {
             pixelLocator.dispose();

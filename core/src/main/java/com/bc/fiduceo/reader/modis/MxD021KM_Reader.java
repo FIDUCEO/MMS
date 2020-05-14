@@ -11,19 +11,16 @@ import com.bc.fiduceo.hdf.HdfEOSUtil;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.*;
 import com.bc.fiduceo.reader.netcdf.NetCDFReader;
-import com.bc.fiduceo.reader.snap.SNAP_Reader;
-import org.esa.snap.core.datamodel.RasterDataNode;
-import org.jdom2.Element;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
+import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
-import ucar.nc2.Group;
-import ucar.nc2.NetcdfFile;
+import ucar.nc2.Structure;
 import ucar.nc2.Variable;
+import ucar.nc2.util.IO;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 
 import static com.bc.fiduceo.reader.modis.ModisConstants.LATITUDE_VAR_NAME;
@@ -33,16 +30,28 @@ class MxD021KM_Reader extends NetCDFReader {
 
     private static final String REG_EX = "M([OY])D021KM.A\\d{7}.\\d{4}.\\d{3}.\\d{13}.hdf";
     private static final String GEOLOCATION_GROUP = "MODIS_SWATH_Type_L1B/Geolocation_Fields";
+    private static final String DATA_GROUP = "MODIS_SWATH_Type_L1B/Data_Fields";
 
     private final GeometryFactory geometryFactory;
 
+    private Dimension productSize;
+    private TimeLocator timeLocator;
+
     MxD021KM_Reader(ReaderContext readerContext) {
         geometryFactory = readerContext.getGeometryFactory();
+        productSize = null;
+        timeLocator = null;
     }
 
     @Override
     public void open(File file) throws IOException {
         super.open(file);
+    }
+
+    @Override
+    public void close() throws IOException {
+        productSize = null;
+        timeLocator = null;
     }
 
     @Override
@@ -79,7 +88,12 @@ class MxD021KM_Reader extends NetCDFReader {
 
     @Override
     public Dimension getProductSize() throws IOException {
-        return null;
+        if (productSize == null) {
+            final Array longitude = arrayCache.get(DATA_GROUP, "EV_Band26");
+            final int[] shape = longitude.getShape();
+            productSize = new Dimension("shape", shape[1], shape[0]);
+        }
+        return productSize;
     }
 
     @Override
@@ -89,7 +103,21 @@ class MxD021KM_Reader extends NetCDFReader {
 
     @Override
     public TimeLocator getTimeLocator() throws IOException {
-        throw new IllegalStateException("not implemented");
+        if (timeLocator == null) {
+            final Variable level_1B_swath_metadata = netcdfFile.findVariable(null, "Level_1B_Swath_Metadata");
+            if (level_1B_swath_metadata == null) {
+                throw new IOException("Level_1B_Swath_Metadata not found.");
+            }
+
+            final Structure l1SwathMeta = (Structure) level_1B_swath_metadata;
+            final Structure sectorStartTime = l1SwathMeta.select("EV_Sector_Start_Time");
+            final Variable startTime = sectorStartTime.findVariable("EV_Sector_Start_Time");
+            final Array startTimeArray = startTime.read();
+            // @todo 2 tb/tb read number of lines per scan from data 2020-05-14
+            timeLocator = new TimeLocator_TAI1993Scan(startTimeArray, 10);
+        }
+
+        return timeLocator;
     }
 
     @Override

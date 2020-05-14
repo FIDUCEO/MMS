@@ -2,13 +2,12 @@ package com.bc.fiduceo.reader.modis;
 
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.NodeType;
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.Point;
-import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
+import com.bc.fiduceo.reader.TimeLocator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -71,6 +70,16 @@ public class MxD021KM_Reader_IO_Test {
 
         assertEquals(-50.65733337402344, coordinates[24].getLon(), 1e-8);
         assertEquals(-77.25603485107422, coordinates[24].getLat(), 1e-8);
+
+        final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
+        assertEquals(1, timeAxes.length);
+        Point[] locations = coordinates[0].getCoordinates();
+        Date time = timeAxes[0].getTime(locations[0]);
+        TestUtil.assertCorrectUTCDate(2003, 5, 22, 14, 45, 1, 454, time);
+
+        locations = coordinates[9].getCoordinates();
+        time = timeAxes[0].getTime(locations[0]);
+        TestUtil.assertCorrectUTCDate(2003, 5, 22, 14, 49, 59, 249, time);
     }
 
     @Test
@@ -101,6 +110,62 @@ public class MxD021KM_Reader_IO_Test {
 
         assertEquals(-169.29559326171875, coordinates[24].getLon(), 1e-8);
         assertEquals(61.602462768554695, coordinates[24].getLat(), 1e-8);
+
+        final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
+        assertEquals(1, timeAxes.length);
+        Point[] locations = coordinates[0].getCoordinates();
+        Date time = timeAxes[0].getTime(locations[0]);
+        TestUtil.assertCorrectUTCDate(2011, 6, 17, 22, 10, 0, 0, time);
+
+        locations = coordinates[9].getCoordinates();
+        time = timeAxes[0].getTime(locations[0]);
+        TestUtil.assertCorrectUTCDate(2011, 6, 17, 22, 14, 59, 489, time);
+    }
+
+    @Test
+    public void testGetProductSize_Terra() throws IOException {
+        final File file = getTerraFile();
+
+        reader.open(file);
+        final Dimension productSize = reader.getProductSize();
+        assertEquals(1354, productSize.getNx());
+        assertEquals(2030, productSize.getNy());
+    }
+
+    @Test
+    public void testGetProductSize_Aqua() throws IOException {
+        final File file = getAquaFile();
+
+        reader.open(file);
+        final Dimension productSize = reader.getProductSize();
+        assertEquals(1354, productSize.getNx());
+        assertEquals(2030, productSize.getNy());
+    }
+
+    @Test
+    public void testGetTimeLocator_Terra() throws IOException {
+        final File file = getTerraFile();
+
+        reader.open(file);
+        final TimeLocator timeLocator = reader.getTimeLocator();
+        assertEquals(1053614674728L, timeLocator.getTimeFor(0, 0));
+        assertEquals(1053614674728L, timeLocator.getTimeFor(269, 0));
+
+        assertEquals(1053614704271L, timeLocator.getTimeFor(76, 203));
+        assertEquals(1053614733814L, timeLocator.getTimeFor(145, 405));
+    }
+
+    @Test
+    public void testGetTimeLocator_Aqua() throws IOException {
+        final File file = getAquaFile();
+
+        reader.open(file);
+        final TimeLocator timeLocator = reader.getTimeLocator();
+        assertEquals(1308348573820L, timeLocator.getTimeFor(1, 1));
+        assertEquals(1308348573820L, timeLocator.getTimeFor(270, 1));
+
+        assertEquals(1308348603362L, timeLocator.getTimeFor(76, 204));
+        assertEquals(1308348632905L, timeLocator.getTimeFor(145, 406));
     }
 
     private File getTerraFile() throws IOException {
