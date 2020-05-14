@@ -181,7 +181,7 @@ public class AddAmsrSolarAnglesTest {
 
         final Attribute scaleFactorAttribute = mock(Attribute.class);
         when(scaleFactorAttribute.getNumericValue()).thenReturn(scaleFactor);
-        when(variable.findAttribute("SCALE_FACTOR")).thenReturn(scaleFactorAttribute);
+        when(variable.findAttribute("scale_factor")).thenReturn(scaleFactorAttribute);
 
         return variable;
     }

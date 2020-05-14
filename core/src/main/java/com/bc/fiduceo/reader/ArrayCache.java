@@ -23,10 +23,7 @@ package com.bc.fiduceo.reader;
 import org.esa.snap.core.util.StringUtils;
 import ucar.ma2.Array;
 import ucar.ma2.MAMath;
-import ucar.nc2.Attribute;
-import ucar.nc2.Group;
-import ucar.nc2.NetcdfFile;
-import ucar.nc2.Variable;
+import ucar.nc2.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -281,10 +278,13 @@ public class ArrayCache {
             container.array = variable.read();
         }
 
-        final List<Attribute> attributes = variable.getAttributes();
-        for (final Attribute attribute : attributes) {
-            container.attributes.put(attribute.getFullName(), attribute);
+        final AttributeContainer attributes = variable.attributes();
+        if (attributes != null) {
+            for (final Attribute attribute : attributes) {
+                container.attributes.put(attribute.getFullName(), attribute);
+            }
         }
+
         return container;
     }
 

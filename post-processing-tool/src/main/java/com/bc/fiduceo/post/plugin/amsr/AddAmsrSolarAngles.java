@@ -131,7 +131,7 @@ class AddAmsrSolarAngles extends PostProcessing {
         final IndexIterator targetIterator = floatArray.getIndexIterator();
 
         final float fillValue = NetCDFUtils.getDefaultFillValue(float.class).floatValue();
-        final float scaleFactor = NetCDFUtils.getAttributeFloat(unscaledVariable, "SCALE_FACTOR", fillValue);
+        final float scaleFactor = NetCDFUtils.getAttributeFloat(unscaledVariable, "scale_factor", fillValue);
         while (array.hasNext() && floatArray.hasNext()) {
             final float scaled = scaleFactor * array.nextShort();
             targetIterator.setFloatNext(scaled);
