@@ -1,6 +1,6 @@
 package com.bc.fiduceo.reader.fiduceo_fcdr;
 
-import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.time.TimeLocator;
 import ucar.ma2.Array;
 import ucar.ma2.Index;
 

@@ -1,6 +1,6 @@
 package com.bc.fiduceo.reader.avhrr_frac;
 
-import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.time.TimeLocator;
 
 import java.util.Date;
 

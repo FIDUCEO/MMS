@@ -20,7 +20,7 @@
 
 package com.bc.fiduceo.reader.avhrr_gac;
 
-import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.time.TimeLocator;
 import ucar.ma2.Array;
 import ucar.ma2.Index;
 

@@ -18,27 +18,27 @@
  *
  */
 
-package com.bc.fiduceo.reader;
+package com.bc.fiduceo.reader.time;
 
 
 import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.Array;
 import ucar.ma2.Index;
 
-public class TimeLocator_TAI1993 implements TimeLocator {
+public class TimeLocator_TAI1993Vector implements TimeLocator {
 
-    private final Array taiArray;
+    private final Array timeVector;
     private final Index index;
 
-    public TimeLocator_TAI1993(Array taiArray) {
-        this.taiArray = taiArray;
-        index = taiArray.getIndex();
+    public TimeLocator_TAI1993Vector(Array timeVector) {
+        this.timeVector = timeVector;
+        index = this.timeVector.getIndex();
     }
 
     @Override
     public long getTimeFor(int x, int y) {
-        index.set(y, x);
-        final double taiSeconds = taiArray.getDouble(index);
-        return TimeUtils.tai1993ToUtc(taiSeconds).getTime();
+        index.set(y);
+        final double lineTaiSeconds = timeVector.getDouble(index);
+        return TimeUtils.tai1993ToUtc(lineTaiSeconds).getTime();
     }
 }

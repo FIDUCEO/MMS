@@ -1,4 +1,4 @@
-package com.bc.fiduceo.reader;
+package com.bc.fiduceo.reader.time;
 
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.junit.Test;

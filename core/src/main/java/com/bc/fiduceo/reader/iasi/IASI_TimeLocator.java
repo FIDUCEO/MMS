@@ -20,7 +20,7 @@
 
 package com.bc.fiduceo.reader.iasi;
 
-import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.time.TimeLocator;
 
 class IASI_TimeLocator implements TimeLocator {
 

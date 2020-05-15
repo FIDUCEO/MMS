@@ -8,10 +8,12 @@ import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.ReaderUtils;
-import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.time.TimeLocator;
 import com.bc.fiduceo.reader.snap.SNAP_Reader;
 import com.bc.fiduceo.reader.snap.VariableProxy;
+import com.bc.fiduceo.reader.time.TimeLocator_MicrosSince2000;
 import com.bc.fiduceo.util.NetCDFUtils;
+import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.engine_utilities.util.ZipUtils;
@@ -292,7 +294,7 @@ public class SlstrReader extends SNAP_Reader {
         for (int yRead = y - halfHeight; yRead <= y + halfHeight; yRead++) {
             int lineTimeSeconds = fillValue;
             if (yRead >= 0 && yRead < rasterSize.getNy()) {
-                final long lineTimeMillis = TimeLocator_MicrosSince2000.convertToUnixEpochMillis(subs_times[yRead]);
+                final long lineTimeMillis = TimeUtils.millisSince2000ToUnixEpoch(subs_times[yRead]);
                 lineTimeSeconds = (int) Math.round(lineTimeMillis * 0.001);
             }
 

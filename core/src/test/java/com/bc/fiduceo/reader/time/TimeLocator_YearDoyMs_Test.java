@@ -18,8 +18,9 @@
  *
  */
 
-package com.bc.fiduceo.reader;
+package com.bc.fiduceo.reader.time;
 
+import com.bc.fiduceo.reader.time.TimeLocator_YearDoyMs;
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.junit.Before;
 import org.junit.Test;

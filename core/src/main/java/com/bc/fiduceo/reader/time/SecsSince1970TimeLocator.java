@@ -1,8 +1,7 @@
-package com.bc.fiduceo.reader.insitu;
+package com.bc.fiduceo.reader.time;
 
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.reader.Reader;
-import com.bc.fiduceo.reader.TimeLocator;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
 

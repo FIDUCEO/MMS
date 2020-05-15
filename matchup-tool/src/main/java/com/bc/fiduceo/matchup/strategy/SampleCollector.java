@@ -27,7 +27,7 @@ import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.matchup.MatchupSet;
 import com.bc.fiduceo.matchup.SampleSet;
-import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.time.TimeLocator;
 import com.bc.fiduceo.tool.ToolContext;
 
 import java.awt.geom.Point2D;

@@ -11,13 +11,13 @@ import com.bc.fiduceo.hdf.HdfEOSUtil;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.*;
 import com.bc.fiduceo.reader.netcdf.NetCDFReader;
+import com.bc.fiduceo.reader.time.TimeLocator;
+import com.bc.fiduceo.reader.time.TimeLocator_TAI1993Scan;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
-import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Structure;
 import ucar.nc2.Variable;
-import ucar.nc2.util.IO;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,6 +31,8 @@ class MxD021KM_Reader extends NetCDFReader {
     private static final String REG_EX = "M([OY])D021KM.A\\d{7}.\\d{4}.\\d{3}.\\d{13}.hdf";
     private static final String GEOLOCATION_GROUP = "MODIS_SWATH_Type_L1B/Geolocation_Fields";
     private static final String DATA_GROUP = "MODIS_SWATH_Type_L1B/Data_Fields";
+    private static final String SWATH_METADATA = "Level_1B_Swath_Metadata";
+    private static final String SECTOR_START_TIME = "EV_Sector_Start_Time";
 
     private final GeometryFactory geometryFactory;
 
@@ -104,14 +106,14 @@ class MxD021KM_Reader extends NetCDFReader {
     @Override
     public TimeLocator getTimeLocator() throws IOException {
         if (timeLocator == null) {
-            final Variable level_1B_swath_metadata = netcdfFile.findVariable(null, "Level_1B_Swath_Metadata");
+            final Variable level_1B_swath_metadata = netcdfFile.findVariable(null, SWATH_METADATA);
             if (level_1B_swath_metadata == null) {
-                throw new IOException("Level_1B_Swath_Metadata not found.");
+                throw new IOException(SWATH_METADATA + " not found.");
             }
 
             final Structure l1SwathMeta = (Structure) level_1B_swath_metadata;
-            final Structure sectorStartTime = l1SwathMeta.select("EV_Sector_Start_Time");
-            final Variable startTime = sectorStartTime.findVariable("EV_Sector_Start_Time");
+            final Structure sectorStartTime = l1SwathMeta.select(SECTOR_START_TIME);
+            final Variable startTime = sectorStartTime.findVariable(SECTOR_START_TIME);
             final Array startTimeArray = startTime.read();
             // @todo 2 tb/tb read number of lines per scan from data 2020-05-14
             timeLocator = new TimeLocator_TAI1993Scan(startTimeArray, 10);

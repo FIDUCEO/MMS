@@ -21,7 +21,7 @@
 package com.bc.fiduceo.reader.snap;
 
 
-import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.time.TimeLocator;
 import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.Product;

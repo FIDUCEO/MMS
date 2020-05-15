@@ -1,4 +1,4 @@
-package com.bc.fiduceo.reader.slstr;
+package com.bc.fiduceo.reader.time;
 
 import org.junit.Test;
 
@@ -25,12 +25,5 @@ public class TimeLocator_MicrosSince2000Test {
 
         assertEquals(-1L, timeLocator.getTimeFor(0, -1));
         assertEquals(-1L, timeLocator.getTimeFor(0, 6));
-    }
-
-    @Test
-    public void testConvertToUnixEpochMillis() {
-        assertEquals(946684800000L, TimeLocator_MicrosSince2000.convertToUnixEpochMillis(0));
-        assertEquals(946684886400L, TimeLocator_MicrosSince2000.convertToUnixEpochMillis(86400000));
-        assertEquals(946694800000L, TimeLocator_MicrosSince2000.convertToUnixEpochMillis(10000000000L));
     }
 }

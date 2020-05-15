@@ -21,7 +21,7 @@
 package com.bc.fiduceo.reader.hirs;
 
 
-import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.time.TimeLocator;
 import ucar.ma2.Array;
 
 class HIRS_TimeLocator implements TimeLocator {

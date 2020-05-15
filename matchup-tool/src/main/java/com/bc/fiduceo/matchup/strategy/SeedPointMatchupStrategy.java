@@ -31,7 +31,7 @@ import com.bc.fiduceo.math.IntersectionEngine;
 import com.bc.fiduceo.math.TimeInfo;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderFactory;
-import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.time.TimeLocator;
 import com.bc.fiduceo.tool.ToolContext;
 import com.bc.fiduceo.util.SobolSamplingPointGenerator;
 import com.bc.fiduceo.util.TimeUtils;
