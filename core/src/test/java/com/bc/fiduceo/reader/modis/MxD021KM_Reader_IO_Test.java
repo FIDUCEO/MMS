@@ -12,10 +12,14 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import ucar.ma2.DataType;
+import ucar.ma2.InvalidRangeException;
+import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -166,6 +170,108 @@ public class MxD021KM_Reader_IO_Test {
 
         assertEquals(1308348603362L, timeLocator.getTimeFor(76, 204));
         assertEquals(1308348632905L, timeLocator.getTimeFor(145, 406));
+    }
+
+    @Test
+    public void testGetVariables_Terra() throws IOException, InvalidRangeException {
+        final File file = getTerraFile();
+
+        reader.open(file);
+        final List<Variable> variables = reader.getVariables();
+        assertEquals(94, variables.size());
+
+        Variable variable = variables.get(0);
+        assertEquals("Latitude", variable.getShortName());
+        assertEquals(DataType.FLOAT, variable.getDataType());
+
+        variable = variables.get(2);
+        assertEquals("EV_1KM_RefSB_ch01", variable.getShortName());
+        assertEquals(DataType.USHORT, variable.getDataType());
+
+        variable = variables.get(14);
+        assertEquals("EV_1KM_RefSB_ch13", variable.getShortName());
+        assertEquals(DataType.USHORT, variable.getDataType());
+
+        variable = variables.get(18);
+        assertEquals("EV_1KM_RefSB_Uncert_Indexes_ch02", variable.getShortName());
+        assertEquals(DataType.UBYTE, variable.getDataType());
+
+        variable = variables.get(34);
+        assertEquals("EV_1KM_Emissive_ch03", variable.getShortName());
+        assertEquals(DataType.USHORT, variable.getDataType());
+
+        variable = variables.get(48);
+        assertEquals("EV_1KM_Emissive_Uncert_Indexes_ch01", variable.getShortName());
+        assertEquals(DataType.UBYTE, variable.getDataType());
+
+        variable = variables.get(65);
+        assertEquals("EV_250_Aggr1km_RefSB_ch02", variable.getShortName());
+        assertEquals(DataType.USHORT, variable.getDataType());
+
+        variable = variables.get(69);
+        assertEquals("EV_250_Aggr1km_RefSB_Samples_Used_ch02", variable.getShortName());
+        assertEquals(DataType.BYTE, variable.getDataType());
+
+        variable = variables.get(72);
+        assertEquals("EV_500_Aggr1km_RefSB_ch03", variable.getShortName());
+        assertEquals(DataType.USHORT, variable.getDataType());
+
+        variable = variables.get(78);
+        assertEquals("EV_500_Aggr1km_RefSB_Uncert_Indexes_ch04", variable.getShortName());
+        assertEquals(DataType.UBYTE, variable.getDataType());
+
+        // @todo 1 tb/tb continue here 2020-05-15
+    }
+
+    @Test
+    public void testGetVariables_Aqua() throws IOException, InvalidRangeException {
+        final File file = getAquaFile();
+
+        reader.open(file);
+        final List<Variable> variables = reader.getVariables();
+        assertEquals(94, variables.size());
+
+        Variable variable = variables.get(1);
+        assertEquals("Longitude", variable.getShortName());
+        assertEquals(DataType.FLOAT, variable.getDataType());
+
+        variable = variables.get(3);
+        assertEquals("EV_1KM_RefSB_ch02", variable.getShortName());
+        assertEquals(DataType.USHORT, variable.getDataType());
+
+        variable = variables.get(15);
+        assertEquals("EV_1KM_RefSB_ch14", variable.getShortName());
+        assertEquals(DataType.USHORT, variable.getDataType());
+
+        variable = variables.get(19);
+        assertEquals("EV_1KM_RefSB_Uncert_Indexes_ch03", variable.getShortName());
+        assertEquals(DataType.UBYTE, variable.getDataType());
+
+        variable = variables.get(35);
+        assertEquals("EV_1KM_Emissive_ch04", variable.getShortName());
+        assertEquals(DataType.USHORT, variable.getDataType());
+
+        variable = variables.get(49);
+        assertEquals("EV_1KM_Emissive_Uncert_Indexes_ch02", variable.getShortName());
+        assertEquals(DataType.UBYTE, variable.getDataType());
+
+        variable = variables.get(66);
+        assertEquals("EV_250_Aggr1km_RefSB_Uncert_Indexes_ch01", variable.getShortName());
+        assertEquals(DataType.UBYTE, variable.getDataType());
+
+        variable = variables.get(70);
+        assertEquals("EV_500_Aggr1km_RefSB_ch01", variable.getShortName());
+        assertEquals(DataType.USHORT, variable.getDataType());
+
+        variable = variables.get(73);
+        assertEquals("EV_500_Aggr1km_RefSB_ch04", variable.getShortName());
+        assertEquals(DataType.USHORT, variable.getDataType());
+
+        variable = variables.get(79);
+        assertEquals("EV_500_Aggr1km_RefSB_Uncert_Indexes_ch05", variable.getShortName());
+        assertEquals(DataType.UBYTE, variable.getDataType());
+
+        // @todo 1 tb/tb continue here 2020-05-15
     }
 
     private File getTerraFile() throws IOException {

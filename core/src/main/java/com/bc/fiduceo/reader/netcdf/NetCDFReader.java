@@ -124,6 +124,11 @@ public abstract class NetCDFReader implements Reader {
         addChannelVariables(result, variable, numChannels, channel_dimension_index, origin);
     }
 
+    protected void addLayered3DVariables(List<Variable> result, Variable variable, int numChannels, int channel_dimension_index, String variable_base_name) throws InvalidRangeException {
+        final int[] origin = {0, 0, 0};
+        addChannelVariables(result, variable, numChannels, channel_dimension_index, origin, variable_base_name);
+    }
+
     protected void addChannelVectorVariables(List<Variable> result, Variable variable, int numChannels, int channel_dimension_index) throws InvalidRangeException {
         final int[] origin = {0, 0};
         addChannelVariables(result, variable, numChannels, channel_dimension_index, origin);
@@ -131,6 +136,10 @@ public abstract class NetCDFReader implements Reader {
 
     private void addChannelVariables(List<Variable> result, Variable variable, int numChannels, int channel_dimension_index, int[] origin) throws InvalidRangeException {
         final String variableName = variable.getFullName();
+        addChannelVariables(result, variable, numChannels, channel_dimension_index, origin, variableName);
+    }
+
+    private void addChannelVariables(List<Variable> result, Variable variable, int numChannels, int channel_dimension_index, int[] origin, String variableName) throws InvalidRangeException {
         final int[] shape = variable.getShape();
         shape[channel_dimension_index] = 1;
 

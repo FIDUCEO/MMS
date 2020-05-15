@@ -21,6 +21,7 @@ import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.bc.fiduceo.reader.modis.ModisConstants.LATITUDE_VAR_NAME;
@@ -84,8 +85,52 @@ class MxD021KM_Reader extends NetCDFReader {
     }
 
     @Override
-    public List<Variable> getVariables() throws InvalidRangeException, IOException {
-        return null;
+    public List<Variable> getVariables() throws InvalidRangeException {
+        final List<Variable> variablesInFile = netcdfFile.getVariables();
+
+        final ArrayList<Variable> exportVariables = new ArrayList<>();
+        for (Variable variable : variablesInFile) {
+            final String variableName = variable.getShortName();
+            if (variableName.contains("Metadata") ||
+                    variableName.contains("Band_") ||
+                    variableName.contains("Noise_in_Thermal_Detectors") ||
+                    variableName.contains("Change_in_relative_responses_of_thermal_detectors") ||
+                    variableName.contains("DC_Restore_Change_for_Thermal_Bands") ||
+                    variableName.contains("DC_Restore_Change_for_Reflective_") ||
+                    variableName.contains("nscans") ||
+                    variableName.contains("Max_EV_frames")) {
+                continue;
+            }
+
+            if (variableName.contains("EV_1KM_RefSB")) {
+                addLayered3DVariables(exportVariables, variable, 15, 0, variableName);
+                continue;
+            }
+
+            if (variableName.contains("EV_1KM_Emissive")) {
+                addLayered3DVariables(exportVariables, variable, 16, 0, variableName);
+                continue;
+            }
+
+            if (variableName.contains("EV_250_Aggr1km_RefSB")) {
+                addLayered3DVariables(exportVariables, variable, 2, 0, variableName);
+                continue;
+            }
+
+            if (variableName.contains("EV_500_Aggr1km_RefSB")) {
+                addLayered3DVariables(exportVariables, variable, 5, 0, variableName);
+                continue;
+            }
+
+            // - tie point variables
+            // Latitude, Longitude, Height, SensorZenith, SensorAzimuth, Range, SolarZenith, SolarAzimuth
+            // - special tiepoint
+            // gflags
+
+            exportVariables.add(variable);
+        }
+
+        return exportVariables;
     }
 
     @Override
