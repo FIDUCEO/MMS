@@ -185,23 +185,23 @@ public class MxD021KM_Reader_IO_Test {
         assertEquals(DataType.FLOAT, variable.getDataType());
 
         variable = variables.get(2);
-        assertEquals("EV_1KM_RefSB_ch01", variable.getShortName());
+        assertEquals("EV_1KM_RefSB_ch08", variable.getShortName());
         assertEquals(DataType.USHORT, variable.getDataType());
 
         variable = variables.get(14);
-        assertEquals("EV_1KM_RefSB_ch13", variable.getShortName());
+        assertEquals("EV_1KM_RefSB_ch18", variable.getShortName());
         assertEquals(DataType.USHORT, variable.getDataType());
 
         variable = variables.get(18);
-        assertEquals("EV_1KM_RefSB_Uncert_Indexes_ch02", variable.getShortName());
+        assertEquals("EV_1KM_RefSB_Uncert_Indexes_ch09", variable.getShortName());
         assertEquals(DataType.UBYTE, variable.getDataType());
 
         variable = variables.get(34);
-        assertEquals("EV_1KM_Emissive_ch03", variable.getShortName());
+        assertEquals("EV_1KM_Emissive_ch22", variable.getShortName());
         assertEquals(DataType.USHORT, variable.getDataType());
 
         variable = variables.get(48);
-        assertEquals("EV_1KM_Emissive_Uncert_Indexes_ch01", variable.getShortName());
+        assertEquals("EV_1KM_Emissive_Uncert_Indexes_ch20", variable.getShortName());
         assertEquals(DataType.UBYTE, variable.getDataType());
 
         variable = variables.get(65);
@@ -213,11 +213,11 @@ public class MxD021KM_Reader_IO_Test {
         assertEquals(DataType.BYTE, variable.getDataType());
 
         variable = variables.get(72);
-        assertEquals("EV_500_Aggr1km_RefSB_ch03", variable.getShortName());
+        assertEquals("EV_500_Aggr1km_RefSB_ch05", variable.getShortName());
         assertEquals(DataType.USHORT, variable.getDataType());
 
         variable = variables.get(78);
-        assertEquals("EV_500_Aggr1km_RefSB_Uncert_Indexes_ch04", variable.getShortName());
+        assertEquals("EV_500_Aggr1km_RefSB_Uncert_Indexes_ch06", variable.getShortName());
         assertEquals(DataType.UBYTE, variable.getDataType());
 
         // @todo 1 tb/tb continue here 2020-05-15
@@ -236,23 +236,23 @@ public class MxD021KM_Reader_IO_Test {
         assertEquals(DataType.FLOAT, variable.getDataType());
 
         variable = variables.get(3);
-        assertEquals("EV_1KM_RefSB_ch02", variable.getShortName());
+        assertEquals("EV_1KM_RefSB_ch09", variable.getShortName());
         assertEquals(DataType.USHORT, variable.getDataType());
 
-        variable = variables.get(15);
-        assertEquals("EV_1KM_RefSB_ch14", variable.getShortName());
+        variable = variables.get(10);
+        assertEquals("EV_1KM_RefSB_ch14H", variable.getShortName());
         assertEquals(DataType.USHORT, variable.getDataType());
 
         variable = variables.get(19);
-        assertEquals("EV_1KM_RefSB_Uncert_Indexes_ch03", variable.getShortName());
+        assertEquals("EV_1KM_RefSB_Uncert_Indexes_ch10", variable.getShortName());
         assertEquals(DataType.UBYTE, variable.getDataType());
 
         variable = variables.get(35);
-        assertEquals("EV_1KM_Emissive_ch04", variable.getShortName());
+        assertEquals("EV_1KM_Emissive_ch23", variable.getShortName());
         assertEquals(DataType.USHORT, variable.getDataType());
 
         variable = variables.get(49);
-        assertEquals("EV_1KM_Emissive_Uncert_Indexes_ch02", variable.getShortName());
+        assertEquals("EV_1KM_Emissive_Uncert_Indexes_ch21", variable.getShortName());
         assertEquals(DataType.UBYTE, variable.getDataType());
 
         variable = variables.get(66);
@@ -260,15 +260,15 @@ public class MxD021KM_Reader_IO_Test {
         assertEquals(DataType.UBYTE, variable.getDataType());
 
         variable = variables.get(70);
-        assertEquals("EV_500_Aggr1km_RefSB_ch01", variable.getShortName());
+        assertEquals("EV_500_Aggr1km_RefSB_ch03", variable.getShortName());
         assertEquals(DataType.USHORT, variable.getDataType());
 
         variable = variables.get(73);
-        assertEquals("EV_500_Aggr1km_RefSB_ch04", variable.getShortName());
+        assertEquals("EV_500_Aggr1km_RefSB_ch06", variable.getShortName());
         assertEquals(DataType.USHORT, variable.getDataType());
 
         variable = variables.get(79);
-        assertEquals("EV_500_Aggr1km_RefSB_Uncert_Indexes_ch05", variable.getShortName());
+        assertEquals("EV_500_Aggr1km_RefSB_Uncert_Indexes_ch07", variable.getShortName());
         assertEquals(DataType.UBYTE, variable.getDataType());
 
         // @todo 1 tb/tb continue here 2020-05-15

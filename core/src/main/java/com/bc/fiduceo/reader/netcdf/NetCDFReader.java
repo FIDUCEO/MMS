@@ -124,9 +124,14 @@ public abstract class NetCDFReader implements Reader {
         addChannelVariables(result, variable, numChannels, channel_dimension_index, origin);
     }
 
-    protected void addLayered3DVariables(List<Variable> result, Variable variable, int numChannels, int channel_dimension_index, String variable_base_name) throws InvalidRangeException {
+    protected void addLayered3DVariables(List<Variable> result, Variable variable, int numChannels, String variable_base_name) throws InvalidRangeException {
         final int[] origin = {0, 0, 0};
-        addChannelVariables(result, variable, numChannels, channel_dimension_index, origin, variable_base_name);
+        addChannelVariables(result, variable, numChannels, 0, origin, variable_base_name);
+    }
+
+    protected void addLayered3DVariables(List<Variable> result, Variable variable, int numChannels, String variable_base_name, LayerExtension layerExtension) throws InvalidRangeException {
+        final int[] origin = {0, 0, 0};
+        addChannelVariables(result, variable, numChannels, 0, origin, variable_base_name, layerExtension);
     }
 
     protected void addChannelVectorVariables(List<Variable> result, Variable variable, int numChannels, int channel_dimension_index) throws InvalidRangeException {
@@ -140,6 +145,11 @@ public abstract class NetCDFReader implements Reader {
     }
 
     private void addChannelVariables(List<Variable> result, Variable variable, int numChannels, int channel_dimension_index, int[] origin, String variableName) throws InvalidRangeException {
+        final StandardLayerExtension layerExtension = new StandardLayerExtension();
+        addChannelVariables(result, variable, numChannels, channel_dimension_index, origin, variableName, layerExtension);
+    }
+
+    private void addChannelVariables(List<Variable> result, Variable variable, int numChannels, int channel_dimension_index, int[] origin, String variableName, LayerExtension layerExtension) throws InvalidRangeException {
         final int[] shape = variable.getShape();
         shape[channel_dimension_index] = 1;
 
@@ -147,7 +157,7 @@ public abstract class NetCDFReader implements Reader {
         for (int channel = 0; channel < numChannels; channel++) {
             final Section section = new Section(origin, shape);
             final Variable channelVariable = variable.section(section);
-            final String channelVariableName = variableBaseName + CHANNEL_INDEX_FORMAT.format(channel + 1);
+            final String channelVariableName = variableBaseName + layerExtension.getExtension(channel);
             channelVariable.setName(channelVariableName);
             result.add(channelVariable);
             origin[channel_dimension_index]++;

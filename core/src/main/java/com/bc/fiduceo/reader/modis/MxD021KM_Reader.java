@@ -11,6 +11,7 @@ import com.bc.fiduceo.hdf.HdfEOSUtil;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.*;
 import com.bc.fiduceo.reader.netcdf.NetCDFReader;
+import com.bc.fiduceo.reader.netcdf.StandardLayerExtension;
 import com.bc.fiduceo.reader.time.TimeLocator;
 import com.bc.fiduceo.reader.time.TimeLocator_TAI1993Scan;
 import ucar.ma2.Array;
@@ -55,6 +56,7 @@ class MxD021KM_Reader extends NetCDFReader {
     public void close() throws IOException {
         productSize = null;
         timeLocator = null;
+        super.close();
     }
 
     @Override
@@ -103,28 +105,27 @@ class MxD021KM_Reader extends NetCDFReader {
             }
 
             if (variableName.contains("EV_1KM_RefSB")) {
-                addLayered3DVariables(exportVariables, variable, 15, 0, variableName);
+                addLayered3DVariables(exportVariables, variable, 15, variableName, new ModisL1ReflectiveExtension());
                 continue;
             }
 
             if (variableName.contains("EV_1KM_Emissive")) {
-                addLayered3DVariables(exportVariables, variable, 16, 0, variableName);
+                addLayered3DVariables(exportVariables, variable, 16, variableName, new ModisL1EmissiveExtension());
                 continue;
             }
 
             if (variableName.contains("EV_250_Aggr1km_RefSB")) {
-                addLayered3DVariables(exportVariables, variable, 2, 0, variableName);
+                addLayered3DVariables(exportVariables, variable, 2, variableName, new StandardLayerExtension());
                 continue;
             }
 
             if (variableName.contains("EV_500_Aggr1km_RefSB")) {
-                addLayered3DVariables(exportVariables, variable, 5, 0, variableName);
+                addLayered3DVariables(exportVariables, variable, 5,variableName, new StandardLayerExtension(2));
                 continue;
             }
 
-            // - tie point variables
+            // - MxD03 Variables
             // Latitude, Longitude, Height, SensorZenith, SensorAzimuth, Range, SolarZenith, SolarAzimuth
-            // - special tiepoint
             // gflags
 
             exportVariables.add(variable);
