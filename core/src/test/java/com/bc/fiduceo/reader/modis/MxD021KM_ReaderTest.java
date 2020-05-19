@@ -1,6 +1,7 @@
 package com.bc.fiduceo.reader.modis;
 
 import com.bc.fiduceo.reader.ReaderContext;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.regex.Matcher;
@@ -12,11 +13,17 @@ import static org.junit.Assert.assertTrue;
 
 public class MxD021KM_ReaderTest {
 
+    private MxD021KM_Reader reader;
+
+    @Before
+    public void setUp() {
+        reader = new MxD021KM_Reader(new ReaderContext());
+    }
+
     @Test
     public void testGetRegEx() {
         final String expected = "M([OY])D021KM.A\\d{7}.\\d{4}.\\d{3}.\\d{13}.hdf";
 
-        final MxD021KM_Reader reader = new MxD021KM_Reader(new ReaderContext()); // we do not need a geometry factory for this test tb 2020-05-13
         final String readerRexExp = reader.getRegEx();
         assertEquals(expected, readerRexExp);
 
@@ -43,15 +50,41 @@ public class MxD021KM_ReaderTest {
 
     @Test
     public void testGetLongitudeVariableName() {
-        final MxD021KM_Reader reader = new MxD021KM_Reader(new ReaderContext()); // we do not need a geometry factory for this test tb 2020-05-13
-
         assertEquals("Longitude", reader.getLongitudeVariableName());
     }
 
     @Test
     public void testGetLatitudeVariableName() {
-        final MxD021KM_Reader reader = new MxD021KM_Reader(new ReaderContext()); // we do not need a geometry factory for this test tb 2020-05-13
-
         assertEquals("Latitude", reader.getLatitudeVariableName());
+    }
+
+    @Test
+    public void testExtractYMDFromFileName() {
+        int[] ymd = reader.extractYearMonthDayFromFilename("MYD021KM.A2011168.2210.061.2018032001033.hdf");
+        assertEquals(2011, ymd[0]);
+        assertEquals(6, ymd[1]);
+        assertEquals(17, ymd[2]);
+
+        ymd = reader.extractYearMonthDayFromFilename("MOD021KM.A2003142.1445.061.2017194130122.hdf");
+        assertEquals(2003, ymd[0]);
+        assertEquals(5, ymd[1]);
+        assertEquals(22, ymd[2]);
+    }
+
+    @Test
+    public void testGetLayerIndex_250m() {
+        assertEquals(0, MxD021KM_Reader.getLayerIndex("EV_250_Aggr1km_RefSB_ch01"));
+        assertEquals(1, MxD021KM_Reader.getLayerIndex("EV_250_Aggr1km_RefSB_Uncert_Indexes_ch02"));
+    }
+
+    @Test
+    public void testGetLayerIndex_500m() {
+        assertEquals(2, MxD021KM_Reader.getLayerIndex("EV_500_Aggr1km_RefSB_Samples_Used_ch05"));
+        assertEquals(4, MxD021KM_Reader.getLayerIndex("EV_500_Aggr1km_RefSB_Uncert_Indexes_ch07"));
+    }
+
+    @Test
+    public void testGetLayerIndex_unlayeredVariable() {
+        assertEquals(0, MxD021KM_Reader.getLayerIndex("an_arbitrary_variable_without_layers"));
     }
 }

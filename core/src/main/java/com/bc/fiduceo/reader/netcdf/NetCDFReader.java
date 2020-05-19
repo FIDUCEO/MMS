@@ -1,11 +1,11 @@
 package com.bc.fiduceo.reader.netcdf;
 
+import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.reader.ArrayCache;
 import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.time.TimeLocator;
 import com.bc.fiduceo.util.NetCDFUtils;
-import ucar.ma2.Array;
-import ucar.ma2.InvalidRangeException;
-import ucar.ma2.Section;
+import ucar.ma2.*;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFiles;
 import ucar.nc2.Variable;
@@ -162,5 +162,37 @@ public abstract class NetCDFReader implements Reader {
             result.add(channelVariable);
             origin[channel_dimension_index]++;
         }
+    }
+
+    protected Array acquisitionTimeFromTimeLocator(int y, Interval interval) throws IOException {
+        final int height = interval.getY();
+        final int width = interval.getX();
+        final int y_offset = y - height / 2;
+        int[] shape = new int[]{height, width};
+
+        final TimeLocator timeLocator = getTimeLocator();
+        final int pHeight = getProductSize().getNy();
+
+        final Array acquisitionTime = Array.factory(DataType.INT, shape);
+        final Index index = acquisitionTime.getIndex();
+
+        final int acquisitionTimeFillValue = getDefaultFillValue(int.class).intValue();
+
+        for (int ya = 0; ya < height; ya++) {
+            final int yRead = y_offset + ya;
+            final int lineTimeInSeconds;
+            if (yRead < 0 || yRead >= pHeight) {
+                lineTimeInSeconds = acquisitionTimeFillValue;
+            } else {
+                final long lineTime = timeLocator.getTimeFor(0, yRead);
+                lineTimeInSeconds = (int) (lineTime / 1000);
+            }
+
+            for (int xa = 0; xa < width; xa++) {
+                index.set(ya, xa);
+                acquisitionTime.setInt(index, lineTimeInSeconds);
+            }
+        }
+        return acquisitionTime;
     }
 }

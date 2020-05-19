@@ -14,6 +14,9 @@ import com.bc.fiduceo.reader.netcdf.NetCDFReader;
 import com.bc.fiduceo.reader.netcdf.StandardLayerExtension;
 import com.bc.fiduceo.reader.time.TimeLocator;
 import com.bc.fiduceo.reader.time.TimeLocator_TAI1993Scan;
+import com.bc.fiduceo.util.NetCDFUtils;
+import com.bc.fiduceo.util.TimeUtils;
+import com.sun.org.apache.regexp.internal.RE;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.InvalidRangeException;
@@ -23,6 +26,8 @@ import ucar.nc2.Variable;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import static com.bc.fiduceo.reader.modis.ModisConstants.LATITUDE_VAR_NAME;
@@ -50,6 +55,8 @@ class MxD021KM_Reader extends NetCDFReader {
     @Override
     public void open(File file) throws IOException {
         super.open(file);
+        final int[] ymd = extractYearMonthDayFromFilename(file.getName());
+
     }
 
     @Override
@@ -120,7 +127,7 @@ class MxD021KM_Reader extends NetCDFReader {
             }
 
             if (variableName.contains("EV_500_Aggr1km_RefSB")) {
-                addLayered3DVariables(exportVariables, variable, 5,variableName, new StandardLayerExtension(2));
+                addLayered3DVariables(exportVariables, variable, 5, variableName, new StandardLayerExtension(2));
                 continue;
             }
 
@@ -170,17 +177,46 @@ class MxD021KM_Reader extends NetCDFReader {
 
     @Override
     public int[] extractYearMonthDayFromFilename(String fileName) {
-        throw new IllegalStateException("not implemented");
+        final String yearString = fileName.substring(10, 14);
+        final String doyString = fileName.substring(14, 17);
+        final String doyPattern = yearString + "-" + doyString;
+
+        final Date date = TimeUtils.parseDOYBeginOfDay(doyPattern);
+        final Calendar utcCalendar = TimeUtils.getUTCCalendar();
+        utcCalendar.setTime(date);
+
+        final int[] ymd = new int[3];
+        ymd[0] = utcCalendar.get(Calendar.YEAR);
+        ymd[1] = utcCalendar.get(Calendar.MONTH) + 1;
+        ymd[2] = utcCalendar.get(Calendar.DAY_OF_MONTH);
+        return ymd;
     }
 
     @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
-        throw new IllegalStateException("not implemented");
+       // @todo 1 tb/tb add distinction for MOD03 data and the sensor state variables
+        final String fullVariableName = ReaderUtils.stripChannelSuffix(variableName);
+        Array array = arrayCache.get(DATA_GROUP, fullVariableName);
+        final Number fillValue = arrayCache.getNumberAttributeValue(NetCDFUtils.CF_FILL_VALUE_NAME, DATA_GROUP, fullVariableName);
+        if (fillValue == null) {
+            throw new RuntimeException("Fill value for not found for variable: " + variableName);
+        }
+
+        final int rank = array.getRank();
+        if (rank == 3) {
+            final int layerIndex = getLayerIndex(variableName);
+            final int[] shape = array.getShape();
+            shape[0] = 1;   // we only want one z-layer
+            final int[] offsets = {layerIndex, 0, 0};
+            array = NetCDFUtils.section(array, offsets, shape);
+        }
+
+        return RawDataReader.read(centerX, centerY, interval, fillValue, array, getProductSize());
     }
 
     @Override
-    public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException {
-        throw new IllegalStateException("not implemented");
+    public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException {
+        return (ArrayInt.D2) acquisitionTimeFromTimeLocator(y, interval);
     }
 
     @Override
@@ -191,6 +227,26 @@ class MxD021KM_Reader extends NetCDFReader {
     @Override
     public String getLatitudeVariableName() {
         return LATITUDE_VAR_NAME;
+    }
+
+    // package access for testing only tb 2020-05-19
+    static int getLayerIndex(String variableName) {
+        final int splitIndex = variableName.lastIndexOf("_ch");
+        if (splitIndex < 0) {
+            return 0;
+        }
+
+        final String channelKey = variableName.substring(splitIndex + 3);
+        if (channelKey.contains("H") || channelKey.contains("L")) {
+            // special treatment for 1km reflective data
+            throw new IllegalStateException("Implement me!");
+        }
+
+        int nominalLayerIndex = Integer.parseInt(channelKey) - 1;
+        if (variableName.contains("500_Aggr1km")) {
+            nominalLayerIndex -= 2;
+        }
+        return nominalLayerIndex;
     }
 
     private void extractGeometries(AcquisitionInfo acquisitionInfo) throws IOException {

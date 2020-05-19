@@ -1,17 +1,22 @@
 package com.bc.fiduceo.reader.modis;
 
 import com.bc.fiduceo.IOTestRunner;
+import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
+import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.time.TimeLocator;
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import ucar.ma2.Array;
+import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
@@ -272,6 +277,145 @@ public class MxD021KM_Reader_IO_Test {
         assertEquals(DataType.UBYTE, variable.getDataType());
 
         // @todo 1 tb/tb continue here 2020-05-15
+    }
+
+    @Test
+    public void testReadAcquisitionTime_Terra() throws IOException {
+        final File file = getTerraFile();
+
+        reader.open(file);
+        final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(35, 109, new Interval(3, 5));
+        assertEquals(15, acquisitionTime.getSize());
+
+        // one scan
+        NCTestUtils.assertValueAt(1053614689, 0, 0, acquisitionTime);
+        NCTestUtils.assertValueAt(1053614689, 1, 0, acquisitionTime);
+        NCTestUtils.assertValueAt(1053614689, 1, 1, acquisitionTime);
+
+        // next scan
+        NCTestUtils.assertValueAt(1053614690, 1, 3, acquisitionTime);
+        NCTestUtils.assertValueAt(1053614690, 2, 3, acquisitionTime);
+        NCTestUtils.assertValueAt(1053614690, 1, 4, acquisitionTime);
+    }
+
+    @Test
+    public void testReadAcquisitionTime_Aqua() throws IOException {
+        final File file = getAquaFile();
+
+        reader.open(file);
+        final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(36, 119, new Interval(3, 5));
+        assertEquals(15, acquisitionTime.getSize());
+
+        // one scan
+        NCTestUtils.assertValueAt(1308348590, 0, 0, acquisitionTime);
+        NCTestUtils.assertValueAt(1308348590, 1, 0, acquisitionTime);
+        NCTestUtils.assertValueAt(1308348590, 1, 1, acquisitionTime);
+
+        // next scan
+        NCTestUtils.assertValueAt(1308348591, 1, 3, acquisitionTime);
+        NCTestUtils.assertValueAt(1308348591, 2, 3, acquisitionTime);
+        NCTestUtils.assertValueAt(1308348591, 1, 4, acquisitionTime);
+    }
+
+    @Test
+    public void testReadAcquisitionTime_Terra_outside_top() throws IOException {
+        // fillValue see {@link com.bc.fiduceo.reader.Reader#readAcquisitionTime(int, int, Interval)}
+        final int fillValue = NetCDFUtils.getDefaultFillValue(int.class).intValue();
+
+        final File file = getTerraFile();
+        reader.open(file);
+
+        final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(37, 1, new Interval(3, 15));
+        assertEquals(45, acquisitionTime.getSize());
+
+        // outside
+        NCTestUtils.assertValueAt(fillValue, 0, 0, acquisitionTime);
+        NCTestUtils.assertValueAt(fillValue, 1, 1, acquisitionTime);
+        NCTestUtils.assertValueAt(fillValue, 2, 5, acquisitionTime);
+
+        // first scan
+        NCTestUtils.assertValueAt(1053614674, 0, 6, acquisitionTime);
+        NCTestUtils.assertValueAt(1053614674, 1, 12, acquisitionTime);
+        NCTestUtils.assertValueAt(1053614674, 2, 14, acquisitionTime);
+    }
+
+    @Test
+    public void testReadAcquisitionTime_Aqua_outside_bottom() throws IOException {
+        // fillValue see {@link com.bc.fiduceo.reader.Reader#readAcquisitionTime(int, int, Interval)}
+        final int fillValue = NetCDFUtils.getDefaultFillValue(int.class).intValue();
+
+        final File file = getAquaFile();
+        reader.open(file);
+        final int ny = reader.getProductSize().getNy();
+
+        final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(36, ny - 2, new Interval(5, 5));
+        assertEquals(25, acquisitionTime.getSize());
+
+        // last scan
+        NCTestUtils.assertValueAt(1308348872, 3, 3, acquisitionTime);
+        NCTestUtils.assertValueAt(1308348872, 4, 3, acquisitionTime);
+
+        // outside
+        NCTestUtils.assertValueAt(fillValue, 3, 4, acquisitionTime);
+        NCTestUtils.assertValueAt(fillValue, 4, 4, acquisitionTime);
+    }
+
+    @Test
+    public void testReadRaw_250m_Aqua() throws IOException, InvalidRangeException {
+        final File file = getAquaFile();
+
+        reader.open(file);
+
+        final Array array = reader.readRaw(46, 89, new Interval(3, 3), "EV_250_Aggr1km_RefSB_ch02");
+        NCTestUtils.assertValueAt(7035, 0, 0, array);
+        NCTestUtils.assertValueAt(6161, 1, 0, array);
+
+        NCTestUtils.assertValueAt(6967, 1, 1, array);
+        NCTestUtils.assertValueAt(7867, 2, 1, array);
+    }
+
+    @Test
+    public void testReadRaw_250m_Terra_top_edge() throws IOException, InvalidRangeException {
+        final File file = getTerraFile();
+
+        reader.open(file);
+
+        final Array array = reader.readRaw(47, 0, new Interval(3, 3), "EV_250_Aggr1km_RefSB_Uncert_Indexes_ch01");
+        NCTestUtils.assertValueAt(-1, 0, 0, array);
+        NCTestUtils.assertValueAt(-1, 1, 0, array);
+
+        NCTestUtils.assertValueAt(-1, 1, 1, array);
+        NCTestUtils.assertValueAt(-1, 2, 1, array);
+    }
+
+    @Test
+    public void testReadRaw_500m_Terra() throws IOException, InvalidRangeException {
+        final File file = getTerraFile();
+
+        reader.open(file);
+
+        final Array array = reader.readRaw(48, 92, new Interval(3, 3), "EV_500_Aggr1km_RefSB_Samples_Used_ch05");
+        NCTestUtils.assertValueAt(-1, 0, 0, array);
+        NCTestUtils.assertValueAt(-1, 1, 0, array);
+
+        NCTestUtils.assertValueAt(-1, 1, 1, array);
+        NCTestUtils.assertValueAt(-1, 2, 1, array);
+    }
+
+    @Test
+    public void testReadRaw_500m_Aqua_left_edge() throws IOException, InvalidRangeException {
+        final File file = getAquaFile();
+
+        reader.open(file);
+
+        final Array array = reader.readRaw(1353, 92, new Interval(3, 3), "EV_500_Aggr1km_RefSB_Uncert_Indexes_ch06");
+        NCTestUtils.assertValueAt(1, 0, 0, array);
+        NCTestUtils.assertValueAt(1, 1, 0, array);
+        NCTestUtils.assertValueAt(-1, 2, 0, array);
+
+        NCTestUtils.assertValueAt(15, 0, 1, array);
+        NCTestUtils.assertValueAt(15, 1, 1, array);
+        NCTestUtils.assertValueAt(-1, 2, 1, array);
     }
 
     private File getTerraFile() throws IOException {
