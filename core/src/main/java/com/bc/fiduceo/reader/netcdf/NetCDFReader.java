@@ -50,7 +50,7 @@ public abstract class NetCDFReader implements Reader {
         return NetCDFUtils.getDefaultFillValue(array);
     }
 
-    private double getScaleFactor(String variableName, String attributeName) throws IOException {
+    protected double getScaleFactor(String variableName, String attributeName) throws IOException {
         return getScaleFactor(variableName, attributeName, true);
     }
 

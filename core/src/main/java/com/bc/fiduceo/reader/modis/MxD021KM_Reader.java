@@ -19,6 +19,8 @@ import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.InvalidRangeException;
+import ucar.ma2.MAMath;
+import ucar.nc2.Attribute;
 import ucar.nc2.Structure;
 import ucar.nc2.Variable;
 
@@ -49,6 +51,71 @@ class MxD021KM_Reader extends NetCDFReader {
         geometryFactory = readerContext.getGeometryFactory();
         productSize = null;
         timeLocator = null;
+    }
+
+    // package access for testing only tb 2020-05-19
+    static int getLayerIndex(String variableName) {
+        final int splitIndex = variableName.lastIndexOf("_ch");
+        if (splitIndex < 0) {
+            return 0;
+        }
+
+        final String channelKey = variableName.substring(splitIndex + 3);
+        if (variableName.contains("1KM_RefSB")) {
+            return getLayerIndex1kmRefl(channelKey);
+        }
+
+        int nominalLayerIndex = Integer.parseInt(channelKey) - 1;
+        if (variableName.contains("500_Aggr1km")) {
+            nominalLayerIndex -= 2;
+        } else if (variableName.contains("1KM_Emissive")) {
+            if (nominalLayerIndex <= 24) {
+                nominalLayerIndex -= 19;
+            } else {
+                nominalLayerIndex -= 20;
+            }
+
+        }
+        return nominalLayerIndex;
+    }
+
+    private static int getLayerIndex1kmRefl(String channelKey) {
+        int offset = 8;
+        if (channelKey.contains("H") || channelKey.contains("L")) {
+            if (channelKey.contains("13H") || channelKey.contains("14L")) {
+                offset = 7;
+            } else if (channelKey.contains("14H")) {
+                offset = 6;
+            }
+            channelKey = channelKey.substring(0, 2);
+        }
+        final int channelIndex = Integer.parseInt(channelKey);
+        if (channelIndex == 26) {
+            offset = 12;
+        } else if (channelIndex >= 15) {
+            offset = 6;
+        }
+        return channelIndex - offset;
+    }
+
+    // package access for testing only tb 2020-05-20
+    static String getScaleFactorAttributeName(String variableName) {
+        if (variableName.contains("RefSB_ch") || variableName.contains("Emissive_ch")) {
+            return "radiance_scales";
+        } else if (variableName.contains("Indexes_ch")) {
+            return "scaling_factor";
+        }
+
+        return null;
+    }
+
+    // package access for testing only tb 2020-05-20
+    static String getOffsetAttributeName(String variableName) {
+        if (variableName.contains("RefSB_ch")|| variableName.contains("Emissive_ch")) {
+            return "radiance_offsets";
+        }
+
+        return null;
     }
 
     @Override
@@ -88,11 +155,6 @@ class MxD021KM_Reader extends NetCDFReader {
     }
 
     @Override
-    public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
-        return null;
-    }
-
-    @Override
     public List<Variable> getVariables() throws InvalidRangeException {
         final List<Variable> variablesInFile = netcdfFile.getVariables();
 
@@ -110,6 +172,7 @@ class MxD021KM_Reader extends NetCDFReader {
                 continue;
             }
 
+            // @todo 1 tb/tb scale_factors and offsets (and probably other attributes) need to be extracted per layer!
             if (variableName.contains("EV_1KM_RefSB")) {
                 addLayered3DVariables(exportVariables, variable, 15, variableName, new ModisL1ReflectiveExtension());
                 continue;
@@ -192,9 +255,10 @@ class MxD021KM_Reader extends NetCDFReader {
     }
 
     @Override
-    public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
+    public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException {
         // @todo 1 tb/tb add distinction for MOD03 data and the sensor state variables
         final String fullVariableName = ReaderUtils.stripChannelSuffix(variableName);
+        // @todo 1 tb/tb extend to data from other groups!
         Array array = arrayCache.get(DATA_GROUP, fullVariableName);
         final Number fillValue = arrayCache.getNumberAttributeValue(NetCDFUtils.CF_FILL_VALUE_NAME, DATA_GROUP, fullVariableName);
         if (fillValue == null) {
@@ -214,6 +278,43 @@ class MxD021KM_Reader extends NetCDFReader {
     }
 
     @Override
+    public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException {
+        final Array rawArray = readRaw(centerX, centerY, interval, variableName);
+
+        final String fullVariableName = ReaderUtils.stripChannelSuffix(variableName);
+        final int layerIndex = getLayerIndex(variableName);
+
+        // @todo 1 tb/tb extend to data from other groups!
+        final String groupName = DATA_GROUP;
+        double scale = 1.0;
+        double offset = 0.0;
+
+        final String scaleFactorAttributeName = getScaleFactorAttributeName(variableName);
+        if (scaleFactorAttributeName != null) {
+            final Number scaleFactor = getNumberAttributeLayered(fullVariableName, groupName, scaleFactorAttributeName, layerIndex);
+            scale = scaleFactor.doubleValue();
+        }
+
+        final String offsetAttributeName = getOffsetAttributeName(variableName);
+        if (offsetAttributeName != null) {
+            final Number offsetNum = getNumberAttributeLayered(fullVariableName, groupName, "radiance_offsets", layerIndex);
+            offset = offsetNum.doubleValue();
+        }
+
+        if (ReaderUtils.mustScale(scale, offset)) {
+            final MAMath.ScaleOffset scaleOffset = new MAMath.ScaleOffset(scale, offset);
+            return MAMath.convert2Unpacked(rawArray, scaleOffset);
+        }
+
+        return rawArray;
+    }
+
+    private Number getNumberAttributeLayered(String fullVariableName, String groupName, String attributeName, int layerIndex) throws IOException {
+        final Attribute vectorAttribute = arrayCache.getAttribute(attributeName, groupName, fullVariableName);
+        return vectorAttribute.getNumericValue(layerIndex);
+    }
+
+    @Override
     public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException {
         return (ArrayInt.D2) acquisitionTimeFromTimeLocator(y, interval);
     }
@@ -226,51 +327,6 @@ class MxD021KM_Reader extends NetCDFReader {
     @Override
     public String getLatitudeVariableName() {
         return LATITUDE_VAR_NAME;
-    }
-
-    // package access for testing only tb 2020-05-19
-    static int getLayerIndex(String variableName) {
-        final int splitIndex = variableName.lastIndexOf("_ch");
-        if (splitIndex < 0) {
-            return 0;
-        }
-
-        final String channelKey = variableName.substring(splitIndex + 3);
-        if (variableName.contains("1KM_RefSB")) {
-            return getLayerIndex1kmRefl(channelKey);
-        }
-
-        int nominalLayerIndex = Integer.parseInt(channelKey) - 1;
-        if (variableName.contains("500_Aggr1km")) {
-            nominalLayerIndex -= 2;
-        } else if (variableName.contains("1KM_Emissive")) {
-            if (nominalLayerIndex <= 24) {
-                nominalLayerIndex -= 19;
-            } else {
-                nominalLayerIndex -= 20;
-            }
-
-        }
-        return nominalLayerIndex;
-    }
-
-    private static int getLayerIndex1kmRefl(String channelKey) {
-        int offset = 8;
-        if (channelKey.contains("H") || channelKey.contains("L")) {
-            if (channelKey.contains("13H") || channelKey.contains("14L")) {
-                offset = 7;
-            } else if (channelKey.contains("14H")) {
-                offset = 6;
-            }
-            channelKey = channelKey.substring(0, 2);
-        }
-        final int channelIndex = Integer.parseInt(channelKey);
-        if (channelIndex == 26) {
-            offset = 12;
-        } else if (channelIndex >= 15) {
-            offset = 6;
-        }
-        return channelIndex - offset;
     }
 
     private void extractGeometries(AcquisitionInfo acquisitionInfo) throws IOException {

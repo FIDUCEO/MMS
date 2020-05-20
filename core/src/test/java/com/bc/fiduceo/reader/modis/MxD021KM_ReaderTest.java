@@ -7,9 +7,7 @@ import org.junit.Test;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class MxD021KM_ReaderTest {
 
@@ -103,5 +101,19 @@ public class MxD021KM_ReaderTest {
     @Test
     public void testGetLayerIndex_unlayeredVariable() {
         assertEquals(0, MxD021KM_Reader.getLayerIndex("an_arbitrary_variable_without_layers"));
+    }
+
+    @Test
+    public void testGetScaleFactorAttributeName() {
+        assertEquals("radiance_scales", MxD021KM_Reader.getScaleFactorAttributeName("EV_250_Aggr1km_RefSB_ch01"));
+        assertEquals("scaling_factor", MxD021KM_Reader.getScaleFactorAttributeName("EV_250_Aggr1km_RefSB_Uncert_Indexes_ch02"));
+        assertEquals("radiance_scales", MxD021KM_Reader.getScaleFactorAttributeName("EV_1KM_Emissive_ch23"));
+    }
+
+    @Test
+    public void testGetOffsetAttributeName() {
+        assertEquals("radiance_offsets", MxD021KM_Reader.getOffsetAttributeName("EV_250_Aggr1km_RefSB_ch01"));
+        assertNull(MxD021KM_Reader.getOffsetAttributeName("EV_250_Aggr1km_RefSB_Uncert_Indexes_ch02"));
+        assertEquals("radiance_offsets", MxD021KM_Reader.getOffsetAttributeName("EV_1KM_Emissive_ch24"));
     }
 }

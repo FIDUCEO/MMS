@@ -361,7 +361,7 @@ public class MxD021KM_Reader_IO_Test {
     }
 
     @Test
-    public void testReadRaw_250m_Aqua() throws IOException, InvalidRangeException {
+    public void testReadRaw_250m_Aqua() throws IOException {
         final File file = getAquaFile();
 
         reader.open(file);
@@ -375,7 +375,7 @@ public class MxD021KM_Reader_IO_Test {
     }
 
     @Test
-    public void testReadRaw_250m_Terra_top_edge() throws IOException, InvalidRangeException {
+    public void testReadRaw_250m_Terra_top_edge() throws IOException {
         final File file = getTerraFile();
 
         reader.open(file);
@@ -389,7 +389,7 @@ public class MxD021KM_Reader_IO_Test {
     }
 
     @Test
-    public void testReadRaw_500m_Terra() throws IOException, InvalidRangeException {
+    public void testReadRaw_500m_Terra() throws IOException {
         final File file = getTerraFile();
 
         reader.open(file);
@@ -403,7 +403,7 @@ public class MxD021KM_Reader_IO_Test {
     }
 
     @Test
-    public void testReadRaw_500m_Aqua_left_edge() throws IOException, InvalidRangeException {
+    public void testReadRaw_500m_Aqua_left_edge() throws IOException {
         final File file = getAquaFile();
 
         reader.open(file);
@@ -419,7 +419,7 @@ public class MxD021KM_Reader_IO_Test {
     }
 
     @Test
-    public void testReadRaw_1km_refl_Terra() throws IOException, InvalidRangeException {
+    public void testReadRaw_1km_refl_Terra() throws IOException {
         final File file = getTerraFile();
 
         reader.open(file);
@@ -432,9 +432,8 @@ public class MxD021KM_Reader_IO_Test {
         NCTestUtils.assertValueAt(65535, 2, 1, array);
     }
 
-
     @Test
-    public void testReadRaw_1km_refl_Aqua_bottom() throws IOException, InvalidRangeException {
+    public void testReadRaw_1km_refl_Aqua_bottom() throws IOException {
         final File file = getAquaFile();
 
         reader.open(file);
@@ -451,7 +450,7 @@ public class MxD021KM_Reader_IO_Test {
     }
 
     @Test
-    public void testReadRaw_1km_emissive_Terra() throws IOException, InvalidRangeException {
+    public void testReadRaw_1km_emissive_Terra() throws IOException {
         final File file = getTerraFile();
 
         reader.open(file);
@@ -465,7 +464,7 @@ public class MxD021KM_Reader_IO_Test {
     }
 
     @Test
-    public void testReadRaw_1km_emissive_Aqua_left() throws IOException, InvalidRangeException {
+    public void testReadRaw_1km_emissive_Aqua_left() throws IOException {
         final File file = getAquaFile();
 
         reader.open(file);
@@ -478,6 +477,125 @@ public class MxD021KM_Reader_IO_Test {
         NCTestUtils.assertValueAt(-1, 0, 1, array);
         NCTestUtils.assertValueAt(1, 1, 1, array);
         NCTestUtils.assertValueAt(2, 2, 1, array);
+    }
+
+    @Test
+    public void testReadScaled_250m_Aqua() throws IOException {
+        final File file = getAquaFile();
+
+        reader.open(file);
+
+        final Array array = reader.readScaled(47, 90, new Interval(3, 3), "EV_250_Aggr1km_RefSB_ch01");
+        NCTestUtils.assertValueAt(95.12491860240698, 0, 0, array);
+        NCTestUtils.assertValueAt(109.4346143770963, 1, 0, array);
+
+        NCTestUtils.assertValueAt(84.2198552750051, 1, 1, array);
+        NCTestUtils.assertValueAt(70.83171414770186, 2, 1, array);
+    }
+
+    @Test
+    public void testReadScaled_250m_Terra_top_edge() throws IOException {
+        final File file = getTerraFile();
+
+        reader.open(file);
+
+        final Array array = reader.readScaled(48, 0, new Interval(3, 3), "EV_250_Aggr1km_RefSB_Uncert_Indexes_ch02");
+        NCTestUtils.assertValueAt(-7.0, 0, 0, array);
+        NCTestUtils.assertValueAt(-7.0, 1, 0, array);
+
+        NCTestUtils.assertValueAt(-7.0, 1, 1, array);
+        NCTestUtils.assertValueAt(-7.0, 2, 1, array);
+    }
+
+    @Test
+    public void testReadScaled_500m_Terra() throws IOException {
+        final File file = getTerraFile();
+
+        reader.open(file);
+
+        final Array array = reader.readScaled(49, 93, new Interval(3, 3), "EV_500_Aggr1km_RefSB_Samples_Used_ch06");
+        NCTestUtils.assertValueAt(-1.0, 0, 0, array);
+        NCTestUtils.assertValueAt(-1.0, 1, 0, array);
+
+        NCTestUtils.assertValueAt(-1.0, 1, 1, array);
+        NCTestUtils.assertValueAt(-1.0, 2, 1, array);
+    }
+
+    @Test
+    public void testReadScaled_500m_Aqua_left_edge() throws IOException {
+        final File file = getAquaFile();
+
+        reader.open(file);
+
+        final Array array = reader.readScaled(1353, 93, new Interval(3, 3), "EV_500_Aggr1km_RefSB_Uncert_Indexes_ch07");
+        NCTestUtils.assertValueAt(0.0, 0, 0, array);
+        NCTestUtils.assertValueAt(5.0, 1, 0, array);
+        NCTestUtils.assertValueAt(-5.0, 2, 0, array);
+
+        NCTestUtils.assertValueAt(10.0, 0, 1, array);
+        NCTestUtils.assertValueAt(5.0, 1, 1, array);
+        NCTestUtils.assertValueAt(-5.0, 2, 1, array);
+    }
+
+    @Test
+    public void testReadScaled_1km_refl_Terra() throws IOException {
+        final File file = getTerraFile();
+
+        reader.open(file);
+
+        final Array array = reader.readScaled(50, 94, new Interval(3, 3), "EV_1KM_RefSB_ch13H");
+        NCTestUtils.assertValueAt(371.64215208758833, 0, 0, array);
+        NCTestUtils.assertValueAt(371.64215208758833, 1, 0, array);
+
+        NCTestUtils.assertValueAt(371.64215208758833, 1, 1, array);
+        NCTestUtils.assertValueAt(371.64215208758833, 2, 1, array);
+    }
+
+    @Test
+    public void testReadScaled_1km_refl_Aqua_bottom() throws IOException {
+        final File file = getAquaFile();
+
+        reader.open(file);
+
+        final Array array = reader.readScaled(51, 2029, new Interval(3, 3), "EV_1KM_RefSB_Uncert_Indexes_ch19");
+        NCTestUtils.assertValueAt(0.0, 0, 0, array);
+        NCTestUtils.assertValueAt(0.0, 1, 0, array);
+
+        NCTestUtils.assertValueAt(0.0, 1, 1, array);
+        NCTestUtils.assertValueAt(0.0, 2, 1, array);
+
+        NCTestUtils.assertValueAt(-7.0, 0, 2, array);
+        NCTestUtils.assertValueAt(-7.0, 1, 2, array);
+    }
+
+    @Test
+    public void testReadScaled_1km_emissive_Terra() throws IOException {
+        final File file = getTerraFile();
+
+        reader.open(file);
+
+        final Array array = reader.readScaled(52, 95, new Interval(3, 3), "EV_1KM_Emissive_ch23");
+        NCTestUtils.assertValueAt(2730.871909198817, 0, 0, array);
+        NCTestUtils.assertValueAt(2730.861151057761, 1, 0, array);
+
+        NCTestUtils.assertValueAt(2730.8628122413065, 1, 1, array);
+        NCTestUtils.assertValueAt(2730.8533197639044, 2, 1, array);
+    }
+
+    @Test
+    public void testReadScaled_1km_emissive_Aqua_left() throws IOException {
+        final File file = getAquaFile();
+
+        reader.open(file);
+
+        final Array array = reader.readScaled(0, 96, new Interval(3, 3), "EV_1KM_Emissive_Uncert_Indexes_ch24");
+        NCTestUtils.assertValueAt(-4.0, 0, 0, array);
+        NCTestUtils.assertValueAt(16.0, 1, 0, array);
+        NCTestUtils.assertValueAt(16.0, 2, 0, array);
+
+        NCTestUtils.assertValueAt(-4.0, 0, 1, array);
+        NCTestUtils.assertValueAt(16.0, 1, 1, array);
+        NCTestUtils.assertValueAt(16.0, 2, 1, array);
     }
 
     private File getTerraFile() throws IOException {

@@ -165,6 +165,27 @@ public class ArrayCache {
     }
 
     /**
+     * Retrieves the attribute. Returns null if attribute is not present.
+     *
+     * @param attributeName the attribute name
+     * @param groupName     the name of the group containing the variable
+     * @param variableName  the variable name
+     * @return the attribute or null
+     * @throws IOException on disk access failures
+     */
+    public Attribute getAttribute(String attributeName, String groupName, String variableName) throws IOException {
+        // @todo 2 tb/tb write test for this method 2020-05-20
+        final Array array = get(groupName, variableName);
+        if (array != null) {
+            final String groupedVariableName = createGroupedName(groupName, variableName);
+            final ArrayContainer arrayContainer = cache.get(groupedVariableName);
+            return arrayContainer.get(attributeName);
+        }
+
+        return null;
+    }
+
+    /**
      * Replaces the default variable finder with the given.
      *
      * @param variableFinder a variable selection strategy
