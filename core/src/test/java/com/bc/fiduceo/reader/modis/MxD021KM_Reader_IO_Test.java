@@ -598,6 +598,8 @@ public class MxD021KM_Reader_IO_Test {
         NCTestUtils.assertValueAt(16.0, 2, 1, array);
     }
 
+    // @todo 1 tb/tb read other datasets, check MOD03 data ... 2020-05-20
+
     private File getTerraFile() throws IOException {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"mod021km-te", "v61", "2003", "05", "22", "MOD021KM.A2003142.1445.061.2017194130122.hdf"}, false);
         return TestUtil.getTestDataFileAsserted(testFilePath);

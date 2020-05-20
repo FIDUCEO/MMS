@@ -41,6 +41,8 @@ class MxD021KM_Reader extends NetCDFReader {
     private static final String DATA_GROUP = "MODIS_SWATH_Type_L1B/Data_Fields";
     private static final String SWATH_METADATA = "Level_1B_Swath_Metadata";
     private static final String SECTOR_START_TIME = "EV_Sector_Start_Time";
+    private static final int LINES_PER_SCAN = 10;
+    private static final int NUM_1KM_REF_CHAN = 15;
 
     private final GeometryFactory geometryFactory;
 
@@ -174,7 +176,11 @@ class MxD021KM_Reader extends NetCDFReader {
 
             // @todo 1 tb/tb scale_factors and offsets (and probably other attributes) need to be extracted per layer!
             if (variableName.contains("EV_1KM_RefSB")) {
-                addLayered3DVariables(exportVariables, variable, 15, variableName, new ModisL1ReflectiveExtension());
+                final ArrayList<Variable> bandVariables = new ArrayList<>(NUM_1KM_REF_CHAN);
+
+                addLayered3DVariables(bandVariables, variable, NUM_1KM_REF_CHAN, variableName, new ModisL1ReflectiveExtension());
+
+                exportVariables.addAll(bandVariables);
                 continue;
             }
 
@@ -193,9 +199,10 @@ class MxD021KM_Reader extends NetCDFReader {
                 continue;
             }
 
-            // - MxD03 Variables
+            // @todo 1 tb/tb Noise_In_Thermal_Detectors
+            // @todo 1 tb/tb MxD03 Variables
             // Latitude, Longitude, Height, SensorZenith, SensorAzimuth, Range, SolarZenith, SolarAzimuth
-            // gflags
+            // gflags, Land/SeaMask, WaterPresent
 
             exportVariables.add(variable);
         }
@@ -230,8 +237,7 @@ class MxD021KM_Reader extends NetCDFReader {
             final Structure sectorStartTime = l1SwathMeta.select(SECTOR_START_TIME);
             final Variable startTime = sectorStartTime.findVariable(SECTOR_START_TIME);
             final Array startTimeArray = startTime.read();
-            // @todo 2 tb/tb read number of lines per scan from data 2020-05-14
-            timeLocator = new TimeLocator_TAI1993Scan(startTimeArray, 10);
+            timeLocator = new TimeLocator_TAI1993Scan(startTimeArray, LINES_PER_SCAN);
         }
 
         return timeLocator;
@@ -327,6 +333,10 @@ class MxD021KM_Reader extends NetCDFReader {
     @Override
     public String getLatitudeVariableName() {
         return LATITUDE_VAR_NAME;
+    }
+
+    private void ensureMod03File() {
+        // @todo tb/tb 2020-05-20
     }
 
     private void extractGeometries(AcquisitionInfo acquisitionInfo) throws IOException {
