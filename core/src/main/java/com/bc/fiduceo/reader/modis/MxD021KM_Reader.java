@@ -16,7 +16,6 @@ import com.bc.fiduceo.reader.time.TimeLocator;
 import com.bc.fiduceo.reader.time.TimeLocator_TAI1993Scan;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
-import com.sun.org.apache.regexp.internal.RE;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.InvalidRangeException;
@@ -194,7 +193,7 @@ class MxD021KM_Reader extends NetCDFReader {
 
     @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
-       // @todo 1 tb/tb add distinction for MOD03 data and the sensor state variables
+        // @todo 1 tb/tb add distinction for MOD03 data and the sensor state variables
         final String fullVariableName = ReaderUtils.stripChannelSuffix(variableName);
         Array array = arrayCache.get(DATA_GROUP, fullVariableName);
         final Number fillValue = arrayCache.getNumberAttributeValue(NetCDFUtils.CF_FILL_VALUE_NAME, DATA_GROUP, fullVariableName);
@@ -237,16 +236,41 @@ class MxD021KM_Reader extends NetCDFReader {
         }
 
         final String channelKey = variableName.substring(splitIndex + 3);
-        if (channelKey.contains("H") || channelKey.contains("L")) {
-            // special treatment for 1km reflective data
-            throw new IllegalStateException("Implement me!");
+        if (variableName.contains("1KM_RefSB")) {
+            return getLayerIndex1kmRefl(channelKey);
         }
 
         int nominalLayerIndex = Integer.parseInt(channelKey) - 1;
         if (variableName.contains("500_Aggr1km")) {
             nominalLayerIndex -= 2;
+        } else if (variableName.contains("1KM_Emissive")) {
+            if (nominalLayerIndex <= 24) {
+                nominalLayerIndex -= 19;
+            } else {
+                nominalLayerIndex -= 20;
+            }
+
         }
         return nominalLayerIndex;
+    }
+
+    private static int getLayerIndex1kmRefl(String channelKey) {
+        int offset = 8;
+        if (channelKey.contains("H") || channelKey.contains("L")) {
+            if (channelKey.contains("13H") || channelKey.contains("14L")) {
+                offset = 7;
+            } else if (channelKey.contains("14H")) {
+                offset = 6;
+            }
+            channelKey = channelKey.substring(0, 2);
+        }
+        final int channelIndex = Integer.parseInt(channelKey);
+        if (channelIndex == 26) {
+            offset = 12;
+        } else if (channelIndex >= 15) {
+            offset = 6;
+        }
+        return channelIndex - offset;
     }
 
     private void extractGeometries(AcquisitionInfo acquisitionInfo) throws IOException {

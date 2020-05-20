@@ -418,6 +418,68 @@ public class MxD021KM_Reader_IO_Test {
         NCTestUtils.assertValueAt(-1, 2, 1, array);
     }
 
+    @Test
+    public void testReadRaw_1km_refl_Terra() throws IOException, InvalidRangeException {
+        final File file = getTerraFile();
+
+        reader.open(file);
+
+        final Array array = reader.readRaw(49, 93, new Interval(3, 3), "EV_1KM_RefSB_ch13L");
+        NCTestUtils.assertValueAt(65535, 0, 0, array);
+        NCTestUtils.assertValueAt(65535, 1, 0, array);
+
+        NCTestUtils.assertValueAt(65535, 1, 1, array);
+        NCTestUtils.assertValueAt(65535, 2, 1, array);
+    }
+
+
+    @Test
+    public void testReadRaw_1km_refl_Aqua_bottom() throws IOException, InvalidRangeException {
+        final File file = getAquaFile();
+
+        reader.open(file);
+
+        final Array array = reader.readRaw(50, 2029, new Interval(3, 3), "EV_1KM_RefSB_Uncert_Indexes_ch26");
+        NCTestUtils.assertValueAt(5, 0, 0, array);
+        NCTestUtils.assertValueAt(5, 1, 0, array);
+
+        NCTestUtils.assertValueAt(4, 1, 1, array);
+        NCTestUtils.assertValueAt(4, 2, 1, array);
+
+        NCTestUtils.assertValueAt(-1, 0, 2, array);
+        NCTestUtils.assertValueAt(-1, 1, 2, array);
+    }
+
+    @Test
+    public void testReadRaw_1km_emissive_Terra() throws IOException, InvalidRangeException {
+        final File file = getTerraFile();
+
+        reader.open(file);
+
+        final Array array = reader.readRaw(51, 94, new Interval(3, 3), "EV_1KM_Emissive_ch22");
+        NCTestUtils.assertValueAt(3682, 0, 0, array);
+        NCTestUtils.assertValueAt(3738, 1, 0, array);
+
+        NCTestUtils.assertValueAt(3693, 1, 1, array);
+        NCTestUtils.assertValueAt(3542, 2, 1, array);
+    }
+
+    @Test
+    public void testReadRaw_1km_emissive_Aqua_left() throws IOException, InvalidRangeException {
+        final File file = getAquaFile();
+
+        reader.open(file);
+
+        final Array array = reader.readRaw(0, 95, new Interval(3, 3), "EV_1KM_Emissive_Uncert_Indexes_ch23");
+        NCTestUtils.assertValueAt(-1, 0, 0, array);
+        NCTestUtils.assertValueAt(1, 1, 0, array);
+        NCTestUtils.assertValueAt(1, 2, 0, array);
+
+        NCTestUtils.assertValueAt(-1, 0, 1, array);
+        NCTestUtils.assertValueAt(1, 1, 1, array);
+        NCTestUtils.assertValueAt(2, 2, 1, array);
+    }
+
     private File getTerraFile() throws IOException {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"mod021km-te", "v61", "2003", "05", "22", "MOD021KM.A2003142.1445.061.2017194130122.hdf"}, false);
         return TestUtil.getTestDataFileAsserted(testFilePath);

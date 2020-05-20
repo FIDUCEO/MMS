@@ -84,6 +84,23 @@ public class MxD021KM_ReaderTest {
     }
 
     @Test
+    public void testGetLayerIndex_1km_refl() {
+        assertEquals(4, MxD021KM_Reader.getLayerIndex("EV_1KM_RefSB_ch12"));
+        assertEquals(5, MxD021KM_Reader.getLayerIndex("EV_1KM_RefSB_ch13L"));
+        assertEquals(8, MxD021KM_Reader.getLayerIndex("EV_1KM_RefSB_ch14H"));
+        assertEquals(10, MxD021KM_Reader.getLayerIndex("EV_1KM_RefSB_ch16"));
+        assertEquals(14, MxD021KM_Reader.getLayerIndex("EV_1KM_RefSB_ch26"));
+    }
+
+    @Test
+    public void testGetLayerIndex_1km_emissive() {
+        assertEquals(0, MxD021KM_Reader.getLayerIndex("EV_1KM_Emissive_ch20"));
+        assertEquals(5, MxD021KM_Reader.getLayerIndex("EV_1KM_Emissive_ch25"));
+        assertEquals(6, MxD021KM_Reader.getLayerIndex("EV_1KM_Emissive_ch27"));
+        assertEquals(12, MxD021KM_Reader.getLayerIndex("EV_1KM_Emissive_ch33"));
+    }
+
+    @Test
     public void testGetLayerIndex_unlayeredVariable() {
         assertEquals(0, MxD021KM_Reader.getLayerIndex("an_arbitrary_variable_without_layers"));
     }

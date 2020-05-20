@@ -632,7 +632,6 @@ public class MxD06_Reader_IO_Test {
         NCTestUtils.assertValueAt(2, 2, 2, array);
     }
 
-
     @Test
     public void testReadRaw_1km_Terra_upperRight() throws IOException, InvalidRangeException {
         final File file = getTerraFile();
