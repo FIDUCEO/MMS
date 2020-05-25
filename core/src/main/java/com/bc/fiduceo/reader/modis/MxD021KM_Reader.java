@@ -113,7 +113,7 @@ class MxD021KM_Reader extends NetCDFReader {
 
     // package access for testing only tb 2020-05-20
     static String getOffsetAttributeName(String variableName) {
-        if (variableName.contains("RefSB_ch")|| variableName.contains("Emissive_ch")) {
+        if (variableName.contains("RefSB_ch") || variableName.contains("Emissive_ch")) {
             return "radiance_offsets";
         }
 
@@ -213,8 +213,8 @@ class MxD021KM_Reader extends NetCDFReader {
     @Override
     public Dimension getProductSize() throws IOException {
         if (productSize == null) {
-            final Array longitude = arrayCache.get(DATA_GROUP, "EV_Band26");
-            final int[] shape = longitude.getShape();
+            final Array band26 = arrayCache.get(DATA_GROUP, "EV_Band26");
+            final int[] shape = band26.getShape();
             productSize = new Dimension("shape", shape[1], shape[0]);
         }
         return productSize;

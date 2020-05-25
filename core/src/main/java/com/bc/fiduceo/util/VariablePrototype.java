@@ -30,7 +30,7 @@ import java.nio.channels.WritableByteChannel;
 import java.util.Formatter;
 import java.util.List;
 
-// This class should be used when driving special purpose classes from the NetCDF Variable class. Overwriting
+// This class should be used when deriving special purpose classes from the NetCDF Variable class. Overwriting
 // all methods with a throws implementation ensures that methods that should be overridden are really overridden;
 // calls into the not completely initialized base class are not possible this was tb 2016-09-26
 
@@ -121,6 +121,11 @@ public class VariablePrototype extends Variable {
     }
 
     @Override
+    public void setDimensions(List<Dimension> dims) {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
     public void setDimensions(String dimString) {
         throw new RuntimeException("not implemented");
     }
@@ -181,17 +186,17 @@ public class VariablePrototype extends Variable {
     }
 
     @Override
-    public Variable section(List<Range> ranges) throws InvalidRangeException {
+    public Variable section(List<Range> ranges) {
         throw new RuntimeException("not implemented");
     }
 
     @Override
-    public Variable section(Section subsection) throws InvalidRangeException {
+    public Variable section(Section subsection) {
         throw new RuntimeException("not implemented");
     }
 
     @Override
-    public Variable slice(int dim, int value) throws InvalidRangeException {
+    public Variable slice(int dim, int value) {
         throw new RuntimeException("not implemented");
     }
 
@@ -241,17 +246,17 @@ public class VariablePrototype extends Variable {
     }
 
     @Override
-    public byte readScalarByte() throws IOException {
+    public byte readScalarByte() {
         throw new RuntimeException("not implemented");
     }
 
     @Override
-    public short readScalarShort() throws IOException {
+    public short readScalarShort() {
         throw new RuntimeException("not implemented");
     }
 
     @Override
-    public int readScalarInt() throws IOException {
+    public int readScalarInt() {
         throw new RuntimeException("not implemented");
     }
 
@@ -387,11 +392,6 @@ public class VariablePrototype extends Variable {
 
     @Override
     public boolean removeAttributeIgnoreCase(String attName) {
-        throw new RuntimeException("not implemented");
-    }
-
-    @Override
-    public void setDimensions(List<Dimension> dims) {
         throw new RuntimeException("not implemented");
     }
 
