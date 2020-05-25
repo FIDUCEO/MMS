@@ -13,7 +13,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
-import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 
 import java.io.File;
@@ -199,13 +198,106 @@ public class MxD03_Reader_IO_Test {
 
         final Array array = reader.readRaw(0, 93, new Interval(3, 3), "Range");
         NCTestUtils.assertValueAt(0, 0, 0, array);
-        // @todo 1 tb/tb continue here 2020-05-25
-//        NCTestUtils.assertValueAt(58888, 1, 0, array);
-//        NCTestUtils.assertValueAt(-32767, 2, 0, array);
-//
-//        NCTestUtils.assertValueAt(6570, 0, 1, array);
-//        NCTestUtils.assertValueAt(6583, 1, 1, array);
-//        NCTestUtils.assertValueAt(-32767, 2, 1, array);
+        NCTestUtils.assertValueAt(-6648, 1, 0, array);
+        NCTestUtils.assertValueAt(-6833, 2, 0, array);
+
+        NCTestUtils.assertValueAt(0, 0, 1, array);
+        NCTestUtils.assertValueAt(-6648, 1, 1, array);
+        NCTestUtils.assertValueAt(-6834, 2, 1, array);
+    }
+
+    @Test
+    public void testReadScaled_Aqua() throws IOException {
+        final File file = getAquaFile();
+
+        reader.open(file);
+
+        final Array array = reader.readScaled(48, 91, new Interval(3, 3), "SolarZenith");
+        NCTestUtils.assertValueAt(48.8, 0, 0, array);
+        NCTestUtils.assertValueAt(48.78, 1, 0, array);
+
+        NCTestUtils.assertValueAt(48.79, 1, 1, array);
+        NCTestUtils.assertValueAt(48.77, 2, 1, array);
+    }
+
+    @Test
+    public void testReadScaled_Terra() throws IOException {
+        final File file = getTerraFile();
+
+        reader.open(file);
+
+        final Array array = reader.readScaled(49, 92, new Interval(3, 3), "SolarAzimuth");
+        NCTestUtils.assertValueAt(70.45, 0, 0, array);
+        NCTestUtils.assertValueAt(70.41, 1, 0, array);
+
+        NCTestUtils.assertValueAt(70.44, 1, 1, array);
+        NCTestUtils.assertValueAt(70.4, 2, 1, array);
+    }
+
+    @Test
+    public void testReadScaled_Aqua_upper() throws IOException {
+        final File file = getAquaFile();
+
+        reader.open(file);
+
+        final Array array = reader.readScaled(50, 0, new Interval(3, 3), "Land_SeaMask");
+        NCTestUtils.assertValueAt(-35, 0, 0, array);
+        NCTestUtils.assertValueAt(-35, 1, 0, array);
+
+        NCTestUtils.assertValueAt(2, 1, 1, array);
+        NCTestUtils.assertValueAt(2, 2, 1, array);
+
+        NCTestUtils.assertValueAt(2, 0, 2, array);
+        NCTestUtils.assertValueAt(3, 1, 2, array);
+    }
+
+    @Test
+    public void testReadScaled_Terra_right() throws IOException {
+        final File file = getTerraFile();
+
+        reader.open(file);
+
+        final Array array = reader.readScaled(1353, 93, new Interval(3, 3), "WaterPresent");
+        NCTestUtils.assertValueAt(8, 0, 0, array);
+        NCTestUtils.assertValueAt(8, 1, 0, array);
+        NCTestUtils.assertValueAt(-1, 2, 0, array);
+
+        NCTestUtils.assertValueAt(8, 0, 1, array);
+        NCTestUtils.assertValueAt(8, 1, 1, array);
+        NCTestUtils.assertValueAt(-1, 2, 1, array);
+    }
+
+    @Test
+    public void testReadScaled_Aqua_bottom() throws IOException {
+        final File file = getAquaFile();
+
+        reader.open(file);
+
+        final Array array = reader.readScaled(52, 2029, new Interval(3, 3), "gflags");
+        NCTestUtils.assertValueAt(0, 0, 0, array);
+        NCTestUtils.assertValueAt(0, 1, 0, array);
+
+        NCTestUtils.assertValueAt(0, 1, 1, array);
+        NCTestUtils.assertValueAt(0, 2, 1, array);
+
+        NCTestUtils.assertValueAt(-1, 0, 2, array);
+        NCTestUtils.assertValueAt(-1, 1, 2, array);
+    }
+
+    @Test
+    public void testReadScaled_Terra_left() throws IOException {
+        final File file = getTerraFile();
+
+        reader.open(file);
+
+        final Array array = reader.readScaled(0, 100, new Interval(3, 3), "Scan_number");
+        NCTestUtils.assertValueAt(-32767, 0, 0, array);
+        NCTestUtils.assertValueAt(10, 1, 0, array);
+        NCTestUtils.assertValueAt(10, 2, 0, array);
+
+        NCTestUtils.assertValueAt(-32767, 0, 1, array);
+        NCTestUtils.assertValueAt(11, 1, 1, array);
+        NCTestUtils.assertValueAt(11, 2, 1, array);
     }
 
     private File getTerraFile() throws IOException {

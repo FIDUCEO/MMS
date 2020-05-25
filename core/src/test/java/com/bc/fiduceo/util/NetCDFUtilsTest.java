@@ -25,6 +25,7 @@ import org.esa.snap.core.datamodel.ProductData;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.InOrder;
+import org.opengis.metadata.Datatype;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
@@ -113,6 +114,18 @@ public class NetCDFUtilsTest {
         assertEquals(DataType.DOUBLE, NetCDFUtils.getNetcdfDataType(ProductData.TYPE_FLOAT64));
         assertEquals(DataType.STRING, NetCDFUtils.getNetcdfDataType(ProductData.TYPE_ASCII));
         assertEquals(DataType.STRING, NetCDFUtils.getNetcdfDataType(ProductData.TYPE_UTC));
+    }
+
+    @Test
+    public void testEscalateUnsignedDataType() {
+        assertEquals(DataType.SHORT, NetCDFUtils.escalateUnsignedType(DataType.UBYTE));
+        assertEquals(DataType.SHORT, NetCDFUtils.escalateUnsignedType(DataType.BYTE));
+
+        assertEquals(DataType.INT, NetCDFUtils.escalateUnsignedType(DataType.USHORT));
+        assertEquals(DataType.INT, NetCDFUtils.escalateUnsignedType(DataType.SHORT));
+
+        assertEquals(DataType.LONG, NetCDFUtils.escalateUnsignedType(DataType.UINT));
+        assertEquals(DataType.LONG, NetCDFUtils.escalateUnsignedType(DataType.INT));
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")

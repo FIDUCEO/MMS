@@ -147,6 +147,18 @@ public class NetCDFUtils {
         // conflicts. Snap uses netcdf version 4.3.22, fiduceo is at version 4.6.5 2016-08-08
     }
 
+    public static DataType escalateUnsignedType(DataType unsignedType) {
+        if (unsignedType == DataType.BYTE || unsignedType == DataType.UBYTE) {
+            return DataType.SHORT;
+        } else if(unsignedType == DataType.SHORT || unsignedType == DataType.USHORT) {
+            return DataType.INT;
+        }else if(unsignedType == DataType.INT || unsignedType == DataType.UINT) {
+            return DataType.LONG;
+        } else {
+            throw new RuntimeException("Data type not supported: " + unsignedType);
+        }
+    }
+
     public static String getGlobalAttributeString(String attributeName, NetcdfFile netcdfFile) {
         final Attribute globalAttribute = getGlobalAttributeSafe(attributeName, netcdfFile);
         return globalAttribute.getStringValue();

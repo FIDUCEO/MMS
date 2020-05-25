@@ -7,14 +7,17 @@ import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.RawDataReader;
 import com.bc.fiduceo.reader.ReaderContext;
+import com.bc.fiduceo.reader.ReaderUtils;
 import com.bc.fiduceo.reader.netcdf.NetCDFReader;
 import com.bc.fiduceo.reader.time.TimeLocator;
 import com.bc.fiduceo.util.NetCDFUtils;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.InvalidRangeException;
+import ucar.ma2.MAMath;
 import ucar.nc2.Variable;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +31,30 @@ class MxD03_Reader extends NetCDFReader {
     private Dimension productSize;
 
     MxD03_Reader(ReaderContext readerContext) {
+    }
+
+    static String getGroupName(String variableName) {
+        if (variableName.equals("Longitude") || variableName.equals("Latitude")) {
+            return GEOLOCATION_GROUP;
+        } else if (variableName.equals("Height") ||
+                variableName.contains("Zenith") ||
+                variableName.contains("Azimuth") ||
+                variableName.equals("Range") ||
+                variableName.equals("Land_SeaMask") ||
+                variableName.equals("WaterPresent") ||
+                variableName.equals("gflags")) {
+            return DATA_GROUP;
+        } else if (variableName.equals("Scan_number")) {
+            return null;
+        }
+
+        throw new IllegalArgumentException("not supported variable: " + variableName);
+    }
+
+    @Override
+    public void open(File file) throws IOException {
+        super.open(file);
+        injectScanNumberVariable();
     }
 
     @Override
@@ -69,17 +96,28 @@ class MxD03_Reader extends NetCDFReader {
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException {
         final String groupName = getGroupName(variableName);
         Array array = arrayCache.get(groupName, variableName);
-        final Number fillValue = arrayCache.getNumberAttributeValue(NetCDFUtils.CF_FILL_VALUE_NAME, groupName, variableName);
+
+        Number fillValue = arrayCache.getNumberAttributeValue(NetCDFUtils.CF_FILL_VALUE_NAME, groupName, variableName);
         if (fillValue == null) {
-            throw new RuntimeException("Fill value for not found for variable: " + variableName);
+            fillValue = NetCDFUtils.getDefaultFillValue(array);
         }
 
         return RawDataReader.read(centerX, centerY, interval, fillValue, array, getProductSize());
     }
 
     @Override
-    public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
-        throw new IllegalStateException("not implemented");
+    public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException {
+        final Array rawData = readRaw(centerX, centerY, interval, variableName);
+        final String groupName = getGroupName(variableName);
+
+        final double scaleFactor = getScaleFactorCf(groupName, variableName);
+        final double offset = getOffset(groupName, variableName);
+        if (ReaderUtils.mustScale(scaleFactor, offset)) {
+            final MAMath.ScaleOffset scaleOffset = new MAMath.ScaleOffset(scaleFactor, offset);
+            return MAMath.convert2Unpacked(rawData, scaleOffset);
+        }
+
+        return rawData;
     }
 
     @Override
@@ -136,21 +174,8 @@ class MxD03_Reader extends NetCDFReader {
         throw new IllegalStateException("not implemented");
     }
 
-    static String getGroupName(String variableName) {
-        if (variableName.equals("Longitude") || variableName.equals("Latitude")) {
-            return GEOLOCATION_GROUP;
-        } else if (variableName.equals("Height")||
-                variableName.contains("Zenith") ||
-                variableName.contains("Azimuth")||
-                variableName.equals("Range") ||
-                variableName.equals("Land_SeaMask") ||
-                variableName.equals("WaterPresent") ||
-                variableName.equals("gflags") ) {
-            return DATA_GROUP;
-        } else if(variableName.equals("Scan_number")) {
-            return null;
-        }
-
-        throw new IllegalArgumentException("not supported variable: " + variableName);
+    private void injectScanNumberVariable() {
+        final Variable scanNumber = netcdfFile.findVariable("Scan_number");
+        arrayCache.inject(new ScanNumberVariable(scanNumber));
     }
 }
