@@ -6,6 +6,8 @@ import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.ReaderContext;
 import org.junit.After;
 import org.junit.Before;
@@ -15,11 +17,13 @@ import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.nc2.Variable;
 
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 
 @RunWith(IOTestRunner.class)
 public class MxD03_Reader_IO_Test {
@@ -298,6 +302,77 @@ public class MxD03_Reader_IO_Test {
         NCTestUtils.assertValueAt(-32767, 0, 1, array);
         NCTestUtils.assertValueAt(11, 1, 1, array);
         NCTestUtils.assertValueAt(11, 2, 1, array);
+    }
+
+    @Test
+    public void testGetPixelLocator_Aqua() throws IOException {
+        final File file = getAquaFile();
+
+        reader.open(file);
+
+        final PixelLocator pixelLocator = reader.getPixelLocator();
+        Point2D geoLocation = pixelLocator.getGeoLocation(25.5, 177.5, null);
+        assertEquals(-123.13317182832749, geoLocation.getX(), 1e-8);
+        assertEquals(70.2547378540039, geoLocation.getY(), 1e-8);
+
+        geoLocation = pixelLocator.getGeoLocation(224.5, 297.5, null);
+        assertEquals(-137.3659346494336, geoLocation.getX(), 1e-8);
+        assertEquals(70.98120880126953, geoLocation.getY(), 1e-8);
+
+        geoLocation = pixelLocator.getGeoLocation(0.5, 0.5, null);
+        assertEquals(-120.51242033462528, geoLocation.getX(), 1e-8);
+        assertEquals(68.57686614990234, geoLocation.getY(), 1e-8);
+
+        Point2D[] pixelLocation = pixelLocator.getPixelLocation(-123.13317182832749, 70.2547378540039);
+        assertEquals(1, pixelLocation.length);
+        assertEquals(25.50189334826153, pixelLocation[0].getX(), 1e-8);
+        assertEquals(177.4805633096407, pixelLocation[0].getY(), 1e-8);
+
+        pixelLocation = pixelLocator.getPixelLocation(-137.3659346494336, 70.98120880126953);
+        assertEquals(1, pixelLocation.length);
+        assertEquals(224.50697488083915, pixelLocation[0].getX(), 1e-8);
+        assertEquals(297.50580210681414, pixelLocation[0].getY(), 1e-8);
+    }
+
+    @Test
+    public void testGetPixelLocator_Terra() throws IOException {
+        final File file = getTerraFile();
+
+        reader.open(file);
+
+        final PixelLocator pixelLocator = reader.getPixelLocator();
+        Point2D geoLocation = pixelLocator.getGeoLocation(26.5, 178.5, null);
+        assertEquals(-122.10061657703575, geoLocation.getX(), 1e-8);
+        assertEquals(-68.95912170410156, geoLocation.getY(), 1e-8);
+
+        geoLocation = pixelLocator.getGeoLocation(225.5, 298.5, null);
+        assertEquals(-116.50996382411539, geoLocation.getX(), 1e-8);
+        assertEquals(-73.46139526367188, geoLocation.getY(), 1e-8);
+
+        geoLocation = pixelLocator.getGeoLocation(0.5, 0.5, null);
+        assertEquals(-119.89762117131568, geoLocation.getX(), 1e-8);
+        assertEquals(-67.1694107055664, geoLocation.getY(), 1e-8);
+
+        Point2D[] pixelLocation = pixelLocator.getPixelLocation(-122.10061657703575, -68.95912170410156);
+        assertEquals(1, pixelLocation.length);
+        assertEquals(26.503903691739783, pixelLocation[0].getX(), 1e-8);
+        assertEquals(183.3157384567571, pixelLocation[0].getY(), 1e-8);
+
+        pixelLocation = pixelLocator.getPixelLocation(-116.50996382411539, -73.46139526367188);
+        assertEquals(1, pixelLocation.length);
+        assertEquals(225.5033478606951, pixelLocation[0].getX(), 1e-8);
+        assertEquals(300.93165715269646, pixelLocation[0].getY(), 1e-8);
+    }
+
+    @Test
+    public void testSubScenePixelLocator_isStandardPixelLocator() throws IOException {
+        final File file = getAquaFile();
+
+        reader.open(file);
+
+        final PixelLocator pixelLocator = reader.getPixelLocator();
+        final PixelLocator subScenePixelLocator = reader.getSubScenePixelLocator((Polygon) geometryFactory.parse("POLYGON((0 0,1 0, 1 1, 0 1, 0 0))"));
+        assertSame(pixelLocator, subScenePixelLocator);
     }
 
     private File getTerraFile() throws IOException {

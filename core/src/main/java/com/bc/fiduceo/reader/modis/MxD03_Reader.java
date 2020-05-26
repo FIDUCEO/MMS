@@ -2,6 +2,7 @@ package com.bc.fiduceo.reader.modis;
 
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
+import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
@@ -13,7 +14,6 @@ import com.bc.fiduceo.reader.time.TimeLocator;
 import com.bc.fiduceo.util.NetCDFUtils;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
-import ucar.ma2.InvalidRangeException;
 import ucar.ma2.MAMath;
 import ucar.nc2.Variable;
 
@@ -28,9 +28,13 @@ class MxD03_Reader extends NetCDFReader {
     private static final String GEOLOCATION_GROUP = "MODIS_Swath_Type_GEO/Geolocation_Fields";
     private static final String DATA_GROUP = "MODIS_Swath_Type_GEO/Data_Fields";
 
+    private final GeometryFactory geometryFactory;
+
     private Dimension productSize;
+    private PixelLocator pixelLocator;
 
     MxD03_Reader(ReaderContext readerContext) {
+        this.geometryFactory = readerContext.getGeometryFactory();
     }
 
     static String getGroupName(String variableName) {
@@ -60,6 +64,8 @@ class MxD03_Reader extends NetCDFReader {
     @Override
     public void close() throws IOException {
         productSize = null;
+        pixelLocator = null;
+        super.close();
     }
 
     @Override
@@ -74,16 +80,23 @@ class MxD03_Reader extends NetCDFReader {
 
     @Override
     public PixelLocator getPixelLocator() throws IOException {
-        throw new IllegalStateException("not implemented");
+        if (pixelLocator == null) {
+            final Array lonArray = arrayCache.get(GEOLOCATION_GROUP, "Longitude");
+            final Array latArray = arrayCache.get(GEOLOCATION_GROUP, "Latitude");
+
+            pixelLocator = new BowTiePixelLocator(lonArray, latArray, geometryFactory, 10);
+        }
+
+        return pixelLocator;
     }
 
     @Override
     public PixelLocator getSubScenePixelLocator(Polygon sceneGeometry) throws IOException {
-        throw new IllegalStateException("not implemented");
+        return getPixelLocator();
     }
 
     @Override
-    public TimeLocator getTimeLocator() throws IOException {
+    public TimeLocator getTimeLocator() {
         throw new IllegalStateException("not implemented");
     }
 
@@ -121,7 +134,7 @@ class MxD03_Reader extends NetCDFReader {
     }
 
     @Override
-    public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException {
+    public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) {
         throw new IllegalStateException("not implemented");
     }
 
