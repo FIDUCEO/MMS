@@ -41,6 +41,7 @@
 package com.bc.fiduceo.tool;
 
 
+import com.bc.fiduceo.archive.Archive;
 import com.bc.fiduceo.core.SystemConfig;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.db.Storage;
@@ -60,6 +61,7 @@ public class ToolContext {
     private GeometryFactory geometryFactory;
     private ReaderFactory readerFactory;
     private TempFileUtils tempFileUtils;
+    private Archive archive;
 
     public void setStartDate(Date startDate) {
         this.startDate = startDate;
@@ -123,5 +125,13 @@ public class ToolContext {
 
     public TempFileUtils getTempFileUtils() {
         return tempFileUtils;
+    }
+
+    public Archive getArchive() {
+        return archive;
+    }
+
+    public void setArchive(Archive archive) {
+        this.archive = archive;
     }
 }

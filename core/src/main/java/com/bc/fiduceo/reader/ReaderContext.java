@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.reader;
 
+import com.bc.fiduceo.archive.Archive;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.util.TempFileUtils;
 
@@ -29,13 +30,14 @@ import java.io.IOException;
 public class ReaderContext {
     private GeometryFactory geometryFactory;
     private TempFileUtils tempFileUtils;
-
-    public void setGeometryFactory(GeometryFactory geometryFactory) {
-        this.geometryFactory = geometryFactory;
-    }
+    private Archive archive;
 
     public GeometryFactory getGeometryFactory() {
         return geometryFactory;
+    }
+
+    public void setGeometryFactory(GeometryFactory geometryFactory) {
+        this.geometryFactory = geometryFactory;
     }
 
     public void setTempFileUtils(TempFileUtils tempFileUtils) {
@@ -52,5 +54,13 @@ public class ReaderContext {
 
     public void deleteTempFile(File tempFile) {
         tempFileUtils.delete(tempFile);
+    }
+
+    public Archive getArchive() {
+        return archive;
+    }
+
+    public void setArchive(Archive archive) {
+        this.archive = archive;
     }
 }

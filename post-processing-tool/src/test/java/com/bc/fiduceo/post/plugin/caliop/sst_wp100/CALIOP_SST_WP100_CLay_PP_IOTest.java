@@ -108,7 +108,7 @@ public class CALIOP_SST_WP100_CLay_PP_IOTest {
         // a call setContext(...) generates an framework call to initReaderCache() method
         tempDirectory = Files.createTempDirectory(fiduceoTestDirPefix);
 
-        ReaderFactory.create(new GeometryFactory(GeometryFactory.Type.S2), null);
+        ReaderFactory.create(new GeometryFactory(GeometryFactory.Type.S2), null, null);
     }
 
     @After

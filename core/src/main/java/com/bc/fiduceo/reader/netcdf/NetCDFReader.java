@@ -12,15 +12,11 @@ import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.List;
 
 import static com.bc.fiduceo.util.NetCDFUtils.*;
 
 public abstract class NetCDFReader implements Reader {
-
-    private static final NumberFormat CHANNEL_INDEX_FORMAT = new DecimalFormat("00");
 
     protected ArrayCache arrayCache;
     protected NetcdfFile netcdfFile;

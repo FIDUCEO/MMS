@@ -347,7 +347,7 @@ public class MmdWriter_IO_Test {
         context.setStartDate(TimeUtils.parseDOYBeginOfDay("1989-122"));
         context.setEndDate(TimeUtils.parseDOYEndOfDay("1989-123"));
 
-        final ReaderFactory readerFactory = ReaderFactory.create(context.getGeometryFactory(), new TempFileUtils());
+        final ReaderFactory readerFactory = ReaderFactory.create(context.getGeometryFactory(), new TempFileUtils(), null);
         context.setReaderFactory(readerFactory);
         final IOVariablesList ioVariablesList = new IOVariablesList(readerFactory);
 

@@ -22,6 +22,7 @@ package com.bc.fiduceo.reader;
 
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryManager;
+import com.bc.fiduceo.archive.Archive;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.util.TempFileUtils;
 import org.esa.snap.core.util.ServiceLoader;
@@ -39,9 +40,9 @@ public class ReaderFactory {
     private final HashMap<String, ReaderPlugin> readerPluginHashMap = new HashMap<>();
     private final ReaderContext readerContext;
 
-    public static ReaderFactory create(GeometryFactory geometryFactory, TempFileUtils tempFileUtils) {
+    public static ReaderFactory create(GeometryFactory geometryFactory, TempFileUtils tempFileUtils, Archive archive) {
         if (readerFactory == null) {
-            readerFactory = new ReaderFactory(geometryFactory, tempFileUtils);
+            readerFactory = new ReaderFactory(geometryFactory, tempFileUtils, archive);
         }
         return readerFactory;
     }
@@ -80,10 +81,11 @@ public class ReaderFactory {
         return readerPlugin;
     }
 
-    private ReaderFactory(GeometryFactory geometryFactory, TempFileUtils tempFileUtils) {
+    private ReaderFactory(GeometryFactory geometryFactory, TempFileUtils tempFileUtils, Archive archive) {
         readerContext = new ReaderContext();
         readerContext.setGeometryFactory(geometryFactory);
         readerContext.setTempFileUtils(tempFileUtils);
+        readerContext.setArchive(archive);
 
         final ServiceRegistryManager serviceRegistryManager = ServiceRegistryManager.getInstance();
         final ServiceRegistry<ReaderPlugin> readerRegistry = serviceRegistryManager.getServiceRegistry(ReaderPlugin.class);

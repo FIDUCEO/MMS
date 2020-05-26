@@ -4,6 +4,7 @@ import com.bc.fiduceo.reader.ReaderContext;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -115,5 +116,20 @@ public class MxD021KM_ReaderTest {
         assertEquals("radiance_offsets", MxD021KM_Reader.getOffsetAttributeName("EV_250_Aggr1km_RefSB_ch01"));
         assertNull(MxD021KM_Reader.getOffsetAttributeName("EV_250_Aggr1km_RefSB_Uncert_Indexes_ch02"));
         assertEquals("radiance_offsets", MxD021KM_Reader.getOffsetAttributeName("EV_1KM_Emissive_ch24"));
+    }
+
+    @Test
+    public void testExtractGeoFileType() throws IOException {
+        assertEquals("mod03-te", MxD021KM_Reader.extractGeoFileType("MOD021KM.A2003142.1445.061.2017194130122.hdf"));
+        assertEquals("myd03-aq", MxD021KM_Reader.extractGeoFileType("MYD021KM.A2011168.2210.061.2018032001033.hdf"));
+    }
+
+    @Test
+    public void testExtractGeoFileType_invalid() {
+        try {
+            MxD021KM_Reader.extractGeoFileType("heffalump");
+            fail("IOException expected");
+        } catch(IOException expected) {
+        }
     }
 }

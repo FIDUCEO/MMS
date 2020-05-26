@@ -20,6 +20,8 @@
 
 package com.bc.fiduceo.post;
 
+import com.bc.fiduceo.archive.Archive;
+import com.bc.fiduceo.archive.ArchiveConfig;
 import com.bc.fiduceo.core.SystemConfig;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.log.FiduceoLogger;
@@ -94,8 +96,12 @@ class PostProcessingTool {
             context.setTempFileUtils(new TempFileUtils(tempDir));
         }
 
+        final ArchiveConfig archiveConfig = systemConfig.getArchiveConfig();
+        final Archive archive = new Archive(archiveConfig);
+        context.setArchive(archive);
+
         final String geometryLibraryType = systemConfig.getGeometryLibraryType();
-        final ReaderFactory readerFactory = ReaderFactory.create(new GeometryFactory(geometryLibraryType), context.getTempFileUtils());
+        final ReaderFactory readerFactory = ReaderFactory.create(new GeometryFactory(geometryLibraryType), context.getTempFileUtils(), archive);
         context.setReaderFactory(readerFactory);
 
         logger.info("Success loading configuration.");

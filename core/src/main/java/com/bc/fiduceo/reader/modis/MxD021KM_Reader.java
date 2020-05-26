@@ -1,5 +1,6 @@
 package com.bc.fiduceo.reader.modis;
 
+import com.bc.fiduceo.archive.Archive;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
@@ -26,6 +27,7 @@ import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -45,12 +47,16 @@ class MxD021KM_Reader extends NetCDFReader {
     private static final int NUM_1KM_REF_CHAN = 15;
 
     private final GeometryFactory geometryFactory;
+    private final Archive archive;
 
     private Dimension productSize;
     private TimeLocator timeLocator;
+    private String fileName;
+    private MxD03_Reader mxD03Reader;
 
     MxD021KM_Reader(ReaderContext readerContext) {
         geometryFactory = readerContext.getGeometryFactory();
+        archive = readerContext.getArchive();
         productSize = null;
         timeLocator = null;
     }
@@ -120,17 +126,29 @@ class MxD021KM_Reader extends NetCDFReader {
         return null;
     }
 
+    static String extractGeoFileType(String fileName) throws IOException {
+        if (fileName.contains("MOD02")) {
+            return "mod03-te";
+        } else if (fileName.contains("MYD02")) {
+            return "myd03-aq";
+        }
+        throw new IOException("invalid file name: " + fileName);
+    }
+
     @Override
     public void open(File file) throws IOException {
         super.open(file);
-        final int[] ymd = extractYearMonthDayFromFilename(file.getName());
-
+        this.fileName = file.getName();
     }
 
     @Override
     public void close() throws IOException {
         productSize = null;
         timeLocator = null;
+        if (mxD03Reader != null) {
+            mxD03Reader.close();
+            mxD03Reader = null;
+        }
         super.close();
     }
 
@@ -153,11 +171,13 @@ class MxD021KM_Reader extends NetCDFReader {
 
     @Override
     public PixelLocator getPixelLocator() throws IOException {
-        return null;
+        ensureMod03File();
+        return mxD03Reader.getPixelLocator();
     }
 
     @Override
-    public List<Variable> getVariables() throws InvalidRangeException {
+    public List<Variable> getVariables() throws InvalidRangeException, IOException {
+        ensureMod03File();
         final List<Variable> variablesInFile = netcdfFile.getVariables();
 
         final ArrayList<Variable> exportVariables = new ArrayList<>();
@@ -222,7 +242,7 @@ class MxD021KM_Reader extends NetCDFReader {
 
     @Override
     public PixelLocator getSubScenePixelLocator(Polygon sceneGeometry) throws IOException {
-        throw new IllegalStateException("not implemented");
+        return getPixelLocator();
     }
 
     @Override
@@ -262,6 +282,7 @@ class MxD021KM_Reader extends NetCDFReader {
 
     @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException {
+        ensureMod03File();
         // @todo 1 tb/tb add distinction for MOD03 data and the sensor state variables
         final String fullVariableName = ReaderUtils.stripChannelSuffix(variableName);
         // @todo 1 tb/tb extend to data from other groups!
@@ -285,6 +306,7 @@ class MxD021KM_Reader extends NetCDFReader {
 
     @Override
     public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException {
+        ensureMod03File();
         final Array rawArray = readRaw(centerX, centerY, interval, variableName);
 
         final String fullVariableName = ReaderUtils.stripChannelSuffix(variableName);
@@ -335,8 +357,16 @@ class MxD021KM_Reader extends NetCDFReader {
         return LATITUDE_VAR_NAME;
     }
 
-    private void ensureMod03File() {
+    private void ensureMod03File() throws IOException {
         // @todo tb/tb 2020-05-20
+
+        final int[] ymd = extractYearMonthDayFromFilename(fileName);
+        final String fileType = extractGeoFileType(fileName);
+        final Path productPath = archive.createValidProductPath("v61", fileType, ymd[0], ymd[1], ymd[2]);
+
+        // extract time
+        // request from archive
+        // open
     }
 
     private void extractGeometries(AcquisitionInfo acquisitionInfo) throws IOException {
