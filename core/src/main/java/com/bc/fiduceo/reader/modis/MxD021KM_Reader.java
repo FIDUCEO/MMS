@@ -27,6 +27,8 @@ import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -363,6 +365,12 @@ class MxD021KM_Reader extends NetCDFReader {
         final int[] ymd = extractYearMonthDayFromFilename(fileName);
         final String fileType = extractGeoFileType(fileName);
         final Path productPath = archive.createValidProductPath("v61", fileType, ymd[0], ymd[1], ymd[2]);
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(productPath)) {
+            for (Path path : stream) {
+                System.out.println("path = " + path);
+            }
+        }
+
 
         // extract time
         // request from archive

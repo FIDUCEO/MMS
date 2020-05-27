@@ -19,19 +19,18 @@
 
 package com.bc.fiduceo.post;
 
-import static org.junit.Assert.*;
-
 import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
-import org.apache.commons.cli.ParseException;
 import org.esa.snap.core.util.io.FileUtils;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import ucar.ma2.Array;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
@@ -39,9 +38,10 @@ import ucar.nc2.Variable;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.util.Arrays;
+
+import static org.junit.Assert.*;
 
 @RunWith(IOTestRunner.class)
 public class PostProcessingToolMain_IO_Test {
@@ -50,14 +50,14 @@ public class PostProcessingToolMain_IO_Test {
     private File dataDir;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         File testDir = new File(TestUtil.getTestDir(), "PostProcessingToolTest");
         configDir = new File(testDir, "config");
         dataDir = new File(testDir, "data");
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         final File testDir = TestUtil.getTestDir();
         if (testDir.isDirectory()) {
             FileUtils.deleteTree(testDir);
@@ -66,26 +66,25 @@ public class PostProcessingToolMain_IO_Test {
     }
 
     @Test
-    public void acceptanceTest() throws IOException, URISyntaxException, ParseException {
+    public void acceptanceTest() throws IOException {
         configDir.mkdirs();
-        final File systemConfigFile = new File(configDir, "system-config.xml");
-        Files.write(systemConfigFile.toPath(), "<system-config></system-config>".getBytes());
+        TestUtil.writeSystemConfig(configDir);
 
         final Element rootElement = new Element("post-processing-config").addContent(Arrays.asList(
-                    new Element("overwrite"),
-                    new Element("post-processings").addContent(
-                                new Element("spherical-distance").addContent(Arrays.asList(
-                                            new Element("target").addContent(Arrays.asList(
-                                                        new Element("data-type").addContent("Float"),
-                                                        new Element("var-name").addContent("post_dist"),
-                                                        new Element("dim-name").addContent(FiduceoConstants.MATCHUP_COUNT)
-                                            )),
-                                            new Element("primary-lat-variable").setAttribute("scaleAttrName", "Scale").addContent("amsub-n16_Latitude"),
-                                            new Element("primary-lon-variable").setAttribute("scaleAttrName", "Scale").addContent("amsub-n16_Longitude"),
-                                            new Element("secondary-lat-variable").addContent("ssmt2-f14_lat"),
-                                            new Element("secondary-lon-variable").addContent("ssmt2-f14_lon")
-                                ))
-                    )
+                new Element("overwrite"),
+                new Element("post-processings").addContent(
+                        new Element("spherical-distance").addContent(Arrays.asList(
+                                new Element("target").addContent(Arrays.asList(
+                                        new Element("data-type").addContent("Float"),
+                                        new Element("var-name").addContent("post_dist"),
+                                        new Element("dim-name").addContent(FiduceoConstants.MATCHUP_COUNT)
+                                )),
+                                new Element("primary-lat-variable").setAttribute("scaleAttrName", "Scale").addContent("amsub-n16_Latitude"),
+                                new Element("primary-lon-variable").setAttribute("scaleAttrName", "Scale").addContent("amsub-n16_Longitude"),
+                                new Element("secondary-lat-variable").addContent("ssmt2-f14_lat"),
+                                new Element("secondary-lon-variable").addContent("ssmt2-f14_lon")
+                        ))
+                )
         ));
 
         final Document document = new Document(rootElement);
@@ -102,19 +101,16 @@ public class PostProcessingToolMain_IO_Test {
         Files.copy(src.toPath(), target.toPath());
 
         final String[] args = {
-                    "-c", configDir.getAbsolutePath(),
-                    "-i", dataDir.getAbsolutePath(),
-                    "-start", "2000-306",
-                    "-end", "2000-312",
-                    "-j", processingConfigFileName
+                "-c", configDir.getAbsolutePath(),
+                "-i", dataDir.getAbsolutePath(),
+                "-start", "2000-306",
+                "-end", "2000-312",
+                "-j", processingConfigFileName
         };
 
         PostProcessingToolMain.main(args);
 
-
-        NetcdfFile netcdfFile = null;
-        try {
-            netcdfFile = NetcdfFile.open(target.getAbsolutePath());
+        try (NetcdfFile netcdfFile = NetcdfFile.open(target.getAbsolutePath())) {
             final Variable postDistVar = netcdfFile.findVariable("post_dist");
             final Variable matchupDistVar = netcdfFile.findVariable("matchup_spherical_distance");
 
@@ -132,10 +128,6 @@ public class PostProcessingToolMain_IO_Test {
 
             for (int i = 0; i < pStorage.length; i++) {
                 assertEquals(pStorage[i], mStorage[i], 1e-3);
-            }
-        } finally {
-            if (netcdfFile != null) {
-                netcdfFile.close();
             }
         }
     }

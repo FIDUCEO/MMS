@@ -35,7 +35,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.nio.file.FileSystems;
@@ -43,10 +42,7 @@ import java.nio.file.Files;
 import java.util.List;
 
 import static com.bc.fiduceo.post.plugin.point_distance.SphericalDistancePlugin.TAG_NAME_SPHERICAL_DISTANCE;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 @RunWith(IOTestRunner.class)
 public class PostProcessingTool_IOTest {
@@ -87,7 +83,7 @@ public class PostProcessingTool_IOTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown()  {
         if (testDir.isDirectory()) {
             FileUtils.deleteTree(testDir);
         }
@@ -98,16 +94,14 @@ public class PostProcessingTool_IOTest {
         final Options options = PostProcessingTool.getOptions();
         final PosixParser parser = new PosixParser();
         final CommandLine commandLine = parser.parse(options, new String[]{
-                    "-j", processingConfigName,
-                    "-i", "/mmd_files",
-                    "-start", "2011-123",
-                    "-end", "2011-124",
-                    "-c", configDir.getPath()
+                "-j", processingConfigName,
+                "-i", "/mmd_files",
+                "-start", "2011-123",
+                "-end", "2011-124",
+                "-c", configDir.getPath()
         });
 
-        final FileWriter fileWriter = new FileWriter(new File(configDir, "system-config.xml"));
-        fileWriter.write("<system-config></system-config>");
-        fileWriter.close();
+        TestUtil.writeSystemConfig(configDir);
 
         final PostProcessingContext context = PostProcessingTool.initializeContext(commandLine);
 
@@ -118,7 +112,7 @@ public class PostProcessingTool_IOTest {
 
         final SystemConfig sysConfig = context.getSystemConfig();
         assertNotNull(sysConfig);
-        assertNull(sysConfig.getArchiveConfig());
+        assertNotNull(sysConfig.getArchiveConfig());
 
         final PostProcessingConfig config = context.getProcessingConfig();
         assertNotNull(config);

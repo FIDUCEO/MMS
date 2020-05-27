@@ -3,6 +3,7 @@ package com.bc.fiduceo.reader.modis;
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.archive.Archive;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
@@ -39,9 +40,11 @@ public class MxD021KM_Reader_IO_Test {
     @Before
     public void setUp() throws IOException {
         geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
+        final Archive archive = TestUtil.getArchive();
 
         final ReaderContext readerContext = new ReaderContext();
         readerContext.setGeometryFactory(geometryFactory);
+        readerContext.setArchive(archive);
 
         reader = new MxD021KM_Reader(readerContext);
     }
