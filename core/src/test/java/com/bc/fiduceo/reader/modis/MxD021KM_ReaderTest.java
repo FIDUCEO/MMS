@@ -132,4 +132,19 @@ public class MxD021KM_ReaderTest {
         } catch(IOException expected) {
         }
     }
+
+    @Test
+    public void testExtractTimePattern() throws IOException {
+        assertEquals(".1445.", MxD021KM_Reader.extractTimePattern("MOD021KM.A2003142.1445.061.2017194130122.hdf"));
+        assertEquals(".2210.", MxD021KM_Reader.extractTimePattern("MYD021KM.A2011168.2210.061.2018032001033.hdf"));
+    }
+
+    @Test
+    public void testExtractTimePattern_invalid() {
+        try {
+            MxD021KM_Reader.extractTimePattern("winniethepooh");
+            fail("IOException expected");
+        } catch(IOException expected) {
+        }
+    }
 }

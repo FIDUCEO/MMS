@@ -48,6 +48,7 @@ class MxD021KM_Reader extends NetCDFReader {
     private static final int LINES_PER_SCAN = 10;
     private static final int NUM_1KM_REF_CHAN = 15;
 
+    private final ReaderContext readerContext;
     private final GeometryFactory geometryFactory;
     private final Archive archive;
 
@@ -57,6 +58,7 @@ class MxD021KM_Reader extends NetCDFReader {
     private MxD03_Reader mxD03Reader;
 
     MxD021KM_Reader(ReaderContext readerContext) {
+        this.readerContext = readerContext;
         geometryFactory = readerContext.getGeometryFactory();
         archive = readerContext.getArchive();
         productSize = null;
@@ -128,6 +130,7 @@ class MxD021KM_Reader extends NetCDFReader {
         return null;
     }
 
+    // package access for testing only tb 2020-05-26
     static String extractGeoFileType(String fileName) throws IOException {
         if (fileName.contains("MOD02")) {
             return "mod03-te";
@@ -135,6 +138,24 @@ class MxD021KM_Reader extends NetCDFReader {
             return "myd03-aq";
         }
         throw new IOException("invalid file name: " + fileName);
+    }
+
+    // package access for testing only tb 2020-05-26
+    static String extractTimePattern(String fileName) throws IOException {
+        if (fileName.length() < 23) {
+            throw new IOException("invalid file name: " + fileName);
+        }
+
+        final String timePattern = fileName.substring(17, 23);
+
+        // check if we have the .xxxx. pattern
+        try {
+            Integer.parseInt(timePattern.substring(1, 5));
+        } catch (NumberFormatException e) {
+            throw new IOException("invalid file name: " + fileName);
+        }
+
+        return timePattern;
     }
 
     @Override
@@ -360,21 +381,27 @@ class MxD021KM_Reader extends NetCDFReader {
     }
 
     private void ensureMod03File() throws IOException {
-        // @todo tb/tb 2020-05-20
+        if (mxD03Reader == null) {
+            final int[] ymd = extractYearMonthDayFromFilename(fileName);
+            final String fileType = extractGeoFileType(fileName);
+            final String timePattern = extractTimePattern(fileName);
+            // @todo tb/tb extract version from master product path 2020-05-25
+            final Path productPath = archive.createValidProductPath("v61", fileType, ymd[0], ymd[1], ymd[2]);
+            try (DirectoryStream<Path> stream = Files.newDirectoryStream(productPath)) {
+                for (Path path : stream) {
+                    final Path fileName = path.getFileName();
+                    if (fileName.toString().contains(timePattern)) {
+                        mxD03Reader = new MxD03_Reader(readerContext);
+                        mxD03Reader.open(path.toFile());
+                        break;
+                    }
+                }
 
-        final int[] ymd = extractYearMonthDayFromFilename(fileName);
-        final String fileType = extractGeoFileType(fileName);
-        final Path productPath = archive.createValidProductPath("v61", fileType, ymd[0], ymd[1], ymd[2]);
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(productPath)) {
-            for (Path path : stream) {
-                System.out.println("path = " + path);
+                if (mxD03Reader == null) {
+                    throw new IOException("associated MxD03 file not found in: " + productPath.toString());
+                }
             }
         }
-
-
-        // extract time
-        // request from archive
-        // open
     }
 
     private void extractGeometries(AcquisitionInfo acquisitionInfo) throws IOException {
