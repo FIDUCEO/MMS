@@ -54,6 +54,5 @@ public class ScanNumberVariableTest {
         assertEquals(3, expandedArray.getShort(10));
         assertEquals(3, expandedArray.getShort(19));
         assertEquals(4, expandedArray.getShort(20));
-
     }
 }

@@ -47,22 +47,22 @@ class MxD021KM_Reader extends NetCDFReader {
     private static final String SECTOR_START_TIME = "EV_Sector_Start_Time";
     private static final int LINES_PER_SCAN = 10;
     private static final int NUM_1KM_REF_CHAN = 15;
+    private static final int NUM_EMISSIVE_CHAN = 16;
 
     private final ReaderContext readerContext;
-    private final GeometryFactory geometryFactory;
-    private final Archive archive;
 
     private Dimension productSize;
     private TimeLocator timeLocator;
     private String fileName;
     private MxD03_Reader mxD03Reader;
+    private List<String> mxd03Names;
 
     MxD021KM_Reader(ReaderContext readerContext) {
         this.readerContext = readerContext;
-        geometryFactory = readerContext.getGeometryFactory();
-        archive = readerContext.getArchive();
         productSize = null;
         timeLocator = null;
+        mxD03Reader = null;
+        mxd03Names = null;
     }
 
     // package access for testing only tb 2020-05-19
@@ -91,6 +91,7 @@ class MxD021KM_Reader extends NetCDFReader {
         return nominalLayerIndex;
     }
 
+    // implicitly tested through getLayerIndex() tb 2020-05-27
     private static int getLayerIndex1kmRefl(String channelKey) {
         int offset = 8;
         if (channelKey.contains("H") || channelKey.contains("L")) {
@@ -158,9 +159,17 @@ class MxD021KM_Reader extends NetCDFReader {
         return timePattern;
     }
 
+    static String getGroup(String variablename) {
+        if (variablename.contains("Noise_in_Thermal_Detectors")) {
+            return null;
+        }
+        return DATA_GROUP;
+    }
+
     @Override
     public void open(File file) throws IOException {
         super.open(file);
+        injectThermalNoiseVariables();
         this.fileName = file.getName();
     }
 
@@ -168,6 +177,7 @@ class MxD021KM_Reader extends NetCDFReader {
     public void close() throws IOException {
         productSize = null;
         timeLocator = null;
+        mxd03Names = null;
         if (mxD03Reader != null) {
             mxD03Reader.close();
             mxD03Reader = null;
@@ -208,12 +218,13 @@ class MxD021KM_Reader extends NetCDFReader {
             final String variableName = variable.getShortName();
             if (variableName.contains("Metadata") ||
                     variableName.contains("Band_") ||
-                    variableName.contains("Noise_in_Thermal_Detectors") ||
                     variableName.contains("Change_in_relative_responses_of_thermal_detectors") ||
                     variableName.contains("DC_Restore_Change_for_Thermal_Bands") ||
                     variableName.contains("DC_Restore_Change_for_Reflective_") ||
                     variableName.contains("nscans") ||
-                    variableName.contains("Max_EV_frames")) {
+                    variableName.contains("Max_EV_frames") ||
+                    variableName.contains("Longitude") ||
+                    variableName.contains("Latitude")) {
                 continue;
             }
 
@@ -228,7 +239,7 @@ class MxD021KM_Reader extends NetCDFReader {
             }
 
             if (variableName.contains("EV_1KM_Emissive")) {
-                addLayered3DVariables(exportVariables, variable, 16, variableName, new ModisL1EmissiveExtension());
+                addLayered3DVariables(exportVariables, variable, NUM_EMISSIVE_CHAN, variableName, new ModisL1EmissiveExtension());
                 continue;
             }
 
@@ -242,13 +253,19 @@ class MxD021KM_Reader extends NetCDFReader {
                 continue;
             }
 
-            // @todo 1 tb/tb Noise_In_Thermal_Detectors
-            // @todo 1 tb/tb MxD03 Variables
-            // Latitude, Longitude, Height, SensorZenith, SensorAzimuth, Range, SolarZenith, SolarAzimuth
-            // gflags, Land/SeaMask, WaterPresent
+            if (variableName.equals("Noise_in_Thermal_Detectors")) {
+                final Dimension productSize = getProductSize();
+                for (int i = 0; i < NUM_EMISSIVE_CHAN; i++) {
+                    exportVariables.add(new ThermalNoiseVariable(variable, i, productSize.getNy()));
+                }
+                continue;
+            }
 
             exportVariables.add(variable);
         }
+
+        final List<Variable> mxD03Variables = mxD03Reader.getVariables();
+        exportVariables.addAll(mxD03Variables);
 
         return exportVariables;
     }
@@ -306,13 +323,23 @@ class MxD021KM_Reader extends NetCDFReader {
     @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException {
         ensureMod03File();
-        // @todo 1 tb/tb add distinction for MOD03 data and the sensor state variables
-        final String fullVariableName = ReaderUtils.stripChannelSuffix(variableName);
-        // @todo 1 tb/tb extend to data from other groups!
-        Array array = arrayCache.get(DATA_GROUP, fullVariableName);
-        final Number fillValue = arrayCache.getNumberAttributeValue(NetCDFUtils.CF_FILL_VALUE_NAME, DATA_GROUP, fullVariableName);
+
+        if (mxd03Names.contains(variableName)) {
+            return mxD03Reader.readRaw(centerX, centerY, interval, variableName);
+        }
+
+        final String fullVariableName;
+        if (variableName.contains("Noise_in_Thermal_Detectors")) {
+            fullVariableName = variableName;
+        } else {
+            fullVariableName = ReaderUtils.stripChannelSuffix(variableName);
+        }
+
+        final String group = getGroup(variableName);
+        Array array = arrayCache.get(group, fullVariableName);
+        Number fillValue = arrayCache.getNumberAttributeValue(NetCDFUtils.CF_FILL_VALUE_NAME, group, fullVariableName);
         if (fillValue == null) {
-            throw new RuntimeException("Fill value for not found for variable: " + variableName);
+            fillValue = NetCDFUtils.getDefaultFillValue(array);
         }
 
         final int rank = array.getRank();
@@ -330,13 +357,23 @@ class MxD021KM_Reader extends NetCDFReader {
     @Override
     public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException {
         ensureMod03File();
+
+        if (mxd03Names.contains(variableName)) {
+            return mxD03Reader.readScaled(centerX, centerY, interval, variableName);
+        }
+
         final Array rawArray = readRaw(centerX, centerY, interval, variableName);
 
-        final String fullVariableName = ReaderUtils.stripChannelSuffix(variableName);
+        final String fullVariableName;
+        if (variableName.contains("Noise_in_Thermal_Detectors")) {
+            fullVariableName = variableName;
+        } else {
+            fullVariableName = ReaderUtils.stripChannelSuffix(variableName);
+        }
+
         final int layerIndex = getLayerIndex(variableName);
 
-        // @todo 1 tb/tb extend to data from other groups!
-        final String groupName = DATA_GROUP;
+        final String groupName = getGroup(variableName);
         double scale = 1.0;
         double offset = 0.0;
 
@@ -385,7 +422,8 @@ class MxD021KM_Reader extends NetCDFReader {
             final int[] ymd = extractYearMonthDayFromFilename(fileName);
             final String fileType = extractGeoFileType(fileName);
             final String timePattern = extractTimePattern(fileName);
-            // @todo tb/tb extract version from master product path 2020-05-25
+            // @todo 1 tb/tb extract version from master product path 2020-05-25
+            final Archive archive = readerContext.getArchive();
             final Path productPath = archive.createValidProductPath("v61", fileType, ymd[0], ymd[1], ymd[2]);
             try (DirectoryStream<Path> stream = Files.newDirectoryStream(productPath)) {
                 for (Path path : stream) {
@@ -393,6 +431,13 @@ class MxD021KM_Reader extends NetCDFReader {
                     if (fileName.toString().contains(timePattern)) {
                         mxD03Reader = new MxD03_Reader(readerContext);
                         mxD03Reader.open(path.toFile());
+
+                        final List<Variable> variables = mxD03Reader.getVariables();
+                        mxd03Names = new ArrayList<>(variables.size());
+                        for (final Variable variable : variables) {
+                            mxd03Names.add(variable.getShortName());
+                        }
+
                         break;
                     }
                 }
@@ -405,6 +450,7 @@ class MxD021KM_Reader extends NetCDFReader {
     }
 
     private void extractGeometries(AcquisitionInfo acquisitionInfo) throws IOException {
+        final GeometryFactory geometryFactory = readerContext.getGeometryFactory();
         final BoundingPolygonCreator boundingPolygonCreator = new BoundingPolygonCreator(new Interval(50, 50), geometryFactory);
         final Array longitude = arrayCache.get(GEOLOCATION_GROUP, LONGITUDE_VAR_NAME);
         final Array latitude = arrayCache.get(GEOLOCATION_GROUP, LATITUDE_VAR_NAME);
@@ -419,5 +465,13 @@ class MxD021KM_Reader extends NetCDFReader {
         final LineString timeAxisGeometry = boundingPolygonCreator.createTimeAxisGeometry(longitude, latitude);
         geometries.setTimeAxesGeometry(timeAxisGeometry);
         ReaderUtils.setTimeAxes(acquisitionInfo, geometries.getTimeAxesGeometry(), geometryFactory);
+    }
+
+    private void injectThermalNoiseVariables() throws IOException {
+        final Variable noiseVariable = netcdfFile.findVariable("Noise_in_Thermal_Detectors");
+        final Dimension productSize = getProductSize();
+        for (int i = 0; i <NUM_EMISSIVE_CHAN; i++ ) {
+            arrayCache.inject(new ThermalNoiseVariable(noiseVariable, i, productSize.getNy()));
+        }
     }
 }

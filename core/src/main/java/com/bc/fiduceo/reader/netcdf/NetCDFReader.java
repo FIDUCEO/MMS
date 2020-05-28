@@ -120,11 +120,6 @@ public abstract class NetCDFReader implements Reader {
         addChannelVariables(result, variable, numChannels, channel_dimension_index, origin);
     }
 
-    protected void addLayered3DVariables(List<Variable> result, Variable variable, int numChannels, String variable_base_name) throws InvalidRangeException {
-        final int[] origin = {0, 0, 0};
-        addChannelVariables(result, variable, numChannels, 0, origin, variable_base_name);
-    }
-
     protected void addLayered3DVariables(List<Variable> result, Variable variable, int numChannels, String variable_base_name, LayerExtension layerExtension) throws InvalidRangeException {
         final int[] origin = {0, 0, 0};
         addChannelVariables(result, variable, numChannels, 0, origin, variable_base_name, layerExtension);

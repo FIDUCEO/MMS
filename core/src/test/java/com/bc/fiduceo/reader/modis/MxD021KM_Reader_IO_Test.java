@@ -8,6 +8,7 @@ import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.*;
+import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.time.TimeLocator;
@@ -22,6 +23,7 @@ import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
@@ -35,11 +37,10 @@ import static org.junit.Assert.assertTrue;
 public class MxD021KM_Reader_IO_Test {
 
     private MxD021KM_Reader reader;
-    private GeometryFactory geometryFactory;
 
     @Before
     public void setUp() throws IOException {
-        geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
+        final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
         final Archive archive = TestUtil.getArchive();
 
         final ReaderContext readerContext = new ReaderContext();
@@ -186,49 +187,79 @@ public class MxD021KM_Reader_IO_Test {
 
         reader.open(file);
         final List<Variable> variables = reader.getVariables();
-        assertEquals(94, variables.size());
+        assertEquals(120, variables.size());
 
         Variable variable = variables.get(0);
-        assertEquals("Latitude", variable.getShortName());
-        assertEquals(DataType.FLOAT, variable.getDataType());
-
-        variable = variables.get(2);
-        assertEquals("EV_1KM_RefSB_ch08", variable.getShortName());
-        assertEquals(DataType.USHORT, variable.getDataType());
-
-        variable = variables.get(14);
-        assertEquals("EV_1KM_RefSB_ch18", variable.getShortName());
-        assertEquals(DataType.USHORT, variable.getDataType());
-
-        variable = variables.get(18);
-        assertEquals("EV_1KM_RefSB_Uncert_Indexes_ch09", variable.getShortName());
+        assertEquals("Noise_in_Thermal_Detectors_ch20", variable.getShortName());
         assertEquals(DataType.UBYTE, variable.getDataType());
 
+        variable = variables.get(2);
+        assertEquals("Noise_in_Thermal_Detectors_ch22", variable.getShortName());
+        assertEquals(DataType.UBYTE, variable.getDataType());
+
+        variable = variables.get(14);
+        assertEquals("Noise_in_Thermal_Detectors_ch35", variable.getShortName());
+        assertEquals(DataType.UBYTE, variable.getDataType());
+
+        variable = variables.get(18);
+        assertEquals("EV_1KM_RefSB_ch10", variable.getShortName());
+        assertEquals(DataType.USHORT, variable.getDataType());
+
         variable = variables.get(34);
+        assertEquals("EV_1KM_RefSB_Uncert_Indexes_ch11", variable.getShortName());
+        assertEquals(DataType.UBYTE, variable.getDataType());
+
+        variable = variables.get(48);
         assertEquals("EV_1KM_Emissive_ch22", variable.getShortName());
         assertEquals(DataType.USHORT, variable.getDataType());
 
-        variable = variables.get(48);
-        assertEquals("EV_1KM_Emissive_Uncert_Indexes_ch20", variable.getShortName());
+        variable = variables.get(65);
+        assertEquals("EV_1KM_Emissive_Uncert_Indexes_ch23", variable.getShortName());
         assertEquals(DataType.UBYTE, variable.getDataType());
 
-        variable = variables.get(65);
-        assertEquals("EV_250_Aggr1km_RefSB_ch02", variable.getShortName());
+        variable = variables.get(69);
+        assertEquals("EV_1KM_Emissive_Uncert_Indexes_ch28", variable.getShortName());
+        assertEquals(DataType.UBYTE, variable.getDataType());
+
+        variable = variables.get(72);
+        assertEquals("EV_1KM_Emissive_Uncert_Indexes_ch31", variable.getShortName());
+        assertEquals(DataType.UBYTE, variable.getDataType());
+
+        variable = variables.get(78);
+        assertEquals("EV_250_Aggr1km_RefSB_ch01", variable.getShortName());
         assertEquals(DataType.USHORT, variable.getDataType());
 
-        variable = variables.get(69);
+        variable = variables.get(83);
         assertEquals("EV_250_Aggr1km_RefSB_Samples_Used_ch02", variable.getShortName());
         assertEquals(DataType.BYTE, variable.getDataType());
 
-        variable = variables.get(72);
-        assertEquals("EV_500_Aggr1km_RefSB_ch05", variable.getShortName());
+        variable = variables.get(88);
+        assertEquals("EV_500_Aggr1km_RefSB_ch07", variable.getShortName());
         assertEquals(DataType.USHORT, variable.getDataType());
 
-        variable = variables.get(78);
-        assertEquals("EV_500_Aggr1km_RefSB_Uncert_Indexes_ch06", variable.getShortName());
+        variable = variables.get(93);
+        assertEquals("EV_500_Aggr1km_RefSB_Uncert_Indexes_ch07", variable.getShortName());
         assertEquals(DataType.UBYTE, variable.getDataType());
 
-        // @todo 1 tb/tb continue here 2020-05-15
+        variable = variables.get(98);
+        assertEquals("EV_500_Aggr1km_RefSB_Samples_Used_ch07", variable.getShortName());
+        assertEquals(DataType.BYTE, variable.getDataType());
+
+        variable = variables.get(103);
+        assertEquals("SolarZenith", variable.getShortName());
+        assertEquals(DataType.SHORT, variable.getDataType());
+
+        variable = variables.get(108);
+        assertEquals("Scan_number", variable.getShortName());
+        assertEquals(DataType.SHORT, variable.getDataType());
+
+        variable = variables.get(113);
+        assertEquals("SensorAzimuth", variable.getShortName());
+        assertEquals(DataType.SHORT, variable.getDataType());
+
+        variable = variables.get(118);
+        assertEquals("WaterPresent", variable.getShortName());
+        assertEquals(DataType.UBYTE, variable.getDataType());
     }
 
     @Test
@@ -237,49 +268,79 @@ public class MxD021KM_Reader_IO_Test {
 
         reader.open(file);
         final List<Variable> variables = reader.getVariables();
-        assertEquals(94, variables.size());
+        assertEquals(120, variables.size());
 
         Variable variable = variables.get(1);
-        assertEquals("Longitude", variable.getShortName());
-        assertEquals(DataType.FLOAT, variable.getDataType());
-
-        variable = variables.get(3);
-        assertEquals("EV_1KM_RefSB_ch09", variable.getShortName());
-        assertEquals(DataType.USHORT, variable.getDataType());
-
-        variable = variables.get(10);
-        assertEquals("EV_1KM_RefSB_ch14H", variable.getShortName());
-        assertEquals(DataType.USHORT, variable.getDataType());
-
-        variable = variables.get(19);
-        assertEquals("EV_1KM_RefSB_Uncert_Indexes_ch10", variable.getShortName());
+        assertEquals("Noise_in_Thermal_Detectors_ch21", variable.getShortName());
         assertEquals(DataType.UBYTE, variable.getDataType());
 
+        variable = variables.get(3);
+        assertEquals("Noise_in_Thermal_Detectors_ch23", variable.getShortName());
+        assertEquals(DataType.UBYTE, variable.getDataType());
+
+        variable = variables.get(10);
+        assertEquals("Noise_in_Thermal_Detectors_ch31", variable.getShortName());
+        assertEquals(DataType.UBYTE, variable.getDataType());
+
+        variable = variables.get(19);
+        assertEquals("EV_1KM_RefSB_ch11", variable.getShortName());
+        assertEquals(DataType.USHORT, variable.getDataType());
+
         variable = variables.get(35);
+        assertEquals("EV_1KM_RefSB_Uncert_Indexes_ch12", variable.getShortName());
+        assertEquals(DataType.UBYTE, variable.getDataType());
+
+        variable = variables.get(49);
         assertEquals("EV_1KM_Emissive_ch23", variable.getShortName());
         assertEquals(DataType.USHORT, variable.getDataType());
 
-        variable = variables.get(49);
-        assertEquals("EV_1KM_Emissive_Uncert_Indexes_ch21", variable.getShortName());
-        assertEquals(DataType.UBYTE, variable.getDataType());
-
         variable = variables.get(66);
-        assertEquals("EV_250_Aggr1km_RefSB_Uncert_Indexes_ch01", variable.getShortName());
+        assertEquals("EV_1KM_Emissive_Uncert_Indexes_ch24", variable.getShortName());
         assertEquals(DataType.UBYTE, variable.getDataType());
 
         variable = variables.get(70);
+        assertEquals("EV_1KM_Emissive_Uncert_Indexes_ch29", variable.getShortName());
+        assertEquals(DataType.UBYTE, variable.getDataType());
+
+        variable = variables.get(73);
+        assertEquals("EV_1KM_Emissive_Uncert_Indexes_ch32", variable.getShortName());
+        assertEquals(DataType.UBYTE, variable.getDataType());
+
+        variable = variables.get(79);
+        assertEquals("EV_250_Aggr1km_RefSB_ch02", variable.getShortName());
+        assertEquals(DataType.USHORT, variable.getDataType());
+
+        variable = variables.get(84);
         assertEquals("EV_500_Aggr1km_RefSB_ch03", variable.getShortName());
         assertEquals(DataType.USHORT, variable.getDataType());
 
-        variable = variables.get(73);
-        assertEquals("EV_500_Aggr1km_RefSB_ch06", variable.getShortName());
-        assertEquals(DataType.USHORT, variable.getDataType());
-
-        variable = variables.get(79);
-        assertEquals("EV_500_Aggr1km_RefSB_Uncert_Indexes_ch07", variable.getShortName());
+        variable = variables.get(89);
+        assertEquals("EV_500_Aggr1km_RefSB_Uncert_Indexes_ch03", variable.getShortName());
         assertEquals(DataType.UBYTE, variable.getDataType());
 
-        // @todo 1 tb/tb continue here 2020-05-15
+        variable = variables.get(94);
+        assertEquals("EV_500_Aggr1km_RefSB_Samples_Used_ch03", variable.getShortName());
+        assertEquals(DataType.BYTE, variable.getDataType());
+
+        variable = variables.get(99);
+        assertEquals("Height", variable.getShortName());
+        assertEquals(DataType.SHORT, variable.getDataType());
+
+        variable = variables.get(104);
+        assertEquals("SolarAzimuth", variable.getShortName());
+        assertEquals(DataType.SHORT, variable.getDataType());
+
+        variable = variables.get(109);
+        assertEquals("Latitude", variable.getShortName());
+        assertEquals(DataType.FLOAT, variable.getDataType());
+
+        variable = variables.get(114);
+        assertEquals("Range", variable.getShortName());
+        assertEquals(DataType.USHORT, variable.getDataType());
+
+        variable = variables.get(119);
+        assertEquals("gflags", variable.getShortName());
+        assertEquals(DataType.UBYTE, variable.getDataType());
     }
 
     @Test
@@ -483,6 +544,65 @@ public class MxD021KM_Reader_IO_Test {
     }
 
     @Test
+    public void testReadRaw_ThermalNoise_Aqua_left() throws IOException {
+        final File file = getAquaFile();
+
+        reader.open(file);
+
+        final Array array = reader.readRaw(0, 97, new Interval(3, 3), "Noise_in_Thermal_Detectors_ch23");
+        NCTestUtils.assertValueAt(-127, 0, 0, array);
+        NCTestUtils.assertValueAt(25, 1, 0, array);
+        NCTestUtils.assertValueAt(25, 2, 0, array);
+
+        NCTestUtils.assertValueAt(-127, 0, 1, array);
+        NCTestUtils.assertValueAt(25, 1, 1, array);
+        NCTestUtils.assertValueAt(25, 2, 1, array);
+    }
+
+    @Test
+    public void testReadRaw_ThermalNoise_Terra() throws IOException {
+        final File file = getTerraFile();
+
+        reader.open(file);
+
+        final Array array = reader.readRaw(52, 95, new Interval(3, 3), "Noise_in_Thermal_Detectors_ch24");
+        NCTestUtils.assertValueAt(29, 0, 0, array);
+        NCTestUtils.assertValueAt(29, 1, 0, array);
+
+        NCTestUtils.assertValueAt(30, 1, 1, array);
+
+        NCTestUtils.assertValueAt(29, 2, 2, array);
+    }
+
+    @Test
+    public void testReadRaw_MOD03_Terra() throws IOException {
+        final File file = getTerraFile();
+
+        reader.open(file);
+
+        final Array array = reader.readRaw(52, 95, new Interval(3, 3), "Height");
+        NCTestUtils.assertValueAt(0, 0, 0, array);
+        NCTestUtils.assertValueAt(0, 1, 0, array);
+
+        NCTestUtils.assertValueAt(0, 1, 1, array);
+        NCTestUtils.assertValueAt(0, 2, 1, array);
+    }
+
+    @Test
+    public void testReadRaw_MYD03_Aqua() throws IOException {
+        final File file = getAquaFile();
+
+        reader.open(file);
+
+        final Array array = reader.readRaw(53, 96, new Interval(3, 3), "SensorZenith");
+        NCTestUtils.assertValueAt(5945, 0, 0, array);
+        NCTestUtils.assertValueAt(5934, 1, 0, array);
+
+        NCTestUtils.assertValueAt(5934, 1, 1, array);
+        NCTestUtils.assertValueAt(5923, 2, 1, array);
+    }
+
+    @Test
     public void testReadScaled_250m_Aqua() throws IOException {
         final File file = getAquaFile();
 
@@ -601,7 +721,83 @@ public class MxD021KM_Reader_IO_Test {
         NCTestUtils.assertValueAt(16.0, 2, 1, array);
     }
 
-    // @todo 1 tb/tb read other datasets, check MOD03 data ... 2020-05-20
+    @Test
+    public void testReadScaled_MOD03_Terra() throws IOException {
+        final File file = getTerraFile();
+
+        reader.open(file);
+
+        final Array array = reader.readScaled(54, 97, new Interval(3, 3), "SensorAzimuth");
+        NCTestUtils.assertValueAt(144.84, 0, 0, array);
+        NCTestUtils.assertValueAt(144.79, 1, 0, array);
+
+        NCTestUtils.assertValueAt(144.72, 1, 1, array);
+        NCTestUtils.assertValueAt(144.67, 2, 1, array);
+    }
+
+    @Test
+    public void testReadScaled_MYD03_Aqua() throws IOException {
+        final File file = getAquaFile();
+
+        reader.open(file);
+
+        final Array array = reader.readScaled(55, 97, new Interval(3, 3), "Range");
+        NCTestUtils.assertValueAt(1237150.0, 0, 0, array);
+        NCTestUtils.assertValueAt(1234225.0, 1, 0, array);
+
+        NCTestUtils.assertValueAt(1234225.0, 1, 1, array);
+        NCTestUtils.assertValueAt(1231325.0, 2, 1, array);
+    }
+
+    @Test
+    public void testReadScaled_ThermalNoise_Terra() throws IOException {
+        final File file = getTerraFile();
+
+        reader.open(file);
+
+        final Array array = reader.readScaled(55, 98, new Interval(3, 3), "Noise_in_Thermal_Detectors_ch25");
+        NCTestUtils.assertValueAt(27.0, 0, 0, array);
+        NCTestUtils.assertValueAt(29.0, 1, 1, array);
+        NCTestUtils.assertValueAt(28.0, 2, 2, array);
+    }
+
+    @Test
+    public void testGetPixelLocator_Terra() throws IOException {
+        final File file = getTerraFile();
+
+        reader.open(file);
+
+        final PixelLocator pixelLocator = reader.getPixelLocator();
+        assertNotNull(pixelLocator);
+
+        final Point2D geoLocation = pixelLocator.getGeoLocation(856, 1603, null);
+        assertEquals(-168.64809403912324, geoLocation.getX(), 1e-8);
+        assertEquals(-83.37166595458984, geoLocation.getY(), 1e-8);
+
+        final Point2D[] pixelLocation = pixelLocator.getPixelLocation(-168.64809403912324, -83.37166595458984);
+        assertEquals(1, pixelLocation.length);
+        assertEquals(856.0091562622307, pixelLocation[0].getX(), 1e-8);
+        assertEquals(1602.9897901257505, pixelLocation[0].getY(), 1e-8);
+    }
+
+    @Test
+    public void testGetPixelLocator_Aqua() throws IOException {
+        final File file = getAquaFile();
+
+        reader.open(file);
+
+        final PixelLocator pixelLocator = reader.getPixelLocator();
+        assertNotNull(pixelLocator);
+
+        final Point2D geoLocation = pixelLocator.getGeoLocation(857.5, 1604.5, null);
+        assertEquals(176.8111726476808, geoLocation.getX(), 1e-8);
+        assertEquals(77.82994079589844, geoLocation.getY(), 1e-8);
+
+        final Point2D[] pixelLocation = pixelLocator.getPixelLocation(176.8111726476808, 77.82994079589844);
+        assertEquals(1, pixelLocation.length);
+        assertEquals(857.494889374718, pixelLocation[0].getX(), 1e-8);
+        assertEquals(1604.5010092939542, pixelLocation[0].getY(), 1e-8);
+    }
 
     private File getTerraFile() throws IOException {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"mod021km-te", "v61", "2003", "05", "22", "MOD021KM.A2003142.1445.061.2017194130122.hdf"}, false);

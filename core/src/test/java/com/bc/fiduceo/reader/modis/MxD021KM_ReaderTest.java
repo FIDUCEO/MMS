@@ -147,4 +147,10 @@ public class MxD021KM_ReaderTest {
         } catch(IOException expected) {
         }
     }
+
+    @Test
+    public void testGetGroup() {
+        assertEquals("MODIS_SWATH_Type_L1B/Data_Fields",MxD021KM_Reader.getGroup("EV_1KM_Emissive_Uncert_Indexes_ch23") );
+        assertNull(MxD021KM_Reader.getGroup("Noise_in_Thermal_Detectors"));
+    }
 }
