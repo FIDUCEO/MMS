@@ -20,20 +20,11 @@
 
 package com.bc.fiduceo.matchup.writer;
 
-import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.util.NetCDFUtils;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
@@ -42,12 +33,18 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
+
 public class WindowReadingIOVariableTest {
 
     private WindowReadingIOVariable ioVariable;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         ioVariable = new WindowReadingIOVariable(null);
     }
 
@@ -76,7 +73,7 @@ public class WindowReadingIOVariableTest {
     }
 
     @Test
-    public void testSetGetAttributes() throws Exception {
+    public void testSetGetAttributes() {
         final ArrayList<Attribute> attributes = new ArrayList<>();
 
         ioVariable.setAttributes(attributes);
@@ -110,7 +107,32 @@ public class WindowReadingIOVariableTest {
         ioVariable.writeData(3, 4, interval, 4);
 
         verify(readerMock, times(1)).readRaw(3, 4, interval, "hans_wurst");
-        verify(target,times(1)).write(data, "target_hans_wurst", 4);
+        verify(target, times(1)).write(data, "target_hans_wurst", 4);
+
+        verifyNoMoreInteractions(readerMock);
+        verifyNoMoreInteractions(target);
+    }
+
+    @Test
+    public void testWriteData_scaledVariable() throws IOException, InvalidRangeException {
+        final Target target = mock(Target.class);
+        final Reader readerMock = mock(Reader.class);
+
+        final Array data = NetCDFUtils.create(new double[]{1.1, 2.2, 3.3, 4.4});
+        when(readerMock.readScaled(anyInt(), anyInt(), any(), anyString())).thenReturn(data);
+        final ReaderContainer sourceContainer = new ReaderContainer();
+        sourceContainer.setReader(readerMock);
+
+        final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable(sourceContainer, true);
+        ioVariable.setTarget(target);
+        ioVariable.setSourceVariableName("hans_int");
+        ioVariable.setTargetVariableName("target_hans_double");
+
+        final Interval interval = new Interval(3, 3);
+        ioVariable.writeData(3, 4, interval, 4);
+
+        verify(readerMock, times(1)).readScaled(3, 4, interval, "hans_int");
+        verify(target, times(1)).write(data, "target_hans_double", 4);
 
         verifyNoMoreInteractions(readerMock);
         verifyNoMoreInteractions(target);

@@ -1,3 +1,8 @@
+### Updates from version 1.5.1 to 1.5.2
+* updated to use SNAP version 8.0
+* updated to use NetCDF version 5.3.1
+* added facility to store scaled variables to MMD
+
 ### Updates from version 1.5.0 to 1.5.1
 * update to support HIRS FCDR v1.00
 * updated SNAP dependency to latest version (7.0.3, S3TBX 7.0.2)

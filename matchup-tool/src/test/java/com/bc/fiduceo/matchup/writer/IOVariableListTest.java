@@ -39,7 +39,7 @@ import static org.mockito.Mockito.*;
 public class IOVariableListTest {
 
     @Test
-    public void testCloneAllTheAttributesFromAVariable() throws Exception {
+    public void testCloneAllTheAttributesFromAVariable() {
         //preparation
         final String sensorName = "sensorName";
         final String variableName = "varName";

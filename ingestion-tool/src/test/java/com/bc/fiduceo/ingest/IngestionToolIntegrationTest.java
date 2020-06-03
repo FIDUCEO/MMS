@@ -1028,6 +1028,37 @@ public class IngestionToolIntegrationTest {
         }
     }
 
+    @Test
+    public void testIngest_MY021KM() throws SQLException, IOException, ParseException {
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "myd021km-aq", "-start", "2011-168", "-end", "2011-168", "-v", "v61"};
+
+        try {
+            IngestionToolMain.main(args);
+            final List<SatelliteObservation> satelliteObservations = storage.get();
+            assertEquals(1, satelliteObservations.size());
+
+            final SatelliteObservation observation = getSatelliteObservation("MYD021KM.A2011168.2210.061.2018032001033.hdf", satelliteObservations);
+            TestUtil.assertCorrectUTCDate(2011, 6, 17, 22, 10, 0, 0, observation.getStartTime());
+            TestUtil.assertCorrectUTCDate(2011, 6, 17, 22, 15, 0, 0, observation.getStopTime());
+
+            assertEquals("myd021km-aq", observation.getSensor().getName());
+
+            final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"myd021km-aq", "v61", "2011", "06", "17", "MYD021KM.A2011168.2210.061.2018032001033.hdf"}, true);
+            final String expectedPath = TestUtil.getTestDataDirectory().getAbsolutePath() + testFilePath;
+            assertEquals(expectedPath, observation.getDataFilePath().toString());
+
+            assertEquals(NodeType.UNDEFINED, observation.getNodeType());
+            assertEquals("v61", observation.getVersion());
+
+            final Geometry geoBounds = observation.getGeoBounds();
+            assertEquals(TestData.MYD012KM_AQ_GEOMETRY, geometryFactory.format(geoBounds));
+            assertEquals(TestData.MYD021KM_AQ_AXIS_GEOMETRY, geometryFactory.format(observation.getTimeAxes()[0].getGeometry()));
+        } finally {
+            storage.clear();
+            storage.close();
+        }
+    }
+
     private void callMainAndValidateSystemOutput(String[] args, boolean errorOutputExpected) throws ParseException {
         final ByteArrayOutputStream expected = new ByteArrayOutputStream();
         new IngestionTool().printUsageTo(expected);
