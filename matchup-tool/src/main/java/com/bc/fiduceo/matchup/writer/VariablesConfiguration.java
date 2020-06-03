@@ -29,6 +29,7 @@ public class VariablesConfiguration {
 
     private final HashMap<String, Map<String, String>> renamesMap;
     private final HashMap<String, List<String>> excludesMap;
+    private final HashMap<String, List<String>> writeScaledMap;
     private final Map<String, String> sensorRenames;
     private final Map<String, String> sensorSeparator;
     private final List<AttributeRename> attributeRenameList;
@@ -36,6 +37,7 @@ public class VariablesConfiguration {
     public VariablesConfiguration() {
         renamesMap = new HashMap<>();
         excludesMap = new HashMap<>();
+        writeScaledMap = new HashMap<>();
         sensorRenames = new HashMap<>();
         sensorSeparator = new HashMap<>();
         attributeRenameList = new ArrayList<>();
@@ -132,6 +134,20 @@ public class VariablesConfiguration {
             return renamer.get(0).rename;
         }
         return attributeName;
+    }
+
+    public boolean isWriteScaled(String sensorName, String variableName) {
+        final List<String> sensorWriteScaledList = writeScaledMap.get(sensorName);
+        if (sensorWriteScaledList != null) {
+            return sensorWriteScaledList.contains(variableName);
+        }
+        return false;
+    }
+
+    public void addWriteScaled(String sensorName, String variableName) {
+        final List<String> sensorWriteScaledList = writeScaledMap.computeIfAbsent(sensorName, k -> new ArrayList<>());
+
+        sensorWriteScaledList.add(variableName);
     }
 
     private static class AttributeRename {
