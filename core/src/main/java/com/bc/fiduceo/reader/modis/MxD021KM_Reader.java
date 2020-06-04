@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -56,6 +57,7 @@ class MxD021KM_Reader extends NetCDFReader {
     private String fileName;
     private MxD03_Reader mxD03Reader;
     private List<String> mxd03Names;
+    private Path filePath;
 
     MxD021KM_Reader(ReaderContext readerContext) {
         this.readerContext = readerContext;
@@ -141,6 +143,17 @@ class MxD021KM_Reader extends NetCDFReader {
         throw new IOException("invalid file name: " + fileName);
     }
 
+    // package access for testing only tb 2020-06-03
+    // @todo 2 tb/tb write test
+    static String extractFileType(String fileName) throws IOException {
+        if (fileName.contains("MOD02")) {
+            return "mod021km-te";
+        } else if (fileName.contains("MYD02")) {
+            return "myd021km-aq";
+        }
+        throw new IOException("invalid file name: " + fileName);
+    }
+
     // package access for testing only tb 2020-05-26
     static String extractTimePattern(String fileName) throws IOException {
         if (fileName.length() < 23) {
@@ -171,6 +184,7 @@ class MxD021KM_Reader extends NetCDFReader {
         super.open(file);
         injectThermalNoiseVariables();
         this.fileName = file.getName();
+        filePath = file.toPath();
     }
 
     @Override
@@ -422,9 +436,10 @@ class MxD021KM_Reader extends NetCDFReader {
             final int[] ymd = extractYearMonthDayFromFilename(fileName);
             final String fileType = extractGeoFileType(fileName);
             final String timePattern = extractTimePattern(fileName);
-            // @todo 1 tb/tb extract version from master product path 2020-05-25
+
             final Archive archive = readerContext.getArchive();
-            final Path productPath = archive.createValidProductPath("v61", fileType, ymd[0], ymd[1], ymd[2]);
+            final String version = archive.getVersion(extractFileType(fileName), filePath);
+            final Path productPath = archive.createValidProductPath(version, fileType, ymd[0], ymd[1], ymd[2]);
             try (DirectoryStream<Path> stream = Files.newDirectoryStream(productPath)) {
                 for (Path path : stream) {
                     final Path fileName = path.getFileName();

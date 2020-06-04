@@ -26,15 +26,17 @@ import com.bc.fiduceo.util.TimeUtils;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class Archive {
+
+    public static final String SENSOR = "SENSOR";
+    public static final String VERSION = "VERSION";
+    public static final String YEAR = "YEAR";
+    public static final String MONTH = "MONTH";
+    public static final String DAY = "DAY";
+    public static final String DAY_OF_YEAR = "DAY_OF_YEAR";
 
     private final Logger log;
     private final HashMap<String, String[]> pathMaps;
@@ -51,6 +53,56 @@ public class Archive {
 
         final Map<String, String[]> rules = config.getRules();
         pathMaps.putAll(rules);
+    }
+
+    // package access for testing only tb 2016-11-01
+    static String[] createDefaultPathElements() {
+        final String[] pathElements = new String[5];
+
+        pathElements[0] = SENSOR;
+        pathElements[1] = VERSION;
+        pathElements[2] = YEAR;
+        pathElements[3] = MONTH;
+        pathElements[4] = DAY;
+
+        return pathElements;
+    }
+
+    // package access for testing only tb 2020-06-03
+
+    static String[] relativeElements(Path archivePath, Path rootPath) {
+        final Path absolutArchivePath = archivePath.toAbsolutePath().normalize();
+        final Path absoluteRootPath = rootPath.toAbsolutePath().normalize();
+
+        final ArrayList<String> archiveSegments = new ArrayList<>();
+        Iterator<Path> iterator = absolutArchivePath.iterator();
+        while (iterator.hasNext()) {
+            archiveSegments.add(iterator.next().toString());
+        }
+
+        final ArrayList<String> rootSegments = new ArrayList<>();
+        iterator = absoluteRootPath.iterator();
+        while (iterator.hasNext()) {
+            rootSegments.add(iterator.next().toString());
+        }
+
+        int splitIndex = -1;
+        for (int i = 0; i < rootSegments.size(); i++) {
+            if (rootSegments.get(i).equals(archiveSegments.get(i))) {
+                splitIndex = i;
+            }
+        }
+
+        if (splitIndex < 0) {
+            throw new IllegalArgumentException("No common path with archive root: " + archivePath);
+        }
+
+        final ArrayList<String> resultTokens = new ArrayList<>();
+        for (int i = splitIndex + 1; i < archiveSegments.size(); i++) {
+            resultTokens.add(archiveSegments.get(i));
+        }
+
+        return resultTokens.toArray(new String[]{});
     }
 
     public Path[] get(Date startDate, Date endDate, String processingVersion, String sensorType) throws IOException {
@@ -97,25 +149,25 @@ public class Archive {
         return path;
     }
 
+    public String getVersion(String sensorType, Path archivePath) {
+        final String[] pathTokens = relativeElements(archivePath, rootPath);
+        final String[] pathElements = getPathElements(sensorType);
+
+        for (int i = 0; i < pathElements.length; i++) {
+            if (pathElements[i].equals(VERSION)) {
+                return pathTokens[i];
+            }
+        }
+
+        throw new IllegalArgumentException("Unable to extract version from path: " + archivePath);
+    }
+
     // package access for testing only tb 2016-11-01
     String[] getPathElements(String sensorType) {
         String[] pathElements = pathMaps.get(sensorType);
         if (pathElements == null) {
             pathElements = defaultPath;
         }
-
-        return pathElements;
-    }
-
-    // package access for testing only tb 2016-11-01
-    static String[] createDefaultPathElements() {
-        final String[] pathElements = new String[5];
-
-        pathElements[0] = "SENSOR";
-        pathElements[1] = "VERSION";
-        pathElements[2] = "YEAR";
-        pathElements[3] = "MONTH";
-        pathElements[4] = "DAY";
 
         return pathElements;
     }

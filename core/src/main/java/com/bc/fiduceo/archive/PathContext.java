@@ -45,23 +45,25 @@ import com.bc.fiduceo.util.TimeUtils;
 import java.util.Calendar;
 import java.util.HashMap;
 
+import static com.bc.fiduceo.archive.Archive.*;
+
 class PathContext {
 
     private final HashMap<String, String> map;
 
     PathContext(String sensor, String version, int year, int month, int day) {
         map = new HashMap<>();
-        map.put("SENSOR", sensor);
-        map.put("VERSION", version);
-        map.put("YEAR", Integer.toString(year));
-        map.put("MONTH", String.format("%02d", month));
-        map.put("DAY", String.format("%02d", day));
+        map.put(SENSOR, sensor);
+        map.put(VERSION, version);
+        map.put(YEAR, Integer.toString(year));
+        map.put(MONTH, String.format("%02d", month));
+        map.put(DAY, String.format("%02d", day));
 
         final Calendar utcCalendar = TimeUtils.getUTCCalendar();
         utcCalendar.set(Calendar.YEAR, year);
         utcCalendar.set(Calendar.MONTH, month - 1);
         utcCalendar.set(Calendar.DAY_OF_MONTH, day);
-        map.put("DAY_OF_YEAR", String.format("%03d", utcCalendar.get(Calendar.DAY_OF_YEAR)));
+        map.put(DAY_OF_YEAR, String.format("%03d", utcCalendar.get(Calendar.DAY_OF_YEAR)));
     }
 
     String getSegment(String pathElement) {
