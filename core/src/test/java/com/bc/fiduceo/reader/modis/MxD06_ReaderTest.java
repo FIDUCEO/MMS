@@ -21,6 +21,7 @@
 package com.bc.fiduceo.reader.modis;
 
 import com.bc.fiduceo.reader.ReaderContext;
+import org.junit.Before;
 import org.junit.Test;
 import ucar.ma2.Array;
 
@@ -33,11 +34,18 @@ import static org.mockito.Mockito.when;
 
 public class MxD06_ReaderTest {
 
+    private MxD06_Reader reader;
+
+    @Before
+    public void setUp() {
+
+        reader = new MxD06_Reader(new ReaderContext());
+    }
+
     @Test
     public void testGetRegEx() {
         final String expected = "M([OY])D06_L2.A\\d{7}.\\d{4}.\\d{3}.\\d{13}.hdf";
 
-        final MxD06_Reader reader = new MxD06_Reader(new ReaderContext()); // we do not need a geometry factory for this test tb 2017-05-30
         final String readerRexExp = reader.getRegEx();
         assertEquals(expected, readerRexExp);
 
@@ -64,15 +72,11 @@ public class MxD06_ReaderTest {
 
     @Test
     public void testGetLongitudeVariableName() {
-        final MxD06_Reader reader = new MxD06_Reader(new ReaderContext()); // we do not need a geometry factory for this test tb 2017-08-10
-
         assertEquals("Longitude", reader.getLongitudeVariableName());
     }
 
     @Test
     public void testGetLatitudeVariableName() {
-        final MxD06_Reader reader = new MxD06_Reader(new ReaderContext()); // we do not need a geometry factory for this test tb 2017-08-10
-
         assertEquals("Latitude", reader.getLatitudeVariableName());
     }
 

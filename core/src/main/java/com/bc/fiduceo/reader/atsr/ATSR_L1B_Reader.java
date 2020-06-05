@@ -92,7 +92,15 @@ class ATSR_L1B_Reader extends SNAP_Reader {
 
     @Override
     public int[] extractYearMonthDayFromFilename(String fileName) {
-        throw new RuntimeException("not implemented");
+        final String yearString = fileName.substring(14, 18);
+        final String monthString = fileName.substring(18, 20);
+        final String dayString = fileName.substring(20, 22);
+
+        final int[] ymd = new int[3];
+        ymd[0] = Integer.parseInt(yearString);
+        ymd[1] = Integer.parseInt(monthString);
+        ymd[2] = Integer.parseInt(dayString);
+        return ymd;
     }
 
     @Override

@@ -187,7 +187,7 @@ public class MxD021KM_Reader_IO_Test {
 
         reader.open(file);
         final List<Variable> variables = reader.getVariables();
-        assertEquals(120, variables.size());
+        assertEquals(113, variables.size());
 
         Variable variable = variables.get(0);
         assertEquals("Noise_in_Thermal_Detectors_ch20", variable.getShortName());
@@ -246,19 +246,15 @@ public class MxD021KM_Reader_IO_Test {
         assertEquals(DataType.BYTE, variable.getDataType());
 
         variable = variables.get(103);
+        assertEquals("Longitude", variable.getShortName());
+        assertEquals(DataType.FLOAT, variable.getDataType());
+
+        variable = variables.get(108);
         assertEquals("SolarZenith", variable.getShortName());
         assertEquals(DataType.SHORT, variable.getDataType());
 
-        variable = variables.get(108);
-        assertEquals("Scan_number", variable.getShortName());
-        assertEquals(DataType.SHORT, variable.getDataType());
-
-        variable = variables.get(113);
-        assertEquals("SensorAzimuth", variable.getShortName());
-        assertEquals(DataType.SHORT, variable.getDataType());
-
-        variable = variables.get(118);
-        assertEquals("WaterPresent", variable.getShortName());
+        variable = variables.get(112);
+        assertEquals("gflags", variable.getShortName());
         assertEquals(DataType.UBYTE, variable.getDataType());
     }
 
@@ -268,7 +264,11 @@ public class MxD021KM_Reader_IO_Test {
 
         reader.open(file);
         final List<Variable> variables = reader.getVariables();
-        assertEquals(120, variables.size());
+        assertEquals(113, variables.size());
+
+        for(final Variable var : variables) {
+            System.out.println(var.getShortName());
+        }
 
         Variable variable = variables.get(1);
         assertEquals("Noise_in_Thermal_Detectors_ch21", variable.getShortName());
@@ -323,23 +323,19 @@ public class MxD021KM_Reader_IO_Test {
         assertEquals(DataType.BYTE, variable.getDataType());
 
         variable = variables.get(99);
+        assertEquals("EV_Band26", variable.getShortName());
+        assertEquals(DataType.USHORT, variable.getDataType());
+
+        variable = variables.get(104);
         assertEquals("Height", variable.getShortName());
         assertEquals(DataType.SHORT, variable.getDataType());
 
-        variable = variables.get(104);
+        variable = variables.get(109);
         assertEquals("SolarAzimuth", variable.getShortName());
         assertEquals(DataType.SHORT, variable.getDataType());
 
-        variable = variables.get(109);
-        assertEquals("Latitude", variable.getShortName());
-        assertEquals(DataType.FLOAT, variable.getDataType());
-
-        variable = variables.get(114);
-        assertEquals("Range", variable.getShortName());
-        assertEquals(DataType.USHORT, variable.getDataType());
-
-        variable = variables.get(119);
-        assertEquals("gflags", variable.getShortName());
+        variable = variables.get(111);
+        assertEquals("WaterPresent", variable.getShortName());
         assertEquals(DataType.UBYTE, variable.getDataType());
     }
 

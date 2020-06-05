@@ -2,6 +2,7 @@
 * updated to use SNAP version 8.0
 * updated to use NetCDF version 5.3.1
 * added facility to store scaled variables to MMD
+* added support for MxD021KM MODIS level 1 data
 
 ### Updates from version 1.5.0 to 1.5.1
 * update to support HIRS FCDR v1.00

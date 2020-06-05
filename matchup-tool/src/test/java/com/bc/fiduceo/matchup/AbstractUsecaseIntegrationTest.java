@@ -94,6 +94,8 @@ abstract class AbstractUsecaseIntegrationTest {
             satelliteObservation.setNodeType(acquisitionInfo.getNodeType());
             satelliteObservation.setVersion(version);
 
+            ReaderFactory.close();
+
             return satelliteObservation;
         }
     }

@@ -47,6 +47,10 @@ public class ReaderFactory {
         return readerFactory;
     }
 
+    public static void close() {
+        readerFactory = null;
+    }
+
     public static ReaderFactory get() {
         if (readerFactory == null) {
             throw new RuntimeException("Called get() before initialisation");

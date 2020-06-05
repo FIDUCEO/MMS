@@ -162,15 +162,17 @@ public class MatchupToolIntegrationTest_useCase_01 extends AbstractUsecaseIntegr
     }
 
     private void insert_AVHRR_GAC_NOAA18_v013() throws IOException, SQLException {
-        final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n18", "v01.3", "2006", "02", "15", "20060215060600-ESACCI-L1C-AVHRR18_G-fv01.0.nc"}, true);
+        final String dataVersion = "v01.3";
+        final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n18", dataVersion, "2006", "02", "15", "20060215060600-ESACCI-L1C-AVHRR18_G-fv01.0.nc"}, true);
         final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
-        final SatelliteObservation noaa18 = readSatelliteObservation("avhrr-n18", absolutePath, "v01.3");
+        final SatelliteObservation noaa18 = readSatelliteObservation("avhrr-n18", absolutePath, dataVersion);
         storage.insert(noaa18);
 
     }private void insert_AVHRR_GAC_NOAA18_v014_CSPP() throws IOException, SQLException {
-        final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n18", "v01.4-cspp", "2006", "02", "15", "20060215060600-ESACCI-L1C-AVHRR18_G-fv01.0.nc"}, true);
+        final String dataVersion = "v01.4-cspp";
+        final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n18", dataVersion, "2006", "02", "15", "20060215060600-ESACCI-L1C-AVHRR18_G-fv01.0.nc"}, true);
         final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
-        final SatelliteObservation noaa18 = readSatelliteObservation("avhrr-n18", absolutePath, "v01.3");
+        final SatelliteObservation noaa18 = readSatelliteObservation("avhrr-n18", absolutePath, dataVersion);
         storage.insert(noaa18);
     }
 

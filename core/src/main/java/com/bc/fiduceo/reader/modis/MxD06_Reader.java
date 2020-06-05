@@ -34,6 +34,7 @@ import com.bc.fiduceo.reader.netcdf.NetCDFReader;
 import com.bc.fiduceo.reader.time.TimeLocator;
 import com.bc.fiduceo.reader.time.TimeLocator_TAI1993Vector;
 import com.bc.fiduceo.util.NetCDFUtils;
+import com.bc.fiduceo.util.TimeUtils;
 import com.bc.fiduceo.util.VariableProxy;
 import ucar.ma2.*;
 import ucar.ma2.DataType;
@@ -43,6 +44,8 @@ import ucar.nc2.Variable;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import static com.bc.fiduceo.reader.modis.ModisConstants.LATITUDE_VAR_NAME;
@@ -136,7 +139,7 @@ public class MxD06_Reader extends NetCDFReader {
 
     @Override
     public int[] extractYearMonthDayFromFilename(String fileName) {
-        throw new RuntimeException("not implemented");
+        return ModisUtils.extractYearMonthDayFromFilename(fileName);
     }
 
     @Override

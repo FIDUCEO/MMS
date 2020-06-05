@@ -24,6 +24,7 @@ import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.reader.ReaderContext;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.RasterDataNode;
+import org.junit.Before;
 import org.junit.Test;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
@@ -37,11 +38,17 @@ import static org.mockito.Mockito.when;
 
 public class ATSR_L1B_ReaderTest {
 
+    private ATSR_L1B_Reader reader;
+
+    @Before
+    public void setUp() {
+        reader = new ATSR_L1B_Reader(new ReaderContext());
+    }
+
     @Test
     public void testGetRegEx() {
         final String expected = "AT([12S])_TOA_1P[A-Z0-9]{4}\\d{8}_\\d{6}_\\d{12}_\\d{5}_\\d{5}_\\d{4}.([NE])([12])";
 
-        final ATSR_L1B_Reader reader = new ATSR_L1B_Reader(new ReaderContext());// we do not need a gemetry factory here tb 2016-08-10
         assertEquals(expected, reader.getRegEx());
 
         final Pattern pattern = Pattern.compile(expected);
@@ -70,15 +77,26 @@ public class ATSR_L1B_ReaderTest {
 
     @Test
     public void testGetLongitudeVariableName() {
-        final ATSR_L1B_Reader reader = new ATSR_L1B_Reader(new ReaderContext());// we do not need a gemetry factory here tb 2017-08-10
-
         assertEquals("longitude", reader.getLongitudeVariableName());
     }
 
     @Test
     public void testGetLatitudeVariableName() {
-        final ATSR_L1B_Reader reader = new ATSR_L1B_Reader(new ReaderContext());// we do not need a gemetry factory here tb 2017-08-10
-
         assertEquals("latitude", reader.getLatitudeVariableName());
+    }
+
+    @Test
+    public void testExtractYearMonthDayFromFilename() {
+        int[] ymd = reader.extractYearMonthDayFromFilename("ATS_TOA_1PUUPA20120215_010547_000065273111_00361_52099_6045.N1");
+        assertEquals(3, ymd.length);
+        assertEquals(2012, ymd[0]);
+        assertEquals(2, ymd[1]);
+        assertEquals(15, ymd[2]);
+
+        ymd = reader.extractYearMonthDayFromFilename("ATS_TOA_1PUUPA20050217_053700_000065272034_00434_15518_9023.N1");
+        assertEquals(3, ymd.length);
+        assertEquals(2005, ymd[0]);
+        assertEquals(2, ymd[1]);
+        assertEquals(17, ymd[2]);
     }
 }

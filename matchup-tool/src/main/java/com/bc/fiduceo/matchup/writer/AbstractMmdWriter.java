@@ -89,7 +89,7 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
         }
 
         final ReaderFactory readerFactory = context.getReaderFactory();
-        final ReaderCache readerCache = new ReaderCache(writerConfig.getReaderCacheSize(), readerFactory, null);
+        final ReaderCache readerCache = new ReaderCache(writerConfig.getReaderCacheSize(), readerFactory, context.getArchive());
 
         try {
             logger.info("Start writing mmd-file ...");
@@ -136,14 +136,16 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
                 }
 
                 final Path primaryObservationPath = set.getPrimaryObservationPath();
-                final Reader primaryReader = readerCache.getReaderFor(primarySensorName, primaryObservationPath, null);
-                ioVariablesList.setReaderAndPath(primarySensorName, primaryReader, primaryObservationPath, set.getPrimaryProcessingVersion());
+                final String primaryVersion = set.getPrimaryProcessingVersion();
+                final Reader primaryReader = readerCache.getReaderFor(primarySensorName, primaryObservationPath, primaryVersion);
+                ioVariablesList.setReaderAndPath(primarySensorName, primaryReader, primaryObservationPath, primaryVersion);
 
                 logger.info("writing samples for " + primaryObservationPath.getFileName());
                 for (String secSensorName : secSensorNames) {
                     final Path secondaryObservationPath = set.getSecondaryObservationPath(secSensorName);
-                    final Reader secondaryReader = readerCache.getReaderFor(secSensorName, secondaryObservationPath, null);
-                    ioVariablesList.setReaderAndPath(secSensorName, secondaryReader, secondaryObservationPath, set.getSecondaryProcessingVersion(secSensorName));
+                    final String secondaryVersion = set.getSecondaryProcessingVersion(secSensorName);
+                    final Reader secondaryReader = readerCache.getReaderFor(secSensorName, secondaryObservationPath, secondaryVersion);
+                    ioVariablesList.setReaderAndPath(secSensorName, secondaryReader, secondaryObservationPath, secondaryVersion);
                     logger.info("... and " + secondaryObservationPath.getFileName());
                 }
                 logger.info("Num matchups: " + numObservations);

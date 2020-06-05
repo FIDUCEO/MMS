@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -144,7 +143,6 @@ class MxD021KM_Reader extends NetCDFReader {
     }
 
     // package access for testing only tb 2020-06-03
-    // @todo 2 tb/tb write test
     static String extractFileType(String fileName) throws IOException {
         if (fileName.contains("MOD02")) {
             return "mod021km-te";
@@ -237,6 +235,14 @@ class MxD021KM_Reader extends NetCDFReader {
                     variableName.contains("DC_Restore_Change_for_Reflective_") ||
                     variableName.contains("nscans") ||
                     variableName.contains("Max_EV_frames") ||
+                    // the following are read from the associated MxD03 file - if we don't skip we have duplicate variables tb 2020-06-05
+                    variableName.contains("Height") ||
+                    variableName.contains("SensorZenith") ||
+                    variableName.contains("SensorAzimuth") ||
+                    variableName.contains("Range") ||
+                    variableName.contains("SolarZenith") ||
+                    variableName.contains("SolarAzimuth") ||
+                    variableName.contains("gflags") ||
                     variableName.contains("Longitude") ||
                     variableName.contains("Latitude")) {
                 continue;
@@ -319,19 +325,7 @@ class MxD021KM_Reader extends NetCDFReader {
 
     @Override
     public int[] extractYearMonthDayFromFilename(String fileName) {
-        final String yearString = fileName.substring(10, 14);
-        final String doyString = fileName.substring(14, 17);
-        final String doyPattern = yearString + "-" + doyString;
-
-        final Date date = TimeUtils.parseDOYBeginOfDay(doyPattern);
-        final Calendar utcCalendar = TimeUtils.getUTCCalendar();
-        utcCalendar.setTime(date);
-
-        final int[] ymd = new int[3];
-        ymd[0] = utcCalendar.get(Calendar.YEAR);
-        ymd[1] = utcCalendar.get(Calendar.MONTH) + 1;
-        ymd[2] = utcCalendar.get(Calendar.DAY_OF_MONTH);
-        return ymd;
+        return ModisUtils.extractYearMonthDayFromFilename(fileName);
     }
 
     @Override
@@ -485,7 +479,7 @@ class MxD021KM_Reader extends NetCDFReader {
     private void injectThermalNoiseVariables() throws IOException {
         final Variable noiseVariable = netcdfFile.findVariable("Noise_in_Thermal_Detectors");
         final Dimension productSize = getProductSize();
-        for (int i = 0; i <NUM_EMISSIVE_CHAN; i++ ) {
+        for (int i = 0; i < NUM_EMISSIVE_CHAN; i++) {
             arrayCache.inject(new ThermalNoiseVariable(noiseVariable, i, productSize.getNy()));
         }
     }

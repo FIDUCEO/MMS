@@ -6,9 +6,13 @@ import org.esa.snap.core.util.SystemUtils;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
+import ucar.nc2.Attribute;
+import ucar.nc2.AttributeContainer;
 import ucar.nc2.Variable;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 class ThermalNoiseVariable extends VariablePrototype {
 
@@ -57,5 +61,16 @@ class ThermalNoiseVariable extends VariablePrototype {
         }
 
         return NetCDFUtils.create(targetData);
+    }
+
+    @Override
+    // @todo 1 tb/tb write test 2020-06-05
+    public List<Attribute> getAttributes() {
+        final AttributeContainer attributeContainer = originalVariable.attributes();
+        final ArrayList<Attribute> attributeList = new ArrayList<>();
+        for (Attribute attribute : attributeContainer) {
+            attributeList.add(attribute);
+        }
+        return attributeList;
     }
 }

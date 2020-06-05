@@ -58,19 +58,6 @@ public class MxD021KM_ReaderTest {
     }
 
     @Test
-    public void testExtractYMDFromFileName() {
-        int[] ymd = reader.extractYearMonthDayFromFilename("MYD021KM.A2011168.2210.061.2018032001033.hdf");
-        assertEquals(2011, ymd[0]);
-        assertEquals(6, ymd[1]);
-        assertEquals(17, ymd[2]);
-
-        ymd = reader.extractYearMonthDayFromFilename("MOD021KM.A2003142.1445.061.2017194130122.hdf");
-        assertEquals(2003, ymd[0]);
-        assertEquals(5, ymd[1]);
-        assertEquals(22, ymd[2]);
-    }
-
-    @Test
     public void testGetLayerIndex_250m() {
         assertEquals(0, MxD021KM_Reader.getLayerIndex("EV_250_Aggr1km_RefSB_ch01"));
         assertEquals(1, MxD021KM_Reader.getLayerIndex("EV_250_Aggr1km_RefSB_Uncert_Indexes_ch02"));
@@ -128,6 +115,21 @@ public class MxD021KM_ReaderTest {
     public void testExtractGeoFileType_invalid() {
         try {
             MxD021KM_Reader.extractGeoFileType("heffalump");
+            fail("IOException expected");
+        } catch(IOException expected) {
+        }
+    }
+
+    @Test
+    public void testExtractFileType() throws IOException {
+        assertEquals("mod021km-te", MxD021KM_Reader.extractFileType("MOD021KM.A2003142.1445.061.2017194130122.hdf"));
+        assertEquals("myd021km-aq", MxD021KM_Reader.extractFileType("MYD021KM.A2011168.2210.061.2018032001033.hdf"));
+    }
+
+    @Test
+    public void testExtractFileType_invalid() {
+        try {
+            MxD021KM_Reader.extractFileType("schneckenspiel");
             fail("IOException expected");
         } catch(IOException expected) {
         }

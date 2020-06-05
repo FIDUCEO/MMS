@@ -48,9 +48,10 @@ public class ReaderCache extends LinkedHashMap<Path, Reader> {
             fileServer = (reader, observationPath, sensorName, processingVersion) -> observationPath.toFile();
         } else {
             fileServer = (reader, observationPath, sensorName, processingVersion) -> {
-                final int[] ymd = reader.extractYearMonthDayFromFilename(observationPath.toString());
+                final Path fileName = observationPath.getFileName();
+                final int[] ymd = reader.extractYearMonthDayFromFilename(fileName.toString());
                 final Path productsDir = archive.createValidProductPath(processingVersion, sensorName, ymd[0], ymd[1], ymd[2]);
-                return productsDir.resolve(observationPath).toFile();
+                return productsDir.resolve(fileName).toFile();
             };
         }
     }
