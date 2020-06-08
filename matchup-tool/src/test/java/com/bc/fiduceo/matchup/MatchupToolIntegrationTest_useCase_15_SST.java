@@ -21,14 +21,19 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 @RunWith(DbAndIOTestRunner.class)
 public class MatchupToolIntegrationTest_useCase_15_SST extends AbstractUsecaseIntegrationTest {
 
     @Test
     public void testMatchup_AATSR_MOD021KM() throws IOException, SQLException, ParseException, InvalidRangeException {
+        final File mmdWriterConfig = new File(configDir, "mmd-writer-config.xml");
+        if (!mmdWriterConfig.delete()) {
+            fail("unable to delete test file");
+        }
+        TestUtil.writeMmdWriterConfig(configDir, MODIS_SCALED_VARIABLES);
+
         insert_AATSR();
         insert_MOD021KM();
 
@@ -48,7 +53,12 @@ public class MatchupToolIntegrationTest_useCase_15_SST extends AbstractUsecaseIn
             assertEquals(20241, matchupCount);
 
             NCTestUtils.assert3DVariable("mod021km-te_Noise_in_Thermal_Detectors_ch20", 0, 0, 1453, 28, mmd);
-            NCTestUtils.assert3DVariable("mod021km-te_EV_1KM_RefSB_ch09", 1, 0, 65535, 28, mmd);
+            NCTestUtils.assert3DVariable("mod021km-te_EV_1KM_RefSB_ch09", 1, 0, 1454, 913.4769513877109, mmd);
+            NCTestUtils.assert3DVariable("mod021km-te_EV_1KM_RefSB_ch13L", 2, 0, 1455, 389.833833881421, mmd);
+            NCTestUtils.assert3DVariable("mod021km-te_EV_1KM_RefSB_Uncert_Indexes_ch10", 0, 1, 1456, 1785.0, mmd);
+            NCTestUtils.assert3DVariable("mod021km-te_EV_1KM_Emissive_ch27", 1, 1, 1457, 2731.9157639251207, mmd);
+
+            // @todo 2 tb/tb add more tests 2020-06-07
         }
     }
 
@@ -88,4 +98,55 @@ public class MatchupToolIntegrationTest_useCase_15_SST extends AbstractUsecaseIn
                 .withOutputPath(new File(TestUtil.getTestDir().getPath(), "usecase-15-sst").getPath())
                 .withDimensions(dimensions);
     }
+
+    private static final String MODIS_SCALED_VARIABLES ="<variables-configuration> \n" +
+            "    <sensors names=\"mod021km-te, myd021km-aq\" >\n" +
+            "        <writeScaled source-name=\"EV_1KM_RefSB_ch08\" />" +
+            "        <writeScaled source-name=\"EV_1KM_RefSB_ch09\" />" +
+            "        <writeScaled source-name=\"EV_1KM_RefSB_ch10\" />" +
+            "        <writeScaled source-name=\"EV_1KM_RefSB_ch11\" />" +
+            "        <writeScaled source-name=\"EV_1KM_RefSB_ch12\" />" +
+            "        <writeScaled source-name=\"EV_1KM_RefSB_ch13L\" />" +
+            "        <writeScaled source-name=\"EV_1KM_RefSB_ch13H\" />" +
+            "        <writeScaled source-name=\"EV_1KM_RefSB_ch14L\" />" +
+            "        <writeScaled source-name=\"EV_1KM_RefSB_ch14H\" />" +
+            "        <writeScaled source-name=\"EV_1KM_RefSB_ch15\" />" +
+            "        <writeScaled source-name=\"EV_1KM_RefSB_ch16\" />" +
+            "        <writeScaled source-name=\"EV_1KM_RefSB_ch17\" />" +
+            "        <writeScaled source-name=\"EV_1KM_RefSB_ch18\" />" +
+            "        <writeScaled source-name=\"EV_1KM_RefSB_ch19\" />" +
+            "        <writeScaled source-name=\"EV_1KM_RefSB_ch26\" />" +
+            "        <writeScaled source-name=\"EV_1KM_RefSB_Uncert_Indexes_ch08\" />" +
+            "        <writeScaled source-name=\"EV_1KM_RefSB_Uncert_Indexes_ch09\" />" +
+            "        <writeScaled source-name=\"EV_1KM_RefSB_Uncert_Indexes_ch10\" />" +
+            "        <writeScaled source-name=\"EV_1KM_RefSB_Uncert_Indexes_ch11\" />" +
+            "        <writeScaled source-name=\"EV_1KM_RefSB_Uncert_Indexes_ch12\" />" +
+            "        <writeScaled source-name=\"EV_1KM_RefSB_Uncert_Indexes_ch13L\" />" +
+            "        <writeScaled source-name=\"EV_1KM_RefSB_Uncert_Indexes_ch13H\" />" +
+            "        <writeScaled source-name=\"EV_1KM_RefSB_Uncert_Indexes_ch14L\" />" +
+            "        <writeScaled source-name=\"EV_1KM_RefSB_Uncert_Indexes_ch14H\" />" +
+            "        <writeScaled source-name=\"EV_1KM_RefSB_Uncert_Indexes_ch15\" />" +
+            "        <writeScaled source-name=\"EV_1KM_RefSB_Uncert_Indexes_ch16\" />" +
+            "        <writeScaled source-name=\"EV_1KM_RefSB_Uncert_Indexes_ch17\" />" +
+            "        <writeScaled source-name=\"EV_1KM_RefSB_Uncert_Indexes_ch18\" />" +
+            "        <writeScaled source-name=\"EV_1KM_RefSB_Uncert_Indexes_ch19\" />" +
+            "        <writeScaled source-name=\"EV_1KM_RefSB_Uncert_Indexes_ch26\" />" +
+            "        <writeScaled source-name=\"EV_1KM_Emissive_ch20\" />" +
+            "        <writeScaled source-name=\"EV_1KM_Emissive_ch21\" />" +
+            "        <writeScaled source-name=\"EV_1KM_Emissive_ch22\" />" +
+            "        <writeScaled source-name=\"EV_1KM_Emissive_ch23\" />" +
+            "        <writeScaled source-name=\"EV_1KM_Emissive_ch24\" />" +
+            "        <writeScaled source-name=\"EV_1KM_Emissive_ch25\" />" +
+            "        <writeScaled source-name=\"EV_1KM_Emissive_ch27\" />" +
+            "        <writeScaled source-name=\"EV_1KM_Emissive_ch28\" />" +
+            "        <writeScaled source-name=\"EV_1KM_Emissive_ch29\" />" +
+            "        <writeScaled source-name=\"EV_1KM_Emissive_ch30\" />" +
+            "        <writeScaled source-name=\"EV_1KM_Emissive_ch31\" />" +
+            "        <writeScaled source-name=\"EV_1KM_Emissive_ch32\" />" +
+            "        <writeScaled source-name=\"EV_1KM_Emissive_ch33\" />" +
+            "        <writeScaled source-name=\"EV_1KM_Emissive_ch34\" />" +
+            "        <writeScaled source-name=\"EV_1KM_Emissive_ch35\" />" +
+            "        <writeScaled source-name=\"EV_1KM_Emissive_ch36\" />" +
+            "    </sensors>\n" +
+            "</variables-configuration>";
 }

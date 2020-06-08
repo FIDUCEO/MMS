@@ -34,6 +34,7 @@ import com.bc.fiduceo.reader.netcdf.NetCDFReader;
 import com.bc.fiduceo.reader.time.TimeLocator;
 import com.bc.fiduceo.reader.time.TimeLocator_YearDoyMs;
 import com.bc.fiduceo.util.NetCDFUtils;
+import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.datamodel.ProductData;
 import ucar.ma2.*;
 import ucar.ma2.DataType;
@@ -41,9 +42,7 @@ import ucar.nc2.Variable;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
 import static com.bc.fiduceo.util.NetCDFUtils.ensureFillValue;
@@ -163,7 +162,16 @@ class SSMT2_Reader extends NetCDFReader {
 
     @Override
     public int[] extractYearMonthDayFromFilename(String fileName) {
-        throw new RuntimeException("not implemented");
+        final String dateStrings = fileName.substring(3, 11);
+
+        final Date date = TimeUtils.parse(dateStrings, "yyyyMMdd");
+        final Calendar utcCalendar = TimeUtils.getUTCCalendar();
+        utcCalendar.setTime(date);
+        return new int[]{
+                utcCalendar.get(Calendar.YEAR),
+                utcCalendar.get(Calendar.MONTH) + 1,
+                utcCalendar.get(Calendar.DAY_OF_MONTH),
+        };
     }
 
     @Override

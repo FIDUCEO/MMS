@@ -81,16 +81,14 @@ public class HIRS_L1C_ReaderTest {
     }
 
     @Test
-    public void testExtractYearMonthDayFromFilename() throws Exception {
-        String hirsFileName;
-        int[] ymd;
-
-        hirsFileName = "189800453.NSS.HIRX.NN.D11233.S0808.E1003.B3221112.GC.nc";
-        ymd = reader.extractYearMonthDayFromFilename(hirsFileName);
+    public void testExtractYearMonthDayFromFilename() {
+        int[] ymd = reader.extractYearMonthDayFromFilename("189800453.NSS.HIRX.NN.D11233.S0808.E1003.B3221112.GC.nc");
         assertArrayEquals(new int[]{2011, 8, 21}, ymd);
 
-        hirsFileName = "191062833.NSS.HIRX.NN.D88123.S1356.E1551.B3227172.WI.nc";
-        ymd = reader.extractYearMonthDayFromFilename(hirsFileName);
+        ymd = reader.extractYearMonthDayFromFilename("191062833.NSS.HIRX.NN.D88123.S1356.E1551.B3227172.WI.nc");
         assertArrayEquals(new int[]{1988, 5, 2}, ymd);
+
+        ymd = reader.extractYearMonthDayFromFilename("NSS.HIRX.NG.D88181.S0109.E0259.B0924748.GC.nc");
+        assertArrayEquals(new int[]{1988, 6, 29}, ymd);
     }
 }

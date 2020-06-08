@@ -130,8 +130,15 @@ class HIRS_L1C_Reader extends NetCDFReader {
 
     @Override
     public int[] extractYearMonthDayFromFilename(String fileName) {
+        final boolean numberString = isNumberString(fileName.substring(0, 3));
+
         final String[] strings = fileName.split("\\.");
-        final String datePart = strings[4].substring(1);
+        final String datePart;
+        if (numberString) {
+            datePart = strings[4].substring(1);
+        } else {
+            datePart = strings[3].substring(1);
+        }
         final Date yyDDD = TimeUtils.parse(datePart, "yyDDD");
         final Calendar utcCalendar = TimeUtils.getUTCCalendar();
         utcCalendar.setTime(yyDDD);
@@ -140,6 +147,15 @@ class HIRS_L1C_Reader extends NetCDFReader {
                 utcCalendar.get(Calendar.MONTH) + 1,
                 utcCalendar.get(Calendar.DAY_OF_MONTH),
         };
+    }
+
+    private boolean isNumberString(String testPart) {
+        try {
+            Integer.parseInt(testPart);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 
     @Override

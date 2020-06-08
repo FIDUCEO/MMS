@@ -168,7 +168,7 @@ public class MatchupToolIntegrationTest_useCase_22 extends AbstractUsecaseIntegr
         final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{sensorKey, "v01", "2001", "06", "14", "F14200106141229.nc"}, true);
         final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
 
-        final SatelliteObservation satelliteObservation = readSatelliteObservation(sensorKey, absolutePath, "v1.0");
+        final SatelliteObservation satelliteObservation = readSatelliteObservation(sensorKey, absolutePath, "v01");
         storage.insert(satelliteObservation);
     }
 

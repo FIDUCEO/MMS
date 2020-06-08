@@ -21,6 +21,7 @@
 package com.bc.fiduceo.reader.ssmt2;
 
 import com.bc.fiduceo.reader.ReaderContext;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.regex.Matcher;
@@ -29,6 +30,13 @@ import java.util.regex.Pattern;
 import static org.junit.Assert.*;
 
 public class SSMT2_ReaderTest {
+
+    private SSMT2_Reader reader;
+
+    @Before
+    public void setUp() {
+        reader = new SSMT2_Reader(new ReaderContext());
+    }
 
     @Test
     public void testAssembleDateString() {
@@ -40,7 +48,7 @@ public class SSMT2_ReaderTest {
     public void testGetRegEx() {
         final String expected = "F(11|12|14|15)[0-9]{12}.nc";
 
-        assertEquals(expected, new SSMT2_Reader(new ReaderContext()).getRegEx());
+        assertEquals(expected,reader.getRegEx());
         final Pattern pattern = java.util.regex.Pattern.compile(expected);
 
         Matcher matcher = pattern.matcher("F11199401280412.nc");
@@ -58,15 +66,20 @@ public class SSMT2_ReaderTest {
 
     @Test
     public void testGetLongitudeVariableName() {
-        final SSMT2_Reader reader = new SSMT2_Reader(new ReaderContext());
-
         assertEquals("lon", reader.getLongitudeVariableName());
     }
 
     @Test
     public void testGetLatitudeVariableName() {
-        final SSMT2_Reader reader = new SSMT2_Reader(new ReaderContext());
-
         assertEquals("lat", reader.getLatitudeVariableName());
+    }
+
+    @Test
+    public void testExtractYearMonthDayFromFilename() {
+        int[] ymd = reader.extractYearMonthDayFromFilename("F11199401280412.nc");
+        assertArrayEquals(new int[]{1994, 1, 28}, ymd);
+
+        ymd = reader.extractYearMonthDayFromFilename("F14200106141229.nc");
+        assertArrayEquals(new int[]{2001, 6, 14}, ymd);
     }
 }

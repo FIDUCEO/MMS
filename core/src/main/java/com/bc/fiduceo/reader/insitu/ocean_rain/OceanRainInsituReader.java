@@ -134,7 +134,7 @@ public class OceanRainInsituReader implements Reader {
 
     @Override
     public int[] extractYearMonthDayFromFilename(String fileName) {
-        throw new RuntimeException("not implemented");
+        return new int[] {2010, 1, 1};
     }
 
     @Override
