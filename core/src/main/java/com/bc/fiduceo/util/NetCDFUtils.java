@@ -387,24 +387,21 @@ public class NetCDFUtils {
         }
     }
 
-    // @todo 2 tb/tb write test 2020-05-07
     public static Array create(byte[] data) {
         final int[] shape = new int[]{data.length};
         return Array.factory(DataType.BYTE, shape, data);
     }
 
-    // @todo 2 tb/tb write test 2020-05-07
     public static Array create(byte[][] data) {
-        final int linelength = data[0].length;
-        byte[] flatData = new byte[data.length * linelength];
+        final int lineLength = data[0].length;
+        final byte[] flatData = new byte[data.length * lineLength];
         for (int n = 0; n < data.length; n++) {
-            System.arraycopy(data[n], 0, flatData, n * linelength, linelength);
+            System.arraycopy(data[n], 0, flatData, n * lineLength, lineLength);
         }
-        final int[] shape = new int[]{data.length, linelength};
+        final int[] shape = new int[]{data.length, lineLength};
         return Array.factory(DataType.BYTE, shape, flatData);
     }
 
-    // @todo 2 tb/tb write test 2020-05-07
     public static Array create(char[] data) {
         final int[] shape = new int[]{data.length};
         return Array.factory(DataType.CHAR, shape, data);
@@ -414,7 +411,6 @@ public class NetCDFUtils {
         return Array.makeFromJavaArray(data);
     }
 
-    // @todo 2 tb/tb write test 2020-05-07
     public static Array create(short[] data) {
         final int[] shape = new int[]{data.length};
         return Array.factory(DataType.SHORT, shape, data);
@@ -424,7 +420,6 @@ public class NetCDFUtils {
         return Array.makeFromJavaArray(data);
     }
 
-    // @todo 2 tb/tb write test 2020-05-07
     public static Array create(int[] data) {
         final int[] shape = new int[]{data.length};
         return Array.factory(DataType.INT, shape, data);
@@ -434,7 +429,6 @@ public class NetCDFUtils {
         return Array.makeFromJavaArray(data);
     }
 
-    // @todo 2 tb/tb write test 2020-05-07
     public static Array create(long[] data) {
         final int[] shape = new int[]{data.length};
         return Array.factory(DataType.LONG, shape, data);
@@ -444,7 +438,6 @@ public class NetCDFUtils {
         return Array.makeFromJavaArray(data);
     }
 
-    // @todo 2 tb/tb write test 2020-05-07
     public static Array create(float[] data) {
         final int[] shape = new int[]{data.length};
         return Array.factory(DataType.FLOAT, shape, data);
@@ -454,7 +447,6 @@ public class NetCDFUtils {
         return Array.makeFromJavaArray(data);
     }
 
-    // @todo 2 tb/tb write test 2020-05-07
     public static Array create(double[] data) {
         final int[] shape = new int[]{data.length};
         return Array.factory(DataType.DOUBLE, shape, data);

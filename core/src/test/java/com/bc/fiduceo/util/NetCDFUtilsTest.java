@@ -22,10 +22,8 @@ package com.bc.fiduceo.util;
 
 import com.bc.fiduceo.FiduceoConstants;
 import org.esa.snap.core.datamodel.ProductData;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.InOrder;
-import org.opengis.metadata.Datatype;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
@@ -400,17 +398,16 @@ public class NetCDFUtilsTest {
     }
 
     @Test
-    @Ignore // @todo 1 tb/tb repair this 2020-05-08
     public void testGetVariable_writer_escapedName() {
         final NetcdfFileWriter fileWriter = mock(NetcdfFileWriter.class);
         final Variable variable = mock(Variable.class);
 
-        when(fileWriter.findVariable("var.iable")).thenReturn(variable);
+        when(fileWriter.findVariable("var\\.iable")).thenReturn(variable);
 
         final Variable resultVariable = NetCDFUtils.getVariable(fileWriter, "var.iable");
         assertSame(variable, resultVariable);
 
-        verify(fileWriter, times(1)).findVariable("var.iable");
+        verify(fileWriter, times(1)).findVariable("var\\.iable");
         verifyNoMoreInteractions(fileWriter);
     }
 
@@ -610,6 +607,128 @@ public class NetCDFUtilsTest {
 
         verify(array, times(1)).section(any(), any());
         verifyNoMoreInteractions(array);
+    }
+
+    @Test
+    public void testCreateArray_byte_1D() {
+        final byte[] bytes = {1, 2, 3, 4, 5, 6};
+
+        final Array byteArray = NetCDFUtils.create(bytes);
+        assertEquals(6, byteArray.getSize());
+        assertArrayEquals(new int[] {6}, byteArray.getShape());
+        assertEquals(DataType.BYTE, byteArray.getDataType());
+
+        assertEquals(3, byteArray.getByte(2));
+        assertEquals(6, byteArray.getByte(5));
+    }
+
+    @Test
+    public void testCreateArray_byte_2D() {
+        final byte[][] bytes = {{2, 3, 4, 5},
+                {6, 7, 8, 9},
+                {10, 11, 12, 13}};
+
+        final Array byteArray = NetCDFUtils.create(bytes);
+        assertEquals(12, byteArray.getSize());
+        assertArrayEquals(new int[] {3, 4}, byteArray.getShape());
+        assertEquals(DataType.BYTE, byteArray.getDataType());
+
+        assertEquals(5, byteArray.getByte(3));
+        assertEquals(8, byteArray.getByte(6));
+    }
+
+    @Test
+    public void testCreateArray_char_1D() {
+        final char[] chars = {3, 4, 5, 6, 7};
+
+        final Array charArray = NetCDFUtils.create(chars);
+        assertEquals(5, charArray.getSize());
+        assertArrayEquals(new int[] {5}, charArray.getShape());
+        assertEquals(DataType.CHAR, charArray.getDataType());
+
+        assertEquals(5, charArray.getChar(2));
+        assertEquals(7, charArray.getChar(4));
+    }
+
+    @Test
+    public void testCreateArray_short_1D() {
+        final short[] shorts = {4, 5, 6, 7, 8, 9, 10};
+
+        final Array shortArray = NetCDFUtils.create(shorts);
+        assertEquals(7, shortArray.getSize());
+        assertArrayEquals(new int[] {7}, shortArray.getShape());
+        assertEquals(DataType.SHORT, shortArray.getDataType());
+
+        assertEquals(7, shortArray.getShort(3));
+        assertEquals(9, shortArray.getShort(5));
+    }
+
+    @Test
+    public void testCreateArray_int_1D() {
+        final int[] integers = {5, 6, 7, 8, 9, 10, 11, 12};
+
+        final Array intArray = NetCDFUtils.create(integers);
+        assertEquals(8, intArray.getSize());
+        assertArrayEquals(new int[] {8}, intArray.getShape());
+        assertEquals(DataType.INT, intArray.getDataType());
+
+        assertEquals(8, intArray.getInt(3));
+        assertEquals(11, intArray.getInt(6));
+    }
+
+    @Test
+    public void testCreateArray_long_1D() {
+        final long[] longs = {6, 7, 8, 9, 10, 11, 12, 13};
+
+        final Array longArray = NetCDFUtils.create(longs);
+        assertEquals(8, longArray.getSize());
+        assertArrayEquals(new int[] {8}, longArray.getShape());
+        assertEquals(DataType.LONG, longArray.getDataType());
+
+        assertEquals(10, longArray.getLong(4));
+        assertEquals(13, longArray.getLong(7));
+    }
+
+    @Test
+    public void testCreateArray_float_1D() {
+        final float[] floats = {6.f, 7.f, 8.f, 9.f, 10.f, 11.f, 12.f, 13.f, 14.f};
+
+        final Array floatArray = NetCDFUtils.create(floats);
+        assertEquals(9, floatArray.getSize());
+        assertArrayEquals(new int[] {9}, floatArray.getShape());
+        assertEquals(DataType.FLOAT, floatArray.getDataType());
+
+        assertEquals(10.f, floatArray.getFloat(4), 1e-8);
+        assertEquals(13.f, floatArray.getFloat(7), 1e-8);
+    }
+
+    @Test
+    public void testCreateArray_double_1D() {
+        final double[] doubles = {7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0};
+
+        final Array doubleArray = NetCDFUtils.create(doubles);
+        assertEquals(8, doubleArray.getSize());
+        assertArrayEquals(new int[] {8}, doubleArray.getShape());
+        assertEquals(DataType.DOUBLE, doubleArray.getDataType());
+
+        assertEquals(10.0, doubleArray.getDouble(3), 1e-8);
+        assertEquals(13.0, doubleArray.getDouble(6), 1e-8);
+    }
+
+    @Test
+    public void testCreateArray_double_2D() {
+        final double[][] doubles = {{7.0, 8.0, 9.0},
+                {10.0, 11.0, 12.0},
+                {13.0, 14.0, 15.0},
+                {16.0, 17.0, 18.0}};
+
+        final Array doubleArray = NetCDFUtils.create(doubles);
+        assertEquals(12, doubleArray.getSize());
+        assertArrayEquals(new int[] {4, 3}, doubleArray.getShape());
+        assertEquals(DataType.DOUBLE, doubleArray.getDataType());
+
+        assertEquals(11.0, doubleArray.getDouble(4), 1e-8);
+        assertEquals(14.0, doubleArray.getDouble(7), 1e-8);
     }
 }
 
