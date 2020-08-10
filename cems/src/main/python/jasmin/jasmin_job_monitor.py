@@ -2,7 +2,7 @@ import os
 import subprocess
 import sys
 
-from status_codes import StatusCodes
+from jasmin.status_codes import StatusCodes
 
 
 class JasminJobMonitor:
@@ -22,6 +22,8 @@ class JasminJobMonitor:
 
     def run(self, pm_request):
         try:
+            scheduler_interface = self._create_scheduler_interface()
+
             watch_dict = self._parse_watch_dict(pm_request)
 
             process_output = self._call_LSF_job_status()
@@ -38,6 +40,19 @@ class JasminJobMonitor:
         except (RuntimeError, ValueError) as e:
             sys.stderr.write(e)
             return 1
+
+    @staticmethod
+    def _create_scheduler_interface():
+        if "SCHEDULER" in os.environ:
+            scheduler_name = os.environ["SCHEDULER"]
+            if scheduler_name == "LSF":
+                return  LSFInterface()
+            elif scheduler_name == "SLURM":
+                return SLURMInterface()
+            else:
+                raise ValueError("Environment variable 'SCHEDULER' invalid")
+        else:
+            raise ValueError("Environment variable 'SCHEDULER' is not set")
 
     # noinspection PyPep8Naming
     @staticmethod
@@ -163,6 +178,14 @@ class JasminJobMonitor:
             stream.write("\n")
 
         stream.flush()
+
+
+class LSFInterface:
+    pass
+
+
+class SLURMInterface:
+    pass
 
 
 if __name__ == "__main__":
