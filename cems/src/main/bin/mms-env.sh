@@ -6,10 +6,14 @@
 # the following exports are CEMS/Fiduceo specific settings of executables to be used
 # adapt if necessary tb 2018-11-27
 
-# project name (to identify the job groups on the cluster
-export PROJECT=bc_fiduceo
+# project and user settings
+# -------------------------
+export PROJECT=bc_fiduceo   # only LSF
+export MMS_USER=tblock01    # only SLURM
 export MMS_ENV_NAME=mms-env.sh
 
+# Java and Python runtime definitions
+# -----------------------------------
 export MMS_JAVA_EXEC='/gws/nopw/j04/fiduceo/Software/jdk1.8.0_202/bin/java'
 
 export PM_EXE_DIR=/gws/nopw/j04/fiduceo/Software/mms/bin
@@ -18,6 +22,7 @@ export PM_PYTHON_EXEC='/gws/nopw/j04/fiduceo/Software/miniconda/miniconda3/envs/
 export PATH=${PM_EXE_DIR}:$PATH
 
 # export scheduling engine
+# ------------------------
 export SCHEDULER='SLURM'
 # export SCHEDULER='LSF'
 
@@ -62,7 +67,7 @@ elif [ "$SCHEDULER" == "SLURM" ]; then
             jobname=$1
             command=$2
 
-            bsubmit="sbatch --mem=20000 -p short-serial -n 1 -t 12:00:00 -A ${PROJECT} -D ${WORKING_DIR} -o ${PM_LOG_DIR}/${jobname}.out -e ${PM_LOG_DIR}/${jobname}.err --jobname=${jobname} ${PM_EXE_DIR}/${command} ${@:3}"
+            bsubmit="sbatch --mem=20000 -p short-serial -n 1 -t 12:00:00 -D ${WORKING_DIR} -o ${PM_LOG_DIR}/${jobname}.out -e ${PM_LOG_DIR}/${jobname}.err -J ${jobname} ${PM_EXE_DIR}/${command} ${@:3}"
 
             rm -f ${PM_LOG_DIR}/${jobname}.out
             rm -f ${PM_LOG_DIR}/${jobname}.err
