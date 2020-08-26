@@ -174,7 +174,6 @@ public class ArrayCache {
      * @throws IOException on disk access failures
      */
     public Attribute getAttribute(String attributeName, String groupName, String variableName) throws IOException {
-        // @todo 2 tb/tb write test for this method 2020-05-20
         final Array array = get(groupName, variableName);
         if (array != null) {
             final String groupedVariableName = createGroupedName(groupName, variableName);

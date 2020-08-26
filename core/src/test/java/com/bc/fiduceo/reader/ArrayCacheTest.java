@@ -443,6 +443,23 @@ public class ArrayCacheTest {
     }
 
     @Test
+    public void testGetAttribute() throws IOException {
+        final Attribute attribute = new Attribute("attribute_thing", "an important message");
+        final AttributeContainerMutable attributes = new AttributeContainerMutable("test");
+        attributes.addAttribute(attribute);
+        when(variable.attributes()).thenReturn(attributes);
+
+        final Attribute cacheAttribute = arrayCache.getAttribute("attribute_thing", "a_group", "a_group_variable");
+        assertEquals("an important message", cacheAttribute.getStringValue());
+
+        verify(netcdfFile, times(1)).findGroup("a_group");
+        verify(netcdfFile, times(1)).findVariable(group, "a_group_variable");
+        verify(variable, times(1)).read();
+        verify(variable, times(1)).attributes();
+        verifyNoMoreInteractions(netcdfFile, variable);
+    }
+
+    @Test
     public void testInjectVariable() throws IOException {
         final Variable variable = mock(Variable.class);
         when(variable.getShortName()).thenReturn("injected");
