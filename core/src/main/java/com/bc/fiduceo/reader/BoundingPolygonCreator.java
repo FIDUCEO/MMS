@@ -206,8 +206,7 @@ public class BoundingPolygonCreator {
 
     // package access for testing only tb 2019-06-19
     static boolean isFillValue(double value, double fillValue) {
-        // @todo 2 tb/tb this is a hack for the corrupt AVHRR v2.0Beta version. Remove the check for 0 when processed 2019-06-21
-        return Math.abs(value - fillValue) < 1e-6 || Math.abs(value) < 1e-6;
+        return Math.abs(value - fillValue) < 1e-6;
     }
 
     private List<Point> extractBoundaryCoordinates(Array longitudes, Array latitudes) {

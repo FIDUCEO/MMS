@@ -276,24 +276,19 @@ public class IngestionToolIntegrationTest {
             assertTrue(geoBounds instanceof MultiPolygon);
             final MultiPolygon multiPolygon = (MultiPolygon) geoBounds;
             final List<Polygon> polygons = multiPolygon.getPolygons();
-            assertEquals(3, polygons.size());
+            assertEquals(2, polygons.size());
             assertEquals(TestData.AVHRR_GAC_N17_GEOMETRIES_v014_CSPP[0], geometryFactory.format(polygons.get(0)));
             assertEquals(TestData.AVHRR_GAC_N17_GEOMETRIES_v014_CSPP[1], geometryFactory.format(polygons.get(1)));
-            assertEquals(TestData.AVHRR_GAC_N17_GEOMETRIES_v014_CSPP[2], geometryFactory.format(polygons.get(2)));
 
             final TimeAxis[] timeAxes = observation.getTimeAxes();
-            assertEquals(3, timeAxes.length);
+            assertEquals(2, timeAxes.length);
             TestUtil.assertCorrectUTCDate(2009, 10, 25, 8, 7, 39, 0, timeAxes[0].getStartTime());
-            TestUtil.assertCorrectUTCDate(2009, 10, 25, 8, 45, 19, 0, timeAxes[0].getEndTime());
+            TestUtil.assertCorrectUTCDate(2009, 10, 25, 9, 4, 9, 0, timeAxes[0].getEndTime());
             assertEquals(TestData.AVHRR_GAC_N17_AXIS_GEOMETRIES_v014_CSPP[0], geometryFactory.format(timeAxes[0].getGeometry()));
 
-            TestUtil.assertCorrectUTCDate(2009, 10, 25, 8, 45, 19, 0, timeAxes[1].getStartTime());
-            TestUtil.assertCorrectUTCDate(2009, 10, 25, 9, 22, 59, 0, timeAxes[1].getEndTime());
+            TestUtil.assertCorrectUTCDate(2009, 10, 25, 9, 4, 9, 0, timeAxes[1].getStartTime());
+            TestUtil.assertCorrectUTCDate(2009, 10, 25, 10, 0, 39, 0, timeAxes[1].getEndTime());
             assertEquals(TestData.AVHRR_GAC_N17_AXIS_GEOMETRIES_v014_CSPP[1], geometryFactory.format(timeAxes[1].getGeometry()));
-
-            TestUtil.assertCorrectUTCDate(2009, 10, 25, 9, 22, 59, 0, timeAxes[2].getStartTime());
-            TestUtil.assertCorrectUTCDate(2009, 10, 25, 10, 0, 39, 0, timeAxes[2].getEndTime());
-            assertEquals(TestData.AVHRR_GAC_N17_AXIS_GEOMETRIES_v014_CSPP[2], geometryFactory.format(timeAxes[2].getGeometry()));
         } finally {
             storage.clear();
             storage.close();

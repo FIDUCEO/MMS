@@ -101,7 +101,6 @@ public class AddAvhrrCorrCoeffsTest {
     @Test
     public void testExtractSensorKey() {
         assertEquals("avhrr-n19-fcdr", AddAvhrrCorrCoeffs.extractSensorKey("FIDUCEO_FCDR_L1C_AVHRR_N19ALL_20110705055721_20110705073927_EASY_v0.2Bet_fv2.0.0.nc"));
-        assertEquals("avhrr-n19-fcdr", AddAvhrrCorrCoeffs.extractSensorKey("FIDUCEO_FCDR_L1C_AVHRR_N19C3A_20090411222732_20090412003906_EASY_v0.2Bet_fv2.0.0.nc"));
         assertEquals("avhrr-ma-fcdr", AddAvhrrCorrCoeffs.extractSensorKey("FIDUCEO_FCDR_L1C_AVHRR_MTAC3A_20161108185739_20161108203900_EASY_v0.2Bet_fv2.0.0.nc"));
         assertEquals("avhrr-n11-fcdr", AddAvhrrCorrCoeffs.extractSensorKey("FIDUCEO_FCDR_L1C_AVHRR_N11ALL_19911222154531_19911222172732_EASY_v0.3Bet_fv2.0.0.nc"));
         assertEquals("avhrr-n12-fcdr", AddAvhrrCorrCoeffs.extractSensorKey("FIDUCEO_FCDR_L1C_AVHRR_N12ALL_19950317065908_19950317084026_EASY_v0.3Bet_fv2.0.0.nc"));
