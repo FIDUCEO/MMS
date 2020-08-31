@@ -167,7 +167,6 @@ public class AVHRR_FRAC_Reader extends SNAP_Reader {
         return (ArrayInt.D2) Array.factory(INT, shape, timeArray);
     }
 
-
     @Override
     public String getLongitudeVariableName() {
         return "longitude";
