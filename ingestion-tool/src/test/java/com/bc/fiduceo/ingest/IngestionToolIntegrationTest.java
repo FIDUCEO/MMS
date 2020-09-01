@@ -28,11 +28,7 @@ import com.bc.fiduceo.core.SystemConfig;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.db.DbAndIOTestRunner;
 import com.bc.fiduceo.db.Storage;
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.MultiPolygon;
-import com.bc.fiduceo.geometry.Polygon;
-import com.bc.fiduceo.geometry.TimeAxis;
+import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.reader.ReaderFactory;
 import com.bc.fiduceo.tool.ToolContext;
 import org.apache.commons.cli.CommandLine;
@@ -54,12 +50,7 @@ import java.util.List;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -1048,6 +1039,37 @@ public class IngestionToolIntegrationTest {
             final Geometry geoBounds = observation.getGeoBounds();
             assertEquals(TestData.MYD012KM_AQ_GEOMETRY, geometryFactory.format(geoBounds));
             assertEquals(TestData.MYD021KM_AQ_AXIS_GEOMETRY, geometryFactory.format(observation.getTimeAxes()[0].getGeometry()));
+        } finally {
+            storage.clear();
+            storage.close();
+        }
+    }
+
+    @Test
+    public void testIngest_AVHRR_FRAC_MB() throws SQLException, IOException, ParseException {
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "avhrr-frac-mb", "-start", "2019-254", "-end", "2019-254", "-v", "v1"};
+
+        try {
+            IngestionToolMain.main(args);
+            final List<SatelliteObservation> satelliteObservations = storage.get();
+            assertEquals(1, satelliteObservations.size());
+
+            final SatelliteObservation observation = getSatelliteObservation("NSS.FRAC.M1.D19254.S0220.E0319.B3621920.SV", satelliteObservations);
+            TestUtil.assertCorrectUTCDate(2019, 9, 11, 2, 20, 46, 0, observation.getStartTime());
+            TestUtil.assertCorrectUTCDate(2019, 9, 11, 3, 19, 28, 0, observation.getStopTime());
+
+            assertEquals("avhrr-frac-mb", observation.getSensor().getName());
+
+            final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-frac-mb", "v1", "2019", "09", "11", "NSS.FRAC.M1.D19254.S0220.E0319.B3621920.SV"}, true);
+            final String expectedPath = TestUtil.getTestDataDirectory().getAbsolutePath() + testFilePath;
+            assertEquals(expectedPath, observation.getDataFilePath().toString());
+
+            assertEquals(NodeType.UNDEFINED, observation.getNodeType());
+            assertEquals("v1", observation.getVersion());
+
+            final Geometry geoBounds = observation.getGeoBounds();
+            assertEquals(TestData.AVHRR_FRAC_MB_GEOMETRY, geometryFactory.format(geoBounds));
+            assertEquals(TestData.AVHRR_FRAC_MB_AXIS_GEOMETRY, geometryFactory.format(observation.getTimeAxes()[0].getGeometry()));
         } finally {
             storage.clear();
             storage.close();

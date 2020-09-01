@@ -14,7 +14,7 @@ public class AVHRR_FRAC_ReaderTest {
 
     @Test
     public void testGetRegEx() {
-        final String expected = "NSS.FRAC.M2.D\\d{5}.S\\d{4}.E\\d{4}.B\\d{7}.[A-Z]{2,2}(.gz){0,1}";
+        final String expected = "NSS.FRAC.M([12]).D\\d{5}.S\\d{4}.E\\d{4}.B\\d{7}.[A-Z]{2,2}(.gz){0,1}";
 
         final AVHRR_FRAC_Reader reader = new AVHRR_FRAC_Reader(new ReaderContext());// we do not need a geometry factory here tb 2019-01-16
         assertEquals(expected, reader.getRegEx());
@@ -34,6 +34,9 @@ public class AVHRR_FRAC_ReaderTest {
         assertTrue(matcher.matches());
 
         matcher = pattern.matcher("NSS.FRAC.M2.D12001.S0121.E0210.B2698484.MM.gz");
+        assertTrue(matcher.matches());
+
+        matcher = pattern.matcher("NSS.FRAC.M1.D19254.S0220.E0319.B3621920.SV");
         assertTrue(matcher.matches());
 
         matcher = pattern.matcher("AT2_TOA_1PURAL19980424_055754_000000001031_00348_15733_0000.OT");
