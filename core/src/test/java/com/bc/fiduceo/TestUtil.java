@@ -131,11 +131,15 @@ public class TestUtil {
     }
 
     public static void writeSystemConfig(File configDir) throws IOException {
+        writeSystemConfig(configDir, TestUtil.getTestDataDirectory());
+    }
+
+    public static void writeSystemConfig(File configDir, File archiveRoot) throws IOException {
         final String systemConfigXML = "<system-config>" +
                                        "    <geometry-library name = \"S2\" />" +
                                        "    <archive>" +
                                        "        <root-path>" +
-                                       "            " + TestUtil.getTestDataDirectory().getAbsolutePath() +
+                                       "            " + archiveRoot.getAbsolutePath() +
                                        "        </root-path>" +
                                        "        <rule sensors = \"drifter-sst, ship-sst, gtmba-sst, radiometer-sst, argo-sst, xbt-sst, mbt-sst, ctd-sst, animal-sst, bottle-sst\">" +
                                        "            insitu/SENSOR/VERSION" +
