@@ -55,6 +55,16 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
         super(logger);
     }
 
+    // package access for testing only tb 2017-07-21
+    static int getNumRandomPoints(int randomPointsPerDay, Date startDate, Date endDate) {
+        final Instant startInstant = startDate.toInstant();
+        final Instant endInstant = endDate.toInstant();
+
+        final long between = ChronoUnit.DAYS.between(startInstant, endInstant);
+
+        return (int) ((between + 1) * randomPointsPerDay);
+    }
+
     @Override
     public MatchupCollection createMatchupCollection(ToolContext context) throws SQLException, IOException, InvalidRangeException {
         final MatchupCollection matchupCollection = new MatchupCollection();
@@ -77,17 +87,17 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
 
         final List<SatelliteObservation> primaryObservations = getPrimaryObservations(context);
         for (final SatelliteObservation primaryObservation : primaryObservations) {
+            final Date primaryStartTime = primaryObservation.getStartTime();
+            final Date primaryStopTime = primaryObservation.getStopTime();
+
+            final Geometry[] primaryGeometries = extractGeometries(primaryObservation);
+
+            final List<SamplingPoint> primarySeedPoints = getPrimarySeedPoints(geometryFactory, seedPoints, primaryStartTime, primaryStopTime, primaryGeometries);
+            if (primarySeedPoints.size() == 0) {
+                continue;
+            }
+
             try (final Reader primaryReader = readerFactory.getReader(primaryObservation.getSensor().getName())) {
-                final Date primaryStartTime = primaryObservation.getStartTime();
-                final Date primaryStopTime = primaryObservation.getStopTime();
-
-                final Geometry[] primaryGeometries = extractGeometries(primaryObservation);
-
-                final List<SamplingPoint> primarySeedPoints = getPrimarySeedPoints(geometryFactory, seedPoints, primaryStartTime, primaryStopTime, primaryGeometries);
-                if (primarySeedPoints.size() == 0) {
-                    continue;
-                }
-
                 final Path primaryObservationDataFilePath = primaryObservation.getDataFilePath();
                 primaryReader.open(primaryObservationDataFilePath.toFile());
 
@@ -123,14 +133,12 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
                 final List<SatelliteObservation> secondaryObservations = mapSecondaryObservations.get(secondarySensorName_CaseOneSecondary);
 
                 for (final SatelliteObservation secondaryObservation : secondaryObservations) {
-                    // todo se multisensor
-                    // still only one secondary sensor case
-                    try (Reader secondaryReader = readerFactory.getReader(secondarySensorName_CaseOneSecondary)) {
-                        final Intersection[] intersectingIntervals = IntersectionEngine.getIntersectingIntervals(primaryObservation, secondaryObservation);
-                        if (intersectingIntervals.length == 0) {
-                            continue;
-                        }
+                    final Intersection[] intersectingIntervals = IntersectionEngine.getIntersectingIntervals(primaryObservation, secondaryObservation);
+                    if (intersectingIntervals.length == 0) {
+                        continue;
+                    }
 
+                    try (Reader secondaryReader = readerFactory.getReader(secondarySensorName_CaseOneSecondary)) {
                         secondaryReader.open(secondaryObservation.getDataFilePath().toFile());
                         // todo se multisensor
                         // still only one secondary sensor case
@@ -249,16 +257,6 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
             }
         }
         return primaryMatchups;
-    }
-
-    // package access for testing only tb 2017-07-21
-    static int getNumRandomPoints(int randomPointsPerDay, Date startDate, Date endDate) {
-        final Instant startInstant = startDate.toInstant();
-        final Instant endInstant = endDate.toInstant();
-
-        final long between = ChronoUnit.DAYS.between(startInstant, endInstant);
-
-        return (int) ((between + 1) * randomPointsPerDay);
     }
 
     private List<SamplingPoint> getPrimarySeedPoints(GeometryFactory geometryFactory, List<SamplingPoint> seedPoints, Date primaryStartTime, Date primaryStopTime, Geometry[] primaryGeometries) {

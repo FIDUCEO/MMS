@@ -47,9 +47,9 @@ public class UseCaseConfig {
     public static final String TAG_NAME_SENSORS = "sensors";
     public static final String TAG_NAME_SENSOR = "sensor";
     static final String TAG_NAME_RANDOM_POINTS_PER_DAY = "random-points-per-day";
-    private static final String TAG_NAME_RANDOM_SAMPLING = "random-sampling";
-    private final String TAG_NAME_POINTS_PER_DAY = "points-per-day";
-    private final String TAG_NAME_DISTRIBUTION= "distribution";
+    static final String TAG_NAME_RANDOM_SAMPLING = "random-sampling";
+    static final String TAG_NAME_POINTS_PER_DAY = "points-per-day";
+    static final String TAG_NAME_DISTRIBUTION= "distribution";
     public static final String TAG_NAME_PRIMARY = "primary";
     static final String TAG_NAME_DATA_VERSION = "data-version";
     static final String TAG_NAME_DIMENSIONS = "dimensions";

@@ -98,6 +98,17 @@ public class UseCaseConfigBuilder {
         return this;
     }
 
+    public UseCaseConfigBuilder withRandomPointsPerDay(int numRandomSeedPoints, String distribution) {
+        final Element randomSamplingElement = addChild(getRootElement(), TAG_NAME_RANDOM_SAMPLING);
+        addChild(randomSamplingElement, TAG_NAME_POINTS_PER_DAY, numRandomSeedPoints);
+
+        if (!("FLAT".equals(distribution) || "COSINE_LAT".equals(distribution) || "INV_TRUNC_COSINE_LAT".equals(distribution))) {
+            throw new IllegalArgumentException("Unsupported random distribution");
+        }
+        addChild(randomSamplingElement, TAG_NAME_DISTRIBUTION, distribution);
+        return this;
+    }
+
     public UseCaseConfigBuilder withTestRun() {
         addChild(getRootElement(), TAG_NAME_TEST_RUN, true);
         return this;

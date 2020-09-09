@@ -74,11 +74,15 @@ public abstract class AbstractMatchupStrategy {
         }
 
         conditionEngine.process(matchupSet, conditionEngineContext);
-        logger.info("Remaining " + matchupSet.getNumObservations() + " after condition processing");
+        final int numObservations = matchupSet.getNumObservations();
+        logger.info("Remaining " + numObservations + " after condition processing");
 
-        screeningEngine.process(matchupSet, primaryReader, secondaryReader);
-        logger.info("Remaining " + matchupSet.getNumObservations() + " after matchup screening");
+        if (numObservations > 0) {
+            screeningEngine.process(matchupSet, primaryReader, secondaryReader);
+            logger.info("Remaining " + matchupSet.getNumObservations() + " after matchup screening");
+        }
     }
+
 
     // package access for testing only tb 2016-11-04
     static boolean isSegmented(Geometry primaryGeoBounds) {

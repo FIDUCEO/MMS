@@ -51,8 +51,8 @@ final class SamplingPointPlotter {
     private final int height;
 
     public SamplingPointPlotter() {
-        width = 800;
-        height = 400;
+        width = 3600;
+        height = 1800;
     }
 
     public SamplingPointPlotter(int width, int height) {
