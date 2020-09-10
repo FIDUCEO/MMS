@@ -236,6 +236,9 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
 
         final Dimension primProductSize = primaryReader.getProductSize();
         final TimeLocator primTimeLocator = primaryReader.getTimeLocator();
+        final int width = primProductSize.getNx();
+        final int height = primProductSize.getNy();
+
         for (SamplingPoint psp : primarySeedPoints) {
             final Point2D[] locations = primaryPixelLocator.getPixelLocation(psp.getLon(), psp.getLat());
             for (Point2D loc : locations) {
@@ -243,9 +246,8 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
                 final double y_loc = loc.getY();
                 final int x = (int) Math.floor(x_lox);
                 final int y = (int) Math.floor(y_loc);
-                if (x >= 0 && y >= 0
-                        && x < primProductSize.getNx()
-                        && y < primProductSize.getNy()) {
+
+                if (x >= 0 && y >= 0 && x < width && y < height) {
                     final Point2D geo = primaryPixelLocator.getGeoLocation(x + 0.5, y + 0.5, null);
                     if (geo != null) {
                         final long time = primTimeLocator.getTimeFor(x, y);
@@ -261,12 +263,16 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
 
     private List<SamplingPoint> getPrimarySeedPoints(GeometryFactory geometryFactory, List<SamplingPoint> seedPoints, Date primaryStartTime, Date primaryStopTime, Geometry[] primaryGeometries) {
         final List<SamplingPoint> primaryPoints = new ArrayList<>();
+        final long startTime = primaryStartTime.getTime();
+        final long stopTime = primaryStopTime.getTime();
+
         for (SamplingPoint seedPoint : seedPoints) {
             final long time = seedPoint.getTime();
-            final double lat = seedPoint.getLat();
-            final double lon = seedPoint.getLon();
-            final Point point = geometryFactory.createPoint(lon, lat);
-            if (time >= primaryStartTime.getTime() && time <= primaryStopTime.getTime()) {
+
+            if (time >= startTime && time <= stopTime) {
+                final double lat = seedPoint.getLat();
+                final double lon = seedPoint.getLon();
+                final Point point = geometryFactory.createPoint(lon, lat);
                 for (Geometry geometry : primaryGeometries) {
                     final Geometry intersection = geometry.getIntersection(point);
                     if (intersection != null && intersection.isValid()) {
