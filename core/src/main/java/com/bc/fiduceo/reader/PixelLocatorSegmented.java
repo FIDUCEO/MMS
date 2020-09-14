@@ -26,7 +26,9 @@ public class PixelLocatorSegmented implements PixelLocator {
             if (y >= segment.interval.getX() && y < segment.interval.getY() && x >= 0 && x < swathWidth) {
                 final PixelPos pixelPos = new PixelPos(x, y - segment.interval.getX());
                 final GeoPos geoPos = segment.geoCoding.getGeoPos(pixelPos, null);
-                return new Point2D.Double(geoPos.lon, geoPos.lat);
+                if (geoPos.isValid()) {
+                    return new Point2D.Double(geoPos.lon, geoPos.lat);
+                }
             }
         }
         return null;

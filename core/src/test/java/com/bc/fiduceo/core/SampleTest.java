@@ -36,4 +36,16 @@ public class SampleTest {
         assertEquals(4.0, sample.getLat(), 1e-8);
         assertEquals(5, sample.getTime());
     }
+
+    @Test
+    public void testClone() {
+        final Sample sample = new Sample(2, 3, 4.0, 5.0, 6);
+
+        final Sample clone = sample.clone();
+        assertEquals(2, clone.getX());
+        assertEquals(3, clone.getY());
+        assertEquals(4.0, sample.getLon(), 1e-8);
+        assertEquals(5.0, sample.getLat(), 1e-8);
+        assertEquals(6, sample.getTime());
+    }
 }

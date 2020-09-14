@@ -101,18 +101,7 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
                 final Path primaryObservationDataFilePath = primaryObservation.getDataFilePath();
                 primaryReader.open(primaryObservationDataFilePath.toFile());
 
-//                following lines are for test purposes only
-//                >>>>>  start  <<<<<
-//                final Dimension productSize = primaryReader.getProductSize();
-//                final int numScanlines = productSize.getNy();
-//                final int numPoints = primarySeedPoints.size();
-//                System.out.println("Num Scanlines: " + numScanlines + "   num seed points: " + numPoints);
-//                final int equation = (int) (1.0 * numPoints / numScanlines * 2280);
-//                System.out.println("Equates to " + equation + " seed points at 2280 scanlines per MHS orbit");
-//                >>>>>  e n d  <<<<<
-
-
-                final MatchupSet primaryMatchups = getPrimaryMatchupSet(primaryReader, primarySeedPoints, primaryObservationDataFilePath);
+                MatchupSet primaryMatchups = getPrimaryMatchupSet(primaryReader, primarySeedPoints, primaryObservationDataFilePath);
                 if (primaryMatchups == null) {
                     continue;
                 }
@@ -128,10 +117,11 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
                 // todo se multisensor
                 // create(0) is still only one secondary sensor case
                 final String secondarySensorName_CaseOneSecondary = useCaseConfig.getSecondarySensors().get(0).getName();
+
                 // todo se multisensor
                 // still only one secondary sensor case
                 final List<SatelliteObservation> secondaryObservations = mapSecondaryObservations.get(secondarySensorName_CaseOneSecondary);
-
+                boolean mustClone = false;
                 for (final SatelliteObservation secondaryObservation : secondaryObservations) {
                     final Intersection[] intersectingIntervals = IntersectionEngine.getIntersectingIntervals(primaryObservation, secondaryObservation);
                     if (intersectingIntervals.length == 0) {
@@ -139,6 +129,9 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
                     }
 
                     try (Reader secondaryReader = readerFactory.getReader(secondarySensorName_CaseOneSecondary)) {
+                        if (mustClone) {
+                            primaryMatchups = primaryMatchups.clone();
+                        }
                         secondaryReader.open(secondaryObservation.getDataFilePath().toFile());
                         // todo se multisensor
                         // still only one secondary sensor case
@@ -175,11 +168,9 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
                                 matchupSet.setSampleSets(completeSamples);
 
                                 if (matchupSet.getNumObservations() > 0) {
-                                    // @todo 1 tb/tb degug code - remove this later!!!
                                     logger.info("found matches: " + matchupSet.getNumObservations());
-                                    logger.info("primary: " + primaryObservationDataFilePath);
+                                    logger.info("primary  : " + primaryObservationDataFilePath);
                                     logger.info("secondary: " + secondaryObservation.getDataFilePath());
-                                    // @todo 1 end of debug code
 
                                     // todo se multisensor
                                     // still only one secondary sensor case
@@ -191,6 +182,7 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
                                 }
                             }
                         }
+                        mustClone = true;
                     }
                 }
             }
@@ -221,7 +213,9 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
         final long contextEnd = endDate.getTime();
         int seed = 0;
         if (!useCaseConfig.isTestRun()) {
-            seed = SobolSamplingPointGenerator.createRandomSkip();
+//            seed = SobolSamplingPointGenerator.createRandomSkip();
+            seed = 1241234116;
+            //System.out.println("seed = " + seed);
         }
         return sobolSamplingPointGenerator.createSamples(randomPoints, seed, contextStart, contextEnd);
     }

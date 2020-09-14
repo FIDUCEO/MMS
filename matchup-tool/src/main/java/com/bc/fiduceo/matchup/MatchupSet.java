@@ -23,20 +23,15 @@ package com.bc.fiduceo.matchup;
 import com.bc.fiduceo.core.Sample;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class MatchupSet {
 
-    private List<SampleSet> sampleSets;
-
-    private Path primaryObservationPath;
-    private String primaryProcessingVersion;
     private final Map<String, Path> secondaryObservationPath;
     private final Map<String, String> secondaryProcessingVersion;
+    private List<SampleSet> sampleSets;
+    private Path primaryObservationPath;
+    private String primaryProcessingVersion;
 
     public MatchupSet() {
         sampleSets = new ArrayList<>();
@@ -79,12 +74,12 @@ public class MatchupSet {
         this.sampleSets = sampleSets;
     }
 
-    public void setPrimaryProcessingVersion(String primaryProcessingVersion) {
-        this.primaryProcessingVersion = primaryProcessingVersion;
-    }
-
     public String getPrimaryProcessingVersion() {
         return primaryProcessingVersion;
+    }
+
+    public void setPrimaryProcessingVersion(String primaryProcessingVersion) {
+        this.primaryProcessingVersion = primaryProcessingVersion;
     }
 
     public void setSecondaryProcessingVersion(String sensorName, String secondaryProcessingVersion) {
@@ -102,5 +97,27 @@ public class MatchupSet {
 
     public void addSampleSets(List<SampleSet> sampleSets) {
         this.sampleSets.addAll(sampleSets);
+    }
+
+    public MatchupSet clone() {
+        final MatchupSet clone = new MatchupSet();
+        clone.setPrimaryObservationPath(primaryObservationPath);
+        clone.setPrimaryProcessingVersion(primaryProcessingVersion);
+
+        final Set<Map.Entry<String, Path>> secPaths = secondaryObservationPath.entrySet();
+        for (final Map.Entry<String, Path> entry : secPaths) {
+            clone.setSecondaryObservationPath(entry.getKey(), entry.getValue());
+        }
+
+        final Set<Map.Entry<String, String>> secVersions = secondaryProcessingVersion.entrySet();
+        for (final Map.Entry<String, String> entry : secVersions) {
+            clone.setSecondaryProcessingVersion(entry.getKey(), entry.getValue());
+        }
+
+        for (final SampleSet sampleSet : sampleSets) {
+            clone.sampleSets.add(sampleSet.clone());
+        }
+
+        return clone;
     }
 }

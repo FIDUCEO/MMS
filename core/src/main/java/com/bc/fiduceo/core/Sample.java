@@ -55,4 +55,8 @@ public class Sample {
     public long getTime() {
         return time;
     }
+
+    public Sample clone() {
+        return new Sample(x, y, lon, lat, time);
+    }
 }
