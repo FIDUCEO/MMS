@@ -213,9 +213,7 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
         final long contextEnd = endDate.getTime();
         int seed = 0;
         if (!useCaseConfig.isTestRun()) {
-//            seed = SobolSamplingPointGenerator.createRandomSkip();
-            seed = 1241234116;
-            //System.out.println("seed = " + seed);
+            seed = SobolSamplingPointGenerator.createRandomSkip();
         }
         return sobolSamplingPointGenerator.createSamples(randomPoints, seed, contextStart, contextEnd);
     }
