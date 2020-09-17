@@ -202,7 +202,6 @@ public class MatchupToolTestUseCaseConfigBuilder extends UseCaseConfigBuilder {
         final Element screenings = ensureChild(getRootElement(), ConditionEngine.TAG_NAME_CONDITIONS);
         final Element pixelPosition = ensureChild(screenings, "pixel-position");
 
-        Element element;
         if (minX >= 0) {
             addChild(pixelPosition, "minX", Integer.toString(minX));
         }
