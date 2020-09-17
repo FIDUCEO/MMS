@@ -14,9 +14,9 @@ export MMS_ENV_NAME=mms-env.sh
 
 # Java and Python runtime definitions
 # -----------------------------------
-export MMS_JAVA_EXEC='/gws/nopw/j04/fiduceo/Software/jdk1.8.0_202/bin/java'
+export MMS_JAVA_EXEC='/gws/nopw/j04/esacci_sst/mms_new/software/jdk1.8.0_202/bin/java'
 
-export PM_EXE_DIR=/gws/nopw/j04/fiduceo/Software/mms/bin
+export PM_EXE_DIR=/gws/nopw/j04/esacci_sst/mms_new/bin
 export PM_PYTHON_EXEC='/gws/nopw/j04/fiduceo/Software/miniconda/miniconda3/envs/fiduceo_mms/bin/python'
 
 export PATH=${PM_EXE_DIR}:$PATH
@@ -79,7 +79,7 @@ elif [ "$SCHEDULER" == "SLURM" ]; then
             then
                 # extract the job_id from the bsub message, concatenate '_' and jobname to form an identifier
                 # and dump to std_out to be fetched by pmonitor
-                job_id=`echo ${line} | awk '{ print substr($4,0,length($4) }'`
+                job_id=`echo ${line} | awk '{ print substr($4,0,length($4)) }'`
                 echo "${job_id}_${jobname}"
             else
                 echo "`date -u +%Y%m%d-%H%M%S` - submit of ${jobname} failed: ${line}"

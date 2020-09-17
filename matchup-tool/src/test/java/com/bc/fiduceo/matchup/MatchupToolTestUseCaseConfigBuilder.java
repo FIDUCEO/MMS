@@ -56,7 +56,7 @@ public class MatchupToolTestUseCaseConfigBuilder extends UseCaseConfigBuilder {
         return this;
     }
 
-    public MatchupToolTestUseCaseConfigBuilder withOverlapRemoval(String reference) {
+     public MatchupToolTestUseCaseConfigBuilder withOverlapRemoval(String reference) {
         final Element conditions = ensureChild(getRootElement(), ConditionEngine.TAG_NAME_CONDITIONS);
         final Element overlapRemove = ensureChild(conditions, OverlapRemoveConditionPlugin.TAG_NAME_CONDITION_NAME);
         addChild(overlapRemove, "reference", reference);
