@@ -46,15 +46,18 @@ class JasminJobMonitorTest(unittest.TestCase):
             del os.environ["SCHEDULER"]
 
     def test_parse_job_status_SLURM(self):
-        output = "             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)\n" + "8158926 short-ser the_job. tblock01  R       1:46      1 host143\n"
+        output = "             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)\n" \
+                 "8158926 short-ser the_job. tblock01  R       1:46      1 host143\n" \
+                 "14839281 short-ser ingest-s tblock01  F       0:57      1 (NonZeroExitCode)"
 
         try:
             os.environ["MMS_USER"] = "HarryPotter"
 
             scheduler = SLURMInterface()
             job_status_dict = scheduler.parse_jobs_call(output)
-            self.assertEqual(1, len(job_status_dict))
+            self.assertEqual(2, len(job_status_dict))
             self.assertEqual(StatusCodes.RUNNING, job_status_dict["8158926"])
+            self.assertEqual(StatusCodes.FAILED, job_status_dict["14839281"])
         finally:
             del os.environ["MMS_USER"]
 
@@ -113,3 +116,11 @@ class JasminJobMonitorTest(unittest.TestCase):
             self.assertEqual(StatusCodes.DONE, scheduler._status_to_enum("SE"))
         finally:
             del os.environ["MMS_USER"]
+
+    def test_parse_watch_dict(self):
+        cmd_line = "14837827_ingest-slstr-s3a-nt-v01-2020-001-2020-001 14837826_ingest-slstr-s3a-nt-v01-2020-002-2020-002 14837829_ingest-slstr-s3a-nt-v01-2020-003-2020-003 14837830_ingest-slstr-s3a-nt-v01-2020-004-2020-004 14837833_ingest-slstr-s3a-nt-v01-2020-005-2020-005 14837834_ingest-slstr-s3a-nt-v01-2020-006-2020-006 14837836_ingest-slstr-s3a-nt-v01-2020-007-2020-007"
+
+        watch_dict = JasminJobMonitor._parse_watch_dict(cmd_line)
+        self.assertEqual(7, len(watch_dict))
+        self.assertEqual("ingest-slstr-s3a-nt-v01-2020-001-2020-001", watch_dict["14837827"])
+        self.assertEqual("ingest-slstr-s3a-nt-v01-2020-005-2020-005", watch_dict["14837833"])
