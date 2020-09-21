@@ -96,7 +96,12 @@ class JasminJobMonitor:
         else:
             raise RuntimeError("Missing environment variable 'PM_LOG_DIR'")
 
-    def _format_and_write(self, results, stream):
+    @staticmethod
+    def _format_and_write(results, stream):
+        if (len(results) == 0):
+            stream.flush()
+            return
+
         key_list = list(results.keys())
 
         num_items = len(key_list)

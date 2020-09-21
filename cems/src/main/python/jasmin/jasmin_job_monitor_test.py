@@ -1,4 +1,5 @@
 import os
+import io
 import unittest
 
 from jasmin.jasmin_job_monitor import JasminJobMonitor, LSFInterface, SLURMInterface
@@ -124,3 +125,41 @@ class JasminJobMonitorTest(unittest.TestCase):
         self.assertEqual(7, len(watch_dict))
         self.assertEqual("ingest-slstr-s3a-nt-v01-2020-001-2020-001", watch_dict["14837827"])
         self.assertEqual("ingest-slstr-s3a-nt-v01-2020-005-2020-005", watch_dict["14837833"])
+
+    def test_resolve_jobs_two_empty_dicts(self):
+        resolved, check_log = JasminJobMonitor._resolve_jobs({},{})
+        self.assertEqual(0, len(resolved))
+        self.assertEqual(0, len(check_log))
+
+    def test_resolve_jobs_empty_status_dict(self):
+        resolved, check_log = JasminJobMonitor._resolve_jobs({12: "Willem"},{})
+        self.assertEqual(0, len(resolved))
+        self.assertEqual(1, len(check_log))
+        self.assertEqual("Willem", check_log[12])
+
+    def test_resolve_jobs(self):
+        resolved, check_log = JasminJobMonitor._resolve_jobs({12: "Willem"},{12: StatusCodes.DONE})
+        self.assertEqual(1, len(resolved))
+        self.assertEqual(["Willem", StatusCodes.DONE, ""], resolved[12])
+        self.assertEqual(0, len(check_log))
+
+    def test_resolve_jobs_both_dicts(self):
+        resolved, check_log = JasminJobMonitor._resolve_jobs({12: "Willem", 13: "Agathe", 14: "Sumse"},{12: StatusCodes.DONE, 14: StatusCodes.DONE})
+        self.assertEqual(2, len(resolved))
+        self.assertEqual(["Willem", StatusCodes.DONE, ""], resolved[12])
+        self.assertEqual(["Sumse", StatusCodes.DONE, ""], resolved[14])
+        self.assertEqual(1, len(check_log))
+        self.assertEqual("Agathe", check_log[13])
+
+    def test_format_and_write_empty(self):
+        io_stream = io.StringIO()
+        JasminJobMonitor._format_and_write([], io_stream)
+
+        self.assertEqual("", io_stream.read())
+
+    def test_format_and_write_one(self):
+        io_stream = io.StringIO()
+        JasminJobMonitor._format_and_write({"236": ["Willem", StatusCodes.DONE, ""]}, io_stream)
+
+        io_stream.seek(0)
+        self.assertEqual("236_Willem,DONE,\n", io_stream.read())
