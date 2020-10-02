@@ -28,17 +28,14 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.util.TimeUtils;
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.esa.snap.core.util.StringUtils;
 import org.postgis.PGgeometry;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Timestamp;
-import java.sql.Types;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 public class PostGISDriver extends AbstractDriver {
 
@@ -52,6 +49,25 @@ public class PostGISDriver extends AbstractDriver {
     @Override
     public void setGeometryFactory(GeometryFactory geometryFactory) {
         this.geometryFactory = geometryFactory;
+    }
+
+    @Override
+    public void open(BasicDataSource dataSource) throws SQLException {
+        try {
+            final java.sql.Driver driverClass = (java.sql.Driver) Class.forName(dataSource.getDriverClassName()).newInstance();
+            DriverManager.registerDriver(driverClass);
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+            throw new SQLException(e.getMessage());
+        }
+
+        final String url = dataSource.getUrl();
+        final Properties properties = new Properties();
+        properties.put("user", dataSource.getUsername());
+        properties.put("password", dataSource.getPassword());
+        properties.put("loginTimeout", "2");
+        properties.put("connectTimeout", "2");
+
+        connection = DriverManager.getConnection(url, properties);
     }
 
     @Override

@@ -163,3 +163,15 @@ class JasminJobMonitorTest(unittest.TestCase):
 
         io_stream.seek(0)
         self.assertEqual("236_Willem,DONE,\n", io_stream.read())
+
+    def test_format_and_write_three(self):
+        io_stream = io.StringIO()
+        JasminJobMonitor._format_and_write({"237": ["Hans", StatusCodes.DONE, ""],
+                                            "238": ["Jana", StatusCodes.DONE, ""],
+                                            "239": ["Hinni", StatusCodes.RUNNING, ""]},
+                                           io_stream)
+
+        io_stream.seek(0)
+        self.assertEqual("237_Hans,DONE,\n"
+                         "238_Jana,DONE,\n"
+                         "239_Hinni,RUNNING,\n", io_stream.read())
