@@ -64,8 +64,8 @@ public class PostGISDriver extends AbstractDriver {
         final Properties properties = new Properties();
         properties.put("user", dataSource.getUsername());
         properties.put("password", dataSource.getPassword());
-        properties.put("loginTimeout", "2");
-        properties.put("connectTimeout", "2");
+        properties.put("loginTimeout", "120");
+        properties.put("connectTimeout", "120");
 
         connection = DriverManager.getConnection(url, properties);
     }
