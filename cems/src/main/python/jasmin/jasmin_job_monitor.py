@@ -2,7 +2,7 @@ import os
 import subprocess
 import sys
 
-from jasmin.status_codes import StatusCodes
+from status_codes import StatusCodes
 
 
 class JasminJobMonitor:
@@ -196,7 +196,7 @@ class SLURMInterface:
             raise RuntimeError("Missing environment variable 'MMS_USER'")
 
     def call_job_status(self):
-        completed_process = subprocess.run(["squeue --users=" + self.user_name + " --states=all"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        completed_process = subprocess.run(['squeue',  '--users=' + self.user_name, '--states=all'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         if completed_process.returncode != 0:
             sys.stderr.write(completed_process.stderr.decode("utf-8"))
             sys.stderr.flush()
