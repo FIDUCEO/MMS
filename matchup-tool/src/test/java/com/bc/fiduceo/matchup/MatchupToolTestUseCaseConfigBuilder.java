@@ -16,17 +16,18 @@
  */
 package com.bc.fiduceo.matchup;
 
-import static com.bc.fiduceo.core.UseCaseConfig.load;
-import static com.bc.fiduceo.util.JDomUtils.setNameAttribute;
-import static com.bc.fiduceo.util.JDomUtils.setNamesAttribute;
-
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.core.UseCaseConfigBuilder;
-import com.bc.fiduceo.matchup.condition.*;
+import com.bc.fiduceo.matchup.condition.ConditionEngine;
+import com.bc.fiduceo.matchup.condition.DistanceConditionPlugin;
+import com.bc.fiduceo.matchup.condition.OverlapRemoveConditionPlugin;
+import com.bc.fiduceo.matchup.condition.TimeDeltaConditionPlugin;
 import org.esa.snap.core.util.StringUtils;
 import org.jdom.Element;
 
-import java.awt.*;
+import static com.bc.fiduceo.core.UseCaseConfig.load;
+import static com.bc.fiduceo.util.JDomUtils.setNameAttribute;
+import static com.bc.fiduceo.util.JDomUtils.setNamesAttribute;
 
 public class MatchupToolTestUseCaseConfigBuilder extends UseCaseConfigBuilder {
 
@@ -55,7 +56,7 @@ public class MatchupToolTestUseCaseConfigBuilder extends UseCaseConfigBuilder {
         return this;
     }
 
-    public MatchupToolTestUseCaseConfigBuilder withOverlapRemoval(String reference) {
+     public MatchupToolTestUseCaseConfigBuilder withOverlapRemoval(String reference) {
         final Element conditions = ensureChild(getRootElement(), ConditionEngine.TAG_NAME_CONDITIONS);
         final Element overlapRemove = ensureChild(conditions, OverlapRemoveConditionPlugin.TAG_NAME_CONDITION_NAME);
         addChild(overlapRemove, "reference", reference);
@@ -65,7 +66,7 @@ public class MatchupToolTestUseCaseConfigBuilder extends UseCaseConfigBuilder {
     public MatchupToolTestUseCaseConfigBuilder withBorderDistance(int primary, int secondary) {
         final Element conditions = ensureChild(getRootElement(), ConditionEngine.TAG_NAME_CONDITIONS);
         final Element borderDistance = ensureChild(conditions, "border-distance");
-        if(primary > 0) {
+        if (primary > 0) {
             final Element primaryElem = ensureChild(borderDistance, "primary");
             addChild(primaryElem, "nx", primary);
             addChild(primaryElem, "ny", primary);
@@ -94,7 +95,7 @@ public class MatchupToolTestUseCaseConfigBuilder extends UseCaseConfigBuilder {
         return this;
     }
 
-    UseCaseConfigBuilder withAngularScreening(String primaryVariableName, String secondaryVariableName, float maxPrimaryVza, float maxSecondaryVza, float maxDelta) {
+    MatchupToolTestUseCaseConfigBuilder withAngularScreening(String primaryVariableName, String secondaryVariableName, float maxPrimaryVza, float maxSecondaryVza, float maxDelta) {
         final Element screenings = ensureChild(getRootElement(), "screenings");
         final Element angular = ensureChild(screenings, "angular");
 
@@ -119,7 +120,7 @@ public class MatchupToolTestUseCaseConfigBuilder extends UseCaseConfigBuilder {
         return this;
     }
 
-    UseCaseConfigBuilder withAngularCosineScreening(String primaryVZAName, String secondaryVZAName, float threshold) {
+    MatchupToolTestUseCaseConfigBuilder withAngularCosineScreening(String primaryVZAName, String secondaryVZAName, float threshold) {
         final Element screenings = ensureChild(getRootElement(), "screenings");
         final Element angular = ensureChild(screenings, "angular-cosine-proportion");
 
@@ -136,7 +137,7 @@ public class MatchupToolTestUseCaseConfigBuilder extends UseCaseConfigBuilder {
         return this;
     }
 
-    UseCaseConfigBuilder withHIRS_LZA_Screening(float maxAngularDelta) {
+    MatchupToolTestUseCaseConfigBuilder withHIRS_LZA_Screening(float maxAngularDelta) {
         final Element screenings = ensureChild(getRootElement(), "screenings");
         final Element lzaDelta = ensureChild(screenings, "hirs-lza-delta");
 
@@ -147,7 +148,7 @@ public class MatchupToolTestUseCaseConfigBuilder extends UseCaseConfigBuilder {
         return this;
     }
 
-    UseCaseConfigBuilder withPixelValueScreening(String primaryExpression, String secondaryExpression) {
+    MatchupToolTestUseCaseConfigBuilder withPixelValueScreening(String primaryExpression, String secondaryExpression) {
         final Element screenings = ensureChild(getRootElement(), "screenings");
         final Element pixelScreening = ensureChild(screenings, "pixel-value");
 
@@ -172,7 +173,7 @@ public class MatchupToolTestUseCaseConfigBuilder extends UseCaseConfigBuilder {
         return this;
     }
 
-    UseCaseConfigBuilder withBuehlerCloudScreening(String primaryNarrow, String primaryWide, String primaryVza, String secondaryNarrow, String secondaryWide, String secondaryVza) {
+    MatchupToolTestUseCaseConfigBuilder withBuehlerCloudScreening(String primaryNarrow, String primaryWide, String primaryVza, String secondaryNarrow, String secondaryWide, String secondaryVza) {
         final Element screenings = ensureChild(getRootElement(), "screenings");
         final Element angularScreening = ensureChild(screenings, "buehler-cloud");
 
@@ -193,6 +194,31 @@ public class MatchupToolTestUseCaseConfigBuilder extends UseCaseConfigBuilder {
 
         element = addChild(angularScreening, "secondary-vza");
         setNameAttribute(element, secondaryVza);
+
+        return this;
+    }
+
+    public MatchupToolTestUseCaseConfigBuilder withPixelPosition(String reference, int minX, int maxX, int minY, int maxY) {
+        final Element screenings = ensureChild(getRootElement(), ConditionEngine.TAG_NAME_CONDITIONS);
+        final Element pixelPosition = ensureChild(screenings, "pixel-position");
+
+        if (minX >= 0) {
+            addChild(pixelPosition, "minX", Integer.toString(minX));
+        }
+
+        if (maxX >= 0) {
+            addChild(pixelPosition, "maxX", Integer.toString(maxX));
+        }
+
+        if (minY >= 0) {
+            addChild(pixelPosition, "minY", Integer.toString(maxX));
+        }
+
+        if (maxY >= 0) {
+            addChild(pixelPosition, "maxY", Integer.toString(maxY));
+        }
+
+        addChild(pixelPosition, "reference", reference);
 
         return this;
     }

@@ -1,5 +1,7 @@
 package com.bc.fiduceo.reader;
 
+import com.bc.fiduceo.archive.Archive;
+import com.bc.fiduceo.archive.ArchiveConfig;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.util.TempFileUtils;
 import org.junit.Before;
@@ -41,5 +43,13 @@ public class ReaderContextTest {
 
         verify(tempFileUtils, times(1)).create("prefix", "extension");
         verify(tempFileUtils, times(1)).delete(tempFile);
+    }
+
+    @Test
+    public void testSetGetArchive() {
+        final Archive archive = mock(Archive.class);
+
+        readerContext.setArchive(archive);
+        assertSame(archive, readerContext.getArchive());
     }
 }

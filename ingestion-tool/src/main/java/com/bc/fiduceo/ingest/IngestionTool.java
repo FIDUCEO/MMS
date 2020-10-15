@@ -73,6 +73,7 @@ class IngestionTool {
         final String processingVersion = commandLine.getOptionValue("v");
 
         final ToolContext context = initializeContext(commandLine, confDirPath);
+
         logger.info("Successfully initialized tool");
 
         try {
@@ -93,12 +94,10 @@ class IngestionTool {
         final QueryParameter queryParameter = new QueryParameter();
         queryParameter.setSensorName(sensorType);
 
-        final SystemConfig systemConfig = context.getSystemConfig();
-        final ArchiveConfig archiveConfig = systemConfig.getArchiveConfig();
-        final Archive archive = new Archive(archiveConfig);
         final Date startDate = context.getStartDate();
         final Date endDate = context.getEndDate();
 
+        final Archive archive = context.getArchive();
         final Path[] productPaths = archive.get(startDate, endDate, processingVersion, sensorType);
         for (final Path filePath : productPaths) {
             final Matcher matcher = getMatcher(filePath, pattern);
@@ -219,7 +218,10 @@ class IngestionTool {
             context.setTempFileUtils(new TempFileUtils(tempDir));
         }
 
-        final ReaderFactory readerFactory = ReaderFactory.create(geometryFactory, context.getTempFileUtils());
+        final ArchiveConfig archiveConfig = systemConfig.getArchiveConfig();
+        final Archive archive = new Archive(archiveConfig);
+        context.setArchive(archive);
+        final ReaderFactory readerFactory = ReaderFactory.create(geometryFactory, context.getTempFileUtils(), archive);
         context.setReaderFactory(readerFactory);
 
         final Storage storage = Storage.create(databaseConfig.getDataSource(), geometryFactory);

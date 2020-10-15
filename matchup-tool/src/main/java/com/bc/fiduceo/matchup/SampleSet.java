@@ -24,6 +24,7 @@ import com.bc.fiduceo.core.Sample;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class SampleSet {
 
@@ -39,6 +40,30 @@ public class SampleSet {
 
     public SampleSet() {
         secondary = new HashMap<>();
+    }
+
+    // todo se multisensor
+    // if the multi sensor refactoring is done, this constant should never be used
+    public static String getOnlyOneSecondaryKey() {
+        return ONLY_ONE_SECONDARY_KEY;
+    }
+
+    // todo se multisensor
+    // if the multi sensor refactoring is done, this constant should never be used
+    public static void setOnlyOneSecondaryKey(String onlyOneSecondaryKey) {
+        // todo se multisensor
+        // set the default value to null, adapt all the single secondary tests and reduce
+        // the following line to a <code>null>/code> check.
+        if (!KEY_UNCHANGED.equals(ONLY_ONE_SECONDARY_KEY)) {
+            throw new RuntimeException("Set the property \"ONLY_ONE_SECONDARY\" twice is not allowed.");
+        }
+        ONLY_ONE_SECONDARY_KEY = onlyOneSecondaryKey;
+    }
+
+    // todo se multisensor
+    // if the multi sensor refactoring is done, this constant should never be used
+    public static void resetKey_UseThisMethodInUnitLevelTestsOnly() {
+        ONLY_ONE_SECONDARY_KEY = KEY_UNCHANGED;
     }
 
     public Sample getPrimary() {
@@ -57,27 +82,16 @@ public class SampleSet {
         this.secondary.put(sensorName, secondary);
     }
 
-    // todo se multisensor
-    // if the multi sensor refactoring is done, this constant should never be used
-    public static String getOnlyOneSecondaryKey() {
-        return ONLY_ONE_SECONDARY_KEY;
-    }
+    public SampleSet clone() {
+        final SampleSet clone = new SampleSet();
+        clone.setPrimary(primary.clone());
 
-    // todo se multisensor
-    // if the multi sensor refactoring is done, this constant should never be used
-    public static void resetKey_UseThisMethodInUnitLevelTestsOnly() {
-        ONLY_ONE_SECONDARY_KEY = KEY_UNCHANGED;
-    }
-
-    // todo se multisensor
-    // if the multi sensor refactoring is done, this constant should never be used
-    public static void setOnlyOneSecondaryKey(String onlyOneSecondaryKey) {
-        // todo se multisensor
-        // set the default value to null, adapt all the single secondary tests and reduce
-        // the following line to a <code>null>/code> check.
-        if (!KEY_UNCHANGED.equals(ONLY_ONE_SECONDARY_KEY)) {
-            throw new RuntimeException("Set the property \"ONLY_ONE_SECONDARY\" twice is not allowed.");
+        final Set<Map.Entry<String, Sample>> entries = secondary.entrySet();
+        for (Map.Entry entry : entries) {
+            final Sample value = (Sample) entry.getValue();
+            final String key = (String) entry.getKey();
+            clone.setSecondary(key, value.clone());
         }
-        ONLY_ONE_SECONDARY_KEY = onlyOneSecondaryKey;
+        return clone;
     }
 }

@@ -20,9 +20,6 @@
 
 package com.bc.fiduceo.reader;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.reader.airs.ForReaderFactoryTest_AIRS_L1B_Reader;
 import com.bc.fiduceo.reader.amsr.amsr2.AMSR2_Reader;
@@ -31,8 +28,13 @@ import com.bc.fiduceo.reader.avhrr_gac.AVHRR_GAC_Reader;
 import com.bc.fiduceo.reader.hirs.ForReaderFactoryTest_HIRS_L1C_Reader;
 import com.bc.fiduceo.reader.iasi.IASI_Reader;
 import com.bc.fiduceo.reader.insitu.sst_cci.SSTInsituReader;
-import com.bc.fiduceo.reader.modis.ForReaderFactoryTest_MxD06_Reader;
-import org.junit.*;
+import com.bc.fiduceo.reader.modis.MxD06_Reader;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.*;
 
 
 public class ReaderFactoryTest {
@@ -41,11 +43,11 @@ public class ReaderFactoryTest {
 
     @Before
     public void setUp() throws Exception {
-        readerFactory = ReaderFactory.create(new GeometryFactory(GeometryFactory.Type.S2), null); // we don't need temp file support here tb 2018-01-23
+        readerFactory = ReaderFactory.create(new GeometryFactory(GeometryFactory.Type.S2), null, null); // we don't need temp file support here tb 2018-01-23
     }
 
     @Test
-    public void testGetAVHHRReader()  {
+    public void testGetAVHHRReader() {
         final Reader reader = readerFactory.getReader("avhrr-n06");
 
         assertNotNull(reader);
@@ -97,7 +99,7 @@ public class ReaderFactoryTest {
         final Reader reader = readerFactory.getReader("myd06-aq");
 
         assertNotNull(reader);
-        ForReaderFactoryTest_MxD06_Reader.checkInstance(reader);
+        assertTrue(reader instanceof MxD06_Reader);
     }
 
     @Test
@@ -156,10 +158,10 @@ public class ReaderFactoryTest {
 
     @Test
     public void testSingletonBehaviour() {
-        final ReaderFactory factory = ReaderFactory.create(new GeometryFactory(GeometryFactory.Type.S2), null); // we don't need temp file support here tb 2018-01-23
+        final ReaderFactory factory = ReaderFactory.create(new GeometryFactory(GeometryFactory.Type.S2), null, null); // we don't need temp file support here tb 2018-01-23
         assertNotNull(factory);
 
-        final ReaderFactory secondCallFactory = ReaderFactory.create(new GeometryFactory(GeometryFactory.Type.S2), null); // we don't need temp file support here tb 2018-01-23
+        final ReaderFactory secondCallFactory = ReaderFactory.create(new GeometryFactory(GeometryFactory.Type.S2), null, null); // we don't need temp file support here tb 2018-01-23
         assertNotNull(secondCallFactory);
 
         assertSame(factory, secondCallFactory);
@@ -167,7 +169,7 @@ public class ReaderFactoryTest {
 
     @Test
     public void testGet() {
-        final ReaderFactory factory = ReaderFactory.create(new GeometryFactory(GeometryFactory.Type.S2), null); // we don't need temp file support here tb 2018-01-23
+        final ReaderFactory factory = ReaderFactory.create(new GeometryFactory(GeometryFactory.Type.S2), null, null); // we don't need temp file support here tb 2018-01-23
 
         final ReaderFactory factoryFromGet = ReaderFactory.get();
 

@@ -28,14 +28,9 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.location.PixelLocatorFactory;
-import com.bc.fiduceo.reader.AcquisitionInfo;
-import com.bc.fiduceo.reader.BoundingPolygonCreator;
-import com.bc.fiduceo.reader.Geometries;
-import com.bc.fiduceo.reader.RawDataReader;
-import com.bc.fiduceo.reader.ReaderContext;
-import com.bc.fiduceo.reader.ReaderUtils;
-import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.*;
 import com.bc.fiduceo.reader.netcdf.NetCDFReader;
+import com.bc.fiduceo.reader.time.TimeLocator;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.Array;
@@ -45,11 +40,7 @@ import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 class HIRS_L1C_Reader extends NetCDFReader {
 
@@ -139,8 +130,15 @@ class HIRS_L1C_Reader extends NetCDFReader {
 
     @Override
     public int[] extractYearMonthDayFromFilename(String fileName) {
+        final boolean numberString = isNumberString(fileName.substring(0, 3));
+
         final String[] strings = fileName.split("\\.");
-        final String datePart = strings[4].substring(1);
+        final String datePart;
+        if (numberString) {
+            datePart = strings[4].substring(1);
+        } else {
+            datePart = strings[3].substring(1);
+        }
         final Date yyDDD = TimeUtils.parse(datePart, "yyDDD");
         final Calendar utcCalendar = TimeUtils.getUTCCalendar();
         utcCalendar.setTime(yyDDD);
@@ -149,6 +147,15 @@ class HIRS_L1C_Reader extends NetCDFReader {
                 utcCalendar.get(Calendar.MONTH) + 1,
                 utcCalendar.get(Calendar.DAY_OF_MONTH),
         };
+    }
+
+    private boolean isNumberString(String testPart) {
+        try {
+            Integer.parseInt(testPart);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 
     @Override
@@ -278,7 +285,7 @@ class HIRS_L1C_Reader extends NetCDFReader {
         final int[] shape = new int[2];
         shape[0] = height;
         shape[1] = width;
-        final Array result = Array.factory(scanpos.getElementType(), shape);
+        final Array result = Array.factory(scanpos.getDataType(), shape);
 
         int originalX = centerX - width / 2;
 

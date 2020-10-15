@@ -34,18 +34,18 @@ class WindowArrayFactory {
     }
 
     static ArrayLong.D2 createLongArray(int width, int height) {
-        return new ArrayLong.D2(height, width);
+        return new ArrayLong.D2(height, width, false);
     }
 
     static ArrayInt.D2 createIntArray(int width, int height) {
-        return new ArrayInt.D2(height, width);
+        return new ArrayInt.D2(height, width, false);
     }
 
     static ArrayShort.D2 createShortArray(int width, int height) {
-        return new ArrayShort.D2(height, width);
+        return new ArrayShort.D2(height, width, false);
     }
 
     static ArrayByte.D2 createByteArray(int width, int height) {
-        return new ArrayByte.D2(height, width);
+        return new ArrayByte.D2(height, width, false);
     }
 }

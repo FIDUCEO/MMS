@@ -30,7 +30,7 @@ import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
-import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.time.TimeLocator;
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -632,7 +632,6 @@ public class MxD06_Reader_IO_Test {
         NCTestUtils.assertValueAt(2, 2, 2, array);
     }
 
-
     @Test
     public void testReadRaw_1km_Terra_upperRight() throws IOException, InvalidRangeException {
         final File file = getTerraFile();
@@ -884,8 +883,8 @@ public class MxD06_Reader_IO_Test {
 
         Point2D[] pixelLocation = pixelLocator.getPixelLocation(77.13426184377064, -61.537593841552734);
         assertEquals(1, pixelLocation.length);
-        assertEquals(24.510709668402516, pixelLocation[0].getX(), 1e-8);
-        assertEquals(175.76240167614188, pixelLocation[0].getY(), 1e-8);
+        assertEquals(24.4991870124666, pixelLocation[0].getX(), 1e-8);
+        assertEquals(176.5098731905597, pixelLocation[0].getY(), 1e-8);
 
         pixelLocation = pixelLocator.getPixelLocation(49.92273147607591, -60.453651428222656);
         assertEquals(1, pixelLocation.length);
@@ -914,8 +913,8 @@ public class MxD06_Reader_IO_Test {
 
         Point2D[] pixelLocation = pixelLocator.getPixelLocation(-42.03668401988397, 40.738407135009766);
         assertEquals(1, pixelLocation.length);
-        assertEquals(263.3698691892171, pixelLocation[0].getX(), 1e-8);
-        assertEquals(88.84977347987768, pixelLocation[0].getY(), 1e-8);
+        assertEquals(263.3933236158191, pixelLocation[0].getX(), 1e-8);
+        assertEquals(89.73207714460095, pixelLocation[0].getY(), 1e-8);
 
         pixelLocation = pixelLocator.getPixelLocation(-58.31618534674704, 35.175201416015625);
         assertEquals(1, pixelLocation.length);
@@ -924,8 +923,8 @@ public class MxD06_Reader_IO_Test {
 
         pixelLocation = pixelLocator.getPixelLocation(-68.44686075149151, 30.53831672668457);
         assertEquals(1, pixelLocation.length);
-        assertEquals(6.548238699492387, pixelLocation[0].getX(), 1e-8);
-        assertEquals(402.488541750327, pixelLocation[0].getY(), 1e-8);
+        assertEquals(6.521128461479705, pixelLocation[0].getX(), 1e-8);
+        assertEquals(401.5821014950894, pixelLocation[0].getY(), 1e-8);
     }
 
     @Test

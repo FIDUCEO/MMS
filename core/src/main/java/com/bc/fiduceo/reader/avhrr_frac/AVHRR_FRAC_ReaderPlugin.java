@@ -7,7 +7,7 @@ import com.bc.fiduceo.reader.ReaderPlugin;
 
 public class AVHRR_FRAC_ReaderPlugin implements ReaderPlugin {
 
-    private static final String[] SENSOR_KEYS = {"avhrr-frac-ma"};
+    private static final String[] SENSOR_KEYS = {"avhrr-frac-ma", "avhrr-frac-mb"};
 
     @Override
     public Reader createReader(ReaderContext readerContext) {

@@ -44,7 +44,6 @@ public class MxD06_ReaderPluginTest {
     public void testGetSupportedSensorKeys() {
         final String[] expected = {"mod06-te", "myd06-aq"};
 
-
         final String[] keys = plugin.getSupportedSensorKeys();
         assertArrayEquals(expected, keys);
     }

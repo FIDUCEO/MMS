@@ -18,7 +18,7 @@
  *
  */
 
-package com.bc.fiduceo.reader;
+package com.bc.fiduceo.reader.time;
 
 import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.Array;

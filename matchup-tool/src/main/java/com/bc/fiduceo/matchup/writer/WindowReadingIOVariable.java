@@ -21,6 +21,7 @@
 package com.bc.fiduceo.matchup.writer;
 
 import com.bc.fiduceo.core.Interval;
+import com.bc.fiduceo.reader.Reader;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
 
@@ -28,13 +29,26 @@ import java.io.IOException;
 
 public class WindowReadingIOVariable extends ReaderIOVariable {
 
+    private final boolean readScaled;
+
     public WindowReadingIOVariable(ReaderContainer readerContainer) {
+        this(readerContainer, false);
+    }
+
+    public WindowReadingIOVariable(ReaderContainer readerContainer, boolean readScaled) {
         super(readerContainer);
+        this.readScaled = readScaled;
     }
 
     @Override
     public void writeData(int centerX, int centerY, Interval interval, int zIndex) throws IOException, InvalidRangeException {
-        final Array array = readerContainer.getReader().readRaw(centerX, centerY, interval, sourceVariableName);
+        final Reader reader = readerContainer.getReader();
+        final Array array;
+        if (readScaled) {
+            array = reader.readScaled(centerX, centerY, interval, sourceVariableName);
+        } else {
+            array = reader.readRaw(centerX, centerY, interval, sourceVariableName);
+        }
         target.write(array, targetVariableName, zIndex);
     }
 }

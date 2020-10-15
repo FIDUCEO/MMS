@@ -135,10 +135,8 @@ public class TimeUtilsTest {
     }
 
     @Test
-    public void testCalculateTheTimeDifferentFrom_1970_01_01() throws Exception {
-        Date date;
-
-        date = TimeUtils.parse("1970-01-01 00:00:00", "yyyy-MM-dd HH:mm:ss");
+    public void testCalculateTheTimeDifferentFrom_1970_01_01() {
+        Date date = TimeUtils.parse("1970-01-01 00:00:00", "yyyy-MM-dd HH:mm:ss");
         assertEquals(0, date.getTime());
 
         date = TimeUtils.parse("1970-01-01 00:30:00", "yyyy-MM-dd HH:mm:ss");
@@ -169,6 +167,14 @@ public class TimeUtilsTest {
         assertEquals(946684800000L, TimeUtils.mjd2000ToDate(0.0).getTime());
         assertEquals(946771200000L, TimeUtils.mjd2000ToDate(1.0).getTime());
         assertEquals(955324800000L, TimeUtils.mjd2000ToDate(100.0).getTime());
+    }
+
+
+    @Test
+    public void testMillisSince2000ToUnixEpoch() {
+        assertEquals(946684800000L, TimeUtils.millisSince2000ToUnixEpoch(0));
+        assertEquals(946684886400L, TimeUtils.millisSince2000ToUnixEpoch(86400000));
+        assertEquals(946694800000L, TimeUtils.millisSince2000ToUnixEpoch(10000000000L));
     }
 
     @Test

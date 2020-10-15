@@ -48,6 +48,21 @@ public class TimeUtils {
         secondsSince1978 = (int) (millisSince1978 / 1000);
     }
 
+    private static final long millisSince2000;
+
+    static {
+        final Calendar utcCalendar = TimeUtils.getUTCCalendar();
+        utcCalendar.set(Calendar.YEAR, 2000);
+        utcCalendar.set(Calendar.MONTH, 0);
+        utcCalendar.set(Calendar.DAY_OF_MONTH, 1);
+        utcCalendar.set(Calendar.HOUR_OF_DAY, 0);
+        utcCalendar.set(Calendar.MINUTE, 0);
+        utcCalendar.set(Calendar.SECOND, 0);
+        utcCalendar.set(Calendar.MILLISECOND, 0);
+
+        millisSince2000 = utcCalendar.getTime().getTime();
+    }
+
     public static Date create(long millisSinceEpoch) {
         final Calendar calendar = calendarThreadLocal.get();
         calendar.setTimeInMillis(millisSinceEpoch);
@@ -148,6 +163,11 @@ public class TimeUtils {
 
     public static Date mjd2000ToDate(double mjd2000) {
         return new Date(Math.round((EPOCH_MJD2000 + mjd2000) * MILLIS_PER_DAY));
+    }
+
+    public static long millisSince2000ToUnixEpoch(double timeStampSecs2000) {
+        long timeStamp = Math.round(timeStampSecs2000 / 1000.0);
+        return millisSince2000 + timeStamp;
     }
 
     public static Date tai1993ToUtc(double taiSeconds) {

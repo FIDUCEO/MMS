@@ -23,6 +23,8 @@ package com.bc.fiduceo;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static org.junit.Assert.*;
 
+import com.bc.fiduceo.archive.Archive;
+import com.bc.fiduceo.archive.ArchiveConfig;
 import com.bc.fiduceo.geometry.Point;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.apache.commons.dbcp2.BasicDataSource;
@@ -89,13 +91,6 @@ public class TestUtil {
         writeDatabaseProperties(configDir, datasource);
     }
 
-    private static void writeDatabaseProperties(File configDir, BasicDataSource datasource) throws IOException {
-        final Properties properties = new Properties();
-        convertToProperties(properties, datasource);
-
-        TestUtil.storeProperties(properties, configDir, "database.properties");
-    }
-
     public static void writeDatabaseProperties_Postgres(File configDir) throws IOException {
         final BasicDataSource datasource = TestUtil.getDataSource_Postgres();
         writeDatabaseProperties(configDir, datasource);
@@ -136,11 +131,15 @@ public class TestUtil {
     }
 
     public static void writeSystemConfig(File configDir) throws IOException {
+        writeSystemConfig(configDir, TestUtil.getTestDataDirectory());
+    }
+
+    public static void writeSystemConfig(File configDir, File archiveRoot) throws IOException {
         final String systemConfigXML = "<system-config>" +
                                        "    <geometry-library name = \"S2\" />" +
                                        "    <archive>" +
                                        "        <root-path>" +
-                                       "            " + TestUtil.getTestDataDirectory().getAbsolutePath() +
+                                       "            " + archiveRoot.getAbsolutePath() +
                                        "        </root-path>" +
                                        "        <rule sensors = \"drifter-sst, ship-sst, gtmba-sst, radiometer-sst, argo-sst, xbt-sst, mbt-sst, ctd-sst, animal-sst, bottle-sst\">" +
                                        "            insitu/SENSOR/VERSION" +
@@ -306,15 +305,6 @@ public class TestUtil {
         return builder.toString();
     }
 
-    public static Coordinate[] getCoordinates(List<Point> points) {
-        final Coordinate[] coordinates = new Coordinate[points.size()];
-        for (int i = 0; i < points.size(); i++) {
-            Point point = points.get(i);
-            coordinates[i] = new Coordinate(point.getLon(), point.getLat());
-        }
-        return coordinates;
-    }
-
     public static Element createDomElement(String XML) throws JDOMException, IOException {
         final SAXBuilder saxBuilder = new SAXBuilder();
         final Document document = saxBuilder.build(new ByteArrayInputStream(XML.getBytes()));
@@ -342,6 +332,18 @@ public class TestUtil {
         return new StringPatternMatcher(pattern);
     }
 
+    public static Archive getArchive() throws IOException {
+        final File dataDirectory = getTestDataDirectory();
+        final String archiveXML = "<archive>" +
+                "    <root-path>" +
+                dataDirectory +
+                "    </root-path>" +
+                "</archive>";
+
+        final ArchiveConfig archiveConfig = ArchiveConfig.parse(archiveXML);
+        return new Archive(archiveConfig);
+    }
+
     private static void storeProperties(Properties properties, File configDir, String child) throws IOException {
         final File propertiesFile = new File(configDir, child);
         if (!propertiesFile.createNewFile()) {
@@ -351,6 +353,13 @@ public class TestUtil {
         try (FileOutputStream outputStream = new FileOutputStream(propertiesFile)) {
             properties.store(outputStream, "");
         }
+    }
+
+    private static void writeDatabaseProperties(File configDir, BasicDataSource datasource) throws IOException {
+        final Properties properties = new Properties();
+        convertToProperties(properties, datasource);
+
+        TestUtil.storeProperties(properties, configDir, "database.properties");
     }
 
     private static void convertToProperties(Properties properties, BasicDataSource datasource) {

@@ -21,6 +21,7 @@
 
 package com.bc.fiduceo.post.plugin.nwp;
 
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.esa.snap.core.util.math.FracIndex;
 import org.junit.Before;
 import org.junit.Test;
@@ -95,7 +96,7 @@ public class NwpUtilsTest {
     @Test
     public void testGetInterpolationIndex_smallArray() {
         final int[] ints = {130};
-        final Array timeArray = Array.factory(ints);
+        final Array timeArray = NetCDFUtils.create(ints);
 
         try {
             NwpUtils.getInterpolationIndex(timeArray, 130);
@@ -107,7 +108,7 @@ public class NwpUtilsTest {
     @Test
     public void testGetInterpolationIndex_twoValues() {
         final int[] ints = {130, 134};
-        final Array timeArray = Array.factory(ints);
+        final Array timeArray = NetCDFUtils.create(ints);
 
         final FracIndex fracIndex = NwpUtils.getInterpolationIndex(timeArray, 131);
         assertEquals(0, fracIndex.i);
@@ -117,7 +118,7 @@ public class NwpUtilsTest {
     @Test
     public void testGetInterpolationIndex_threeValues() {
         final int[] ints = {130, 134, 137};
-        final Array timeArray = Array.factory(ints);
+        final Array timeArray = NetCDFUtils.create(ints);
 
         final FracIndex fracIndex = NwpUtils.getInterpolationIndex(timeArray, 135);
         assertEquals(1, fracIndex.i);

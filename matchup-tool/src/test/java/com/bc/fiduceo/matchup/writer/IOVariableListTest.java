@@ -23,6 +23,7 @@ package com.bc.fiduceo.matchup.writer;
 
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.junit.Test;
 import ucar.ma2.*;
 import ucar.nc2.Attribute;
@@ -38,7 +39,7 @@ import static org.mockito.Mockito.*;
 public class IOVariableListTest {
 
     @Test
-    public void testCloneAllTheAttributesFromAVariable() throws Exception {
+    public void testCloneAllTheAttributesFromAVariable() {
         //preparation
         final String sensorName = "sensorName";
         final String variableName = "varName";
@@ -47,15 +48,15 @@ public class IOVariableListTest {
         when(mock.getShortName()).thenReturn(variableName);
 
         final ArrayList<Attribute> attributes = new ArrayList<>();
-        final ArrayDouble.D1 expectedDouble = (ArrayDouble.D1) Array.factory(new double[]{1});
-        final ArrayFloat.D1 expectedFloat = (ArrayFloat.D1) Array.factory(new float[]{2});
-        final ArrayLong.D1 expectedLong = (ArrayLong.D1) Array.factory(new long[]{3});
-        final ArrayInt.D1 expectedInt = (ArrayInt.D1) Array.factory(new int[]{4});
-        final ArrayShort.D1 expectedShort = (ArrayShort.D1) Array.factory(new short[]{5});
-        final ArrayByte.D1 expectedByte = (ArrayByte.D1) Array.factory(new byte[]{6});
+        final ArrayDouble.D1 expectedDouble = (ArrayDouble.D1) NetCDFUtils.create(new double[]{1});
+        final ArrayFloat.D1 expectedFloat = (ArrayFloat.D1) NetCDFUtils.create(new float[]{2});
+        final ArrayLong.D1 expectedLong = (ArrayLong.D1) NetCDFUtils.create(new long[]{3});
+        final ArrayInt.D1 expectedInt = (ArrayInt.D1) NetCDFUtils.create(new int[]{4});
+        final ArrayShort.D1 expectedShort = (ArrayShort.D1) NetCDFUtils.create(new short[]{5});
+        final ArrayByte.D1 expectedByte = (ArrayByte.D1) NetCDFUtils.create(new byte[]{6});
         final ArrayObject.D1 expectedString = (ArrayObject.D1) Array.factory(DataType.STRING, new int[]{1});
         expectedString.set(0, "7");
-        final ArrayFloat.D1 expectedFloats = (ArrayFloat.D1) Array.factory(new float[]{8, 9, 10});
+        final ArrayFloat.D1 expectedFloats = (ArrayFloat.D1) NetCDFUtils.create(new float[]{8, 9, 10});
 
         attributes.add(new Attribute("name1", expectedDouble));
         attributes.add(new Attribute("name2", expectedFloat));  // Attribute to be renamed

@@ -50,6 +50,8 @@ import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.location.PixelLocatorFactory;
 import com.bc.fiduceo.reader.*;
 import com.bc.fiduceo.reader.netcdf.NetCDFReader;
+import com.bc.fiduceo.reader.time.TimeLocator;
+import com.bc.fiduceo.reader.time.TimeLocator_YearDoyMs;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.util.StringUtils;
@@ -61,6 +63,7 @@ import ucar.nc2.Variable;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -183,7 +186,23 @@ class AMSUB_MHS_L1C_Reader extends NetCDFReader {
 
     @Override
     public int[] extractYearMonthDayFromFilename(String fileName) {
-        throw new RuntimeException("not implemented");
+        final boolean numberString = isNumberString(fileName.substring(1, 4));
+
+        final String[] strings = fileName.split("\\.");
+        final String datePart;
+        if (numberString) {
+            datePart = strings[4].substring(1);
+        } else {
+            datePart = strings[3].substring(1);
+        }
+        final Date yyDDD = TimeUtils.parse(datePart, "yyDDD");
+        final Calendar utcCalendar = TimeUtils.getUTCCalendar();
+        utcCalendar.setTime(yyDDD);
+        return new int[]{
+                utcCalendar.get(Calendar.YEAR),
+                utcCalendar.get(Calendar.MONTH) + 1,
+                utcCalendar.get(Calendar.DAY_OF_MONTH),
+        };
     }
 
     @Override
@@ -417,5 +436,14 @@ class AMSUB_MHS_L1C_Reader extends NetCDFReader {
             return scaleFactorValue.doubleValue();
         }
         return 1.0;
+    }
+
+    private boolean isNumberString(String testPart) {
+        try {
+            Integer.parseInt(testPart);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 }

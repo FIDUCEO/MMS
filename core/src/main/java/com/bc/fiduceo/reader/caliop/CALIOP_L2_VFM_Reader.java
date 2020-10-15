@@ -23,10 +23,12 @@ import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.*;
 import com.bc.fiduceo.reader.netcdf.NetCDFReader;
+import com.bc.fiduceo.reader.time.TimeLocator;
+import com.bc.fiduceo.reader.time.TimeLocator_TAI1993Vector;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
-import ucar.ma2.DataType;
 import ucar.ma2.*;
+import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
 import ucar.nc2.Group;
 import ucar.nc2.Structure;
@@ -76,7 +78,7 @@ public class CALIOP_L2_VFM_Reader extends NetCDFReader {
                 nadirIdx++;
             }
         }
-        return Array.factory(nadirStorage);
+        return Array.factory(DataType.SHORT, new int[]{nadirStorage.length}, nadirStorage);
     }
 
     static short[] calcalculateIndizes() {
@@ -264,11 +266,11 @@ public class CALIOP_L2_VFM_Reader extends NetCDFReader {
     private List<Variable> initVariables() {
         final HashMap<String, Attribute[]> flagCodings = new HashMap<>();
         flagCodings.put("Day_Night_Flag", new Attribute[]{
-                new Attribute(NetCDFUtils.CF_FLAG_VALUES_NAME, Array.factory(new short[]{0, 1})),
+                new Attribute(NetCDFUtils.CF_FLAG_VALUES_NAME, NetCDFUtils.create(new short[]{0, 1})),
                 new Attribute(NetCDFUtils.CF_FLAG_MEANINGS_NAME, "Day Night")
         });
         flagCodings.put("Land_Water_Mask", new Attribute[]{
-                new Attribute(NetCDFUtils.CF_FLAG_VALUES_NAME, Array.factory(new byte[]{0, 1, 2, 3, 4, 5, 6, 7})),
+                new Attribute(NetCDFUtils.CF_FLAG_VALUES_NAME, NetCDFUtils.create(new byte[]{0, 1, 2, 3, 4, 5, 6, 7})),
                 new Attribute(NetCDFUtils.CF_FLAG_MEANINGS_NAME, "shallow_ocean land coastlines shallow_inland_water intermittent_water deep_inland_water continental_ocean deep_ocean")
         });
 

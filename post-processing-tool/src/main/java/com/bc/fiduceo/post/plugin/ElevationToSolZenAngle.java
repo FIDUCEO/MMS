@@ -67,7 +67,7 @@ class ElevationToSolZenAngle extends PostProcessing {
             final Variable targetVariable = NetCDFUtils.getVariable(writer, conversion.targetName);
 
             final Array sourceData = sourceVariable.read();
-            final Array targetData = Array.factory(float.class, sourceData.getShape());
+            final Array targetData = Array.factory(DataType.FLOAT, sourceData.getShape());
 
             final Number fillValue = NetCDFUtils.getFillValue(sourceVariable);
 

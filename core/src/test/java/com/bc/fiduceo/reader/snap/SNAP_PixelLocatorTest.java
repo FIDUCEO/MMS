@@ -150,5 +150,15 @@ public class SNAP_PixelLocatorTest {
         public MathTransform getImageToMapTransform() {
             return null;
         }
+
+        @Override
+        public GeoCoding clone() {
+            throw new IllegalStateException("not implemented");
+        }
+
+        @Override
+        public boolean canClone() {
+            throw new IllegalStateException("not implemented");
+        }
     }
 }

@@ -80,7 +80,7 @@ abstract class AbstractUsecaseIntegrationTest {
     }
 
     SatelliteObservation readSatelliteObservation(String sensorKey, String absolutePath, String version) throws IOException {
-        final ReaderFactory readerFactory = ReaderFactory.create(geometryFactory, new TempFileUtils());
+        final ReaderFactory readerFactory = ReaderFactory.create(geometryFactory, new TempFileUtils(), null);
         try (Reader reader = readerFactory.getReader(sensorKey)) {
             reader.open(new File(absolutePath));
             final AcquisitionInfo acquisitionInfo = reader.read();
@@ -93,6 +93,8 @@ abstract class AbstractUsecaseIntegrationTest {
             satelliteObservation.setTimeAxes(acquisitionInfo.getTimeAxes());
             satelliteObservation.setNodeType(acquisitionInfo.getNodeType());
             satelliteObservation.setVersion(version);
+
+            ReaderFactory.close();
 
             return satelliteObservation;
         }

@@ -160,6 +160,7 @@ public class MmdWriterConfig {
                 addVariableRenames(sensorElement);
                 addVariableExcludes(sensorElement);
                 addAttributeRenames(sensorElement);
+                addWriteScaledConfig(sensorElement);
             }
         }
     }
@@ -239,6 +240,18 @@ public class MmdWriterConfig {
                 for (String varName : varNames) {
                     variablesConfiguration.setAttributeRename(sensor, varName, sourceName, targetName);
                 }
+            }
+        }
+    }
+
+    private void addWriteScaledConfig(Element sensorElement) {
+        String sensorNamesStr = getAttributeString(NAMES_ATTRIBUTE, sensorElement);
+        final String[] sensorNames = trim(sensorNamesStr.split(","));
+        final List<Element> writeScaledElements = sensorElement.getChildren("writeScaled");
+        for (final Element scaledVarElement : writeScaledElements) {
+            final String sourceName = getAttributeString(SOURCE_NAME_ATTRIBUTE, scaledVarElement);
+            for (final String sensorName: sensorNames) {
+                variablesConfiguration.addWriteScaled(sensorName, sourceName);
             }
         }
     }

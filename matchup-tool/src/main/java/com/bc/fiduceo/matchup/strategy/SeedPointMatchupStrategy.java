@@ -31,7 +31,7 @@ import com.bc.fiduceo.math.IntersectionEngine;
 import com.bc.fiduceo.math.TimeInfo;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderFactory;
-import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.time.TimeLocator;
 import com.bc.fiduceo.tool.ToolContext;
 import com.bc.fiduceo.util.SobolSamplingPointGenerator;
 import com.bc.fiduceo.util.TimeUtils;
@@ -53,6 +53,16 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
 
     SeedPointMatchupStrategy(Logger logger) {
         super(logger);
+    }
+
+    // package access for testing only tb 2017-07-21
+    static int getNumRandomPoints(int randomPointsPerDay, Date startDate, Date endDate) {
+        final Instant startInstant = startDate.toInstant();
+        final Instant endInstant = endDate.toInstant();
+
+        final long between = ChronoUnit.DAYS.between(startInstant, endInstant);
+
+        return (int) ((between + 1) * randomPointsPerDay);
     }
 
     @Override
@@ -77,32 +87,21 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
 
         final List<SatelliteObservation> primaryObservations = getPrimaryObservations(context);
         for (final SatelliteObservation primaryObservation : primaryObservations) {
+            final Date primaryStartTime = primaryObservation.getStartTime();
+            final Date primaryStopTime = primaryObservation.getStopTime();
+
+            final Geometry[] primaryGeometries = extractGeometries(primaryObservation);
+
+            final List<SamplingPoint> primarySeedPoints = getPrimarySeedPoints(geometryFactory, seedPoints, primaryStartTime, primaryStopTime, primaryGeometries);
+            if (primarySeedPoints.size() == 0) {
+                continue;
+            }
+
             try (final Reader primaryReader = readerFactory.getReader(primaryObservation.getSensor().getName())) {
-                final Date primaryStartTime = primaryObservation.getStartTime();
-                final Date primaryStopTime = primaryObservation.getStopTime();
-
-                final Geometry[] primaryGeometries = extractGeometries(primaryObservation);
-
-                final List<SamplingPoint> primarySeedPoints = getPrimarySeedPoints(geometryFactory, seedPoints, primaryStartTime, primaryStopTime, primaryGeometries);
-                if (primarySeedPoints.size() == 0) {
-                    continue;
-                }
-
                 final Path primaryObservationDataFilePath = primaryObservation.getDataFilePath();
                 primaryReader.open(primaryObservationDataFilePath.toFile());
 
-//                following lines are for test purposes only
-//                >>>>>  start  <<<<<
-//                final Dimension productSize = primaryReader.getProductSize();
-//                final int numScanlines = productSize.getNy();
-//                final int numPoints = primarySeedPoints.size();
-//                System.out.println("Num Scanlines: " + numScanlines + "   num seed points: " + numPoints);
-//                final int equation = (int) (1.0 * numPoints / numScanlines * 2280);
-//                System.out.println("Equates to " + equation + " seed points at 2280 scanlines per MHS orbit");
-//                >>>>>  e n d  <<<<<
-
-
-                final MatchupSet primaryMatchups = getPrimaryMatchupSet(primaryReader, primarySeedPoints, primaryObservationDataFilePath);
+                MatchupSet primaryMatchups = getPrimaryMatchupSet(primaryReader, primarySeedPoints, primaryObservationDataFilePath);
                 if (primaryMatchups == null) {
                     continue;
                 }
@@ -118,19 +117,21 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
                 // todo se multisensor
                 // create(0) is still only one secondary sensor case
                 final String secondarySensorName_CaseOneSecondary = useCaseConfig.getSecondarySensors().get(0).getName();
+
                 // todo se multisensor
                 // still only one secondary sensor case
                 final List<SatelliteObservation> secondaryObservations = mapSecondaryObservations.get(secondarySensorName_CaseOneSecondary);
-
+                boolean mustClone = false;
                 for (final SatelliteObservation secondaryObservation : secondaryObservations) {
-                    // todo se multisensor
-                    // still only one secondary sensor case
-                    try (Reader secondaryReader = readerFactory.getReader(secondarySensorName_CaseOneSecondary)) {
-                        final Intersection[] intersectingIntervals = IntersectionEngine.getIntersectingIntervals(primaryObservation, secondaryObservation);
-                        if (intersectingIntervals.length == 0) {
-                            continue;
-                        }
+                    final Intersection[] intersectingIntervals = IntersectionEngine.getIntersectingIntervals(primaryObservation, secondaryObservation);
+                    if (intersectingIntervals.length == 0) {
+                        continue;
+                    }
 
+                    try (Reader secondaryReader = readerFactory.getReader(secondarySensorName_CaseOneSecondary)) {
+                        if (mustClone) {
+                            primaryMatchups = primaryMatchups.clone();
+                        }
                         secondaryReader.open(secondaryObservation.getDataFilePath().toFile());
                         // todo se multisensor
                         // still only one secondary sensor case
@@ -167,11 +168,9 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
                                 matchupSet.setSampleSets(completeSamples);
 
                                 if (matchupSet.getNumObservations() > 0) {
-                                    // @todo 1 tb/tb degug code - remove this later!!!
                                     logger.info("found matches: " + matchupSet.getNumObservations());
-                                    logger.info("primary: " + primaryObservationDataFilePath);
+                                    logger.info("primary  : " + primaryObservationDataFilePath);
                                     logger.info("secondary: " + secondaryObservation.getDataFilePath());
-                                    // @todo 1 end of debug code
 
                                     // todo se multisensor
                                     // still only one secondary sensor case
@@ -183,6 +182,7 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
                                 }
                             }
                         }
+                        mustClone = true;
                     }
                 }
             }
@@ -228,6 +228,9 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
 
         final Dimension primProductSize = primaryReader.getProductSize();
         final TimeLocator primTimeLocator = primaryReader.getTimeLocator();
+        final int width = primProductSize.getNx();
+        final int height = primProductSize.getNy();
+
         for (SamplingPoint psp : primarySeedPoints) {
             final Point2D[] locations = primaryPixelLocator.getPixelLocation(psp.getLon(), psp.getLat());
             for (Point2D loc : locations) {
@@ -235,9 +238,8 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
                 final double y_loc = loc.getY();
                 final int x = (int) Math.floor(x_lox);
                 final int y = (int) Math.floor(y_loc);
-                if (x >= 0 && y >= 0
-                        && x < primProductSize.getNx()
-                        && y < primProductSize.getNy()) {
+
+                if (x >= 0 && y >= 0 && x < width && y < height) {
                     final Point2D geo = primaryPixelLocator.getGeoLocation(x + 0.5, y + 0.5, null);
                     if (geo != null) {
                         final long time = primTimeLocator.getTimeFor(x, y);
@@ -251,24 +253,18 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
         return primaryMatchups;
     }
 
-    // package access for testing only tb 2017-07-21
-    static int getNumRandomPoints(int randomPointsPerDay, Date startDate, Date endDate) {
-        final Instant startInstant = startDate.toInstant();
-        final Instant endInstant = endDate.toInstant();
-
-        final long between = ChronoUnit.DAYS.between(startInstant, endInstant);
-
-        return (int) ((between + 1) * randomPointsPerDay);
-    }
-
     private List<SamplingPoint> getPrimarySeedPoints(GeometryFactory geometryFactory, List<SamplingPoint> seedPoints, Date primaryStartTime, Date primaryStopTime, Geometry[] primaryGeometries) {
         final List<SamplingPoint> primaryPoints = new ArrayList<>();
+        final long startTime = primaryStartTime.getTime();
+        final long stopTime = primaryStopTime.getTime();
+
         for (SamplingPoint seedPoint : seedPoints) {
             final long time = seedPoint.getTime();
-            final double lat = seedPoint.getLat();
-            final double lon = seedPoint.getLon();
-            final Point point = geometryFactory.createPoint(lon, lat);
-            if (time >= primaryStartTime.getTime() && time <= primaryStopTime.getTime()) {
+
+            if (time >= startTime && time <= stopTime) {
+                final double lat = seedPoint.getLat();
+                final double lon = seedPoint.getLon();
+                final Point point = geometryFactory.createPoint(lon, lat);
                 for (Geometry geometry : primaryGeometries) {
                     final Geometry intersection = geometry.getIntersection(point);
                     if (intersection != null && intersection.isValid()) {

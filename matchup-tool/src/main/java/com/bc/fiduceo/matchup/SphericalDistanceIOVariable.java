@@ -22,9 +22,6 @@ package com.bc.fiduceo.matchup;
 
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.matchup.writer.SampleSetIOVariable;
-import ucar.ma2.InvalidRangeException;
-
-import java.io.IOException;
 
 class SphericalDistanceIOVariable extends SampleSetIOVariable {
 
@@ -35,7 +32,7 @@ class SphericalDistanceIOVariable extends SampleSetIOVariable {
     }
 
     @Override
-    public void writeData(int centerX, int centerY, Interval interval, int zIndex) throws IOException, InvalidRangeException {
+    public void writeData(int centerX, int centerY, Interval interval, int zIndex) {
         final double km = SphericalDistanceCalculator.calculateKm(sensorName, sampleSet);
         target.write((float) km, targetVariableName, zIndex);
     }

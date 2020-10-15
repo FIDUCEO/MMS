@@ -6,8 +6,8 @@ import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.ReaderUtils;
-import com.bc.fiduceo.reader.TimeLocator;
 import com.bc.fiduceo.reader.snap.SNAP_Reader;
+import com.bc.fiduceo.reader.time.TimeLocator;
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.esa.s3tbx.dataio.avhrr.AvhrrConstants;
 import org.esa.snap.core.datamodel.ProductData;
@@ -20,12 +20,14 @@ import ucar.ma2.Index;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Calendar;
+import java.util.StringTokenizer;
 
 import static ucar.ma2.DataType.INT;
 
 public class AVHRR_FRAC_Reader extends SNAP_Reader {
 
-    private static final String REG_EX = "NSS.FRAC.M2.D\\d{5}.S\\d{4}.E\\d{4}.B\\d{7}.[A-Z]{2,2}(.gz){0,1}";
+    private static final String REG_EX = "NSS.FRAC.M([12]).D\\d{5}.S\\d{4}.E\\d{4}.B\\d{7}.[A-Z]{2,2}(.gz){0,1}";
     private static final Interval INTERVAL = new Interval(5, 20);
     private static final int NUM_SPLITS = 2;
     private final ReaderContext readerContext;
@@ -80,7 +82,24 @@ public class AVHRR_FRAC_Reader extends SNAP_Reader {
 
     @Override
     public int[] extractYearMonthDayFromFilename(String fileName) {
-        throw new RuntimeException("not implemented");
+        final String[] tokens = fileName.split("\\.");
+
+        final String doyToken = tokens[3];
+        final String yearString = doyToken.substring(1, 3);
+        final int year = Integer.parseInt(yearString) + 2000; // name format skips 2k tb 2020-09-07
+
+        final String doyString = doyToken.substring(3, doyToken.length());
+        final int doy = Integer.parseInt(doyString);
+
+        final Calendar calendar = ProductData.UTC.createCalendar();
+        calendar.set(Calendar.YEAR, year);
+        calendar.set(Calendar.DAY_OF_YEAR, doy);
+
+        final int[] ymd = new int[3];
+        ymd[0] = year;
+        ymd[1] = calendar.get(Calendar.MONTH) +1;
+        ymd[2] = calendar.get(Calendar.DAY_OF_MONTH);
+        return ymd;
     }
 
     @Override
@@ -166,7 +185,6 @@ public class AVHRR_FRAC_Reader extends SNAP_Reader {
         final int[] shape = getShape(interval);
         return (ArrayInt.D2) Array.factory(INT, shape, timeArray);
     }
-
 
     @Override
     public String getLongitudeVariableName() {

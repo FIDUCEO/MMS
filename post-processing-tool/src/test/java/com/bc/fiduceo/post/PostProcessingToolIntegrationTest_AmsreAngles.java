@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.NetcdfFile;
+import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
@@ -73,11 +74,13 @@ public class PostProcessingToolIntegrationTest_AmsreAngles {
         assertTrue(targetFile.isFile());
 
         try (NetcdfFile mmd = NetcdfFile.open(targetFile.getAbsolutePath())) {
-            NCTestUtils.assert3DVariable("amsre.solar_zenith_angle", 0, 0, 0, 104.08000183105469, mmd);
-            NCTestUtils.assert3DVariable("amsre.solar_zenith_angle", 1, 0, 0, 103.97999572753906, mmd);
+            Variable variable = NCTestUtils.getVariable("amsre\\.Sun_Elevation", mmd, false);
+            NCTestUtils.assert3DValueDouble(0, 0, 0, 486.0, variable);
+            NCTestUtils.assert3DValueDouble(1, 0, 0, 485, variable);
 
-            NCTestUtils.assert3DVariable("amsre.solar_azimuth_angle", 2, 0, 0, -11.169998168945312, mmd);
-            NCTestUtils.assert3DVariable("amsre.solar_azimuth_angle", 3, 0, 0, -11.29998779296875, mmd);
+            variable = NCTestUtils.getVariable("amsre\\.Sun_Azimuth", mmd, false);
+            NCTestUtils.assert3DValueDouble(2, 0, 0, 183.0, variable);
+            NCTestUtils.assert3DValueDouble(3, 0, 0, 177.0, variable);
         }
     }
 

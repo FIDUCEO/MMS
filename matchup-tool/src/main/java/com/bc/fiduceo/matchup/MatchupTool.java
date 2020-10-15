@@ -21,6 +21,8 @@
 package com.bc.fiduceo.matchup;
 
 import com.bc.fiduceo.FiduceoConstants;
+import com.bc.fiduceo.archive.Archive;
+import com.bc.fiduceo.archive.ArchiveConfig;
 import com.bc.fiduceo.core.*;
 import com.bc.fiduceo.db.DatabaseConfig;
 import com.bc.fiduceo.db.Storage;
@@ -63,31 +65,6 @@ class MatchupTool {
 
     MatchupTool() {
         logger = FiduceoLogger.getLogger();
-    }
-
-    void run(CommandLine commandLine) throws IOException, SQLException, InvalidRangeException {
-        final ToolContext context = initialize(commandLine);
-        final MmdWriterConfig mmdWriterConfig = loadWriterConfig(commandLine);
-
-        try {
-            runMatchupGeneration(context, mmdWriterConfig);
-        } finally {
-            context.getStorage().close();
-            context.getTempFileUtils().cleanup();
-        }
-    }
-
-    // package access for testing only tb 2016-02-18
-    void printUsageTo(OutputStream outputStream) {
-        final String ls = System.lineSeparator();
-        final PrintWriter writer = new PrintWriter(outputStream);
-        writer.write("matchup-tool version " + VERSION_NUMBER);
-        writer.write(ls + ls);
-
-        final HelpFormatter helpFormatter = new HelpFormatter();
-        helpFormatter.printHelp(writer, 120, "matchup-tool <options>", "Valid options are:", getOptions(), 3, 3, "");
-
-        writer.flush();
     }
 
     static MatchupSet getFirstMatchupSet(MatchupCollection matchupCollection) {
@@ -310,6 +287,39 @@ class MatchupTool {
         return builder;
     }
 
+    // package access for testing only tb 2017-07-21
+    static String createDistanceVariableName(VariablesConfiguration variablesConfiguration, String primaryName, String secondaryName) {
+        final Map<String, String> sensorRenames = variablesConfiguration.getSensorRenames();
+        final String p = sensorRenames.getOrDefault(primaryName, primaryName);
+        final String s = sensorRenames.getOrDefault(secondaryName, secondaryName);
+        return p + "_" + s + "_" + SPERICAL_DISTANCE_VAR_NAME;
+    }
+
+    void run(CommandLine commandLine) throws IOException, SQLException, InvalidRangeException {
+        final ToolContext context = initialize(commandLine);
+        final MmdWriterConfig mmdWriterConfig = loadWriterConfig(commandLine);
+
+        try {
+            runMatchupGeneration(context, mmdWriterConfig);
+        } finally {
+            context.getStorage().close();
+            context.getTempFileUtils().cleanup();
+        }
+    }
+
+    // package access for testing only tb 2016-02-18
+    void printUsageTo(OutputStream outputStream) {
+        final String ls = System.lineSeparator();
+        final PrintWriter writer = new PrintWriter(outputStream);
+        writer.write("matchup-tool version " + VERSION_NUMBER);
+        writer.write(ls + ls);
+
+        final HelpFormatter helpFormatter = new HelpFormatter();
+        helpFormatter.printHelp(writer, 120, "matchup-tool <options>", "Valid options are:", getOptions(), 3, 3, "");
+
+        writer.flush();
+    }
+
     private ToolContext initialize(CommandLine commandLine) throws IOException, SQLException {
         logger.info("Loading configuration ...");
         final ToolContext context = new ToolContext();
@@ -349,7 +359,11 @@ class MatchupTool {
             context.setTempFileUtils(new TempFileUtils(tempDir));
         }
 
-        final ReaderFactory readerFactory = ReaderFactory.create(geometryFactory, context.getTempFileUtils());
+        final ArchiveConfig archiveConfig = systemConfig.getArchiveConfig();
+        final Archive archive = new Archive(archiveConfig);
+        context.setArchive(archive);
+
+        final ReaderFactory readerFactory = ReaderFactory.create(geometryFactory, context.getTempFileUtils(), archive);
         context.setReaderFactory(readerFactory);
 
         final Storage storage = Storage.create(databaseConfig.getDataSource(), geometryFactory);
@@ -418,14 +432,6 @@ class MatchupTool {
         attributes.add(new Attribute(CF_FILL_VALUE_NAME, getDefaultFillValue(DataType.FLOAT.getPrimitiveClassType())));
 
         return variable;
-    }
-
-    // package access for testing only tb 2017-07-21
-    static String createDistanceVariableName(VariablesConfiguration variablesConfiguration, String primaryName, String secondaryName) {
-        final Map<String, String> sensorRenames = variablesConfiguration.getSensorRenames();
-        final String p = sensorRenames.getOrDefault(primaryName, primaryName);
-        final String s = sensorRenames.getOrDefault(secondaryName, secondaryName);
-        return p + "_" + s + "_" + SPERICAL_DISTANCE_VAR_NAME;
     }
 
     private UseCaseConfig loadUseCaseConfig(CommandLine commandLine, File configDirectory) throws IOException {

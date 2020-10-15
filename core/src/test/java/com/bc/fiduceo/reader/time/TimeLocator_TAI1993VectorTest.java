@@ -18,27 +18,25 @@
  *
  */
 
-package com.bc.fiduceo.reader;
+package com.bc.fiduceo.reader.time;
 
-
-import com.bc.fiduceo.util.TimeUtils;
+import com.bc.fiduceo.util.NetCDFUtils;
+import org.junit.Test;
 import ucar.ma2.Array;
-import ucar.ma2.Index;
 
-public class TimeLocator_TAI1993 implements TimeLocator {
+import static org.junit.Assert.assertEquals;
 
-    private final Array taiArray;
-    private final Index index;
+public class TimeLocator_TAI1993VectorTest {
 
-    public TimeLocator_TAI1993(Array taiArray) {
-        this.taiArray = taiArray;
-        index = this.taiArray.getIndex();
-    }
+    @Test
+    public void testGetTimeFor() {
+        final double[] timeData = {1.8, 2.9, 3.0, 4.2, 5.2, 6.3};
+        final Array timeDataArray = NetCDFUtils.create(timeData);
 
-    @Override
-    public long getTimeFor(int x, int y) {
-        index.set(y, x);
-        final double taiSeconds = taiArray.getDouble(index);
-        return TimeUtils.tai1993ToUtc(taiSeconds).getTime();
+        final TimeLocator_TAI1993Vector timeLocator = new TimeLocator_TAI1993Vector(timeDataArray);
+
+        assertEquals(725846374800L, timeLocator.getTimeFor(0, 0));
+        assertEquals(725846374800L, timeLocator.getTimeFor(5, 0));
+        assertEquals(725846379300L, timeLocator.getTimeFor(8, 5));
     }
 }

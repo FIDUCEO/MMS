@@ -32,9 +32,8 @@ import com.bc.fiduceo.matchup.MatchupSet;
 import com.bc.fiduceo.matchup.SampleSet;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderFactory;
-import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.time.TimeLocator;
 import com.bc.fiduceo.tool.ToolContext;
-import ucar.ma2.InvalidRangeException;
 
 import java.awt.geom.Point2D;
 import java.io.IOException;

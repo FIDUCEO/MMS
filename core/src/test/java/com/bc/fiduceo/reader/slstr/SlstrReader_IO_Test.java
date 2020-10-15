@@ -10,7 +10,7 @@ import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
-import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.time.TimeLocator;
 import com.bc.fiduceo.reader.snap.SNAP_PixelLocator;
 import com.bc.fiduceo.util.TempFileUtils;
 import org.junit.After;
@@ -75,19 +75,19 @@ public class SlstrReader_IO_Test {
             assertNotNull(boundingGeometry);
             assertTrue(boundingGeometry instanceof Polygon);
             final Point[] coordinates = boundingGeometry.getCoordinates();
-            assertEquals(29, coordinates.length);
-            assertEquals(168.0067138671875, coordinates[0].getLon(), 1e-8);
-            assertEquals(83.76530456542969, coordinates[0].getLat(), 1e-8);
+            assertEquals(27, coordinates.length);
+            assertEquals(169.3240509033203, coordinates[0].getLon(), 1e-8);
+            assertEquals(83.7747802734375, coordinates[0].getLat(), 1e-8);
 
-            assertEquals(-141.01283264160156, coordinates[14].getLon(), 1e-8);
-            assertEquals(65.22335052490234, coordinates[14].getLat(), 1e-8);
+            assertEquals(-148.5464630126953, coordinates[14].getLon(), 1e-8);
+            assertEquals(69.24473571777344, coordinates[14].getLat(), 1e-8);
 
             final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
             assertEquals(1, timeAxes.length);
             Date time = timeAxes[0].getTime(coordinates[0]);
             TestUtil.assertCorrectUTCDate(2018, 10, 13, 22, 24, 36, 356, time);
             time = timeAxes[0].getTime(coordinates[15]);
-            TestUtil.assertCorrectUTCDate(2018, 10, 13, 22, 27, 21, 312, time);
+            TestUtil.assertCorrectUTCDate(2018, 10, 13, 22, 27, 6, 290, time);
         } finally {
             reader.close();
         }
@@ -116,19 +116,19 @@ public class SlstrReader_IO_Test {
             assertNotNull(boundingGeometry);
             assertTrue(boundingGeometry instanceof Polygon);
             final Point[] coordinates = boundingGeometry.getCoordinates();
-            assertEquals(29, coordinates.length);
-            assertEquals(-15.241932868957521, coordinates[0].getLon(), 1e-8);
-            assertEquals(54.52157592773438, coordinates[0].getLat(), 1e-8);
+            assertEquals(27, coordinates.length);
+            assertEquals(-15.488251686096193, coordinates[0].getLon(), 1e-8);
+            assertEquals(54.510459899902344, coordinates[0].getLat(), 1e-8);
 
-            assertEquals(-52.93038177490235, coordinates[15].getLon(), 1e-8);
-            assertEquals(57.850223541259766, coordinates[15].getLat(), 1e-8);
+            assertEquals(-43.97860717773437, coordinates[15].getLon(), 1e-8);
+            assertEquals(59.59437942504883, coordinates[15].getLat(), 1e-8);
 
             final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
             assertEquals(1, timeAxes.length);
             Date time = timeAxes[0].getTime(coordinates[0]);
-            TestUtil.assertCorrectUTCDate(2018, 10, 26, 23, 16, 11, 787, time);
+            TestUtil.assertCorrectUTCDate(2018, 10, 26, 23, 16, 11, 721, time);
             time = timeAxes[0].getTime(coordinates[16]);
-            TestUtil.assertCorrectUTCDate(2018, 10, 26, 23, 18, 41, 454, time);
+            TestUtil.assertCorrectUTCDate(2018, 10, 26, 23, 18, 26, 529, time);
         } finally {
             reader.close();
         }
@@ -820,25 +820,25 @@ public class SlstrReader_IO_Test {
 
             Point2D geoLocation = pixelLocator.getGeoLocation(144.5, 1044.5, null);
             assertEquals(175.59606804163354, geoLocation.getX(), 1e-8);
-            assertEquals(74.64973231778033, geoLocation.getY(), 1e-8);
+            assertEquals(74.64973211288452, geoLocation.getY(), 1e-8);
 
             Point2D[] pixelLocation = pixelLocator.getPixelLocation(175.59606804163354, 74.64973231778033);
             assertEquals(1, pixelLocation.length);
-            assertEquals(144.51761391998085, pixelLocation[0].getX(), 1e-8);
-            assertEquals(1044.5164233221906, pixelLocation[0].getY(), 1e-8);
+            assertEquals(144.48900004303917, pixelLocation[0].getX(), 1e-8);
+            assertEquals(1044.5157916296573, pixelLocation[0].getY(), 1e-8);
 
             geoLocation = pixelLocator.getGeoLocation(667.5, 804.5, null);
             assertEquals(-164.62233701811968, geoLocation.getX(), 1e-8);
-            assertEquals(75.49869504387597, geoLocation.getY(), 1e-8);
+            assertEquals(75.498695373535167, geoLocation.getY(), 1e-8);
 
             geoLocation = pixelLocator.getGeoLocation(1000.5, 850.5, null);
             assertEquals(-155.51157004968402, geoLocation.getX(), 1e-8);
-            assertEquals(73.69826950929934, geoLocation.getY(), 1e-8);
+            assertEquals(73.69826984405518, geoLocation.getY(), 1e-8);
 
             pixelLocation = pixelLocator.getPixelLocation(-155.51157004968402, 73.69826950929934);
             assertEquals(1, pixelLocation.length);
-            assertEquals(1000.4942282079284, pixelLocation[0].getX(), 1e-8);
-            assertEquals(850.5098251528784, pixelLocation[0].getY(), 1e-8);
+            assertEquals(1000.4936055492412, pixelLocation[0].getX(), 1e-8);
+            assertEquals(850.5082047084888, pixelLocation[0].getY(), 1e-8);
 
             pixelLocation = pixelLocator.getPixelLocation(1724, -89);
             assertEquals(0, pixelLocation.length);
@@ -861,7 +861,7 @@ public class SlstrReader_IO_Test {
 
             final Point2D geoLocation = pixelLocator.getGeoLocation(x, y, null);
             assertEquals(178.94019381241702, geoLocation.getX(), 1e-8);
-            assertEquals(74.536338250559, geoLocation.getY(), 1e-8);
+            assertEquals(74.53633832931519, geoLocation.getY(), 1e-8);
 
             final Interval interval = new Interval(1, 1);
             final Array lonArray = reader.readRaw((int) x, (int) y, interval, "longitude_tx");

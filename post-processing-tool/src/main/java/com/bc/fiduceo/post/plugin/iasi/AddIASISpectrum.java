@@ -152,7 +152,7 @@ class AddIASISpectrum extends PostProcessing {
     // package access for testing only tb 2017-06-14
     static Array getFillValueSpectrum() {
         final float[] fillValueVector = IASI_Reader.getDefaultFloatSpect();
-        return Array.factory(fillValueVector);
+        return NetCDFUtils.create(fillValueVector);
     }
 
     // package access for testing only tb 2017-06-14

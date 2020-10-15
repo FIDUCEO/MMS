@@ -32,6 +32,8 @@ import com.bc.fiduceo.location.PixelLocatorFactory;
 import com.bc.fiduceo.reader.*;
 import com.bc.fiduceo.reader.amsr.AmsrUtils;
 import com.bc.fiduceo.reader.netcdf.NetCDFReader;
+import com.bc.fiduceo.reader.time.TimeLocator;
+import com.bc.fiduceo.reader.time.TimeLocator_TAI1993Vector;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.datamodel.ProductData;
@@ -188,8 +190,8 @@ class AMSRE_Reader extends NetCDFReader {
 
         final String hdfVariableName = namesConverter.toHdf(variableName);
         final String groupName = getGroupNameForVariable(hdfVariableName);
-        double scaleFactor = getScaleFactor(groupName, hdfVariableName, "SCALE_FACTOR", false);
-        double offset = getOffset(groupName, hdfVariableName, "OFFSET");
+        double scaleFactor = getScaleFactor(groupName, hdfVariableName, null, false);
+        double offset = getOffset(groupName, hdfVariableName, null);
         if (ReaderUtils.mustScale(scaleFactor, offset)) {
             final MAMath.ScaleOffset scaleOffset = new MAMath.ScaleOffset(scaleFactor, offset);
             return MAMath.convert2Unpacked(array, scaleOffset);

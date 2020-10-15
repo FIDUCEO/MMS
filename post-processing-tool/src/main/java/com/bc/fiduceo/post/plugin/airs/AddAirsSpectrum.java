@@ -211,7 +211,6 @@ public class AddAirsSpectrum extends PostProcessing {
         variablesMap.put(targetRadiancesVariableName, radiances);
 
         final Variable calFlag = writer.addVariable(null, targetCalFlagVariableName, DataType.BYTE, targetDimensions);
-        calFlag.setUnsigned(true);
         calFlag.addAttribute(new Attribute(CDM.UNSIGNED, "true"));
         calFlag.addAttribute(new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, Byte.valueOf("-1")));
         calFlag.addAttribute(new Attribute("description", "Bit field, by channel, for the current scanline. Zero means the channel was well " +

@@ -39,7 +39,7 @@ import com.bc.fiduceo.math.TimeInterval;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderCache;
 import com.bc.fiduceo.reader.ReaderFactory;
-import com.bc.fiduceo.reader.TimeLocator;
+import com.bc.fiduceo.reader.time.TimeLocator;
 import com.bc.fiduceo.tool.ToolContext;
 import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.Array;

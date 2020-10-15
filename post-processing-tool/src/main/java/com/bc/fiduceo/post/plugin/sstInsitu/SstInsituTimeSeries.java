@@ -28,10 +28,7 @@ import org.esa.snap.core.util.StringUtils;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
-import ucar.nc2.Attribute;
-import ucar.nc2.NetcdfFile;
-import ucar.nc2.NetcdfFileWriter;
-import ucar.nc2.Variable;
+import ucar.nc2.*;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -41,7 +38,6 @@ import java.util.List;
 import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
 import static com.bc.fiduceo.util.NetCDFUtils.CF_UNITS_NAME;
 import static com.bc.fiduceo.util.TimeUtils.secondsSince1978;
-import static ucar.nc2.NetcdfFile.makeValidCDLName;
 
 class SstInsituTimeSeries extends PostProcessing {
 
@@ -77,7 +73,7 @@ class SstInsituTimeSeries extends PostProcessing {
     protected void compute(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
         final Variable yVariable1D = getInsitu_Y_Variable(reader, sensorType, configuration);
         final int[] y1D = (int[]) yVariable1D.read().getStorage();
-        final Variable yVariable2D = writer.findVariable(makeValidCDLName("insitu.y"));
+        final Variable yVariable2D = writer.findVariable(NetCDFUtils.escapeVariableName("insitu.y"));
 
         final Variable satMatchupVar = NetCDFUtils.getVariable(reader, configuration.matchupTimeVarName);
         final int[] satMatchupShape = satMatchupVar.getShape();
@@ -88,8 +84,8 @@ class SstInsituTimeSeries extends PostProcessing {
         final int[] storage = (int[]) satMatchupTimeData.getStorage();
         final int[] satMatchup1978_1D = Arrays.stream(storage).map(v -> v - secondsSince1978).toArray();
 
-        final Variable timeVar2D = writer.findVariable(makeValidCDLName("insitu.time"));
-        final Variable dtimeVar2D = writer.findVariable(makeValidCDLName("insitu.dtime"));
+        final Variable timeVar2D = writer.findVariable(NetCDFUtils.escapeVariableName("insitu.time"));
+        final Variable dtimeVar2D = writer.findVariable(NetCDFUtils.escapeVariableName("insitu.dtime"));
 
         for (int i = 0; i < matchupCount; i++) {
             final String insituFileName = getSourceFileName(fileNameVariable, i, filenameFieldSize, FILE_NAME_PATTERN_D8_D8_NC);
@@ -104,7 +100,7 @@ class SstInsituTimeSeries extends PostProcessing {
             for (Variable variable1D : variables) {
                 final Array fullSrcData1D = insituReader.getSourceArray(variable1D.getShortName());
                 final Array srcData1D = NetCDFUtils.section(fullSrcData1D, origin1D, shape1D);
-                final String validShortName = makeValidCDLName(variable1D.getShortName());
+                final String validShortName = NetCDFUtils.escapeVariableName(variable1D.getShortName());
                 final Variable targetVar2D = writer.findVariable(validShortName);
                 final Array targetData2D = srcData1D.reshape(shape2D);
                 writer.write(targetVar2D, origin2D, targetData2D);
@@ -210,7 +206,7 @@ class SstInsituTimeSeries extends PostProcessing {
         for (int j = 0; j < y.length; j++) {
             y[j] = range.min + j;
         }
-        final Array yData1D = Array.factory(y);
+        final Array yData1D = NetCDFUtils.create(y);
         return yData1D.reshape(shape2D);
     }
 

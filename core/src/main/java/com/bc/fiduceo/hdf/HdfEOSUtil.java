@@ -20,11 +20,13 @@
 
 package com.bc.fiduceo.hdf;
 
+import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.util.StringUtils;
 import org.jdom2.Element;
 import ucar.ma2.Array;
 import ucar.nc2.Group;
+import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
 import java.io.IOException;
@@ -86,6 +88,25 @@ public class HdfEOSUtil {
         final String timeStringWithMillis = stripMicroSecs(timeString);
         final String rangeBeginningDate = dateString + " " + timeStringWithMillis;
         return TimeUtils.parse(rangeBeginningDate, DATE_FORMAT);
+    }
+
+    // @todo 4 tb/** add explicit tests - method is implicitely tested in the MODIS IO tests 2020-05-13
+    public static void extractAcquisitionTimes(AcquisitionInfo acquisitionInfo, NetcdfFile netcdfFile) throws IOException {
+        final Group rootGroup = netcdfFile.getRootGroup();
+        final String coreMetaString = HdfEOSUtil.getEosMetadata("CoreMetadata.0", rootGroup);
+        if (coreMetaString == null) {
+            throw new IOException("'CoreMetadata.0' attribute not found");
+        }
+        final Element eosElement = HdfEOSUtil.getEosElement(coreMetaString);
+        final String rangeBeginDateElement = HdfEOSUtil.getElementValue(eosElement, HdfEOSUtil.RANGE_BEGINNING_DATE);
+        final String rangeBeginTimeElement = HdfEOSUtil.getElementValue(eosElement, HdfEOSUtil.RANGE_BEGINNING_TIME);
+        final Date sensingStart = HdfEOSUtil.parseDate(rangeBeginDateElement, rangeBeginTimeElement);
+        acquisitionInfo.setSensingStart(sensingStart);
+
+        final String rangeEndDateElement = HdfEOSUtil.getElementValue(eosElement, HdfEOSUtil.RANGE_ENDING_DATE);
+        final String rangeEndTimeElement = HdfEOSUtil.getElementValue(eosElement, HdfEOSUtil.RANGE_ENDING_TIME);
+        final Date sensingStop = HdfEOSUtil.parseDate(rangeEndDateElement, rangeEndTimeElement);
+        acquisitionInfo.setSensingStop(sensingStop);
     }
 
     // package access for testing only tb 2017-05-29

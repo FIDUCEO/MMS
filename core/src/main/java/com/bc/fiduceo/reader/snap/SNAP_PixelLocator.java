@@ -43,8 +43,10 @@ public class SNAP_PixelLocator implements PixelLocator {
     @Override
     public Point2D getGeoLocation(double x, double y, Point2D point) {
         pixelPos.setLocation(x, y);
-        final GeoPos geoPos = new GeoPos();
         final GeoPos geoCodingGeoPos = geoCoding.getGeoPos(pixelPos, geoPos);
+        if (!geoPos.isValid()) {
+            return null;
+        }
 
         if (point == null) {
             point = new Point2D.Double();
@@ -58,7 +60,7 @@ public class SNAP_PixelLocator implements PixelLocator {
     public Point2D[] getPixelLocation(double lon, double lat) {
         geoPos.setLocation(lat, lon);
         final PixelPos newPos = geoCoding.getPixelPos(geoPos, pixelPos);
-        if (Double.isNaN(newPos.getX()) || Double.isNaN(newPos.getY())) {
+        if (!newPos.isValid()) {
             return new Point2D[0];
         }
 

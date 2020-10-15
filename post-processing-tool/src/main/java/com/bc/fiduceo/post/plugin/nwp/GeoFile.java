@@ -74,7 +74,7 @@ class GeoFile {
     }
 
     void writeTimeSeries(Array longitudesArray, Array latitudesArray) throws IOException, InvalidRangeException {
-        writer.write(gridDims, Array.factory(new int[]{1, numMatchups}));
+        writer.write(gridDims, NetCDFUtils.create(new int[]{1, numMatchups}));
 
         int[] sourceStart;
         int[] sourceShape;
@@ -93,8 +93,8 @@ class GeoFile {
         final int[] targetShape = {1};
 
         final Array maskData = Array.factory(DataType.INT, targetShape);
-        final Array lonWriteArray = Array.factory(new float[]{0.f});
-        final Array latWriteArray = Array.factory(new float[]{0.f});
+        final Array lonWriteArray = NetCDFUtils.create(new float[]{0.f});
+        final Array latWriteArray = NetCDFUtils.create(new float[]{0.f});
 
         for (int i = 0; i < numMatchups; i++) {
             targetStart[0] = i;
@@ -121,7 +121,7 @@ class GeoFile {
         final int x_dimension = config.getX_Dimension();
         final int y_dimension = config.getY_Dimension();
 
-        writer.write(gridDims, Array.factory(new int[]{x_dimension, y_dimension * numMatchups}));
+        writer.write(gridDims, NetCDFUtils.create(new int[]{x_dimension, y_dimension * numMatchups}));
 
         final int[] shape = longitudesArray.getShape();
         final int nx = shape[2];

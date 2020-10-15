@@ -6,6 +6,7 @@ import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.*;
+import com.bc.fiduceo.reader.time.TimeLocator;
 import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;

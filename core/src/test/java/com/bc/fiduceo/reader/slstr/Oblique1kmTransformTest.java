@@ -2,6 +2,7 @@ package com.bc.fiduceo.reader.slstr;
 
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.junit.Test;
 import ucar.ma2.Array;
 
@@ -57,7 +58,7 @@ public class Oblique1kmTransformTest {
         final Oblique1kmTransform transform = new Oblique1kmTransform(204, 184, 551);
         final float[] data = new float[]{0.f, 1.f, 2.f, 3.f, 4.f, 5.f};
 
-        final Array array = Array.factory(data);
+        final Array array = NetCDFUtils.create(data);
         final Array processed = transform.process(array, -1.0);
 
         assertEquals(array.shapeToString(), processed.shapeToString());
@@ -70,7 +71,7 @@ public class Oblique1kmTransformTest {
         final Oblique1kmTransform transform = new Oblique1kmTransform(205, 185, 552);
         final int[] data = new int[]{0, 1, 2, 4, 8, 16};
 
-        final Array array = Array.factory(data);
+        final Array array = NetCDFUtils.create(data);
         final Array processed = transform.processFlags(array, -1);
 
         assertEquals(array.shapeToString(), processed.shapeToString());

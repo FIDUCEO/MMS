@@ -27,6 +27,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.Date;
@@ -367,5 +368,31 @@ public class ArchiveTest {
         assertEquals(5, sensorElements.length);
         assertEquals("VERSION", sensorElements[1]);
         assertEquals("YEAR", sensorElements[2]);
+    }
+
+    @Test
+    public void testGetVersion() {
+        final ArchiveConfig archiveConfig = new ArchiveConfig();
+        final HashMap<String, String[]> rules = new HashMap<>();
+        final String[] pathElements = {"SENSOR", "VERSION", "YEAR", "MONTH", "DAY"};
+        rules.put("mod021km-te", pathElements);
+        archiveConfig.setRules(rules);
+        archiveConfig.setRootPath(root);
+        final Archive localArchive = new Archive(archiveConfig);
+
+        assertEquals("v12", localArchive.getVersion("mod021km-te", root.resolve("mod021km-te/v12/2008/11/19")));
+    }
+
+    @Test
+    public void testRelativeElements() {
+        final String sep = File.separator;
+        final Path root = Paths.get("C:" + sep + "data" + sep + "root");
+        final Path archivePath = Paths.get("C:" + sep + "data" +  sep + "root" + sep + "sensor" + sep + "version" + sep + "2008");
+
+        final String[] elements = Archive.relativeElements(archivePath, root);
+        assertEquals(3, elements.length);
+        assertEquals("sensor", elements[0]);
+        assertEquals("version", elements[1]);
+        assertEquals("2008", elements[2]);
     }
 }

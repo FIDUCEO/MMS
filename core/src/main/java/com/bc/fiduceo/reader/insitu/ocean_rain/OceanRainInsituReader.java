@@ -27,8 +27,8 @@ import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.Reader;
-import com.bc.fiduceo.reader.TimeLocator;
-import com.bc.fiduceo.reader.insitu.SecsSince1970TimeLocator;
+import com.bc.fiduceo.reader.time.TimeLocator;
+import com.bc.fiduceo.reader.time.SecsSince1970TimeLocator;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import com.bc.fiduceo.util.VariableProxy;
@@ -134,7 +134,7 @@ public class OceanRainInsituReader implements Reader {
 
     @Override
     public int[] extractYearMonthDayFromFilename(String fileName) {
-        throw new RuntimeException("not implemented");
+        return new int[] {2010, 1, 1};
     }
 
     @Override

@@ -35,6 +35,8 @@ import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.*;
+import com.bc.fiduceo.reader.time.TimeLocator;
+import com.bc.fiduceo.reader.time.TimeLocator_TAI1993Vector;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import org.junit.*;
@@ -163,7 +165,7 @@ public class CALIOP_SST_WP100_CLay_Reader_IO_Test {
         final Expectation[] expectations = getVariables_Expectations();
         assertEquals(variables.size(), expectations.length);
         for (int i = 0; i < variables.size(); i++) {
-            final String pos = "Problem at position: " + i;
+            final String pos = "Problem at position: " + i + " " + expectations[i].name;
 
             Variable variable = variables.get(i);
             assertEquals(pos, expectations[i].name, variable.getShortName());
@@ -477,7 +479,7 @@ public class CALIOP_SST_WP100_CLay_Reader_IO_Test {
         // ---------------------------------------------------------
         // FeatureFinderQC
         actual = reader.readRaw(0, 244, new Interval(1, 5), "FeatureFinderQC").copy();
-        expected = Array.factory(DataType.SHORT, new int[]{5}, new short[]{
+        expected = Array.factory(DataType.USHORT, new int[]{5}, new short[]{
                 0, 0, 0, 0, 0
         });
         compare(expected, actual);
@@ -486,7 +488,7 @@ public class CALIOP_SST_WP100_CLay_Reader_IO_Test {
         // ---------------------------------------------------------
         // Feature_Classification_Flags
         actual = reader.readRaw(5, 244, new Interval(10, 5), "Feature_Classification_Flags").copy();
-        expected = Array.factory(DataType.SHORT, new int[]{5, 10}, toShorts(new int[]{
+        expected = Array.factory(DataType.USHORT, new int[]{5, 10}, toShorts(new int[]{
                 36266, 27098, 34818, 25626, 1, 1, 1, 1, 1, 1,
                 36266, 28090, 27098, 34818, 25626, 1, 1, 1, 1, 1,
                 27098, 34818, 25602, 1, 1, 1, 1, 1, 1, 1,
@@ -499,7 +501,7 @@ public class CALIOP_SST_WP100_CLay_Reader_IO_Test {
         // ---------------------------------------------------------
         // ExtinctionQC_532
         actual = reader.readRaw(5, 244, new Interval(10, 5), "ExtinctionQC_532").copy();
-        expected = Array.factory(DataType.SHORT, new int[]{5, 10}, toShorts(new int[]{
+        expected = Array.factory(DataType.USHORT, new int[]{5, 10}, toShorts(new int[]{
                 0, 2, 0, 18, 32768, 32768, 32768, 32768, 32768, 32768,
                 0, 0, 0, 0, 18, 32768, 32768, 32768, 32768, 32768,
                 0, 0, 18, 32768, 32768, 32768, 32768, 32768, 32768, 32768,
@@ -738,22 +740,19 @@ public class CALIOP_SST_WP100_CLay_Reader_IO_Test {
                         new Attribute("fillvalue", -9999f),
                         new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, -9999f))),
                 /* idx: 2 */
-                new Expectation("FeatureFinderQC", DataType.SHORT, new int[]{3744, 1}, Arrays.asList(
-                        new Attribute("_Unsigned", "true"),
+                new Expectation("FeatureFinderQC", DataType.USHORT, new int[]{3744, 1}, Arrays.asList(
                         new Attribute("units", "NoUnits"),
                         new Attribute("format", "UInt_16"),
                         new Attribute("valid_range", "0...32767"),
                         new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, (short) -1))),
                 /* idx: 3 */
-                new Expectation("Feature_Classification_Flags", DataType.SHORT, new int[]{3744, 10}, Arrays.asList(
-                        new Attribute("_Unsigned", "true"),
+                new Expectation("Feature_Classification_Flags", DataType.USHORT, new int[]{3744, 10}, Arrays.asList(
                         new Attribute("units", "NoUnits"),
                         new Attribute("format", "UInt_16"),
                         new Attribute("valid_range", "1...49146"),
                         new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, (short) -1))),
                 /* idx: 4 */
-                new Expectation("ExtinctionQC_532", DataType.SHORT, new int[]{3744, 10}, Arrays.asList(
-                        new Attribute("_Unsigned", "true"),
+                new Expectation("ExtinctionQC_532", DataType.USHORT, new int[]{3744, 10}, Arrays.asList(
                         new Attribute("units", "NoUnits"),
                         new Attribute("format", "UInt_16"),
                         new Attribute("valid_range", "0...32768"),

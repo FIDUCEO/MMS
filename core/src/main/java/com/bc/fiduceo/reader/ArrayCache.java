@@ -23,10 +23,7 @@ package com.bc.fiduceo.reader;
 import org.esa.snap.core.util.StringUtils;
 import ucar.ma2.Array;
 import ucar.ma2.MAMath;
-import ucar.nc2.Attribute;
-import ucar.nc2.Group;
-import ucar.nc2.NetcdfFile;
-import ucar.nc2.Variable;
+import ucar.nc2.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -168,6 +165,26 @@ public class ArrayCache {
     }
 
     /**
+     * Retrieves the attribute. Returns null if attribute is not present.
+     *
+     * @param attributeName the attribute name
+     * @param groupName     the name of the group containing the variable
+     * @param variableName  the variable name
+     * @return the attribute or null
+     * @throws IOException on disk access failures
+     */
+    public Attribute getAttribute(String attributeName, String groupName, String variableName) throws IOException {
+        final Array array = get(groupName, variableName);
+        if (array != null) {
+            final String groupedVariableName = createGroupedName(groupName, variableName);
+            final ArrayContainer arrayContainer = cache.get(groupedVariableName);
+            return arrayContainer.get(attributeName);
+        }
+
+        return null;
+    }
+
+    /**
      * Replaces the default variable finder with the given.
      *
      * @param variableFinder a variable selection strategy
@@ -281,10 +298,13 @@ public class ArrayCache {
             container.array = variable.read();
         }
 
-        final List<Attribute> attributes = variable.getAttributes();
-        for (final Attribute attribute : attributes) {
-            container.attributes.put(attribute.getFullName(), attribute);
+        final AttributeContainer attributes = variable.attributes();
+        if (attributes != null) {
+            for (final Attribute attribute : attributes) {
+                container.attributes.put(attribute.getFullName(), attribute);
+            }
         }
+
         return container;
     }
 

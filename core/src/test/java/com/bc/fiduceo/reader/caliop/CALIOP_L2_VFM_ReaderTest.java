@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import com.bc.fiduceo.reader.ReaderContext;
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.junit.*;
 import ucar.ma2.Array;
 
@@ -27,7 +28,7 @@ public class CALIOP_L2_VFM_ReaderTest {
     public void testReadNadirClassificationFlags() {
         //preparation
         final short[] storage = createFullStorage();
-        final Array array = Array.factory(storage);
+        final Array array = NetCDFUtils.create(storage);
 
         //execution
         final Array flags = CALIOP_L2_VFM_Reader.readNadirClassificationFlags(array);

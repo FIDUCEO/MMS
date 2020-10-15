@@ -18,8 +18,10 @@
  *
  */
 
-package com.bc.fiduceo.reader;
+package com.bc.fiduceo.reader.time;
 
+import com.bc.fiduceo.reader.time.TimeLocator_YearDoyMs;
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.junit.Before;
 import org.junit.Test;
 import ucar.ma2.Array;
@@ -37,9 +39,9 @@ public class TimeLocator_YearDoyMs_Test {
 
     @Before
     public void setUp(){
-        final Array scnlinyr = Array.factory(YEARS);
-        final Array scnlindy = Array.factory(DAYS);
-        final Array scnlintime = Array.factory(MILLIS);
+        final Array scnlinyr = NetCDFUtils.create(YEARS);
+        final Array scnlindy = NetCDFUtils.create(DAYS);
+        final Array scnlintime = NetCDFUtils.create(MILLIS);
 
         timeLocator = new TimeLocator_YearDoyMs(scnlinyr, scnlindy, scnlintime);
     }

@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.post.plugin.nwp;
 
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.junit.Test;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
@@ -51,7 +52,7 @@ public class FileMergerTest {
 
     @Test
     public void testExtractCenterVector_rank_1() throws IOException, InvalidRangeException {
-        final Array floatArray = Array.factory(new float[]{2.4f, 3.5f, 4.6f});
+        final Array floatArray = NetCDFUtils.create(new float[]{2.4f, 3.5f, 4.6f});
         final Variable variable = mock(Variable.class);
 
         when(variable.getRank()).thenReturn(1);

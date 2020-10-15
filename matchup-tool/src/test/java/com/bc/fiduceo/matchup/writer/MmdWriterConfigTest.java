@@ -162,7 +162,7 @@ public class MmdWriterConfigTest {
     }
 
     @Test
-    public void testLoad_AttribureRename() {
+    public void testLoad_AttributeRename() {
         final String configXml = "<mmd-writer-config>" +
                                  "    <variables-configuration>" +
                                  "        <sensors names = \"sen1, sen2\">" +
@@ -209,7 +209,7 @@ public class MmdWriterConfigTest {
     }
 
     @Test
-    public void testLoad_AttribureRename_twiceDefinitionNotAllowed() {
+    public void testLoad_AttributeRename_twiceDefinitionNotAllowed() {
         final String configXml = "<mmd-writer-config>" +
                                  "    <variables-configuration>" +
                                  "        <sensors names = \"sen1, sen2\">" +
@@ -232,7 +232,7 @@ public class MmdWriterConfigTest {
     }
 
     @Test
-    public void testLoad_AttribureRename_twiceDefinitionNotAllowed_withVarName() {
+    public void testLoad_AttributeRename_twiceDefinitionNotAllowed_withVarName() {
         final String configXml = "<mmd-writer-config>" +
                                  "    <variables-configuration>" +
                                  "        <sensors names = \"sen1, sen2\">" +
@@ -473,6 +473,55 @@ public class MmdWriterConfigTest {
         } catch (RuntimeException expected) {
             assertEquals("Unable to initialize use case configuration: Empty attribute: target-name", expected.getMessage());
         }
+    }
+
+    @Test
+    public void testLoad_variables_oneSensorSet_writeScaled() {
+        final String configXml = "<mmd-writer-config>" +
+                "    <variables-configuration>" +
+                "        <sensors names = \"hirs-n10\">" +
+                "            <writeScaled source-name = \"firlefanz\" />" +
+                "            <writeScaled source-name = \"jacke\" />" +
+                "        </sensors>" +
+                "    </variables-configuration>" +
+                "</mmd-writer-config>";
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(configXml.getBytes());
+
+        final MmdWriterConfig loadedConfig = MmdWriterConfig.load(inputStream);
+
+        final VariablesConfiguration variablesConfiguration = loadedConfig.getVariablesConfiguration();
+        assertNotNull(variablesConfiguration);
+
+        assertTrue(variablesConfiguration.isWriteScaled("hirs-n10", "firlefanz"));
+        assertTrue(variablesConfiguration.isWriteScaled("hirs-n10", "jacke"));
+
+        assertFalse(variablesConfiguration.isWriteScaled("hirs-n10", "Hose"));
+    }
+
+    @Test
+    public void testLoad_variables_twoSensorSets_writeScaled() {
+        final String configXml = "<mmd-writer-config>" +
+                "    <variables-configuration>" +
+                "        <sensors names = \"hirs-n10, mama\" >" +
+                "            <writeScaled source-name = \"firlefanz\" />" +
+                "            <writeScaled source-name = \"jacke\" />" +
+                "        </sensors>" +
+                "    </variables-configuration>" +
+                "</mmd-writer-config>";
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(configXml.getBytes());
+
+        final MmdWriterConfig loadedConfig = MmdWriterConfig.load(inputStream);
+
+        final VariablesConfiguration variablesConfiguration = loadedConfig.getVariablesConfiguration();
+        assertNotNull(variablesConfiguration);
+
+        assertTrue(variablesConfiguration.isWriteScaled("hirs-n10", "firlefanz"));
+        assertTrue(variablesConfiguration.isWriteScaled("hirs-n10", "jacke"));
+        assertTrue(variablesConfiguration.isWriteScaled("mama", "firlefanz"));
+        assertTrue(variablesConfiguration.isWriteScaled("mama", "jacke"));
+
+        assertFalse(variablesConfiguration.isWriteScaled("hirs-n10", "Hose"));
+        assertFalse(variablesConfiguration.isWriteScaled("mama", "mia"));
     }
 
     @Test

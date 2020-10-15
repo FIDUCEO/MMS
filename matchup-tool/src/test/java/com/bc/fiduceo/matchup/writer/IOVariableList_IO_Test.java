@@ -56,7 +56,7 @@ public class IOVariableList_IO_Test {
 
         noaa17Path = Paths.get(absolutePath);
 
-        final ReaderFactory readerFactory = ReaderFactory.create(new GeometryFactory(GeometryFactory.Type.S2), null); // we don't need temp file support here tb 2018-01-23
+        final ReaderFactory readerFactory = ReaderFactory.create(new GeometryFactory(GeometryFactory.Type.S2), null, null); // we don't need temp file support here tb 2018-01-23
         ioVariablesList = new IOVariablesList(readerFactory);
 
         variablesConfiguration = new VariablesConfiguration();
@@ -193,7 +193,6 @@ public class IOVariableList_IO_Test {
         assertEquals("avhrr-n17_solar_zenith_angle", ioVariable.getTargetVariableName());
         assertEquals("short", ioVariable.getDataType());
         assertEquals("matchup_count avhrr-n17_ny avhrr-n17_nx", ioVariable.getDimensionNames());
-
     }
 
     @Test
@@ -227,10 +226,7 @@ public class IOVariableList_IO_Test {
         final List<IOVariable> ioVariables = ioVariablesList.get();
         assertEquals(2, ioVariables.size());
 
-        IOVariable ioVariable;
-
-
-        ioVariable = ioVariables.get(0);
+        IOVariable ioVariable = ioVariables.get(0);
         assertEquals("xxxxxx.satza", ioVariable.getTargetVariableName());
         assertEquals("short", ioVariable.getDataType());
         assertEquals("matchup_count avhrr-n17_ny avhrr-n17_nx", ioVariable.getDimensionNames());
@@ -239,6 +235,47 @@ public class IOVariableList_IO_Test {
         assertEquals("xxxxxx.solza", ioVariable.getTargetVariableName());
         assertEquals("short", ioVariable.getDataType());
         assertEquals("matchup_count avhrr-n17_ny avhrr-n17_nx", ioVariable.getDimensionNames());
+    }
 
+    @Test
+    public void testExtractVariables_AVHRR_NOAA_17_ch1_scaled() throws IOException {
+        variablesConfiguration.addExcludes(sensorName, Arrays.asList(
+                "lat",
+                "lon",
+                "dtime",
+                "ch2",
+                "ch3a",
+                "ch3b",
+                "ch4",
+                "ch5",
+                "relative_azimuth_angle",
+                "ict_temp",
+                "qual_flags",
+                "cloud_mask",
+                "cloud_probability",
+                "l1b_line_number"
+        ));
+
+        variablesConfiguration.addWriteScaled("avhrr-n17", "ch1");
+
+        ioVariablesList.extractVariables(sensorName, noaa17Path, new Dimension(sensorName, 5, 5), variablesConfiguration);
+
+        final List<IOVariable> ioVariables = ioVariablesList.get();
+        assertEquals(3, ioVariables.size());
+
+        IOVariable ioVariable = ioVariables.get(0);
+        assertEquals("avhrr-n17_ch1", ioVariable.getTargetVariableName());
+        assertEquals("double", ioVariable.getDataType());
+        assertEquals("matchup_count avhrr-n17_ny avhrr-n17_nx", ioVariable.getDimensionNames());
+
+        ioVariable = ioVariables.get(1);
+        assertEquals("avhrr-n17_satellite_zenith_angle", ioVariable.getTargetVariableName());
+        assertEquals("short", ioVariable.getDataType());
+        assertEquals("matchup_count avhrr-n17_ny avhrr-n17_nx", ioVariable.getDimensionNames());
+
+        ioVariable = ioVariables.get(2);
+        assertEquals("avhrr-n17_solar_zenith_angle", ioVariable.getTargetVariableName());
+        assertEquals("short", ioVariable.getDataType());
+        assertEquals("matchup_count avhrr-n17_ny avhrr-n17_nx", ioVariable.getDimensionNames());
     }
 }

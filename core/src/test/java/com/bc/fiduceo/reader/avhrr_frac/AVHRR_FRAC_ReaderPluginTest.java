@@ -34,7 +34,7 @@ public class AVHRR_FRAC_ReaderPluginTest {
 
     @Test
     public void testGetSupportedSensorKeys(){
-        final String[] expected = {"avhrr-frac-ma"};
+        final String[] expected = {"avhrr-frac-ma", "avhrr-frac-mb"};
         final String[] keys = plugin.getSupportedSensorKeys();
 
         assertArrayEquals(expected, keys);

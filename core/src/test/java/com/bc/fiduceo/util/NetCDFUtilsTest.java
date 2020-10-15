@@ -53,14 +53,14 @@ public class NetCDFUtilsTest {
         when(array.getDataType()).thenReturn(DataType.LONG);
 
         final Number value = NetCDFUtils.getDefaultFillValue(array);
-        assertEquals(N3iosp.NC_FILL_LONG, value);
+        assertEquals(N3iosp.NC_FILL_INT64, value);
     }
 
     @Test
     public void testGetDefaultFillValue() {
         assertEquals(N3iosp.NC_FILL_DOUBLE, NetCDFUtils.getDefaultFillValue(double.class));
         assertEquals(N3iosp.NC_FILL_FLOAT, NetCDFUtils.getDefaultFillValue(float.class));
-        assertEquals(N3iosp.NC_FILL_LONG, NetCDFUtils.getDefaultFillValue(long.class));
+        assertEquals(N3iosp.NC_FILL_INT64, NetCDFUtils.getDefaultFillValue(long.class));
         assertEquals(N3iosp.NC_FILL_INT, NetCDFUtils.getDefaultFillValue(int.class));
         assertEquals(N3iosp.NC_FILL_SHORT, NetCDFUtils.getDefaultFillValue(short.class));
         assertEquals(N3iosp.NC_FILL_BYTE, NetCDFUtils.getDefaultFillValue(byte.class));
@@ -81,8 +81,8 @@ public class NetCDFUtilsTest {
         assertEquals(N3iosp.NC_FILL_DOUBLE, NetCDFUtils.getDefaultFillValue(DataType.DOUBLE, true));
         assertEquals(N3iosp.NC_FILL_FLOAT, NetCDFUtils.getDefaultFillValue(DataType.FLOAT, false));
         assertEquals(N3iosp.NC_FILL_FLOAT, NetCDFUtils.getDefaultFillValue(DataType.FLOAT, true));
-        assertEquals(N3iosp.NC_FILL_LONG, NetCDFUtils.getDefaultFillValue(DataType.LONG, false));
-        assertEquals(N3iosp.NC_FILL_LONG, NetCDFUtils.getDefaultFillValue(DataType.LONG, true));
+        assertEquals(N3iosp.NC_FILL_INT64, NetCDFUtils.getDefaultFillValue(DataType.LONG, false));
+        assertEquals(N3iosp.NC_FILL_INT64, NetCDFUtils.getDefaultFillValue(DataType.LONG, true));
         assertEquals(N3iosp.NC_FILL_INT, NetCDFUtils.getDefaultFillValue(DataType.INT, false));
         assertEquals(N3iosp.NC_FILL_UINT, NetCDFUtils.getDefaultFillValue(DataType.INT, true));
         assertEquals(N3iosp.NC_FILL_SHORT, NetCDFUtils.getDefaultFillValue(DataType.SHORT, false));
@@ -114,6 +114,18 @@ public class NetCDFUtilsTest {
         assertEquals(DataType.STRING, NetCDFUtils.getNetcdfDataType(ProductData.TYPE_UTC));
     }
 
+    @Test
+    public void testEscalateUnsignedDataType() {
+        assertEquals(DataType.SHORT, NetCDFUtils.escalateUnsignedType(DataType.UBYTE));
+        assertEquals(DataType.SHORT, NetCDFUtils.escalateUnsignedType(DataType.BYTE));
+
+        assertEquals(DataType.INT, NetCDFUtils.escalateUnsignedType(DataType.USHORT));
+        assertEquals(DataType.INT, NetCDFUtils.escalateUnsignedType(DataType.SHORT));
+
+        assertEquals(DataType.LONG, NetCDFUtils.escalateUnsignedType(DataType.UINT));
+        assertEquals(DataType.LONG, NetCDFUtils.escalateUnsignedType(DataType.INT));
+    }
+
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Test
     public void testGetNetcdfDataType_invalidInput() {
@@ -127,7 +139,7 @@ public class NetCDFUtilsTest {
     @Test
     public void testToFloat() {
         final int[] ints = {12, 23, 45, 67};
-        final Array intArray = Array.factory(ints);
+        final Array intArray = Array.factory(DataType.INT, new int[]{4}, ints);
 
         final Array floatArray = NetCDFUtils.toFloat(intArray);
         assertNotNull(floatArray);
@@ -270,7 +282,7 @@ public class NetCDFUtilsTest {
         final InOrder order = inOrder(mock);
         order.verify(mock, times(1)).findAttribute(CF_FILL_VALUE_NAME);
         order.verify(mock, times(1)).getDataType();
-        order.verify(mock, times(1)).addAttribute(eq(new Attribute(CF_FILL_VALUE_NAME, N3iosp.NC_FILL_LONG)));
+        order.verify(mock, times(1)).addAttribute(eq(new Attribute(CF_FILL_VALUE_NAME, N3iosp.NC_FILL_INT64)));
         verifyNoMoreInteractions(mock);
     }
 
@@ -595,6 +607,128 @@ public class NetCDFUtilsTest {
 
         verify(array, times(1)).section(any(), any());
         verifyNoMoreInteractions(array);
+    }
+
+    @Test
+    public void testCreateArray_byte_1D() {
+        final byte[] bytes = {1, 2, 3, 4, 5, 6};
+
+        final Array byteArray = NetCDFUtils.create(bytes);
+        assertEquals(6, byteArray.getSize());
+        assertArrayEquals(new int[] {6}, byteArray.getShape());
+        assertEquals(DataType.BYTE, byteArray.getDataType());
+
+        assertEquals(3, byteArray.getByte(2));
+        assertEquals(6, byteArray.getByte(5));
+    }
+
+    @Test
+    public void testCreateArray_byte_2D() {
+        final byte[][] bytes = {{2, 3, 4, 5},
+                {6, 7, 8, 9},
+                {10, 11, 12, 13}};
+
+        final Array byteArray = NetCDFUtils.create(bytes);
+        assertEquals(12, byteArray.getSize());
+        assertArrayEquals(new int[] {3, 4}, byteArray.getShape());
+        assertEquals(DataType.BYTE, byteArray.getDataType());
+
+        assertEquals(5, byteArray.getByte(3));
+        assertEquals(8, byteArray.getByte(6));
+    }
+
+    @Test
+    public void testCreateArray_char_1D() {
+        final char[] chars = {3, 4, 5, 6, 7};
+
+        final Array charArray = NetCDFUtils.create(chars);
+        assertEquals(5, charArray.getSize());
+        assertArrayEquals(new int[] {5}, charArray.getShape());
+        assertEquals(DataType.CHAR, charArray.getDataType());
+
+        assertEquals(5, charArray.getChar(2));
+        assertEquals(7, charArray.getChar(4));
+    }
+
+    @Test
+    public void testCreateArray_short_1D() {
+        final short[] shorts = {4, 5, 6, 7, 8, 9, 10};
+
+        final Array shortArray = NetCDFUtils.create(shorts);
+        assertEquals(7, shortArray.getSize());
+        assertArrayEquals(new int[] {7}, shortArray.getShape());
+        assertEquals(DataType.SHORT, shortArray.getDataType());
+
+        assertEquals(7, shortArray.getShort(3));
+        assertEquals(9, shortArray.getShort(5));
+    }
+
+    @Test
+    public void testCreateArray_int_1D() {
+        final int[] integers = {5, 6, 7, 8, 9, 10, 11, 12};
+
+        final Array intArray = NetCDFUtils.create(integers);
+        assertEquals(8, intArray.getSize());
+        assertArrayEquals(new int[] {8}, intArray.getShape());
+        assertEquals(DataType.INT, intArray.getDataType());
+
+        assertEquals(8, intArray.getInt(3));
+        assertEquals(11, intArray.getInt(6));
+    }
+
+    @Test
+    public void testCreateArray_long_1D() {
+        final long[] longs = {6, 7, 8, 9, 10, 11, 12, 13};
+
+        final Array longArray = NetCDFUtils.create(longs);
+        assertEquals(8, longArray.getSize());
+        assertArrayEquals(new int[] {8}, longArray.getShape());
+        assertEquals(DataType.LONG, longArray.getDataType());
+
+        assertEquals(10, longArray.getLong(4));
+        assertEquals(13, longArray.getLong(7));
+    }
+
+    @Test
+    public void testCreateArray_float_1D() {
+        final float[] floats = {6.f, 7.f, 8.f, 9.f, 10.f, 11.f, 12.f, 13.f, 14.f};
+
+        final Array floatArray = NetCDFUtils.create(floats);
+        assertEquals(9, floatArray.getSize());
+        assertArrayEquals(new int[] {9}, floatArray.getShape());
+        assertEquals(DataType.FLOAT, floatArray.getDataType());
+
+        assertEquals(10.f, floatArray.getFloat(4), 1e-8);
+        assertEquals(13.f, floatArray.getFloat(7), 1e-8);
+    }
+
+    @Test
+    public void testCreateArray_double_1D() {
+        final double[] doubles = {7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0};
+
+        final Array doubleArray = NetCDFUtils.create(doubles);
+        assertEquals(8, doubleArray.getSize());
+        assertArrayEquals(new int[] {8}, doubleArray.getShape());
+        assertEquals(DataType.DOUBLE, doubleArray.getDataType());
+
+        assertEquals(10.0, doubleArray.getDouble(3), 1e-8);
+        assertEquals(13.0, doubleArray.getDouble(6), 1e-8);
+    }
+
+    @Test
+    public void testCreateArray_double_2D() {
+        final double[][] doubles = {{7.0, 8.0, 9.0},
+                {10.0, 11.0, 12.0},
+                {13.0, 14.0, 15.0},
+                {16.0, 17.0, 18.0}};
+
+        final Array doubleArray = NetCDFUtils.create(doubles);
+        assertEquals(12, doubleArray.getSize());
+        assertArrayEquals(new int[] {4, 3}, doubleArray.getShape());
+        assertEquals(DataType.DOUBLE, doubleArray.getDataType());
+
+        assertEquals(11.0, doubleArray.getDouble(4), 1e-8);
+        assertEquals(14.0, doubleArray.getDouble(7), 1e-8);
     }
 }
 

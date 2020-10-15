@@ -22,6 +22,7 @@ package com.bc.fiduceo.reader.amsu_mhs;
 
 
 import com.bc.fiduceo.reader.ReaderContext;
+import org.junit.Before;
 import org.junit.Test;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
@@ -30,19 +31,22 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class AMSUB_MHS_L1C_ReaderTest {
 
+    private AMSUB_MHS_L1C_Reader reader;
+
+    @Before
+    public void setUp() {
+        reader = new AMSUB_MHS_L1C_Reader(new ReaderContext());
+    }
+
     @Test
     public void testGetRegEx() {
-        final AMSUB_MHS_L1C_Reader reader = new AMSUB_MHS_L1C_Reader(new ReaderContext());
-
         final String regEx = reader.getRegEx();
         assertEquals("\\w*.+[AMBX|MHSX].+[A-Z0-9]{2,3}.D\\d{5}.S\\d{4}.E\\d{4}.B\\d{7}.+[A-Z]{2}(.[A-Z]\\d{7})?.h5", regEx);
 
@@ -191,15 +195,23 @@ public class AMSUB_MHS_L1C_ReaderTest {
 
     @Test
     public void testGetLongitudeVariableName() {
-        final AMSUB_MHS_L1C_Reader reader = new AMSUB_MHS_L1C_Reader(new ReaderContext());
-
         assertEquals("Longitude", reader.getLongitudeVariableName());
     }
 
     @Test
     public void testGetLatitudeVariableName() {
-        final AMSUB_MHS_L1C_Reader reader = new AMSUB_MHS_L1C_Reader(new ReaderContext());
-
         assertEquals("Latitude", reader.getLatitudeVariableName());
+    }
+
+    @Test
+    public void testExtractYearMonthDayFromFilename() {
+        int[] ymd = reader.extractYearMonthDayFromFilename("190457103.NSS.MHSX.NN.D11235.S0028.E0223.B3223536.WI.h5");
+        assertArrayEquals(new int[]{2011, 8, 23}, ymd);
+
+        ymd = reader.extractYearMonthDayFromFilename("NSS.MHSX.NN.D07234.S1332.E1518.B1162122.GC.h5");
+        assertArrayEquals(new int[]{2007, 8, 22}, ymd);
+
+        ymd = reader.extractYearMonthDayFromFilename("L0502033.NSS.AMBX.NK.D07234.S1004.E1149.B4821213.WI.h5");
+        assertArrayEquals(new int[]{2007, 8, 22}, ymd);
     }
 }

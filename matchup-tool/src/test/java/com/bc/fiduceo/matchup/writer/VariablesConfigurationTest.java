@@ -21,14 +21,15 @@
 package com.bc.fiduceo.matchup.writer;
 
 
-import static org.junit.Assert.*;
-
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.junit.Assert.*;
 
 public class VariablesConfigurationTest {
 
@@ -109,7 +110,7 @@ public class VariablesConfigurationTest {
     }
 
     @Test
-    public void testAddGetSensorRenames() throws Exception {
+    public void testAddGetSensorRenames() {
         configuration.addSensorRename("name_a", "name_b");
         configuration.addSensorRename("name_c", "name_d");
         configuration.addSensorRename("name_e", "name_f");
@@ -131,7 +132,7 @@ public class VariablesConfigurationTest {
     }
 
     @Test
-    public void testSetGetSeparator() throws Exception {
+    public void testSetGetSeparator() {
         final String defaultSeparator = VariablesConfiguration.DEFAULT_SEPARATOR;
         assertEquals("_", defaultSeparator);
 
@@ -164,7 +165,26 @@ public class VariablesConfigurationTest {
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
         }
+    }
 
+    @Test
+    public void testIsWriteScaled_not_configured() {
+        assertFalse(configuration.isWriteScaled("a_sensor", "a_variable"));
+        assertFalse(configuration.isWriteScaled("another_sensor", "another_variable"));
+    }
 
+    @Test
+    public void testAddIsWriteScaled() {
+        configuration.addWriteScaled("modis", "brigthness_temp_ch24");
+        configuration.addWriteScaled("modis", "brigthness_temp_ch25");
+        configuration.addWriteScaled("meris", "radiance_19");
+
+        assertTrue(configuration.isWriteScaled("modis", "brigthness_temp_ch24"));
+        assertTrue(configuration.isWriteScaled("modis", "brigthness_temp_ch25"));
+        assertTrue(configuration.isWriteScaled("meris", "radiance_19"));
+
+        assertFalse(configuration.isWriteScaled("modis", "brigthness_temp_ch23"));
+        assertFalse(configuration.isWriteScaled("meris", "radiance_18"));
+        assertFalse(configuration.isWriteScaled("heffa", "lump"));
     }
 }

@@ -21,6 +21,7 @@
 package com.bc.fiduceo.matchup.plot;
 
 import com.bc.fiduceo.core.SamplingPoint;
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.esa.snap.core.util.io.FileUtils;
 import ucar.ma2.Array;
 import ucar.ma2.IndexIterator;
@@ -28,6 +29,7 @@ import ucar.ma2.InvalidRangeException;
 import ucar.ma2.MAMath;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
+import ucar.nc2.NetcdfFiles;
 import ucar.nc2.Variable;
 
 import java.awt.image.BufferedImage;
@@ -37,25 +39,23 @@ import java.util.ArrayList;
 
 public class MapPlotTool {
 
-    public static void main(String[] args) throws IOException, InvalidRangeException {
-        NetcdfFile netcdfFile = null;
-        try {
-            final String filePath = args[0];
-            netcdfFile = NetcdfFile.open(filePath);
+    public static void main(String[] args) throws IOException {
+        final String filePath = args[0];
+        try (NetcdfFile netcdfFile = NetcdfFile.open(filePath)) {
 
-            final Variable lonVariable = netcdfFile.findVariable(escape(args[1]));
-            final Variable latVariable = netcdfFile.findVariable(escape(args[2]));
-            final Variable timeVariable = netcdfFile.findVariable(escape(args[3]));
+            final Variable lonVariable = netcdfFile.findVariable(NetCDFUtils.escapeVariableName(args[1]));
+            final Variable latVariable = netcdfFile.findVariable(NetCDFUtils.escapeVariableName(args[2]));
+            final Variable timeVariable = netcdfFile.findVariable(NetCDFUtils.escapeVariableName(args[3]));
 
             final int[] shape = lonVariable.getShape();
             final int[] offsets = new int[shape.length];
             offsets[0] = 0;
-            offsets[1] = shape[1]/2;
-            offsets[2] = shape[2]/2;
+            offsets[1] = shape[1] / 2;
+            offsets[2] = shape[2] / 2;
             shape[1] = 1;
             shape[2] = 1;
 
-            Array lonArray = readScaledIfRequired(lonVariable,offsets, shape);
+            Array lonArray = readScaledIfRequired(lonVariable, offsets, shape);
             lonArray = shiftIfRequired(lonArray);
             final Array latArray = readScaledIfRequired(latVariable, offsets, shape);
             final Array timeArray = timeVariable.read(offsets, shape);
@@ -82,15 +82,7 @@ public class MapPlotTool {
         } catch (Exception e) {
             System.out.println(e.getMessage());
             System.out.println("usage: map-plot-tool <filepath> <lon-variable> <lat-variable> <time-variable>");
-        } finally {
-            if (netcdfFile != null) {
-                netcdfFile.close();
-            }
         }
-    }
-
-    private static String escape(String vname) {
-        return NetcdfFile.makeValidCDLName(vname);
     }
 
     private static Array shiftIfRequired(Array lonArray) {

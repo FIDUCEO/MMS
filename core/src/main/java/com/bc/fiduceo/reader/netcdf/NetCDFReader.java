@@ -1,34 +1,29 @@
 package com.bc.fiduceo.reader.netcdf;
 
+import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.reader.ArrayCache;
 import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.time.TimeLocator;
 import com.bc.fiduceo.util.NetCDFUtils;
-import ucar.ma2.Array;
-import ucar.ma2.InvalidRangeException;
-import ucar.ma2.Section;
+import ucar.ma2.*;
 import ucar.nc2.NetcdfFile;
+import ucar.nc2.NetcdfFiles;
 import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.List;
 
-import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
-import static com.bc.fiduceo.util.NetCDFUtils.CF_OFFSET_NAME;
-import static com.bc.fiduceo.util.NetCDFUtils.CF_SCALE_FACTOR_NAME;
+import static com.bc.fiduceo.util.NetCDFUtils.*;
 
 public abstract class NetCDFReader implements Reader {
-
-    private static final NumberFormat CHANNEL_INDEX_FORMAT = new DecimalFormat("00");
 
     protected ArrayCache arrayCache;
     protected NetcdfFile netcdfFile;
 
     @Override
     public void open(File file) throws IOException {
-        netcdfFile = NetcdfFile.open(file.getPath());
+        netcdfFile = NetcdfFiles.open(file.getPath());
         arrayCache = new ArrayCache(netcdfFile);
     }
 
@@ -52,11 +47,19 @@ public abstract class NetCDFReader implements Reader {
     }
 
     protected double getScaleFactor(String variableName, String attributeName) throws IOException {
+        return getScaleFactor(variableName, attributeName, true);
+    }
+
+    protected double getScaleFactor(String variableName, String attributeName, boolean escapeName) throws IOException {
         if (attributeName == null) {
             attributeName = CF_SCALE_FACTOR_NAME;
         }
-
-        final String escapedName = NetcdfFile.makeValidCDLName(variableName);
+        final String escapedName;
+        if (escapeName) {
+            escapedName = NetCDFUtils.escapeVariableName(variableName);
+        } else {
+            escapedName = variableName;
+        }
         final Number scaleFactorValue = arrayCache.getNumberAttributeValue(attributeName, escapedName);
         if (scaleFactorValue != null) {
             return scaleFactorValue.doubleValue();
@@ -74,7 +77,7 @@ public abstract class NetCDFReader implements Reader {
         }
         String escapedName;
         if (escapeName) {
-            escapedName = NetcdfFile.makeValidCDLName(variableName);
+            escapedName = NetCDFUtils.escapeVariableName(variableName);
         } else {
             escapedName = variableName;
         }
@@ -117,6 +120,11 @@ public abstract class NetCDFReader implements Reader {
         addChannelVariables(result, variable, numChannels, channel_dimension_index, origin);
     }
 
+    protected void addLayered3DVariables(List<Variable> result, Variable variable, int numChannels, String variable_base_name, LayerExtension layerExtension) throws InvalidRangeException {
+        final int[] origin = {0, 0, 0};
+        addChannelVariables(result, variable, numChannels, 0, origin, variable_base_name, layerExtension);
+    }
+
     protected void addChannelVectorVariables(List<Variable> result, Variable variable, int numChannels, int channel_dimension_index) throws InvalidRangeException {
         final int[] origin = {0, 0};
         addChannelVariables(result, variable, numChannels, channel_dimension_index, origin);
@@ -124,6 +132,15 @@ public abstract class NetCDFReader implements Reader {
 
     private void addChannelVariables(List<Variable> result, Variable variable, int numChannels, int channel_dimension_index, int[] origin) throws InvalidRangeException {
         final String variableName = variable.getFullName();
+        addChannelVariables(result, variable, numChannels, channel_dimension_index, origin, variableName);
+    }
+
+    private void addChannelVariables(List<Variable> result, Variable variable, int numChannels, int channel_dimension_index, int[] origin, String variableName) throws InvalidRangeException {
+        final StandardLayerExtension layerExtension = new StandardLayerExtension();
+        addChannelVariables(result, variable, numChannels, channel_dimension_index, origin, variableName, layerExtension);
+    }
+
+    private void addChannelVariables(List<Variable> result, Variable variable, int numChannels, int channel_dimension_index, int[] origin, String variableName, LayerExtension layerExtension) throws InvalidRangeException {
         final int[] shape = variable.getShape();
         shape[channel_dimension_index] = 1;
 
@@ -131,10 +148,42 @@ public abstract class NetCDFReader implements Reader {
         for (int channel = 0; channel < numChannels; channel++) {
             final Section section = new Section(origin, shape);
             final Variable channelVariable = variable.section(section);
-            final String channelVariableName = variableBaseName + CHANNEL_INDEX_FORMAT.format(channel + 1);
+            final String channelVariableName = variableBaseName + layerExtension.getExtension(channel);
             channelVariable.setName(channelVariableName);
             result.add(channelVariable);
             origin[channel_dimension_index]++;
         }
+    }
+
+    protected Array acquisitionTimeFromTimeLocator(int y, Interval interval) throws IOException {
+        final int height = interval.getY();
+        final int width = interval.getX();
+        final int y_offset = y - height / 2;
+        int[] shape = new int[]{height, width};
+
+        final TimeLocator timeLocator = getTimeLocator();
+        final int pHeight = getProductSize().getNy();
+
+        final Array acquisitionTime = Array.factory(DataType.INT, shape);
+        final Index index = acquisitionTime.getIndex();
+
+        final int acquisitionTimeFillValue = getDefaultFillValue(int.class).intValue();
+
+        for (int ya = 0; ya < height; ya++) {
+            final int yRead = y_offset + ya;
+            final int lineTimeInSeconds;
+            if (yRead < 0 || yRead >= pHeight) {
+                lineTimeInSeconds = acquisitionTimeFillValue;
+            } else {
+                final long lineTime = timeLocator.getTimeFor(0, yRead);
+                lineTimeInSeconds = (int) (lineTime / 1000);
+            }
+
+            for (int xa = 0; xa < width; xa++) {
+                index.set(ya, xa);
+                acquisitionTime.setInt(index, lineTimeInSeconds);
+            }
+        }
+        return acquisitionTime;
     }
 }

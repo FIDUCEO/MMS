@@ -32,6 +32,7 @@ import static org.mockito.Mockito.*;
 
 import com.bc.fiduceo.post.PostProcessing;
 import com.bc.fiduceo.post.util.DistanceToLandMap;
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.junit.*;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayByte;
@@ -129,7 +130,7 @@ public class HirsL1CloudyFlagsTest {
         verify(variable, times(1)).getDimensionsString();
         verify(fileWriter, times(1)).addVariable(null, flagVarName, DataType.BYTE, "a b c");
 
-        Array masks = new ArrayByte(new int[]{4});
+        Array masks = new ArrayByte(new int[]{4}, false);
         masks.setByte(0, SPACE_CONTRAST_TEST_ALL_PIXELS_USABLE);
         masks.setByte(1, SPACE_CONTRAST_TEST_WARNING);
         masks.setByte(2, SPACE_CONTRAST_TEST_CLOUDY);
@@ -174,15 +175,15 @@ public class HirsL1CloudyFlagsTest {
         final int maxNumInvalidPixels = 1;
         final int F = 2; // _FillValue
 
-        mf = HirsL1CloudyFlags.getMaximumAndFlags(Array.factory(new float[]{4, 5, 8, 6, 1, 6, 7, 5, 3}), F, maxNumInvalidPixels);
+        mf = HirsL1CloudyFlags.getMaximumAndFlags(NetCDFUtils.create(new float[]{4, 5, 8, 6, 1, 6, 7, 5, 3}), F, maxNumInvalidPixels);
         assertThat(mf.maximum, is(equalTo(8.0)));
         assertThat(mf.flags, is(equalTo((byte) 1))); // 1 means all pixel are usable
 
-        mf = HirsL1CloudyFlags.getMaximumAndFlags(Array.factory(new float[]{4, 5, F, 6, 1, 6, 7, 5, 3}), F, maxNumInvalidPixels);
+        mf = HirsL1CloudyFlags.getMaximumAndFlags(NetCDFUtils.create(new float[]{4, 5, F, 6, 1, 6, 7, 5, 3}), F, maxNumInvalidPixels);
         assertThat(mf.maximum, is(equalTo(7.0)));
         assertThat(mf.flags, is(equalTo((byte) 0))); // 1 means all pixel are usable
 
-        mf = HirsL1CloudyFlags.getMaximumAndFlags(Array.factory(new float[]{4, 5, F, 6, 1, 6, F, 5, 3}), F, maxNumInvalidPixels);
+        mf = HirsL1CloudyFlags.getMaximumAndFlags(NetCDFUtils.create(new float[]{4, 5, F, 6, 1, 6, F, 5, 3}), F, maxNumInvalidPixels);
         assertThat(mf.maximum, is(equalTo(6.0)));
         assertThat(mf.flags, is(equalTo((byte) 2))); // 2 means warning, because there are more invalids than maxNumInvalidPixels
     }

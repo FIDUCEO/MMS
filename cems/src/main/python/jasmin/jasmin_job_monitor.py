@@ -22,13 +22,14 @@ class JasminJobMonitor:
 
     def run(self, pm_request):
         try:
+            scheduler_interface = self._create_scheduler_interface()
             watch_dict = self._parse_watch_dict(pm_request)
 
-            process_output = self._call_LSF_job_status()
-            job_status_dict = self._parse_bjobs_call(process_output)
+            process_output = scheduler_interface.call_job_status()
+            job_status_dict = scheduler_interface.parse_jobs_call(process_output)
 
             resolved, check_log = self._resolve_jobs(watch_dict, job_status_dict)
-            log_resolved = self._resolve_status_from_log(check_log)
+            log_resolved = scheduler_interface.resolve_status_from_log(check_log)
 
             resolved.update(log_resolved)
 
@@ -39,55 +40,18 @@ class JasminJobMonitor:
             sys.stderr.write(e)
             return 1
 
-    # noinspection PyPep8Naming
     @staticmethod
-    def _call_LSF_job_status():
-        completed_process = subprocess.run(["bjobs"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        if completed_process.returncode != 0:
-            sys.stderr.write(completed_process.stderr.decode("utf-8"))
-            sys.stderr.flush()
-            raise RuntimeError("Failed to request job status")
-        process_output = completed_process.stdout.decode("utf-8")
-        return process_output
-
-    def _parse_bjobs_call(self, message):
-        job_status_dict = {}
-
-        lines = message.split("\n")
-        for i in range(1, len(lines)):
-            if len(lines[i]) == 0:
-                continue
-
-            id_status = self._extract_id_and_status(lines[i])
-            job_status_dict.update(id_status)
-
-        return job_status_dict
-
-    def _extract_id_and_status(self, line):
-        tokens = line.split()
-
-        if len(tokens) < 8:
-            raise ValueError("unable to handle bjobs result: " + line)
-
-        status_code = self._status_to_enum(tokens[2])
-        return {tokens[0]: status_code}
-
-    @staticmethod
-    def _status_to_enum(status):
-        if "RUN" == status:
-            return StatusCodes.RUNNING
-        elif "PEND" == status:
-            return StatusCodes.SCHEDULED
-        elif "DONE" == status:
-            return StatusCodes.DONE
-        elif "EXIT" == status:
-            return StatusCodes.FAILED
-        elif "UNKNOWN" == status:
-            return StatusCodes.UNKNOWN
-        elif status in ["PSUSP", "USUSP", "SSUSP"]:
-            return StatusCodes.DROPPED
-
-        raise ValueError("unsupported status code: " + status)
+    def _create_scheduler_interface():
+        if "SCHEDULER" in os.environ:
+            scheduler_name = os.environ["SCHEDULER"]
+            if scheduler_name == "LSF":
+                return  LSFInterface()
+            elif scheduler_name == "SLURM":
+                return SLURMInterface()
+            else:
+                raise ValueError("Environment variable 'SCHEDULER' invalid")
+        else:
+            raise ValueError("Environment variable 'SCHEDULER' is not set")
 
     @staticmethod
     def _parse_watch_dict(pm_request):
@@ -122,7 +86,8 @@ class JasminJobMonitor:
 
         return resolved_dict, check_log_dict
 
-    def _get_log_dir(self):
+    @staticmethod
+    def _get_log_dir():
         if "PM_LOG_DIR" in os.environ:
             log_dir = os.environ["PM_LOG_DIR"]
             if not os.path.isdir(log_dir):
@@ -131,9 +96,79 @@ class JasminJobMonitor:
         else:
             raise RuntimeError("Missing environment variable 'PM_LOG_DIR'")
 
-    def _resolve_status_from_log(self, check_log_dict):
+    @staticmethod
+    def _format_and_write(results, stream):
+        if (len(results) == 0):
+            stream.flush()
+            return
+
+        key_list = list(results.keys())
+
+        num_items = len(key_list)
+        for i in range(0, num_items):
+            key = key_list[i]
+            result = results[key]
+            stream.write(key + "_" + result[0] + ",")
+            stream.write(result[1].value + ",")
+            stream.write(result[2])
+            stream.write("\n")
+
+        stream.flush()
+
+
+class LSFInterface:
+
+    def call_job_status(self):
+        completed_process = subprocess.run(["bjobs"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if completed_process.returncode != 0:
+            sys.stderr.write(completed_process.stderr.decode("utf-8"))
+            sys.stderr.flush()
+            raise RuntimeError("Failed to request job status")
+        process_output = completed_process.stdout.decode("utf-8")
+        return process_output
+
+    def parse_jobs_call(self, message):
+        job_status_dict = {}
+
+        lines = message.split("\n")
+        for i in range(1, len(lines)):
+            if len(lines[i]) == 0:
+                continue
+
+            id_status = self._extract_id_and_status(lines[i])
+            job_status_dict.update(id_status)
+
+        return job_status_dict
+
+    def _extract_id_and_status(self, line):
+        tokens = line.split()
+
+        if len(tokens) < 8:
+            raise ValueError("unable to handle 'bjobs' result: " + line)
+
+        status_code = self._status_to_enum(tokens[2])
+        return {tokens[0]: status_code}
+
+    @staticmethod
+    def _status_to_enum(status):
+        if "RUN" == status:
+            return StatusCodes.RUNNING
+        elif status in ["PEND", "PROV", "WAIT"]:
+            return StatusCodes.SCHEDULED
+        elif "DONE" == status:
+            return StatusCodes.DONE
+        elif "EXIT" == status:
+            return StatusCodes.FAILED
+        elif "UNKWN" == status:
+            return StatusCodes.UNKNOWN
+        elif status in ["PSUSP", "USUSP", "SSUSP", "ZOMBI"]:
+            return StatusCodes.DROPPED
+
+        raise ValueError("unsupported status code: " + status)
+
+    def resolve_status_from_log(self, check_log_dict):
         resolved_dict = {}
-        log_dir = self._get_log_dir()
+        log_dir = JasminJobMonitor._get_log_dir()
 
         for key, value in check_log_dict.items():
             logfile = os.path.join(log_dir, value + ".out")
@@ -150,20 +185,74 @@ class JasminJobMonitor:
 
         return resolved_dict
 
-    def _format_and_write(self, results, stream):
-        key_list = list(results.keys())
+class SLURMInterface:
 
-        num_items = len(key_list)
-        for i in range(0, num_items):
-            key = key_list[i]
-            result = results[key]
-            stream.write(key + "_" + result[0] + ",")
-            stream.write(result[1].value + ",")
-            stream.write(result[2])
-            stream.write("\n")
+    user_name = None
 
-        stream.flush()
+    def __init__(self):
+        if "MMS_USER" in os.environ:
+            self.user_name = os.environ["MMS_USER"]
+        else:
+            raise RuntimeError("Missing environment variable 'MMS_USER'")
 
+    def call_job_status(self):
+        completed_process = subprocess.run(['squeue',  '--users=' + self.user_name, '--states=all'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if completed_process.returncode != 0:
+            sys.stderr.write(completed_process.stderr.decode("utf-8"))
+            sys.stderr.flush()
+            raise RuntimeError("Failed to request job status")
+        process_output = completed_process.stdout.decode("utf-8")
+        return process_output
+
+    def parse_jobs_call(self, message):
+        job_status_dict = {}
+
+        lines = message.split("\n")
+        for i in range(1, len(lines)):
+            if len(lines[i]) == 0:
+                continue
+
+            id_status = self._extract_id_and_status(lines[i])
+            job_status_dict.update(id_status)
+
+        return job_status_dict
+
+    def _extract_id_and_status(self, line):
+        tokens = line.split()
+
+        if len(tokens) < 8:
+            raise ValueError("unable to handle 'squeue' result: " + line)
+
+        status_code = self._status_to_enum(tokens[4])
+        return {tokens[0]: status_code}
+
+    @staticmethod
+    def _status_to_enum(status):
+        if status in ["R", "CG", "SO"]:
+            return StatusCodes.RUNNING
+        elif status in ["CF", "PD", "RD", "RF", "RH", "RQ", "RS", "RV"]:
+            return StatusCodes.SCHEDULED
+        elif status in ["CD", "SE"]:
+            return StatusCodes.DONE
+        elif status in ["BF", "DL", "F", "NF", "OOM", "TO"]:
+            return StatusCodes.FAILED
+        elif status in ["CA", "PR", "SI", "ST", "S"]:
+            return StatusCodes.DROPPED
+
+        raise ValueError("unsupported status code: " + status)
+
+    def resolve_status_from_log(self, check_log_dict):
+        resolved_dict = {}
+        log_dir = JasminJobMonitor._get_log_dir()
+
+        for key, value in check_log_dict.items():
+            logfile = os.path.join(log_dir, value + ".out")
+            if not os.path.isfile(logfile):
+                resolved_dict.update({key: [value, StatusCodes.DROPPED, "log file for job does not exist: " + logfile]})
+            else:
+                resolved_dict.update({key: [value, StatusCodes.DONE, ""]})
+
+        return resolved_dict
 
 if __name__ == "__main__":
     sys.exit(JasminJobMonitor.main())

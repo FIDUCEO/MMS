@@ -105,7 +105,7 @@ public class WindowVariableSymbolTest {
 
     @Test
     public void testEvalI() throws IOException, InvalidRangeException {
-        final Array array = Array.factory(new short[]{19});
+        final Array array = NetCDFUtils.create(new short[]{19});
         when(evalEnv.fetchPixel(any())).thenReturn(array);
 
         when(variable.getDataType()).thenReturn(DataType.SHORT);
@@ -117,7 +117,7 @@ public class WindowVariableSymbolTest {
 
     @Test
     public void testEvalI_fillValue() throws IOException, InvalidRangeException {
-        final Array array = Array.factory(new int[]{NetCDFUtils.getDefaultFillValue(int.class).intValue()});
+        final Array array = NetCDFUtils.create(new int[]{NetCDFUtils.getDefaultFillValue(int.class).intValue()});
         when(evalEnv.fetchPixel(any())).thenReturn(array);
 
         when(variable.getDataType()).thenReturn(DataType.INT);
@@ -132,7 +132,7 @@ public class WindowVariableSymbolTest {
 
     @Test
     public void testEvalD() throws IOException, InvalidRangeException {
-        final Array array = Array.factory(new double[]{20.21});
+        final Array array = NetCDFUtils.create(new double[]{20.21});
         when(evalEnv.fetchPixel(any())).thenReturn(array);
 
         when(variable.getDataType()).thenReturn(DataType.DOUBLE);
@@ -144,7 +144,7 @@ public class WindowVariableSymbolTest {
 
     @Test
     public void testEvalD_NaN() throws IOException, InvalidRangeException {
-        final Array array = Array.factory(new double[]{Double.NaN});
+        final Array array = NetCDFUtils.create(new double[]{Double.NaN});
         when(evalEnv.fetchPixel(any())).thenReturn(array);
 
         when(variable.getDataType()).thenReturn(DataType.DOUBLE);
@@ -159,7 +159,7 @@ public class WindowVariableSymbolTest {
 
     @Test
     public void testEvalD_fillValue() throws IOException, InvalidRangeException {
-        final Array array = Array.factory(new double[]{NetCDFUtils.getDefaultFillValue(double.class).doubleValue()});
+        final Array array = NetCDFUtils.create(new double[]{NetCDFUtils.getDefaultFillValue(double.class).doubleValue()});
         when(evalEnv.fetchPixel(any())).thenReturn(array);
 
         when(variable.getDataType()).thenReturn(DataType.DOUBLE);

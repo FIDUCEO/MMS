@@ -145,7 +145,7 @@ public class ArchiveConfig {
             elementsList.add(token);
         }
 
-        return elementsList.toArray(new String[elementsList.size()]);
+        return elementsList.toArray(new String[0]);
     }
 
     private void parseRootPath(Element rootElement) {

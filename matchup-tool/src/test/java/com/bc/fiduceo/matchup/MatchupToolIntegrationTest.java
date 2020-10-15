@@ -34,7 +34,7 @@ import static org.junit.Assert.assertEquals;
 public class MatchupToolIntegrationTest {
 
     private final String ls = System.lineSeparator();
-    private final String expectedPrintUsage = "matchup-tool version 1.5.1" + ls +
+    private final String expectedPrintUsage = "matchup-tool version 1.5.2" + ls +
             ls +
             "usage: matchup-tool <options>" + ls +
             "Valid options are:" + ls +

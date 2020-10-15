@@ -25,6 +25,7 @@ import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderFactory;
 import ucar.ma2.Array;
+import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
 import ucar.nc2.Variable;
@@ -120,7 +121,9 @@ public class IOVariablesList {
                 if (excludes.contains(shortName)) {
                     continue;
                 }
-                final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable(readerContainer);
+                final boolean writeScaled = variablesConfiguration.isWriteScaled(sensorName, shortName);
+
+                final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable(readerContainer, writeScaled);
                 ioVariable.setSourceVariableName(shortName);
                 final String targetVariableName;
                 if (renamings.containsKey(shortName)) {
@@ -129,7 +132,12 @@ public class IOVariablesList {
                     targetVariableName = targetSensorName + separator + shortName;
                 }
                 ioVariable.setTargetVariableName(targetVariableName);
-                ioVariable.setDataType(variable.getDataType().toString());
+
+                if (writeScaled) {
+                    ioVariable.setDataType(DataType.DOUBLE.toString());
+                }else {
+                    ioVariable.setDataType(variable.getDataType().toString());
+                }
                 ioVariable.setDimensionNames(dimensionNames);
                 ioVariable.setAttributes(getAttributeClones(variable, sensorName, variablesConfiguration));
 
@@ -164,19 +172,13 @@ public class IOVariablesList {
     }
 
     public void add(IOVariable ioVariable, String sensorName) {
-        List<IOVariable> sensorVariables = ioVariablesMap.get(sensorName);
-        if (sensorVariables == null) {
-            sensorVariables = new ArrayList<>();
-            ioVariablesMap.put(sensorName, sensorVariables);
-        }
+        List<IOVariable> sensorVariables = ioVariablesMap.computeIfAbsent(sensorName, k -> new ArrayList<>());
         sensorVariables.add(ioVariable);
     }
 
     public List<String> getSensorNames() {
-        final ArrayList<String> sensorNamesList = new ArrayList<>();
         final Set<String> keySet = ioVariablesMap.keySet();
-        sensorNamesList.addAll(keySet);
-        return sensorNamesList;
+        return new ArrayList<>(keySet);
     }
 
     static List<Attribute> getAttributeClones(Variable variable, String sensorName, VariablesConfiguration variablesConfiguration) {

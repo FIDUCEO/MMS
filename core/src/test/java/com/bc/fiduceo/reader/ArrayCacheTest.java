@@ -21,28 +21,17 @@
 package com.bc.fiduceo.reader;
 
 
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.junit.Before;
 import org.junit.Test;
 import ucar.ma2.Array;
-import ucar.nc2.Attribute;
-import ucar.nc2.Group;
-import ucar.nc2.NetcdfFile;
-import ucar.nc2.Variable;
+import ucar.nc2.*;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 public class ArrayCacheTest {
 
@@ -61,7 +50,7 @@ public class ArrayCacheTest {
         when(netcdfFile.findGroup("a_group")).thenReturn(group);
         when(netcdfFile.findVariable(group, "a_group_variable")).thenReturn(variable);
 
-        final Array array = Array.factory(new int[]{1, 2, 3, 4});
+        final Array array = NetCDFUtils.create(new int[]{1, 2, 3, 4});
         when(variable.read()).thenReturn(array);
 
         arrayCache = new ArrayCache(netcdfFile);
@@ -74,7 +63,7 @@ public class ArrayCacheTest {
 
         verify(netcdfFile, times(1)).findVariable(null, "a_variable");
         verify(variable, times(1)).read();
-        verify(variable, times(1)).getAttributes();
+        verify(variable, times(1)).attributes();
         verifyNoMoreInteractions(netcdfFile, variable);
     }
 
@@ -86,16 +75,16 @@ public class ArrayCacheTest {
         verify(netcdfFile, times(1)).findGroup("a_group");
         verify(netcdfFile, times(1)).findVariable(group, "a_group_variable");
         verify(variable, times(1)).read();
-        verify(variable, times(1)).getAttributes();
+        verify(variable, times(1)).attributes();
         verifyNoMoreInteractions(netcdfFile, variable);
     }
 
     @Test
     public void testRequestedArrayIsReadScaled_onlyScale() throws IOException {
         final Attribute attribute = new Attribute("scaleFac", 2.1);
-        final List<Attribute> attributeList = new ArrayList<>();
-        attributeList.add(attribute);
-        when(variable.getAttributes()).thenReturn(attributeList);
+        final AttributeContainerMutable attributes = new AttributeContainerMutable("test");
+        attributes.addAttribute(attribute);
+        when(variable.attributes()).thenReturn(attributes);
 
         final Array resultArray = arrayCache.getScaled("a_variable", "scaleFac", null);
         assertNotNull(resultArray);
@@ -106,16 +95,16 @@ public class ArrayCacheTest {
 
         verify(netcdfFile, times(1)).findVariable(null, "a_variable");
         verify(variable, times(1)).read();
-        verify(variable, times(1)).getAttributes();
+        verify(variable, times(1)).attributes();
         verifyNoMoreInteractions(netcdfFile, variable);
     }
 
     @Test
     public void testRequestedArrayIsReadScaled_onlyOffset() throws IOException {
         final Attribute attribute = new Attribute("offset", 1.8);
-        final List<Attribute> attributeList = new ArrayList<>();
-        attributeList.add(attribute);
-        when(variable.getAttributes()).thenReturn(attributeList);
+        final AttributeContainerMutable attributes = new AttributeContainerMutable("test");
+        attributes.addAttribute(attribute);
+        when(variable.attributes()).thenReturn(attributes);
 
         final Array resultArray = arrayCache.getScaled("a_variable", null, "offset");
         assertNotNull(resultArray);
@@ -126,7 +115,7 @@ public class ArrayCacheTest {
 
         verify(netcdfFile, times(1)).findVariable(null, "a_variable");
         verify(variable, times(1)).read();
-        verify(variable, times(1)).getAttributes();
+        verify(variable, times(1)).attributes();
         verifyNoMoreInteractions(netcdfFile, variable);
     }
 
@@ -134,10 +123,10 @@ public class ArrayCacheTest {
     public void testRequestedArrayIsReadScaled_scaleAndOffset() throws IOException {
         final Attribute scaleAttribute = new Attribute("scale", 0.5);
         final Attribute offsetAttribute = new Attribute("offset", 1.4);
-        final List<Attribute> attributeList = new ArrayList<>();
-        attributeList.add(scaleAttribute);
-        attributeList.add(offsetAttribute);
-        when(variable.getAttributes()).thenReturn(attributeList);
+        final AttributeContainerMutable attributes = new AttributeContainerMutable("test");
+        attributes.addAttribute(scaleAttribute);
+        attributes.addAttribute(offsetAttribute);
+        when(variable.attributes()).thenReturn(attributes);
 
         final Array resultArray = arrayCache.getScaled("a_variable", "scale", "offset");
         assertNotNull(resultArray);
@@ -148,16 +137,16 @@ public class ArrayCacheTest {
 
         verify(netcdfFile, times(1)).findVariable(null, "a_variable");
         verify(variable, times(1)).read();
-        verify(variable, times(1)).getAttributes();
+        verify(variable, times(1)).attributes();
         verifyNoMoreInteractions(netcdfFile, variable);
     }
 
     @Test
     public void testRequestedArrayIsReadScaled_scaleIsNotAvailable_RuntimeException() throws IOException {
         final Attribute offsetAttribute = new Attribute("offset", 1.4);
-        final List<Attribute> attributeList = new ArrayList<>();
-        attributeList.add(offsetAttribute);
-        when(variable.getAttributes()).thenReturn(attributeList);
+        final AttributeContainerMutable attributes = new AttributeContainerMutable("test");
+        attributes.addAttribute(offsetAttribute);
+        when(variable.attributes()).thenReturn(attributes);
 
         try {
             arrayCache.getScaled("a_variable", "scale", "offset");
@@ -168,16 +157,16 @@ public class ArrayCacheTest {
 
         verify(netcdfFile, times(1)).findVariable(null, "a_variable");
         verify(variable, times(1)).read();
-        verify(variable, times(1)).getAttributes();
+        verify(variable, times(1)).attributes();
         verifyNoMoreInteractions(netcdfFile, variable);
     }
 
     @Test
     public void testRequestedArrayIsReadScaled_offsetIsNotAvailable_RuntionException() throws IOException {
         final Attribute scaleAttribute = new Attribute("scale", 0.5);
-        final List<Attribute> attributeList = new ArrayList<>();
-        attributeList.add(scaleAttribute);
-        when(variable.getAttributes()).thenReturn(attributeList);
+        final AttributeContainerMutable attributes = new AttributeContainerMutable("test");
+        attributes.addAttribute(scaleAttribute);
+        when(variable.attributes()).thenReturn(attributes);
 
         try {
             arrayCache.getScaled("a_variable", "scale", "offset");
@@ -188,16 +177,16 @@ public class ArrayCacheTest {
 
         verify(netcdfFile, times(1)).findVariable(null, "a_variable");
         verify(variable, times(1)).read();
-        verify(variable, times(1)).getAttributes();
+        verify(variable, times(1)).attributes();
         verifyNoMoreInteractions(netcdfFile, variable);
     }
 
     @Test
     public void testRequestedArrayIsReadScaled_fromCacheIfRequestedTwice() throws IOException {
         final Attribute attribute = new Attribute("scaleFac", 2.1);
-        final List<Attribute> attributeList = new ArrayList<>();
-        attributeList.add(attribute);
-        when(variable.getAttributes()).thenReturn(attributeList);
+        final AttributeContainerMutable attributes = new AttributeContainerMutable("test");
+        attributes.addAttribute(attribute);
+        when(variable.attributes()).thenReturn(attributes);
 
         final Array resultArray = arrayCache.getScaled("a_variable", "scaleFac", null);
         assertNotNull(resultArray);
@@ -209,7 +198,7 @@ public class ArrayCacheTest {
 
         verify(netcdfFile, times(1)).findVariable(null, "a_variable");
         verify(variable, times(1)).read();
-        verify(variable, times(1)).getAttributes();
+        verify(variable, times(1)).attributes();
         verifyNoMoreInteractions(netcdfFile, variable);
     }
 
@@ -225,7 +214,7 @@ public class ArrayCacheTest {
 
         verify(netcdfFile, times(1)).findVariable(null, "a_variable");
         verify(variable, times(1)).read();
-        verify(variable, times(1)).getAttributes();
+        verify(variable, times(1)).attributes();
         verifyNoMoreInteractions(netcdfFile, variable);
     }
 
@@ -242,7 +231,7 @@ public class ArrayCacheTest {
         verify(netcdfFile, times(1)).findGroup("a_group");
         verify(netcdfFile, times(1)).findVariable(group, "a_group_variable");
         verify(variable, times(1)).read();
-        verify(variable, times(1)).getAttributes();
+        verify(variable, times(1)).attributes();
         verifyNoMoreInteractions(netcdfFile, variable);
     }
 
@@ -250,10 +239,10 @@ public class ArrayCacheTest {
     public void testRequestedArrayIsReadScaled_fromGroup_scaleAndOffset() throws IOException {
         final Attribute scaleAttribute = new Attribute("scale", 0.5);
         final Attribute offsetAttribute = new Attribute("offset", 1.4);
-        final List<Attribute> attributeList = new ArrayList<>();
-        attributeList.add(scaleAttribute);
-        attributeList.add(offsetAttribute);
-        when(variable.getAttributes()).thenReturn(attributeList);
+        final AttributeContainerMutable attributes = new AttributeContainerMutable("test");
+        attributes.addAttribute(scaleAttribute);
+        attributes.addAttribute(offsetAttribute);
+        when(variable.attributes()).thenReturn(attributes);
 
         final Array resultArray = arrayCache.getScaled("a_group", "a_group_variable", "scale", "offset");
         assertNotNull(resultArray);
@@ -265,7 +254,7 @@ public class ArrayCacheTest {
         verify(netcdfFile, times(1)).findGroup("a_group");
         verify(netcdfFile, times(1)).findVariable(group, "a_group_variable");
         verify(variable, times(1)).read();
-        verify(variable, times(1)).getAttributes();
+        verify(variable, times(1)).attributes();
         verifyNoMoreInteractions(netcdfFile, variable);
     }
 
@@ -334,7 +323,7 @@ public class ArrayCacheTest {
 
         verify(netcdfFile, times(1)).findVariable(null, "a_variable");
         verify(variable, times(1)).read();
-        verify(variable, times(1)).getAttributes();
+        verify(variable, times(1)).attributes();
         verifyNoMoreInteractions(netcdfFile, variable);
     }
 
@@ -342,10 +331,10 @@ public class ArrayCacheTest {
     public void testGetStringAttribute() throws IOException {
         final Attribute numberAttribute = new Attribute("attribute_number", -99999);
         final Attribute stringAttribute = new Attribute("attribute_string", "the_value");
-        final List<Attribute> attributeList = new ArrayList<>();
-        attributeList.add(numberAttribute);
-        attributeList.add(stringAttribute);
-        when(variable.getAttributes()).thenReturn(attributeList);
+        final AttributeContainerMutable attributes = new AttributeContainerMutable("test");
+        attributes.addAttribute(numberAttribute);
+        attributes.addAttribute(stringAttribute);
+        when(variable.attributes()).thenReturn(attributes);
 
         String attributeValue = arrayCache.getStringAttributeValue("attribute_number", "a_variable");
         assertEquals("-99999", attributeValue);
@@ -355,7 +344,7 @@ public class ArrayCacheTest {
 
         verify(netcdfFile, times(1)).findVariable(null, "a_variable");
         verify(variable, times(1)).read();
-        verify(variable, times(1)).getAttributes();
+        verify(variable, times(1)).attributes();
         verifyNoMoreInteractions(netcdfFile, variable);
     }
 
@@ -394,7 +383,7 @@ public class ArrayCacheTest {
         verify(netcdfFile, times(1)).findGroup("a_group");
         verify(netcdfFile, times(1)).findVariable(group, "a_group_variable");
         verify(variable, times(1)).read();
-        verify(variable, times(1)).getAttributes();
+        verify(variable, times(1)).attributes();
         verifyNoMoreInteractions(netcdfFile, variable);
     }
 
@@ -402,10 +391,10 @@ public class ArrayCacheTest {
     public void testGetStringAttributeFromGroup() throws IOException {
         final Attribute numberAttribute = new Attribute("attribute_number", -99999);
         final Attribute stringAttribute = new Attribute("attribute_string", "the_value");
-        final List<Attribute> attributeList = new ArrayList<>();
-        attributeList.add(numberAttribute);
-        attributeList.add(stringAttribute);
-        when(variable.getAttributes()).thenReturn(attributeList);
+        final AttributeContainerMutable attributes = new AttributeContainerMutable("test");
+        attributes.addAttribute(numberAttribute);
+        attributes.addAttribute(stringAttribute);
+        when(variable.attributes()).thenReturn(attributes);
 
         String attributeValue = arrayCache.getStringAttributeValue("attribute_number", "a_group", "a_group_variable");
         assertEquals("-99999", attributeValue);
@@ -416,32 +405,32 @@ public class ArrayCacheTest {
         verify(netcdfFile, times(1)).findGroup("a_group");
         verify(netcdfFile, times(1)).findVariable(group, "a_group_variable");
         verify(variable, times(1)).read();
-        verify(variable, times(1)).getAttributes();
+        verify(variable, times(1)).attributes();
         verifyNoMoreInteractions(netcdfFile, variable);
     }
 
     @Test
     public void testGetNumberAttribute() throws IOException {
         final Attribute numberAttribute = new Attribute("attribute_number", -99999);
-        final List<Attribute> attributeList = new ArrayList<>();
-        attributeList.add(numberAttribute);
-        when(variable.getAttributes()).thenReturn(attributeList);
+        final AttributeContainerMutable attributes = new AttributeContainerMutable("test");
+        attributes.addAttribute(numberAttribute);
+        when(variable.attributes()).thenReturn(attributes);
 
         final Number attributeValue = arrayCache.getNumberAttributeValue("attribute_number", "a_variable");
         assertEquals(-99999, attributeValue.intValue());
 
         verify(netcdfFile, times(1)).findVariable(null, "a_variable");
         verify(variable, times(1)).read();
-        verify(variable, times(1)).getAttributes();
+        verify(variable, times(1)).attributes();
         verifyNoMoreInteractions(netcdfFile, variable);
     }
 
     @Test
     public void testGetNumberAttributeFromGroup() throws IOException {
         final Attribute numberAttribute = new Attribute("attribute_number", 1.887635);
-        final List<Attribute> attributeList = new ArrayList<>();
-        attributeList.add(numberAttribute);
-        when(variable.getAttributes()).thenReturn(attributeList);
+        final AttributeContainerMutable attributes = new AttributeContainerMutable("test");
+        attributes.addAttribute(numberAttribute);
+        when(variable.attributes()).thenReturn(attributes);
 
         Number attributeValue = arrayCache.getNumberAttributeValue("attribute_number", "a_group", "a_group_variable");
         assertEquals(1.887635, attributeValue.doubleValue(), 1e-8);
@@ -449,7 +438,24 @@ public class ArrayCacheTest {
         verify(netcdfFile, times(1)).findGroup("a_group");
         verify(netcdfFile, times(1)).findVariable(group, "a_group_variable");
         verify(variable, times(1)).read();
-        verify(variable, times(1)).getAttributes();
+        verify(variable, times(1)).attributes();
+        verifyNoMoreInteractions(netcdfFile, variable);
+    }
+
+    @Test
+    public void testGetAttribute() throws IOException {
+        final Attribute attribute = new Attribute("attribute_thing", "an important message");
+        final AttributeContainerMutable attributes = new AttributeContainerMutable("test");
+        attributes.addAttribute(attribute);
+        when(variable.attributes()).thenReturn(attributes);
+
+        final Attribute cacheAttribute = arrayCache.getAttribute("attribute_thing", "a_group", "a_group_variable");
+        assertEquals("an important message", cacheAttribute.getStringValue());
+
+        verify(netcdfFile, times(1)).findGroup("a_group");
+        verify(netcdfFile, times(1)).findVariable(group, "a_group_variable");
+        verify(variable, times(1)).read();
+        verify(variable, times(1)).attributes();
         verifyNoMoreInteractions(netcdfFile, variable);
     }
 
@@ -458,7 +464,7 @@ public class ArrayCacheTest {
         final Variable variable = mock(Variable.class);
         when(variable.getShortName()).thenReturn("injected");
 
-        final Array array = Array.factory(new int[]{2, 3, 4, 5});
+        final Array array = NetCDFUtils.create(new int[]{2, 3, 4, 5});
         when(variable.read()).thenReturn(array);
 
         arrayCache.inject(variable);

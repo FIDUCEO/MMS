@@ -1,6 +1,7 @@
 package com.bc.fiduceo.reader.avhrr_frac;
 
 import com.bc.fiduceo.reader.ReaderContext;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.regex.Matcher;
@@ -12,11 +13,17 @@ import static org.junit.Assert.assertTrue;
 
 public class AVHRR_FRAC_ReaderTest {
 
+    private AVHRR_FRAC_Reader reader;
+
+    @Before
+    public void setUp() {
+        reader = new AVHRR_FRAC_Reader(new ReaderContext());
+    }
+
     @Test
     public void testGetRegEx() {
-        final String expected = "NSS.FRAC.M2.D\\d{5}.S\\d{4}.E\\d{4}.B\\d{7}.[A-Z]{2,2}(.gz){0,1}";
+        final String expected = "NSS.FRAC.M([12]).D\\d{5}.S\\d{4}.E\\d{4}.B\\d{7}.[A-Z]{2,2}(.gz){0,1}";
 
-        final AVHRR_FRAC_Reader reader = new AVHRR_FRAC_Reader(new ReaderContext());// we do not need a geometry factory here tb 2019-01-16
         assertEquals(expected, reader.getRegEx());
 
         final Pattern pattern = Pattern.compile(expected);
@@ -36,6 +43,9 @@ public class AVHRR_FRAC_ReaderTest {
         matcher = pattern.matcher("NSS.FRAC.M2.D12001.S0121.E0210.B2698484.MM.gz");
         assertTrue(matcher.matches());
 
+        matcher = pattern.matcher("NSS.FRAC.M1.D19254.S0220.E0319.B3621920.SV");
+        assertTrue(matcher.matches());
+
         matcher = pattern.matcher("AT2_TOA_1PURAL19980424_055754_000000001031_00348_15733_0000.OT");
         assertFalse(matcher.matches());
 
@@ -51,15 +61,21 @@ public class AVHRR_FRAC_ReaderTest {
 
     @Test
     public void testGetLongitudeVariableName() {
-        final AVHRR_FRAC_Reader reader = new AVHRR_FRAC_Reader(new ReaderContext());// we do not need a geometry factory here tb 2019-01-16
-
         assertEquals("longitude", reader.getLongitudeVariableName());
     }
 
     @Test
     public void testGetLatitudeVariableName() {
-        final AVHRR_FRAC_Reader reader = new AVHRR_FRAC_Reader(new ReaderContext());// we do not need a geometry factory here tb 2019-01-16
-
         assertEquals("latitude", reader.getLatitudeVariableName());
+    }
+
+    @Test
+    public void testExtractYMDFromFilename() {
+        final int[] ymd = reader.extractYearMonthDayFromFilename("NSS.FRAC.M1.D19254.S0038.E0135.B3621819.SV");
+        assertEquals(3, ymd.length);
+        assertEquals(2019, ymd[0]);
+        assertEquals(9, ymd[1]);
+        assertEquals(11, ymd[2]);
+
     }
 }

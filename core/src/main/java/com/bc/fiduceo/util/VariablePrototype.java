@@ -20,31 +20,17 @@
 
 package com.bc.fiduceo.util;
 
-import ucar.ma2.Array;
-import ucar.ma2.DataType;
-import ucar.ma2.InvalidRangeException;
-import ucar.ma2.Range;
-import ucar.ma2.Section;
-import ucar.nc2.Attribute;
-import ucar.nc2.CDMSort;
-import ucar.nc2.Dimension;
-import ucar.nc2.EnumTypedef;
-import ucar.nc2.Group;
-import ucar.nc2.ProxyReader;
-import ucar.nc2.Structure;
-import ucar.nc2.Variable;
-import ucar.nc2.VariableSimpleIF;
+import ucar.ma2.*;
+import ucar.nc2.*;
 import ucar.nc2.util.CancelTask;
-import ucar.nc2.util.Indent;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.channels.WritableByteChannel;
 import java.util.Formatter;
 import java.util.List;
-import java.util.Map;
 
-// This class should be used when driving special purpose classes from the NetCDF Variable class. Overwriting
+// This class should be used when deriving special purpose classes from the NetCDF Variable class. Overwriting
 // all methods with a throws implementation ensures that methods that should be overridden are really overridden;
 // calls into the not completely initialized base class are not possible this was tb 2016-09-26
 
@@ -56,6 +42,11 @@ public class VariablePrototype extends Variable {
 
     @Override
     public DataType getDataType() {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
+    public void setDataType(DataType dataType) {
         throw new RuntimeException("not implemented");
     }
 
@@ -75,11 +66,6 @@ public class VariablePrototype extends Variable {
     }
 
     @Override
-    public int[] getShapeNotScalar() {
-        throw new RuntimeException("not implemented");
-    }
-
-    @Override
     public long getSize() {
         throw new RuntimeException("not implemented");
     }
@@ -90,12 +76,22 @@ public class VariablePrototype extends Variable {
     }
 
     @Override
+    public void setElementSize(int elementSize) {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
     public int getRank() {
         throw new RuntimeException("not implemented");
     }
 
     @Override
     public Group getParentGroup() {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
+    public void setParentGroup(Group group) {
         throw new RuntimeException("not implemented");
     }
 
@@ -115,22 +111,22 @@ public class VariablePrototype extends Variable {
     }
 
     @Override
-    public boolean isUnsigned() {
-        throw new RuntimeException("not implemented");
-    }
-
-    @Override
-    public void setUnsigned(boolean b) {
-        throw new RuntimeException("not implemented");
-    }
-
-    @Override
     public boolean isUnlimited() {
         throw new RuntimeException("not implemented");
     }
 
     @Override
     public List<Dimension> getDimensions() {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
+    public void setDimensions(List<Dimension> dims) {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
+    public void setDimensions(String dimString) {
         throw new RuntimeException("not implemented");
     }
 
@@ -190,22 +186,22 @@ public class VariablePrototype extends Variable {
     }
 
     @Override
-    public Variable section(List<Range> ranges) throws InvalidRangeException {
+    public Variable section(List<Range> ranges) {
         throw new RuntimeException("not implemented");
     }
 
     @Override
-    public Variable section(Section subsection) throws InvalidRangeException {
+    public Variable section(Section subsection) {
         throw new RuntimeException("not implemented");
     }
 
     @Override
-    public Variable slice(int dim, int value) throws InvalidRangeException {
+    public Variable slice(int dim, int value) {
         throw new RuntimeException("not implemented");
     }
 
     @Override
-    public Variable reduce(List<Dimension> dims) throws InvalidRangeException {
+    public Variable reduce(List<Dimension> dims) {
         throw new RuntimeException("not implemented");
     }
 
@@ -215,12 +211,12 @@ public class VariablePrototype extends Variable {
     }
 
     @Override
-    public void setEnumTypedef(EnumTypedef enumTypedef) {
+    public EnumTypedef getEnumTypedef() {
         throw new RuntimeException("not implemented");
     }
 
     @Override
-    public EnumTypedef getEnumTypedef() {
+    public void setEnumTypedef(EnumTypedef enumTypedef) {
         throw new RuntimeException("not implemented");
     }
 
@@ -250,17 +246,17 @@ public class VariablePrototype extends Variable {
     }
 
     @Override
-    public byte readScalarByte() throws IOException {
+    public byte readScalarByte() {
         throw new RuntimeException("not implemented");
     }
 
     @Override
-    public short readScalarShort() throws IOException {
+    public short readScalarShort() {
         throw new RuntimeException("not implemented");
     }
 
     @Override
-    public int readScalarInt() throws IOException {
+    public int readScalarInt() {
         throw new RuntimeException("not implemented");
     }
 
@@ -365,32 +361,12 @@ public class VariablePrototype extends Variable {
     }
 
     @Override
-    public void hashCodeShow(Indent indent) {
-        throw new RuntimeException("not implemented");
-    }
-
-    @Override
     public int compareTo(VariableSimpleIF o) {
         throw new RuntimeException("not implemented");
     }
 
     @Override
-    public void setDataType(DataType dataType) {
-        throw new RuntimeException("not implemented");
-    }
-
-    @Override
     public String setName(String shortName) {
-        throw new RuntimeException("not implemented");
-    }
-
-    @Override
-    public void setParentGroup(Group group) {
-        throw new RuntimeException("not implemented");
-    }
-
-    @Override
-    public void setElementSize(int elementSize) {
         throw new RuntimeException("not implemented");
     }
 
@@ -420,17 +396,7 @@ public class VariablePrototype extends Variable {
     }
 
     @Override
-    public void setDimensions(List<Dimension> dims) {
-        throw new RuntimeException("not implemented");
-    }
-
-    @Override
     public void resetShape() {
-        throw new RuntimeException("not implemented");
-    }
-
-    @Override
-    public void setDimensions(String dimString) {
         throw new RuntimeException("not implemented");
     }
 
@@ -485,12 +451,12 @@ public class VariablePrototype extends Variable {
     }
 
     @Override
-    public void setCaching(boolean caching) {
+    public boolean isCaching() {
         throw new RuntimeException("not implemented");
     }
 
     @Override
-    public boolean isCaching() {
+    public void setCaching(boolean caching) {
         throw new RuntimeException("not implemented");
     }
 
@@ -595,11 +561,6 @@ public class VariablePrototype extends Variable {
     }
 
     @Override
-    public void setImmutable(boolean tf) {
-        throw new RuntimeException("not implemented");
-    }
-
-    @Override
     public String getDODSName() {
         throw new RuntimeException("not implemented");
     }
@@ -627,20 +588,5 @@ public class VariablePrototype extends Variable {
     @Override
     public int localhash() {
         throw new RuntimeException("not implemented");
-    }
-
-    @Override
-    public Map<String, Object> getAnnotations() {
-        throw new RuntimeException("not implemented");
-    }
-
-    @Override
-    public Object getAnnotation(String key) {
-        throw new RuntimeException("not implemented");
-    }
-
-    @Override
-    public Object annotate(String key, Object value) {
-        return super.annotate(key, value);
     }
 }

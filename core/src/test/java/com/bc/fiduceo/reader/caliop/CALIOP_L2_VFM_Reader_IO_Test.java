@@ -8,6 +8,8 @@ import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.*;
+import com.bc.fiduceo.reader.time.TimeLocator;
+import com.bc.fiduceo.reader.time.TimeLocator_TAI1993Vector;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import org.junit.After;
@@ -148,7 +150,7 @@ public class CALIOP_L2_VFM_Reader_IO_Test {
 
         final Expectation[] expectations = getVariables_Expectations();
         for (int i = 0; i < variables.size(); i++) {
-            final String pos = "Problem at position: " + i;
+            final String pos = "Problem at position: " + i + " " + expectations[i].name;
 
             Variable variable = variables.get(i);
             assertEquals(pos, expectations[i].name, variable.getShortName());
@@ -353,7 +355,7 @@ public class CALIOP_L2_VFM_Reader_IO_Test {
 
         a1 = reader.readRaw(0, 40, interval, "Day_Night_Flag");
         a2 = reader.readScaled(0, 40, interval, "Day_Night_Flag");
-        assertThat(a1.getDataType(), is(equalTo(DataType.SHORT)));
+        assertThat(a1.getDataType(), is(equalTo(DataType.USHORT)));
         expected = new short[]{
                 0, 0, 0, 0, 0
         };
@@ -474,12 +476,11 @@ public class CALIOP_L2_VFM_Reader_IO_Test {
                         new Attribute("format", "Float_64"),
                         new Attribute("valid_range", "60426.0...261231.0"),
                         new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(DataType.DOUBLE, false)))),
-                new Expectation("Day_Night_Flag", DataType.SHORT, Arrays.asList(
-                        new Attribute("_Unsigned", "true"),
+                new Expectation("Day_Night_Flag", DataType.USHORT, Arrays.asList(
                         new Attribute("units", "NoUnits"),
                         new Attribute("format", "UInt_16"),
                         new Attribute("valid_range", "0...1"),
-                        new Attribute(NetCDFUtils.CF_FLAG_VALUES_NAME, Array.factory(new short[]{0, 1})),
+                        new Attribute(NetCDFUtils.CF_FLAG_VALUES_NAME, NetCDFUtils.create(new short[]{0, 1})),
                         new Attribute(NetCDFUtils.CF_FLAG_MEANINGS_NAME, "Day Night"),
                         new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(DataType.SHORT, true)))),
                 new Expectation("Land_Water_Mask", DataType.BYTE, Arrays.asList(
@@ -487,7 +488,7 @@ public class CALIOP_L2_VFM_Reader_IO_Test {
                         new Attribute("format", "Int_8"),
                         new Attribute("valid_range", "0...7"),
                         new Attribute("fillvalue", (byte) -9),
-                        new Attribute(NetCDFUtils.CF_FLAG_VALUES_NAME, Array.factory(new byte[]{0, 1, 2, 3, 4, 5, 6, 7})),
+                        new Attribute(NetCDFUtils.CF_FLAG_VALUES_NAME, NetCDFUtils.create(new byte[]{0, 1, 2, 3, 4, 5, 6, 7})),
                         new Attribute(NetCDFUtils.CF_FLAG_MEANINGS_NAME, "shallow_ocean land coastlines shallow_inland_water intermittent_water deep_inland_water continental_ocean deep_ocean"),
                         new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, (byte) -9))),
                 new Expectation("Spacecraft_Position_x", DataType.DOUBLE, Arrays.asList(

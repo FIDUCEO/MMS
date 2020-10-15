@@ -33,14 +33,6 @@ import java.io.IOException;
  */
 public class RawDataReader {
 
-    enum InputDimension {
-        THREE_D_FALSE_DIMENSION,
-        TWO_D,
-        TWO_D_FALSE_DIMENSION,
-        ONE_D,
-        SKALAR
-    }
-
     public static Array read(int centerX, int centerY, Interval interval, Number fillValue, Array rawArray, com.bc.fiduceo.core.Dimension productSize) throws IOException {
         final int windowWidth = interval.getX();
         final int windowHeight = interval.getY();
@@ -102,9 +94,8 @@ public class RawDataReader {
     }
 
     private static Array readFromSkalarArray(int offsetX, int offsetY, int windowWidth, int windowHeight, Number fillValue, Array rawArray, Dimension productSize) {
-        final Class elementType = rawArray.getElementType();
         final Number value = (Number) rawArray.getObject(0);
-        final Array targetArray = Array.factory(elementType, new int[]{windowHeight, windowWidth});
+        final Array targetArray = Array.factory(rawArray.getDataType(), new int[]{windowHeight, windowWidth});
         final Index index = targetArray.getIndex();
         for (int y = 0; y < windowHeight; y++) {
             final int readY = offsetY + y;
@@ -162,6 +153,14 @@ public class RawDataReader {
             }
 
         throw new RuntimeException("Unsupported input dimensionality");
+    }
+
+    enum InputDimension {
+        THREE_D_FALSE_DIMENSION,
+        TWO_D,
+        TWO_D_FALSE_DIMENSION,
+        ONE_D,
+        SKALAR
     }
 
 }

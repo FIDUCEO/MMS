@@ -42,30 +42,43 @@ class AddAmsrSolarAngles extends PostProcessing {
 
     @Override
     protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) {
-        final Variable earthAzimuthVariable = NetCDFUtils.getVariable(reader, configuration.earthAzimuthVariable);
+        // unfortunately, we need custom escaping of the variable name tb 2020-05-08
+        String escapedName = escapeName(configuration.earthAzimuthVariable);
+        final Variable earthAzimuthVariable = NetCDFUtils.getVariable(reader, escapedName, false);
         final List<Dimension> dimensions = earthAzimuthVariable.getDimensions();
 
-        final Variable variable = writer.addVariable(null, configuration.szaVariable, DataType.FLOAT, dimensions);
+        escapedName = escapeName(configuration.szaVariable);
+        final Variable variable = writer.addVariable(null, escapedName, DataType.FLOAT, dimensions);
         variable.addAttribute(new Attribute("description", "Calculated from AMSR data as sza = Sun_Elevation + Earth_Incidence"));
         variable.addAttribute(new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(float.class).floatValue()));
 
-        writer.addVariable(null, configuration.saaVariable, DataType.FLOAT, dimensions);
+        escapedName = escapeName(configuration.saaVariable);
+        writer.addVariable(null, escapedName, DataType.FLOAT, dimensions);
         variable.addAttribute(new Attribute("description", "Calculated from AMSR data as saa = (Earth_Azimuth - Sun_Azimuth - 180.0) mod 360.0"));
         variable.addAttribute(new Attribute(NetCDFUtils.CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(float.class).floatValue()));
     }
 
+    private String escapeName(String variableName) {
+        return variableName.replace(".", "\\.");
+    }
+
     @Override
     protected void compute(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
-        final Variable earthAzimuthVariable = NetCDFUtils.getVariable(reader, configuration.earthAzimuthVariable);
+        // unfortunately, we need custom escaping of the variable name tb 2020-05-08
+        String escapedName = escapeName(configuration.earthAzimuthVariable);
+        final Variable earthAzimuthVariable = NetCDFUtils.getVariable(reader, escapedName, false);
         final Array earthAzimuth = readAndScale(earthAzimuthVariable);
 
-        final Variable earthIncidenceVariable = NetCDFUtils.getVariable(reader, configuration.earthIncidenceVariable);
+        escapedName = escapeName(configuration.earthIncidenceVariable);
+        final Variable earthIncidenceVariable = NetCDFUtils.getVariable(reader, escapedName, false);
         final Array earthIncidence = readAndScale(earthIncidenceVariable);
 
-        final Variable sunAzimuthVariable = NetCDFUtils.getVariable(reader, configuration.sunAzimuthVariable);
+        escapedName = escapeName(configuration.sunAzimuthVariable);
+        final Variable sunAzimuthVariable = NetCDFUtils.getVariable(reader, escapedName, false);
         final Array sunAzimuth = readAndScale(sunAzimuthVariable);
 
-        final Variable sunElevationVariable = NetCDFUtils.getVariable(reader, configuration.sunElevationVariable);
+        escapedName = escapeName(configuration.sunElevationVariable);
+        final Variable sunElevationVariable = NetCDFUtils.getVariable(reader, escapedName, false);
         final Array sunElevation = readAndScale(sunElevationVariable);
 
         final Array sza = Array.factory(DataType.FLOAT, earthAzimuth.getShape());
@@ -73,10 +86,10 @@ class AddAmsrSolarAngles extends PostProcessing {
 
         calculateAngles(earthAzimuth, earthIncidence, sunAzimuth, sunElevation, sza, saa);
 
-        final String szaEscapedName = NetcdfFile.makeValidCDLName(configuration.szaVariable);
-        final Variable szaVariable = writer.findVariable(szaEscapedName);
-        final String saaEscapedName = NetcdfFile.makeValidCDLName(configuration.saaVariable);
-        final Variable saaVariable = writer.findVariable(saaEscapedName);
+        escapedName = escapeName(configuration.szaVariable);
+        final Variable szaVariable = NetCDFUtils.getVariable(writer, escapedName, true);
+        escapedName = escapeName(configuration.saaVariable);
+        final Variable saaVariable = NetCDFUtils.getVariable(writer, escapedName, true);
 
         writer.write(szaVariable, sza);
         writer.write(saaVariable, saa);
@@ -118,7 +131,7 @@ class AddAmsrSolarAngles extends PostProcessing {
         final IndexIterator targetIterator = floatArray.getIndexIterator();
 
         final float fillValue = NetCDFUtils.getDefaultFillValue(float.class).floatValue();
-        final float scaleFactor = NetCDFUtils.getAttributeFloat(unscaledVariable, "SCALE_FACTOR", fillValue);
+        final float scaleFactor = NetCDFUtils.getAttributeFloat(unscaledVariable, "scale_factor", fillValue);
         while (array.hasNext() && floatArray.hasNext()) {
             final float scaled = scaleFactor * array.nextShort();
             targetIterator.setFloatNext(scaled);

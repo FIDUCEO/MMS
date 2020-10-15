@@ -21,6 +21,7 @@
 package com.bc.fiduceo.reader.iasi;
 
 import org.junit.Test;
+import ucar.ma2.DataType;
 
 import java.io.IOException;
 
@@ -33,7 +34,7 @@ public class ReadProxyTest {
     public void testBytesPerScan() throws IOException {
         final ReadProxy.bytePerScan bytePerScan = new ReadProxy.bytePerScan(12);
 
-        assertEquals(byte.class, bytePerScan.getDataType());
+        assertEquals(DataType.BYTE, bytePerScan.getDataType());
 
         final MDR_1C_v5 mdr_1C = mock(MDR_1C_v5.class);
         when(mdr_1C.readPerScan_byte(12)).thenReturn((byte) 44);
@@ -49,7 +50,7 @@ public class ReadProxyTest {
     public void testIntPerScan() throws IOException {
         final ReadProxy.intPerScan intPerScan = new ReadProxy.intPerScan(13);
 
-        assertEquals(int.class, intPerScan.getDataType());
+        assertEquals(DataType.INT, intPerScan.getDataType());
 
         final MDR_1C_v5 mdr_1C = mock(MDR_1C_v5.class);
         when(mdr_1C.readPerScan_int(13)).thenReturn(45);
@@ -65,7 +66,7 @@ public class ReadProxyTest {
     public void testVInt4PerScan() throws IOException {
         final ReadProxy.vInt4PerScan vInt4PerScan = new ReadProxy.vInt4PerScan(14);
 
-        assertEquals(float.class, vInt4PerScan.getDataType());
+        assertEquals(DataType.FLOAT, vInt4PerScan.getDataType());
 
         final MDR_1C_v5 mdr_1C = mock(MDR_1C_v5.class);
         when(mdr_1C.readPerScan_vInt4(14)).thenReturn(46.7f);
@@ -81,7 +82,7 @@ public class ReadProxyTest {
     public void testObtPerEVOF() throws IOException {
         final ReadProxy.obtPerEVOF obtPerEVOF = new ReadProxy.obtPerEVOF(14);
 
-        assertEquals(long.class, obtPerEVOF.getDataType());
+        assertEquals(DataType.LONG, obtPerEVOF.getDataType());
 
         final MDR_1C_v5 mdr_1C = mock(MDR_1C_v5.class);
         when(mdr_1C.get_OBT(5, 0)).thenReturn(46L);
@@ -97,7 +98,7 @@ public class ReadProxyTest {
     public void testUtcPerEVOF() throws IOException {
         final ReadProxy.utcPerEVOF utcPerEVOF = new ReadProxy.utcPerEVOF(15);
 
-        assertEquals(long.class, utcPerEVOF.getDataType());
+        assertEquals(DataType.LONG, utcPerEVOF.getDataType());
 
         final MDR_1C_v5 mdr_1C = mock(MDR_1C_v5.class);
         when(mdr_1C.readPerEFOV_utc(6, 15)).thenReturn(47L);     // notabene: the second argument is the offset into the record
@@ -113,7 +114,7 @@ public class ReadProxyTest {
     public void testBytePerEVOF() throws IOException {
         final ReadProxy.bytePerEVOF bytePerEVOF = new ReadProxy.bytePerEVOF(16);
 
-        assertEquals(byte.class, bytePerEVOF.getDataType());
+        assertEquals(DataType.BYTE, bytePerEVOF.getDataType());
 
         final MDR_1C_v5 mdr_1C = mock(MDR_1C_v5.class);
         when(mdr_1C.readPerEFOV_byte(7, 16)).thenReturn((byte) 48);     // notabene: the second argument is the offset into the record
@@ -129,7 +130,7 @@ public class ReadProxyTest {
     public void testShortPerEVOF() throws IOException {
         final ReadProxy.shortPerEVOF shortPerEVOF = new ReadProxy.shortPerEVOF(17);
 
-        assertEquals(short.class, shortPerEVOF.getDataType());
+        assertEquals(DataType.SHORT, shortPerEVOF.getDataType());
 
         final MDR_1C_v5 mdr_1C = mock(MDR_1C_v5.class);
         when(mdr_1C.readPerEFOV_short(8, 17)).thenReturn((short) 49);     // notabene: the second argument is the offset into the record
@@ -145,7 +146,7 @@ public class ReadProxyTest {
     public void testIntPerEVOF() throws IOException {
         final ReadProxy.intPerEVOF intPerEVOF = new ReadProxy.intPerEVOF(17);
 
-        assertEquals(int.class, intPerEVOF.getDataType());
+        assertEquals(DataType.INT, intPerEVOF.getDataType());
 
         final MDR_1C_v5 mdr_1C = mock(MDR_1C_v5.class);
         when(mdr_1C.readPerEFOV_int(8, 17)).thenReturn(49);     // notabene: the second argument is the offset into the record
@@ -161,7 +162,7 @@ public class ReadProxyTest {
     public void testVInt4PerEFOV() throws IOException {
         final ReadProxy.vInt4PerEVOF vInt4PerEFOV = new ReadProxy.vInt4PerEVOF(15);
 
-        assertEquals(float.class, vInt4PerEFOV.getDataType());
+        assertEquals(DataType.FLOAT, vInt4PerEFOV.getDataType());
 
         final MDR_1C_v5 mdr_1C = mock(MDR_1C_v5.class);
         when(mdr_1C.readPerEFOV_vInt4(5, 15)).thenReturn(46.7f);
@@ -177,7 +178,7 @@ public class ReadProxyTest {
     public void testBytePerPixel() throws IOException {
         final ReadProxy.bytePerPixel bytePerPixel = new ReadProxy.bytePerPixel(19);
 
-        assertEquals(byte.class, bytePerPixel.getDataType());
+        assertEquals(DataType.BYTE, bytePerPixel.getDataType());
 
         final MDR_1C_v5 mdr_1C = mock(MDR_1C_v5.class);
         when(mdr_1C.readPerPixel_byte(10, 1, 19)).thenReturn((byte) 51);     // notabene: the third argument is the offset into the record
@@ -193,7 +194,7 @@ public class ReadProxyTest {
     public void testBytePerPixel_fillValue() throws IOException {
         final ReadProxy.bytePerPixel_fillValue bytePerPixel = new ReadProxy.bytePerPixel_fillValue();
 
-        assertEquals(byte.class, bytePerPixel.getDataType());
+        assertEquals(DataType.BYTE, bytePerPixel.getDataType());
 
         final MDR_1C_v5 mdr_1C = mock(MDR_1C_v5.class);
 
@@ -205,7 +206,7 @@ public class ReadProxyTest {
     public void testShortPerPixel() throws IOException {
         final ReadProxy.shortPerPixel shortPerPixel = new ReadProxy.shortPerPixel(18);
 
-        assertEquals(short.class, shortPerPixel.getDataType());
+        assertEquals(DataType.SHORT, shortPerPixel.getDataType());
 
         final MDR_1C_v5 mdr_1C = mock(MDR_1C_v5.class);
         when(mdr_1C.readPerPixel_short(9, 0, 18)).thenReturn((short) 50);     // notabene: the third argument is the offset into the record
@@ -221,7 +222,7 @@ public class ReadProxyTest {
     public void testIntPerPixel() throws IOException {
         final ReadProxy.intPerPixel intPerPixel = new ReadProxy.intPerPixel(20);
 
-        assertEquals(int.class, intPerPixel.getDataType());
+        assertEquals(DataType.INT, intPerPixel.getDataType());
 
         final MDR_1C_v5 mdr_1C = mock(MDR_1C_v5.class);
         when(mdr_1C.readPerPixel_int(11, 1, 20)).thenReturn(52);     // notabene: the third argument is the offset into the record
@@ -237,7 +238,7 @@ public class ReadProxyTest {
     public void testOneOfDualIntPerPixel() throws IOException {
         final ReadProxy.dualIntPerPixel dualIntPerPixel = new ReadProxy.dualIntPerPixel(19, 1, 1e-6);
 
-        assertEquals(int.class, dualIntPerPixel.getDataType());
+        assertEquals(DataType.INT, dualIntPerPixel.getDataType());
 
         final MDR_1C_v5 mdr_1C = mock(MDR_1C_v5.class);
         when(mdr_1C.readPerPixel_oneOfDualInt(10, 1, 19, 1)).thenReturn(51);     // notabene: the third argument is the offset into the record
@@ -250,20 +251,20 @@ public class ReadProxyTest {
     }
 
     @Test
-    public void testShortPerPixel_fillValue() throws IOException {
+    public void testShortPerPixel_fillValue() {
         final ReadProxy.shortPerPixel_fillValue shortPerPixel = new ReadProxy.shortPerPixel_fillValue();
 
-        assertEquals(short.class, shortPerPixel.getDataType());
+        assertEquals(DataType.SHORT, shortPerPixel.getDataType());
 
         final Object data = shortPerPixel.read(9, 0, new MDR_1C_v4());
         assertEquals(-32767, (short) data);
     }
 
     @Test
-    public void testvInt4PerEVOF_fillValue() throws IOException {
+    public void testvInt4PerEVOF_fillValue() {
         final ReadProxy.vInt4PerEVOF_fillValue vint4PerEfov = new ReadProxy.vInt4PerEVOF_fillValue();
 
-        assertEquals(float.class, vint4PerEfov.getDataType());
+        assertEquals(DataType.FLOAT, vint4PerEfov.getDataType());
 
         final Object data = vint4PerEfov.read(10, 1, new MDR_1C_v4());
         assertEquals(9.969209968386869E36, (float) data, 1e-8);

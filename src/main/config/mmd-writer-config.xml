@@ -94,20 +94,20 @@
             <rename source-name="Scan_Time" target-name="time"/>
             <rename source-name="Latitude_of_Observation_Point_for_89A" target-name="latitude"/>
             <rename source-name="Longitude_of_Observation_Point_for_89A" target-name="longitude"/>
-            <rename source-name="Brightness_Temperature_(res06,89.0GHz,V)" target-name="brightness_temperature89V"/>
-            <rename source-name="Brightness_Temperature_(res06,89.0GHz,H)" target-name="brightness_temperature89H"/>
-            <rename source-name="Brightness_Temperature_(res06,36.5GHz,V)" target-name="brightness_temperature36V"/>
-            <rename source-name="Brightness_Temperature_(res06,36.5GHz,H)" target-name="brightness_temperature36H"/>
-            <rename source-name="Brightness_Temperature_(res06,23.8GHz,V)" target-name="brightness_temperature23V"/>
-            <rename source-name="Brightness_Temperature_(res06,23.8GHz,H)" target-name="brightness_temperature23H"/>
-            <rename source-name="Brightness_Temperature_(res06,18.7GHz,V)" target-name="brightness_temperature18V"/>
-            <rename source-name="Brightness_Temperature_(res06,18.7GHz,H)" target-name="brightness_temperature18H"/>
-            <rename source-name="Brightness_Temperature_(res06,10.7GHz,V)" target-name="brightness_temperature10V"/>
-            <rename source-name="Brightness_Temperature_(res06,10.7GHz,H)" target-name="brightness_temperature10H"/>
-            <rename source-name="Brightness_Temperature_(res06,7.3GHz,V)" target-name="brightness_temperature7V"/>
-            <rename source-name="Brightness_Temperature_(res06,7.3GHz,H)" target-name="brightness_temperature7H"/>
-            <rename source-name="Brightness_Temperature_(res06,6.9GHz,V)" target-name="brightness_temperature6V"/>
-            <rename source-name="Brightness_Temperature_(res06,6.9GHz,H)" target-name="brightness_temperature6H"/>
+            <rename source-name="Brightness Temperature (res06,89.0GHz,V)" target-name="brightness_temperature89V"/>
+            <rename source-name="Brightness Temperature (res06,89.0GHz,H)" target-name="brightness_temperature89H"/>
+            <rename source-name="Brightness Temperature (res06,36.5GHz,V)" target-name="brightness_temperature36V"/>
+            <rename source-name="Brightness Temperature (res06,36.5GHz,H)" target-name="brightness_temperature36H"/>
+            <rename source-name="Brightness Temperature (res06,23.8GHz,V)" target-name="brightness_temperature23V"/>
+            <rename source-name="Brightness Temperature (res06,23.8GHz,H)" target-name="brightness_temperature23H"/>
+            <rename source-name="Brightness Temperature (res06,18.7GHz,V)" target-name="brightness_temperature18V"/>
+            <rename source-name="Brightness Temperature (res06,18.7GHz,H)" target-name="brightness_temperature18H"/>
+            <rename source-name="Brightness Temperature (res06,10.7GHz,V)" target-name="brightness_temperature10V"/>
+            <rename source-name="Brightness Temperature (res06,10.7GHz,H)" target-name="brightness_temperature10H"/>
+            <rename source-name="Brightness Temperature (res06,7.3GHz,V)" target-name="brightness_temperature7V"/>
+            <rename source-name="Brightness Temperature (res06,7.3GHz,H)" target-name="brightness_temperature7H"/>
+            <rename source-name="Brightness Temperature (res06,6.9GHz,V)" target-name="brightness_temperature6V"/>
+            <rename source-name="Brightness Temperature (res06,6.9GHz,H)" target-name="brightness_temperature6H"/>
             <rename source-name="Earth_Incidence" target-name="satellite_zenith_angle"/>
             <rename source-name="Earth_Azimuth" target-name="satellite_azimuth_angle"/>
             <rename source-name="Pixel_Data_Quality_6_to_36" target-name="pixel_data_quality_6"/>
@@ -118,28 +118,28 @@
 
             <exclude source-name="Area_Mean_Height"/>
             <exclude source-name="Scan_Data_Quality"/>
-            <exclude source-name="Brightness_Temperature_(res10,10.7GHz,H)"/>
-            <exclude source-name="Brightness_Temperature_(res10,10.7GHz,V)"/>
-            <exclude source-name="Brightness_Temperature_(res10,18.7GHz,H)"/>
-            <exclude source-name="Brightness_Temperature_(res10,18.7GHz,V)"/>
-            <exclude source-name="Brightness_Temperature_(res10,23.8GHz,H)"/>
-            <exclude source-name="Brightness_Temperature_(res10,23.8GHz,V)"/>
-            <exclude source-name="Brightness_Temperature_(res10,36.5GHz,H)"/>
-            <exclude source-name="Brightness_Temperature_(res10,36.5GHz,V)"/>
-            <exclude source-name="Brightness_Temperature_(res10,89.0GHz,H)"/>
-            <exclude source-name="Brightness_Temperature_(res10,89.0GHz,V)"/>
-            <exclude source-name="Brightness_Temperature_(res23,18.7GHz,H)"/>
-            <exclude source-name="Brightness_Temperature_(res23,18.7GHz,V)"/>
-            <exclude source-name="Brightness_Temperature_(res23,23.8GHz,H)"/>
-            <exclude source-name="Brightness_Temperature_(res23,23.8GHz,V)"/>
-            <exclude source-name="Brightness_Temperature_(res23,36.5GHz,H)"/>
-            <exclude source-name="Brightness_Temperature_(res23,36.5GHz,V)"/>
-            <exclude source-name="Brightness_Temperature_(res23,89.0GHz,H)"/>
-            <exclude source-name="Brightness_Temperature_(res23,89.0GHz,V)"/>
-            <exclude source-name="Brightness_Temperature_(res36,36.5GHz,H)"/>
-            <exclude source-name="Brightness_Temperature_(res36,36.5GHz,V)"/>
-            <exclude source-name="Brightness_Temperature_(res36,89.0GHz,H)"/>
-            <exclude source-name="Brightness_Temperature_(res36,89.0GHz,V)"/>
+            <exclude source-name="Brightness Temperature (res10,10.7GHz,H)"/>
+            <exclude source-name="Brightness Temperature (res10,10.7GHz,V)"/>
+            <exclude source-name="Brightness Temperature (res10,18.7GHz,H)"/>
+            <exclude source-name="Brightness Temperature (res10,18.7GHz,V)"/>
+            <exclude source-name="Brightness Temperature (res10,23.8GHz,H)"/>
+            <exclude source-name="Brightness Temperature (res10,23.8GHz,V)"/>
+            <exclude source-name="Brightness Temperature (res10,36.5GHz,H)"/>
+            <exclude source-name="Brightness Temperature (res10,36.5GHz,V)"/>
+            <exclude source-name="Brightness Temperature (res10,89.0GHz,H)"/>
+            <exclude source-name="Brightness Temperature (res10,89.0GHz,V)"/>
+            <exclude source-name="Brightness Temperature (res23,18.7GHz,H)"/>
+            <exclude source-name="Brightness Temperature (res23,18.7GHz,V)"/>
+            <exclude source-name="Brightness Temperature (res23,23.8GHz,H)"/>
+            <exclude source-name="Brightness Temperature (res23,23.8GHz,V)"/>
+            <exclude source-name="Brightness Temperature (res23,36.5GHz,H)"/>
+            <exclude source-name="Brightness Temperature (res23,36.5GHz,V)"/>
+            <exclude source-name="Brightness Temperature (res23,89.0GHz,H)"/>
+            <exclude source-name="Brightness Temperature (res23,89.0GHz,V)"/>
+            <exclude source-name="Brightness Temperature (res36,36.5GHz,H)"/>
+            <exclude source-name="Brightness Temperature (res36,36.5GHz,V)"/>
+            <exclude source-name="Brightness Temperature (res36,89.0GHz,H)"/>
+            <exclude source-name="Brightness Temperature (res36,89.0GHz,V)"/>
         </sensors>
 
         <!-- the following snippet renames (A)ATSR to SST-CCI notation

@@ -211,7 +211,8 @@ class WorkRequest:
             self.requestID = id(self)
         else:
             try:
-                self.requestID = hash(requestID)
+                hash(requestID)
+                self.requestID = requestID
             except TypeError:
                 raise TypeError("requestID must be hashable.")
         self.exception = False
@@ -326,7 +327,7 @@ class ThreadPool:
         self._requests_queue.put(request, block, timeout)
         self.workRequests[request.requestID] = request
 
-    def poll(self, block=False):
+    def poll(self, block=False, timeout=None):
         """Process any new results in the queue."""
         while True:
             # still results pending?
@@ -337,7 +338,7 @@ class ThreadPool:
                 raise NoWorkersAvailable
             try:
                 # get back next results
-                request, result = self._results_queue.get(block=block)
+                request, result = self._results_queue.get(block=block, timeout=timeout)
                 # has an exception occured?
                 if request.exception and request.exc_callback:
                     request.exc_callback(request, result)

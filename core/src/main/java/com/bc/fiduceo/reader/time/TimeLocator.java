@@ -18,7 +18,7 @@
  *
  */
 
-package com.bc.fiduceo.reader;
+package com.bc.fiduceo.reader.time;
 
 
 public interface TimeLocator {
