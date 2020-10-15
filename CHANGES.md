@@ -1,8 +1,11 @@
 ### Updates from version 1.5.1 to 1.5.2
-* updated to use SNAP version 8.0
+* updated to use SNAP version 8.0-SNAPSHOT
 * updated to use NetCDF version 5.3.1
 * added facility to store scaled variables to MMD
 * added support for MxD021KM MODIS level 1 data
+* added support for AVHRR FRAC MetopB L1B
+* implemented SLURM support
+* corrected too-far-apart matches issue when using SOBOL based sampling
 
 ### Updates from version 1.5.0 to 1.5.1
 * update to support HIRS FCDR v1.00
