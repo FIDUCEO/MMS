@@ -1,3 +1,7 @@
+### Updates from version 1.5.2 to 1.5.3
+* updated to use SNAP version 8.0.0
+* added random string to SLSTR uncompressed temp directory
+
 ### Updates from version 1.5.1 to 1.5.2
 * updated to use SNAP version 8.0-SNAPSHOT
 * updated to use NetCDF version 5.3.1

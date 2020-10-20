@@ -84,13 +84,21 @@ public class SlstrReader extends SNAP_Reader {
         File manifestFile = file;
         if (ReaderUtils.isCompressed(file)) {
             final String fileName = FileUtils.getFilenameWithoutExtension(file);
-            productDir = readerContext.createDirInTempDir(fileName);
+            final long millis = System.currentTimeMillis();
+            productDir = readerContext.createDirInTempDir(fileName + millis);
             try {
                 ZipUtils.unzip(file.toPath(), productDir.toPath(), true);
                 File[] files = productDir.listFiles();
+                if (files == null || files.length == 0) {
+                    throw new IOException("Corrupt archive, no file listing possible");
+                }
+
                 if (files.length == 1) {
                     final File expandedDir = files[0];
                     files = expandedDir.listFiles();
+                    if (files == null || files.length == 0) {
+                        throw new IOException("Corrupt archive, no file listing possible");
+                    }
                 }
 
                 for (final File uncompressedFile : files) {
