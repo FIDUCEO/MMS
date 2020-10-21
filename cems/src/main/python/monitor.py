@@ -1,7 +1,7 @@
 from pmonitor import PMonitor
 
 class Monitor:
-    def __init__(self, preconditions, usecase, hosts, calls, log_dir, simulation):
+    def __init__(self, preconditions, usecase, hosts, types, log_dir, simulation):
         """
 
         :type preconditions: list
@@ -11,7 +11,7 @@ class Monitor:
         :type log_dir: str
         :type simulation: bool
         """
-        self.pm = PMonitor(preconditions, usecase, hosts, calls, logdir=log_dir, simulation=simulation, polling="job_status_callback.sh")
+        self.pm = PMonitor(preconditions, usecase, hosts, types, logdir=log_dir, simulation=simulation, polling="job_status_callback.sh")
 
     def execute(self, job):
         """
