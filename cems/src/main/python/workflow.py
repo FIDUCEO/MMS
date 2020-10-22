@@ -303,15 +303,16 @@ class Workflow:
 
         return Period(start, end)
 
-    def run_ingestion(self, hosts, simulation=False, logdir='trace'):
+    def run_ingestion(self, hosts, num_parallel_tasks, simulation=False, logdir='trace'):
         """
 
         :param hosts: list
-        :param logdir: str
+        :param num_parallel_tasks: int
         :param simulation: bool
+        :param logdir: str
         :return:
         """
-        monitor = self._get_monitor(hosts, list(), logdir, simulation)
+        monitor = self._get_monitor(hosts, [('ingest_start.sh', num_parallel_tasks)], logdir, simulation)
 
         sensors = self._get_primary_sensors()
         for sensor in sensors:
@@ -365,15 +366,16 @@ class Workflow:
 
         monitor.wait_for_completion()
 
-    def run_matchup(self, hosts, simulation=False, logdir='trace'):
+    def run_matchup(self, hosts, num_parallel_tasks, simulation=False, logdir='trace'):
         """
 
         :param hosts: list
-        :param logdir: str
+        :param num_parallel_tasks: int
         :param simulation: bool
+        :param logdir: str
         :return:
         """
-        monitor = self._get_monitor(hosts, list(), logdir, simulation)
+        monitor = self._get_monitor(hosts, [('matchup_start.sh', num_parallel_tasks)], logdir, simulation)
 
         sensors = self._get_sensor_pairs()
         for sensor_pair in sensors:
@@ -399,15 +401,16 @@ class Workflow:
 
         monitor.wait_for_completion()
 
-    def run_post_processing(self, hosts, simulation=False, logdir='trace'):
+    def run_post_processing(self, hosts, num_parallel_tasks, simulation=False, logdir='trace'):
         """
 
         :param hosts: list
-        :param logdir: str
+        :param num_parallel_tasks: int
         :param simulation: bool
+        :param logdir: str
         :return:
         """
-        monitor = self._get_monitor(hosts, list(), logdir, simulation)
+        monitor = self._get_monitor(hosts, [('post_processing_start.sh', num_parallel_tasks)], logdir, simulation)
         production_period = self.get_production_period()
         date = production_period.get_start_date()
         while date < production_period.get_end_date():
