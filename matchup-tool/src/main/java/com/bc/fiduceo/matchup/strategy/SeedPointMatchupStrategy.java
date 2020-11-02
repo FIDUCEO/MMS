@@ -66,7 +66,7 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
     }
 
     @Override
-    public MatchupCollection createMatchupCollection(ToolContext context) throws SQLException, IOException, InvalidRangeException {
+    public MatchupCollection createMatchupCollection(ToolContext context) throws SQLException, InvalidRangeException {
         final MatchupCollection matchupCollection = new MatchupCollection();
 
         final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
@@ -183,8 +183,14 @@ public class SeedPointMatchupStrategy extends AbstractMatchupStrategy {
                             }
                         }
                         mustClone = true;
+                    } catch (IOException e) {
+                        logger.warning("Secondary sensorfile read error: " + secondaryObservation.getDataFilePath());
+                        logger.warning(e.getMessage());
                     }
                 }
+            } catch (IOException e) {
+                logger.warning("Primary sensorfile read error: " + primaryObservation.getDataFilePath());
+                logger.warning(e.getMessage());
             }
         }
 
