@@ -30,21 +30,6 @@ import org.jdom.Element;
 
 public class NwpPostProcessingPlugin implements PostProcessingPlugin {
 
-    @Override
-    public PostProcessing createPostProcessing(Element element) {
-        final Configuration configuration = createConfiguration(element);
-        if (configuration.verify()) {
-            return new NwpPostProcessing(configuration);
-        }
-        // @todo 3 tb/** shouldn't we throw an exception here? Or at least log something meaningful? 2017-03-22
-        return null;
-    }
-
-    @Override
-    public String getPostProcessingName() {
-        return "nwp";
-    }
-
     static Configuration createConfiguration(Element rootElement) {
         final Configuration configuration = new Configuration();
 
@@ -380,5 +365,19 @@ public class NwpPostProcessingPlugin implements PostProcessingPlugin {
         final String stringValue = getElementValueTrimmed(element);
 
         return Integer.parseInt(stringValue);
+    }
+
+    @Override
+    public PostProcessing createPostProcessing(Element element) {
+        final Configuration configuration = createConfiguration(element);
+        if (configuration.verify()) {
+            return new NwpPostProcessing(configuration);
+        }
+        throw new IllegalStateException("Unable to create post-processing: " + element.toString());
+    }
+
+    @Override
+    public String getPostProcessingName() {
+        return "nwp";
     }
 }
