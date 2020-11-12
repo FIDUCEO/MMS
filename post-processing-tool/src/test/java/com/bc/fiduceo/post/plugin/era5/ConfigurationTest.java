@@ -24,4 +24,13 @@ public class ConfigurationTest {
         config.setSatelliteFields(satFields);
         assertSame(satFields, config.getSatelliteFields());
     }
+
+    @Test
+    public void testSetGetMatchupFields() {
+        final Configuration config = new Configuration();
+        final MatchupFieldsConfiguration matchupFields = new MatchupFieldsConfiguration();
+
+        config.setMatchupFields(matchupFields);
+        assertSame(matchupFields, config.getMatchupFields());
+    }
 }

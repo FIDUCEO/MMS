@@ -30,16 +30,32 @@ class MatchupFieldsConfiguration {
         return an_u10_name;
     }
 
+    void set_an_u10_name(String an_u10_name) {
+        this.an_u10_name = an_u10_name;
+    }
+
     String get_an_v10_name() {
         return an_v10_name;
+    }
+
+    void set_an_v10_name(String an_v10_name) {
+        this.an_v10_name = an_v10_name;
     }
 
     String get_an_siconc_name() {
         return an_siconc_name;
     }
 
+    void set_an_siconc_name(String an_siconc_name) {
+        this.an_siconc_name = an_siconc_name;
+    }
+
     String get_an_sst_name() {
         return an_sst_name;
+    }
+
+    void set_an_sst_name(String an_sst_name) {
+        this.an_sst_name = an_sst_name;
     }
 
     String get_fc_metss_name() {

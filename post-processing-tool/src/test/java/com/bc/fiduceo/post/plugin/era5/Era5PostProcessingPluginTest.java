@@ -90,5 +90,28 @@ public class Era5PostProcessingPluginTest {
         assertEquals("cloudy", satConfig.get_an_tcc_name());
         assertEquals("steam!", satConfig.get_an_tcwv_name());
     }
+
+    @Test
+    public void testCreateConfiguration_matchupFields() throws JDOMException, IOException {
+        final String XML = "<era5>" +
+                "    <nwp-aux-dir>/where/the/data/is</nwp-aux-dir>" +
+                "    <matchup-fields>" +
+                "        <an_sfc_u10>blowUp</an_sfc_u10>" +
+                "        <an_sfc_v10>vertico</an_sfc_v10>" +
+                "        <an_sfc_siconc>sindbad</an_sfc_siconc>" +
+                "        <an_sfc_sst>warmwater</an_sfc_sst>" +
+                "    </matchup-fields>" +
+                "</era5>";
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        final Configuration configuration = Era5PostProcessingPlugin.createConfiguration(rootElement);
+        final MatchupFieldsConfiguration matchupConfig = configuration.getMatchupFields();
+        assertNotNull(matchupConfig);
+
+        assertEquals("blowUp", matchupConfig.get_an_u10_name());
+        assertEquals("vertico", matchupConfig.get_an_v10_name());
+        assertEquals("sindbad", matchupConfig.get_an_siconc_name());
+        assertEquals("warmwater", matchupConfig.get_an_sst_name());
+    }
 }
 

@@ -14,6 +14,8 @@ public class Era5PostProcessingPlugin implements PostProcessingPlugin {
         configuration.setNWPAuxDir(nwpAuxDirValue);
 
         parseSatelliteFields(rootElement, configuration);
+        parseMatchupFields(rootElement, configuration);
+
 
         return configuration;
     }
@@ -89,6 +91,35 @@ public class Era5PostProcessingPlugin implements PostProcessingPlugin {
             }
 
             configuration.setSatelliteFields(satelliteFieldsConfiguration);
+        }
+    }
+
+    private static void parseMatchupFields(Element rootElement, Configuration configuration) {
+        final Element matchupFieldsElements = rootElement.getChild("matchup-fields");
+        if (matchupFieldsElements != null) {
+            final MatchupFieldsConfiguration matchupFieldsConfiguration = new MatchupFieldsConfiguration();
+
+            final Element windUElement = matchupFieldsElements.getChild("an_sfc_u10");
+            if (windUElement != null) {
+                matchupFieldsConfiguration.set_an_u10_name(getElementValueTrimmed(windUElement));
+            }
+
+            final Element windVElement = matchupFieldsElements.getChild("an_sfc_v10");
+            if (windVElement != null) {
+                matchupFieldsConfiguration.set_an_v10_name(getElementValueTrimmed(windVElement));
+            }
+
+            final Element siconcElement = matchupFieldsElements.getChild("an_sfc_siconc");
+            if (siconcElement != null) {
+                matchupFieldsConfiguration.set_an_siconc_name(getElementValueTrimmed(siconcElement));
+            }
+
+            final Element sstElement = matchupFieldsElements.getChild("an_sfc_sst");
+            if (sstElement != null) {
+                matchupFieldsConfiguration.set_an_sst_name(getElementValueTrimmed(sstElement));
+            }
+
+            configuration.setMatchupFields(matchupFieldsConfiguration);
         }
     }
 

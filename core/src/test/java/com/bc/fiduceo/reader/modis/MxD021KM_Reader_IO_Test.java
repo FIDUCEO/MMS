@@ -266,10 +266,6 @@ public class MxD021KM_Reader_IO_Test {
         final List<Variable> variables = reader.getVariables();
         assertEquals(113, variables.size());
 
-        for(final Variable var : variables) {
-            System.out.println(var.getShortName());
-        }
-
         Variable variable = variables.get(1);
         assertEquals("Noise_in_Thermal_Detectors_ch21", variable.getShortName());
         assertEquals(DataType.UBYTE, variable.getDataType());

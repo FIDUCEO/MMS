@@ -21,13 +21,16 @@
 package com.bc.fiduceo.post;
 
 import com.bc.fiduceo.IOTestRunner;
+import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import ucar.ma2.InvalidRangeException;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFiles;
+import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
@@ -58,7 +61,7 @@ public class PostProcessingToolIntegrationTest_Era5 {
     }
 
     @Test
-    public void testAddEra5Variables() throws IOException {
+    public void testAddEra5Variables() throws IOException, InvalidRangeException {
         final File inputDir = getInputDirectory();
 
         writeConfiguration();
@@ -72,10 +75,10 @@ public class PostProcessingToolIntegrationTest_Era5 {
         assertTrue(targetFile.isFile());
 
         try (NetcdfFile mmd = NetcdfFiles.open(targetFile.getAbsolutePath())) {
+            Variable variable = NCTestUtils.getVariable("amsre\\.Geostationary_Reflection_Latitude", mmd, false);
+            NCTestUtils.assert3DValueDouble(0, 0, 0, 4105, variable);
+            NCTestUtils.assert3DValueDouble(1, 0, 0, 4087, variable);
             // @todo 1 tb/tb add assertions
-//            Variable variable = NCTestUtils.getVariable("amsre\\.Sun_Elevation", mmd, false);
-//            NCTestUtils.assert3DValueDouble(0, 0, 0, 486.0, variable);
-//            NCTestUtils.assert3DValueDouble(1, 0, 0, 485, variable);
 //
 //            variable = NCTestUtils.getVariable("amsre\\.Sun_Azimuth", mmd, false);
 //            NCTestUtils.assert3DValueDouble(2, 0, 0, 183.0, variable);
@@ -96,7 +99,9 @@ public class PostProcessingToolIntegrationTest_Era5 {
                 "        <era5>\n" +
                 "            <nwp-aux-dir>\n" +
                 era5Dir.getAbsolutePath() +
-                "            </nwp-aux-dir>\n" +
+                "            </nwp-aux-dir>\n"+
+                "            <satellite-fields>" +
+                "            </satellite-fields>" +
                 "        </era5>\n" +
                 "    </post-processings>\n" +
                 "</post-processing-config>";

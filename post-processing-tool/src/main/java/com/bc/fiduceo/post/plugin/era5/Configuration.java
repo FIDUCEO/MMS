@@ -5,6 +5,7 @@ class Configuration {
     private String nwpAuxDir;
 
     private SatelliteFieldsConfiguration satelliteFields;
+    private MatchupFieldsConfiguration matchupFields;
 
     String getNWPAuxDir() {
         return nwpAuxDir;
@@ -18,7 +19,15 @@ class Configuration {
         return satelliteFields;
     }
 
-    public void setSatelliteFields(SatelliteFieldsConfiguration satelliteFields) {
+    void setSatelliteFields(SatelliteFieldsConfiguration satelliteFields) {
         this.satelliteFields = satelliteFields;
+    }
+
+    public MatchupFieldsConfiguration getMatchupFields() {
+        return matchupFields;
+    }
+
+    public void setMatchupFields(MatchupFieldsConfiguration matchupFields) {
+        this.matchupFields = matchupFields;
     }
 }
