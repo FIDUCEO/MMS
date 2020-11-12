@@ -52,43 +52,87 @@ class SatelliteFieldsConfiguration {
         return an_o3_name;
     }
 
+    void set_an_o3_name(String an_o3_name) {
+        this.an_o3_name = an_o3_name;
+    }
+
     String get_an_lnsp_name() {
         return an_lnsp_name;
+    }
+
+    void set_an_lnsp_name(String an_lnsp_name) {
+        this.an_lnsp_name = an_lnsp_name;
     }
 
     String get_an_t2m_name() {
         return an_t2m_name;
     }
 
+    void set_an_t2m_name(String an_t2m_name) {
+        this.an_t2m_name = an_t2m_name;
+    }
+
     String get_an_siconc_name() {
         return an_siconc_name;
+    }
+
+    void set_an_siconc_name(String an_siconc_name) {
+        this.an_siconc_name = an_siconc_name;
     }
 
     String get_an_u10_name() {
         return an_u10_name;
     }
 
+    void set_an_u10_name(String an_u10_name) {
+        this.an_u10_name = an_u10_name;
+    }
+
     String get_an_v10_name() {
         return an_v10_name;
+    }
+
+    void set_an_v10_name(String an_v10_name) {
+        this.an_v10_name = an_v10_name;
     }
 
     String get_an_msl_name() {
         return an_msl_name;
     }
 
+    void set_an_msl_name(String an_msl_name) {
+        this.an_msl_name = an_msl_name;
+    }
+
     String get_an_skt_name() {
         return an_skt_name;
+    }
+
+    void set_an_skt_name(String an_skt_name) {
+        this.an_skt_name = an_skt_name;
     }
 
     String get_an_sst_name() {
         return an_sst_name;
     }
 
+    void set_an_sst_name(String an_sst_name) {
+        this.an_sst_name = an_sst_name;
+    }
+
     String get_an_tcc_name() {
         return an_tcc_name;
     }
 
+    void set_an_tcc_name(String an_tcc_name) {
+        this.an_tcc_name = an_tcc_name;
+    }
+
     String get_an_tcwv_name() {
         return an_tcwv_name;
+    }
+
+    void set_an_tcwv_name(String an_tcwv_name) {
+        this.an_tcwv_name = an_tcwv_name;
     }
 }

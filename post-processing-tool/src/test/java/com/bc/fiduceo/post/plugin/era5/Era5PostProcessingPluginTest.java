@@ -57,6 +57,17 @@ public class Era5PostProcessingPluginTest {
                 "    <satellite-fields>" +
                 "        <an_ml_q>Kjuh</an_ml_q>" +
                 "        <an_ml_t>tea</an_ml_t>" +
+                "        <an_ml_o3>ozone</an_ml_o3>" +
+                "        <an_ml_lnsp>pressure</an_ml_lnsp>" +
+                "        <an_sfc_t2m>tempi</an_sfc_t2m>" +
+                "        <an_sfc_u10>blowUp</an_sfc_u10>" +
+                "        <an_sfc_v10>blowVert</an_sfc_v10>" +
+                "        <an_sfc_siconc>concentrate</an_sfc_siconc>" +
+                "        <an_sfc_msl>meanPress</an_sfc_msl>" +
+                "        <an_sfc_skt>skinTemp</an_sfc_skt>" +
+                "        <an_sfc_sst>ozeanTemp</an_sfc_sst>" +
+                "        <an_sfc_tcc>cloudy</an_sfc_tcc>" +
+                "        <an_sfc_tcwv>steam!</an_sfc_tcwv>" +
                 "    </satellite-fields>" +
                 "</era5>";
         final Element rootElement = TestUtil.createDomElement(XML);
@@ -67,6 +78,17 @@ public class Era5PostProcessingPluginTest {
 
         assertEquals("Kjuh", satConfig.get_an_q_name());
         assertEquals("tea", satConfig.get_an_t_name());
+        assertEquals("ozone", satConfig.get_an_o3_name());
+        assertEquals("pressure", satConfig.get_an_lnsp_name());
+        assertEquals("tempi", satConfig.get_an_t2m_name());
+        assertEquals("blowUp", satConfig.get_an_u10_name());
+        assertEquals("blowVert", satConfig.get_an_v10_name());
+        assertEquals("concentrate", satConfig.get_an_siconc_name());
+        assertEquals("meanPress", satConfig.get_an_msl_name());
+        assertEquals("skinTemp", satConfig.get_an_skt_name());
+        assertEquals("ozeanTemp", satConfig.get_an_sst_name());
+        assertEquals("cloudy", satConfig.get_an_tcc_name());
+        assertEquals("steam!", satConfig.get_an_tcwv_name());
     }
 }
 
