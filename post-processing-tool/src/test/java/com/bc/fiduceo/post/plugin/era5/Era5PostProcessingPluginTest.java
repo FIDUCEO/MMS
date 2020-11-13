@@ -100,6 +100,12 @@ public class Era5PostProcessingPluginTest {
                 "        <an_sfc_v10>vertico</an_sfc_v10>" +
                 "        <an_sfc_siconc>sindbad</an_sfc_siconc>" +
                 "        <an_sfc_sst>warmwater</an_sfc_sst>" +
+                "        <fc_sfc_metss>stressing_east</fc_sfc_metss>" +
+                "        <fc_sfc_mntss>northwetend</fc_sfc_mntss>" +
+                "        <fc_sfc_mslhf>theFLow</fc_sfc_mslhf>" +
+                "        <fc_sfc_msnlwrf>longWave</fc_sfc_msnlwrf>" +
+                "        <fc_sfc_msnswrf>shortWave</fc_sfc_msnswrf>" +
+                "        <fc_sfc_msshf>heat_flux</fc_sfc_msshf>" +
                 "    </matchup-fields>" +
                 "</era5>";
         final Element rootElement = TestUtil.createDomElement(XML);
@@ -112,6 +118,12 @@ public class Era5PostProcessingPluginTest {
         assertEquals("vertico", matchupConfig.get_an_v10_name());
         assertEquals("sindbad", matchupConfig.get_an_siconc_name());
         assertEquals("warmwater", matchupConfig.get_an_sst_name());
+        assertEquals("stressing_east", matchupConfig.get_fc_metss_name());
+        assertEquals("northwetend", matchupConfig.get_fc_mntss_name());
+        assertEquals("theFLow", matchupConfig.get_fc_mslhf_name());
+        assertEquals("longWave", matchupConfig.get_fc_msnlwrf_name());
+        assertEquals("shortWave", matchupConfig.get_fc_msnswrf_name());
+        assertEquals("heat_flux", matchupConfig.get_fc_msshf_name());
     }
 }
 

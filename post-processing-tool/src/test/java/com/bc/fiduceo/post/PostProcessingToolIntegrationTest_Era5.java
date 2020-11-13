@@ -102,6 +102,8 @@ public class PostProcessingToolIntegrationTest_Era5 {
                 "            </nwp-aux-dir>\n"+
                 "            <satellite-fields>" +
                 "            </satellite-fields>" +
+                "            <matchup-fields>" +
+                "            </matchup-fields>" +
                 "        </era5>\n" +
                 "    </post-processings>\n" +
                 "</post-processing-config>";

@@ -62,23 +62,47 @@ class MatchupFieldsConfiguration {
         return fc_metss_name;
     }
 
+    void set_fc_metss_name(String fc_metss_name) {
+        this.fc_metss_name = fc_metss_name;
+    }
+
     String get_fc_mntss_name() {
         return fc_mntss_name;
+    }
+
+    void set_fc_mntss_name(String fc_mntss_name) {
+        this.fc_mntss_name = fc_mntss_name;
     }
 
     String get_fc_mslhf_name() {
         return fc_mslhf_name;
     }
 
+    void set_fc_mslhf_name(String fc_mslhf_name) {
+        this.fc_mslhf_name = fc_mslhf_name;
+    }
+
     String get_fc_msnlwrf_name() {
         return fc_msnlwrf_name;
+    }
+
+    void set_fc_msnlwrf_name(String fc_msnlwrf_name) {
+        this.fc_msnlwrf_name = fc_msnlwrf_name;
     }
 
     String get_fc_msnswrf_name() {
         return fc_msnswrf_name;
     }
 
+    void set_fc_msnswrf_name(String fc_msnswrf_name) {
+        this.fc_msnswrf_name = fc_msnswrf_name;
+    }
+
     String get_fc_msshf_name() {
         return fc_msshf_name;
+    }
+
+    void set_fc_msshf_name(String fc_msshf_name) {
+        this.fc_msshf_name = fc_msshf_name;
     }
 }

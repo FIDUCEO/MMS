@@ -119,6 +119,36 @@ public class Era5PostProcessingPlugin implements PostProcessingPlugin {
                 matchupFieldsConfiguration.set_an_sst_name(getElementValueTrimmed(sstElement));
             }
 
+            final Element metssElement = matchupFieldsElements.getChild("fc_sfc_metss");
+            if (metssElement != null) {
+                matchupFieldsConfiguration.set_fc_metss_name(getElementValueTrimmed(metssElement));
+            }
+
+            final Element mntssElement = matchupFieldsElements.getChild("fc_sfc_mntss");
+            if (mntssElement != null) {
+                matchupFieldsConfiguration.set_fc_mntss_name(getElementValueTrimmed(mntssElement));
+            }
+
+            final Element mslhfElement = matchupFieldsElements.getChild("fc_sfc_mslhf");
+            if (mslhfElement != null) {
+                matchupFieldsConfiguration.set_fc_mslhf_name(getElementValueTrimmed(mslhfElement));
+            }
+
+            final Element msnlwrfElement = matchupFieldsElements.getChild("fc_sfc_msnlwrf");
+            if (msnlwrfElement != null) {
+                matchupFieldsConfiguration.set_fc_msnlwrf_name(getElementValueTrimmed(msnlwrfElement));
+            }
+
+            final Element msnswrfElement = matchupFieldsElements.getChild("fc_sfc_msnswrf");
+            if (msnswrfElement != null) {
+                matchupFieldsConfiguration.set_fc_msnswrf_name(getElementValueTrimmed(msnswrfElement));
+            }
+
+            final Element msshfElement = matchupFieldsElements.getChild("fc_sfc_msshf");
+            if (msshfElement != null) {
+                matchupFieldsConfiguration.set_fc_msshf_name(getElementValueTrimmed(msshfElement));
+            }
+
             configuration.setMatchupFields(matchupFieldsConfiguration);
         }
     }
