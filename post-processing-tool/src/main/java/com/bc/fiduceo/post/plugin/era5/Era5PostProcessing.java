@@ -35,7 +35,7 @@ class Era5PostProcessing extends PostProcessing {
         final SatelliteFieldsConfiguration satFieldsConfig = configuration.getSatelliteFields();
         if (satFieldsConfig != null) {
             satelliteFields = new SatelliteFields();
-            satelliteFields.prepare();
+            satelliteFields.prepare(satFieldsConfig, reader, writer);
         }
 
         final MatchupFieldsConfiguration matchupFieldsConfig = configuration.getMatchupFields();

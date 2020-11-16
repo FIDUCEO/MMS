@@ -8,9 +8,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class Era5PostProcessingPluginTest {
 
@@ -55,6 +53,10 @@ public class Era5PostProcessingPluginTest {
         final String XML = "<era5>" +
                 "    <nwp-aux-dir>/where/the/data/is</nwp-aux-dir>" +
                 "    <satellite-fields>" +
+                "        <x_dim name='left' length='5' />" +
+                "        <y_dim name='right' length='7' />" +
+                "        <z_dim name='up' length='118' />" +
+                "" +
                 "        <an_ml_q>Kjuh</an_ml_q>" +
                 "        <an_ml_t>tea</an_ml_t>" +
                 "        <an_ml_o3>ozone</an_ml_o3>" +
@@ -89,6 +91,13 @@ public class Era5PostProcessingPluginTest {
         assertEquals("ozeanTemp", satConfig.get_an_sst_name());
         assertEquals("cloudy", satConfig.get_an_tcc_name());
         assertEquals("steam!", satConfig.get_an_tcwv_name());
+
+        assertEquals(5, satConfig.get_x_dim());
+        assertEquals("left", satConfig.get_x_dim_name());
+        assertEquals(7, satConfig.get_y_dim());
+        assertEquals("right", satConfig.get_y_dim_name());
+        assertEquals(118, satConfig.get_z_dim());
+        assertEquals("up", satConfig.get_z_dim_name());
     }
 
     @Test

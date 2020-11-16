@@ -101,6 +101,9 @@ public class PostProcessingToolIntegrationTest_Era5 {
                 era5Dir.getAbsolutePath() +
                 "            </nwp-aux-dir>\n"+
                 "            <satellite-fields>" +
+                "                <x_dim name='left' length='5' />" +
+                "                <y_dim name='right' length='7' />" +
+                "                <z_dim name='up' length='118' />" +
                 "            </satellite-fields>" +
                 "            <matchup-fields>" +
                 "            </matchup-fields>" +

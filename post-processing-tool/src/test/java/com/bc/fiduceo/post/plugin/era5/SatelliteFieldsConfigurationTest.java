@@ -4,6 +4,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 public class SatelliteFieldsConfigurationTest {
 
@@ -29,6 +31,13 @@ public class SatelliteFieldsConfigurationTest {
         assertEquals("nwp_sst", config.get_an_sst_name());
         assertEquals("nwp_tcc", config.get_an_tcc_name());
         assertEquals("nwp_tcwv", config.get_an_tcwv_name());
+
+        assertEquals(-1, config.get_x_dim());
+        assertEquals(-1, config.get_y_dim());
+        assertEquals(-1, config.get_z_dim());
+        assertNull(config.get_x_dim_name());
+        assertNull(config.get_y_dim_name());
+        assertNull(config.get_z_dim_name());
     }
 
     @Test
@@ -107,5 +116,133 @@ public class SatelliteFieldsConfigurationTest {
     public void testSetGet_an_tcwv() {
         config.set_an_tcwv_name("steamy");
         assertEquals("steamy", config.get_an_tcwv_name());
+    }
+
+    @Test
+    public void testSetGet_x_dim() {
+        config.set_x_dim(12);
+        assertEquals(12, config.get_x_dim());
+    }
+
+    @Test
+    public void testSetGet_y_dim() {
+        config.set_y_dim(13);
+        assertEquals(13, config.get_y_dim());
+    }
+
+    @Test
+    public void testSetGet_z_dim() {
+        config.set_z_dim(14);
+        assertEquals(14, config.get_z_dim());
+    }
+
+    @Test
+    public void testSetGet_x_dim_name() {
+        config.set_x_dim_name("watussi");
+        assertEquals("watussi", config.get_x_dim_name());
+    }
+
+    @Test
+    public void testSetGet_y_dim_name() {
+        config.set_y_dim_name("yacanda");
+        assertEquals("yacanda", config.get_y_dim_name());
+    }
+
+    @Test
+    public void testSetGet_z_dim_name() {
+        config.set_z_dim_name("zauberfee");
+        assertEquals("zauberfee", config.get_z_dim_name());
+    }
+
+    @Test
+    public void testVerifyDimensions() {
+        config.set_x_dim(3);
+        config.set_x_dim_name("A");
+        config.set_y_dim(4);
+        config.set_y_dim_name("B");
+        config.set_z_dim(4);
+        config.set_z_dim_name("C");
+
+        config.verifyDimensions();
+    }
+
+    @Test
+    public void testVerifyDimensions_x_dim() {
+        config.set_x_dim(-1);
+        config.set_x_dim_name("A");
+        config.set_y_dim(4);
+        config.set_y_dim_name("B");
+        config.set_z_dim(4);
+        config.set_z_dim_name("C");
+
+        try {
+            config.verifyDimensions();
+            fail("IllegalArgumentException expected");
+        } catch(IllegalArgumentException expected) {
+        }
+    }
+
+    @Test
+    public void testVerifyDimensions_x_dim_name() {
+        config.set_x_dim(3);
+        config.set_x_dim_name(null);
+        config.set_y_dim(4);
+        config.set_y_dim_name("B");
+        config.set_z_dim(4);
+        config.set_z_dim_name("C");
+
+        try {
+            config.verifyDimensions();
+            fail("IllegalArgumentException expected");
+        } catch(IllegalArgumentException expected) {
+        }
+    }
+
+    @Test
+    public void testVerifyDimensions_y_dim() {
+        config.set_x_dim(3);
+        config.set_x_dim_name("A");
+        config.set_y_dim(-2);
+        config.set_y_dim_name("B");
+        config.set_z_dim(4);
+        config.set_z_dim_name("C");
+
+        try {
+            config.verifyDimensions();
+            fail("IllegalArgumentException expected");
+        } catch(IllegalArgumentException expected) {
+        }
+    }
+
+    @Test
+    public void testVerifyDimensions_y_dim_name() {
+        config.set_x_dim(3);
+        config.set_x_dim_name("A");
+        config.set_y_dim(4);
+        config.set_y_dim_name(null);
+        config.set_z_dim(4);
+        config.set_z_dim_name("C");
+
+        try {
+            config.verifyDimensions();
+            fail("IllegalArgumentException expected");
+        } catch(IllegalArgumentException expected) {
+        }
+    }
+
+    @Test
+    public void testVerifyDimensions_z_dim_name() {
+        config.set_x_dim(3);
+        config.set_x_dim_name("A");
+        config.set_y_dim(4);
+        config.set_y_dim_name("B");
+        config.set_z_dim(4);
+        config.set_z_dim_name(null);
+
+        try {
+            config.verifyDimensions();
+            fail("IllegalArgumentException expected");
+        } catch(IllegalArgumentException expected) {
+        }
     }
 }

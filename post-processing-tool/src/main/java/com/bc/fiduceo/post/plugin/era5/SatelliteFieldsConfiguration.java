@@ -1,5 +1,7 @@
 package com.bc.fiduceo.post.plugin.era5;
 
+import org.esa.snap.core.util.StringUtils;
+
 class SatelliteFieldsConfiguration {
 
     private String an_q_name;
@@ -16,6 +18,13 @@ class SatelliteFieldsConfiguration {
     private String an_tcc_name;
     private String an_tcwv_name;
 
+    private int x_dim;
+    private int y_dim;
+    private int z_dim;
+    private String x_dim_name;
+    private String y_dim_name;
+    private String z_dim_name;
+
     SatelliteFieldsConfiguration() {
         an_q_name = "nwp_q";
         an_t_name = "nwp_t";
@@ -30,6 +39,10 @@ class SatelliteFieldsConfiguration {
         an_sst_name = "nwp_sst";
         an_tcc_name = "nwp_tcc";
         an_tcwv_name = "nwp_tcwv";
+
+        x_dim = -1;
+        y_dim = -1;
+        z_dim = -1;
     }
 
     String get_an_q_name() {
@@ -134,5 +147,72 @@ class SatelliteFieldsConfiguration {
 
     void set_an_tcwv_name(String an_tcwv_name) {
         this.an_tcwv_name = an_tcwv_name;
+    }
+
+    int get_x_dim() {
+        return x_dim;
+    }
+
+    void set_x_dim(int x_dim) {
+        this.x_dim = x_dim;
+    }
+
+    int get_y_dim() {
+        return y_dim;
+    }
+
+    void set_y_dim(int y_dim) {
+        this.y_dim = y_dim;
+    }
+
+    int get_z_dim() {
+        return z_dim;
+    }
+
+    void set_z_dim(int z_dim) {
+        this.z_dim = z_dim;
+    }
+
+    String get_x_dim_name() {
+        return x_dim_name;
+    }
+
+    void set_x_dim_name(String x_dim_name) {
+        this.x_dim_name = x_dim_name;
+    }
+
+    String get_y_dim_name() {
+        return y_dim_name;
+    }
+
+    void set_y_dim_name(String y_dim_name) {
+        this.y_dim_name = y_dim_name;
+    }
+
+    String get_z_dim_name() {
+        return z_dim_name;
+    }
+
+    void set_z_dim_name(String z_dim_name) {
+        this.z_dim_name = z_dim_name;
+    }
+
+    void verifyDimensions() {
+        if (x_dim < 1 || y_dim < 1) {
+            // do not check z-dimension, this might be not configured tb 2020-11-16
+            throw new IllegalArgumentException("dimensions incorrect: x:" + x_dim + " y:" + y_dim);
+        }
+
+        if (StringUtils.isNullOrEmpty(x_dim_name)) {
+            throw new IllegalArgumentException("x dimension name not configured");
+        }
+
+        if (StringUtils.isNullOrEmpty(y_dim_name)) {
+            throw new IllegalArgumentException("y dimension name not configured");
+        }
+
+        if (StringUtils.isNullOrEmpty(z_dim_name)) {
+            throw new IllegalArgumentException("z dimension name not configured");
+        }
     }
 }

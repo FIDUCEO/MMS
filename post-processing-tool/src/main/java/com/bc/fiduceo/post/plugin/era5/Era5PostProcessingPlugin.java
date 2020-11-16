@@ -3,6 +3,7 @@ package com.bc.fiduceo.post.plugin.era5;
 import com.bc.fiduceo.post.PostProcessing;
 import com.bc.fiduceo.post.PostProcessingPlugin;
 import com.bc.fiduceo.util.JDomUtils;
+import org.jdom.Attribute;
 import org.jdom.Element;
 
 public class Era5PostProcessingPlugin implements PostProcessingPlugin {
@@ -24,6 +25,32 @@ public class Era5PostProcessingPlugin implements PostProcessingPlugin {
         final Element satelliteFieldsElement = rootElement.getChild("satellite-fields");
         if (satelliteFieldsElement != null) {
             final SatelliteFieldsConfiguration satelliteFieldsConfiguration = new SatelliteFieldsConfiguration();
+
+            final Element xDimElement = satelliteFieldsElement.getChild("x_dim");
+            if (xDimElement != null) {
+                final Attribute nameElement = JDomUtils.getMandatoryAttribute(xDimElement, "name");
+                satelliteFieldsConfiguration.set_x_dim_name(nameElement.getValue());
+                final Attribute lengthElement = JDomUtils.getMandatoryAttribute(xDimElement, "length");
+                satelliteFieldsConfiguration.set_x_dim(Integer.parseInt(lengthElement.getValue()));
+            }
+
+            final Element yDimElement = satelliteFieldsElement.getChild("y_dim");
+            if (yDimElement != null) {
+                final Attribute nameElement = JDomUtils.getMandatoryAttribute(yDimElement, "name");
+                satelliteFieldsConfiguration.set_y_dim_name(nameElement.getValue());
+                final Attribute lengthElement = JDomUtils.getMandatoryAttribute(yDimElement, "length");
+                satelliteFieldsConfiguration.set_y_dim(Integer.parseInt(lengthElement.getValue()));
+            }
+
+            final Element zDimElement = satelliteFieldsElement.getChild("z_dim");
+            if (zDimElement != null) {
+                final Attribute nameElement = JDomUtils.getMandatoryAttribute(zDimElement, "name");
+                satelliteFieldsConfiguration.set_z_dim_name(nameElement.getValue());
+                final Attribute lengthElement = zDimElement.getAttribute("length");
+                if (lengthElement != null) {
+                    satelliteFieldsConfiguration.set_z_dim(Integer.parseInt(lengthElement.getValue()));
+                }
+            }
 
             final Element humidityElement = satelliteFieldsElement.getChild("an_ml_q");
             if (humidityElement != null) {
