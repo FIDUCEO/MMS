@@ -1,10 +1,13 @@
 package com.bc.fiduceo.post.plugin.era5;
 
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.core.GeoRect;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.junit.Before;
 import org.junit.Test;
+import ucar.ma2.Array;
+import ucar.ma2.DataType;
 
 import java.io.IOException;
 
@@ -56,6 +59,7 @@ public class Era5PostProcessingPluginTest {
                 "        <x_dim name='left' length='5' />" +
                 "        <y_dim name='right' length='7' />" +
                 "        <z_dim name='up' length='118' />" +
+                "        <era5_time_variable_name>era5-time</era5_time_variable_name>" +
                 "" +
                 "        <an_ml_q>Kjuh</an_ml_q>" +
                 "        <an_ml_t>tea</an_ml_t>" +
@@ -98,6 +102,8 @@ public class Era5PostProcessingPluginTest {
         assertEquals("right", satConfig.get_y_dim_name());
         assertEquals(118, satConfig.get_z_dim());
         assertEquals("up", satConfig.get_z_dim_name());
+
+        assertEquals("era5-time", satConfig.get_time_variable_name());
     }
 
     @Test

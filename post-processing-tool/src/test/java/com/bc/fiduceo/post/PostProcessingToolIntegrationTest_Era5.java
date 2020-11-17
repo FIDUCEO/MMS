@@ -86,7 +86,6 @@ public class PostProcessingToolIntegrationTest_Era5 {
             NCTestUtils.assertDimension("right", 7, mmd);
             NCTestUtils.assertDimension("up", 23, mmd);
 
-
            // @todo 1 tb/tb add assertions
 //
             variable = NCTestUtils.getVariable("nwp_q", mmd);
@@ -102,6 +101,9 @@ public class PostProcessingToolIntegrationTest_Era5 {
 
             variable = NCTestUtils.getVariable("nwp_sst", mmd);
             NCTestUtils.assertAttribute(variable, "_FillValue", "9.969209968386869E36");
+
+            variable = NCTestUtils.getVariable("era5-time", mmd);
+            NCTestUtils.assertAttribute(variable, "units", "seconds since 1970-01-01");
         }
     }
 
@@ -123,6 +125,7 @@ public class PostProcessingToolIntegrationTest_Era5 {
                 "                <x_dim name='left' length='5' />" +
                 "                <y_dim name='right' length='7' />" +
                 "                <z_dim name='up' length='23' />" +
+                "                <era5_time_variable_name>era5-time</era5_time_variable_name>" +
                 "            </satellite-fields>" +
                 "            <matchup-fields>" +
                 "            </matchup-fields>" +

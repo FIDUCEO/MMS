@@ -117,6 +117,11 @@ public class Era5PostProcessingPlugin implements PostProcessingPlugin {
                 satelliteFieldsConfiguration.set_an_tcwv_name(getElementValueTrimmed(waterVaporElement));
             }
 
+            final Element timeElement = satelliteFieldsElement.getChild("era5_time_variable_name");
+            if (timeElement != null) {
+                satelliteFieldsConfiguration.set_time_variable_name(getElementValueTrimmed(timeElement));
+            }
+
             configuration.setSatelliteFields(satelliteFieldsConfiguration);
         }
     }

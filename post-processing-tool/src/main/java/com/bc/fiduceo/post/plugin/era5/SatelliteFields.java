@@ -1,6 +1,7 @@
 package com.bc.fiduceo.post.plugin.era5;
 
 import com.bc.fiduceo.FiduceoConstants;
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.esa.snap.core.util.StringUtils;
 import ucar.ma2.DataType;
 import ucar.nc2.*;
@@ -34,12 +35,15 @@ class SatelliteFields {
             variable.addAttribute(new Attribute("_FillValue", template.getFillValue()));
         }
 
-        // @todo 1 tb/tb add variable for NWP time, one value per matchup layer 2020-11-17
+        final Variable variable = writer.addVariable(satFieldsConfig.get_time_variable_name(), DataType.INT, FiduceoConstants.MATCHUP_COUNT);
+        variable.addAttribute(new Attribute("description", "Timestamp of ERA-5 data"));
+        variable.addAttribute(new Attribute("units", "seconds since 1970-01-01"));
+        variable.addAttribute(new Attribute("_FillValue", NetCDFUtils.getDefaultFillValue(DataType.INT, false)));
 
     }
 
     private void setDimensions(SatelliteFieldsConfiguration satFieldsConfig, NetcdfFileWriter writer, NetcdfFile reader) {
-        satFieldsConfig.verifyDimensions();
+        satFieldsConfig.verify();
         final Dimension xDim = writer.addDimension(satFieldsConfig.get_x_dim_name(), satFieldsConfig.get_x_dim());
         final Dimension yDim = writer.addDimension(satFieldsConfig.get_y_dim_name(), satFieldsConfig.get_y_dim());
 

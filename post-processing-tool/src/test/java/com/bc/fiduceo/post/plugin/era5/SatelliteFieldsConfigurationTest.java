@@ -38,6 +38,7 @@ public class SatelliteFieldsConfigurationTest {
         assertNull(config.get_x_dim_name());
         assertNull(config.get_y_dim_name());
         assertNull(config.get_z_dim_name());
+        assertNull(config.get_time_variable_name());
     }
 
     @Test
@@ -155,94 +156,96 @@ public class SatelliteFieldsConfigurationTest {
     }
 
     @Test
-    public void testVerifyDimensions() {
+    public void testVerify() {
+        prepareConfig();
+
+        config.verify();
+    }
+
+    private void prepareConfig() {
         config.set_x_dim(3);
         config.set_x_dim_name("A");
         config.set_y_dim(4);
         config.set_y_dim_name("B");
         config.set_z_dim(4);
         config.set_z_dim_name("C");
-
-        config.verifyDimensions();
+        config.set_time_variable_name("watch");
     }
 
     @Test
-    public void testVerifyDimensions_x_dim() {
+    public void testVerify_x_dim() {
+        prepareConfig();
         config.set_x_dim(-1);
-        config.set_x_dim_name("A");
-        config.set_y_dim(4);
-        config.set_y_dim_name("B");
-        config.set_z_dim(4);
-        config.set_z_dim_name("C");
 
         try {
-            config.verifyDimensions();
+            config.verify();
             fail("IllegalArgumentException expected");
         } catch(IllegalArgumentException expected) {
         }
     }
 
     @Test
-    public void testVerifyDimensions_x_dim_name() {
-        config.set_x_dim(3);
+    public void testVerify_x_dim_name() {
+        prepareConfig();
         config.set_x_dim_name(null);
-        config.set_y_dim(4);
-        config.set_y_dim_name("B");
-        config.set_z_dim(4);
-        config.set_z_dim_name("C");
 
         try {
-            config.verifyDimensions();
+            config.verify();
             fail("IllegalArgumentException expected");
         } catch(IllegalArgumentException expected) {
         }
     }
 
     @Test
-    public void testVerifyDimensions_y_dim() {
-        config.set_x_dim(3);
-        config.set_x_dim_name("A");
+    public void testVerify_y_dim() {
+        prepareConfig();
         config.set_y_dim(-2);
-        config.set_y_dim_name("B");
-        config.set_z_dim(4);
-        config.set_z_dim_name("C");
 
         try {
-            config.verifyDimensions();
+            config.verify();
             fail("IllegalArgumentException expected");
         } catch(IllegalArgumentException expected) {
         }
     }
 
     @Test
-    public void testVerifyDimensions_y_dim_name() {
-        config.set_x_dim(3);
-        config.set_x_dim_name("A");
-        config.set_y_dim(4);
+    public void testVerify_y_dim_name() {
+        prepareConfig();
         config.set_y_dim_name(null);
-        config.set_z_dim(4);
-        config.set_z_dim_name("C");
 
         try {
-            config.verifyDimensions();
+            config.verify();
             fail("IllegalArgumentException expected");
         } catch(IllegalArgumentException expected) {
         }
     }
 
     @Test
-    public void testVerifyDimensions_z_dim_name() {
-        config.set_x_dim(3);
-        config.set_x_dim_name("A");
-        config.set_y_dim(4);
-        config.set_y_dim_name("B");
-        config.set_z_dim(4);
+    public void testVerify_z_dim_name() {
+        prepareConfig();
         config.set_z_dim_name(null);
 
         try {
-            config.verifyDimensions();
+            config.verify();
             fail("IllegalArgumentException expected");
         } catch(IllegalArgumentException expected) {
         }
+    }
+    @Test
+    public void testVerify_time_variable_name() {
+        prepareConfig();
+        config.set_time_variable_name(null);
+
+        try {
+            config.verify();
+            fail("IllegalArgumentException expected");
+        } catch(IllegalArgumentException expected) {
+        }
+    }
+
+    @Test
+    public void testSetGet_time_variable_name() {
+        config.set_time_variable_name("tickTock");
+        assertEquals("tickTock", config.get_time_variable_name());
     }
 }

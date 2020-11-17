@@ -25,6 +25,8 @@ class SatelliteFieldsConfiguration {
     private String y_dim_name;
     private String z_dim_name;
 
+    private String time_variable_name;
+
     SatelliteFieldsConfiguration() {
         an_q_name = "nwp_q";
         an_t_name = "nwp_t";
@@ -197,7 +199,15 @@ class SatelliteFieldsConfiguration {
         this.z_dim_name = z_dim_name;
     }
 
-    void verifyDimensions() {
+    String get_time_variable_name() {
+        return time_variable_name;
+    }
+
+    void set_time_variable_name(String time_variable_name) {
+        this.time_variable_name = time_variable_name;
+    }
+
+    void verify() {
         if (x_dim < 1 || y_dim < 1) {
             // do not check z-dimension, this might be not configured tb 2020-11-16
             throw new IllegalArgumentException("dimensions incorrect: x:" + x_dim + " y:" + y_dim);
@@ -213,6 +223,10 @@ class SatelliteFieldsConfiguration {
 
         if (StringUtils.isNullOrEmpty(z_dim_name)) {
             throw new IllegalArgumentException("z dimension name not configured");
+        }
+
+        if (StringUtils.isNullOrEmpty(time_variable_name)) {
+            throw new IllegalArgumentException("time variable name not configured");
         }
     }
 }
