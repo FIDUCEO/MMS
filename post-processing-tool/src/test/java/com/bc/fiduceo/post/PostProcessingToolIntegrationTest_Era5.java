@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.post;
 
+import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
@@ -35,6 +36,7 @@ import ucar.nc2.Variable;
 import java.io.File;
 import java.io.IOException;
 
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -78,11 +80,28 @@ public class PostProcessingToolIntegrationTest_Era5 {
             Variable variable = NCTestUtils.getVariable("amsre\\.Geostationary_Reflection_Latitude", mmd, false);
             NCTestUtils.assert3DValueDouble(0, 0, 0, 4105, variable);
             NCTestUtils.assert3DValueDouble(1, 0, 0, 4087, variable);
-            // @todo 1 tb/tb add assertions
+
+            NCTestUtils.assertDimension(FiduceoConstants.MATCHUP_COUNT, 7, mmd);
+            NCTestUtils.assertDimension("left", 5, mmd);
+            NCTestUtils.assertDimension("right", 7, mmd);
+            NCTestUtils.assertDimension("up", 23, mmd);
+
+
+           // @todo 1 tb/tb add assertions
 //
-//            variable = NCTestUtils.getVariable("amsre\\.Sun_Azimuth", mmd, false);
+            variable = NCTestUtils.getVariable("nwp_q", mmd);
+            NCTestUtils.assertAttribute(variable, "units", "kg kg**-1");
 //            NCTestUtils.assert3DValueDouble(2, 0, 0, 183.0, variable);
 //            NCTestUtils.assert3DValueDouble(3, 0, 0, 177.0, variable);
+
+            variable = NCTestUtils.getVariable("nwp_lnsp", mmd);
+            NCTestUtils.assertAttribute(variable, "long_name", "Logarithm of surface pressure");
+
+            variable = NCTestUtils.getVariable("nwp_v10", mmd);
+            assertNull(variable.findAttribute("standard_name"));
+
+            variable = NCTestUtils.getVariable("nwp_sst", mmd);
+            NCTestUtils.assertAttribute(variable, "_FillValue", "9.969209968386869E36");
         }
     }
 
@@ -103,7 +122,7 @@ public class PostProcessingToolIntegrationTest_Era5 {
                 "            <satellite-fields>" +
                 "                <x_dim name='left' length='5' />" +
                 "                <y_dim name='right' length='7' />" +
-                "                <z_dim name='up' length='118' />" +
+                "                <z_dim name='up' length='23' />" +
                 "            </satellite-fields>" +
                 "            <matchup-fields>" +
                 "            </matchup-fields>" +

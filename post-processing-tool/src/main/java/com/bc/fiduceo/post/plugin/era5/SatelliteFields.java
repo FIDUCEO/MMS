@@ -1,10 +1,9 @@
 package com.bc.fiduceo.post.plugin.era5;
 
 import com.bc.fiduceo.FiduceoConstants;
+import org.esa.snap.core.util.StringUtils;
 import ucar.ma2.DataType;
-import ucar.nc2.Dimension;
-import ucar.nc2.NetcdfFile;
-import ucar.nc2.NetcdfFileWriter;
+import ucar.nc2.*;
 
 import java.util.*;
 
@@ -19,9 +18,23 @@ class SatelliteFields {
         final Map<String, TemplateVariable> variables = getVariables(satFieldsConfig);
         final Collection<TemplateVariable> values = variables.values();
         for (TemplateVariable template : values) {
-            // @todo 1 tb/tb add distiction between 2d and 3d variables
-            writer.addVariable(template.getName(), DataType.FLOAT, dimension2d);
+            List<Dimension> dimensions;
+            if (template.is3d()) {
+                dimensions = dimension3d;
+            } else {
+                dimensions = dimension2d;
+            }
+            final Variable variable = writer.addVariable(template.getName(), DataType.FLOAT, dimensions);
+            variable.addAttribute(new Attribute("units", template.getUnits()));
+            variable.addAttribute(new Attribute("long_name", template.getLongName()));
+            final String standardName = template.getStandardName();
+            if (StringUtils.isNotNullAndNotEmpty(standardName)) {
+                variable.addAttribute(new Attribute("standard_name", standardName));
+            }
+            variable.addAttribute(new Attribute("_FillValue", template.getFillValue()));
         }
+
+        // @todo 1 tb/tb add variable for NWP time, one value per matchup layer 2020-11-17
 
     }
 
@@ -36,15 +49,15 @@ class SatelliteFields {
         }
         final Dimension zDim = writer.addDimension(satFieldsConfig.get_z_dim_name(), z_dim);
 
-        final Dimension timeDim = reader.findDimension(FiduceoConstants.MATCHUP_COUNT);
+        final Dimension matchupDim = reader.findDimension(FiduceoConstants.MATCHUP_COUNT);
 
         dimension2d = new ArrayList<>();
-        dimension2d.add(timeDim);
+        dimension2d.add(matchupDim);
         dimension2d.add(yDim);
         dimension2d.add(xDim);
 
         dimension3d = new ArrayList<>();
-        dimension2d.add(timeDim);
+        dimension2d.add(matchupDim);
         dimension3d.add(zDim);
         dimension3d.add(yDim);
         dimension3d.add(xDim);
@@ -57,19 +70,19 @@ class SatelliteFields {
     Map<String, TemplateVariable> getVariables(SatelliteFieldsConfiguration configuration) {
         final HashMap<String, TemplateVariable> variablesMap = new HashMap<>();
 
-        variablesMap.put("an_ml_q", new TemplateVariable(configuration.get_an_q_name(), "kg kg**-1", "Specific humidity", "specific_humidity"));
-        variablesMap.put("an_ml_t", new TemplateVariable(configuration.get_an_t_name(), "K", "Temperature", "air_temperature"));
-        variablesMap.put("an_ml_o3", new TemplateVariable(configuration.get_an_o3_name(), "kg kg**-1", "Ozone mass mixing ratio", null));
-        variablesMap.put("an_ml_lnsp", new TemplateVariable(configuration.get_an_lnsp_name(), "~", "Logarithm of surface pressure", null));
-        variablesMap.put("an_sfc_t2m", new TemplateVariable(configuration.get_an_t2m_name(), "K", "2 metre temperature", null));
-        variablesMap.put("an_sfc_u10", new TemplateVariable(configuration.get_an_u10_name(), "m s**-1", "10 metre U wind component", null));
-        variablesMap.put("an_sfc_v10", new TemplateVariable(configuration.get_an_v10_name(), "m s**-1", "10 metre V wind component", null));
-        variablesMap.put("an_sfc_siconc", new TemplateVariable(configuration.get_an_siconc_name(), "(0 - 1)", "Sea ice area fraction", "sea_ice_area_fraction"));
-        variablesMap.put("an_sfc_msl", new TemplateVariable(configuration.get_an_msl_name(), "Pa", "Mean sea level pressure", "air_pressure_at_mean_sea_level"));
-        variablesMap.put("an_sfc_skt", new TemplateVariable(configuration.get_an_skt_name(), "K", "Skin temperature", null));
-        variablesMap.put("an_sfc_sst", new TemplateVariable(configuration.get_an_sst_name(), "K", "Sea surface temperature", null));
-        variablesMap.put("an_sfc_tcc", new TemplateVariable(configuration.get_an_tcc_name(), "(0 - 1)", "Total cloud cover", "cloud_area_fraction"));
-        variablesMap.put("an_sfc_tcwv", new TemplateVariable(configuration.get_an_tcwv_name(), "kg m**-2", "Total column water vapour", "lwe_thickness_of_atmosphere_mass_content_of_water_vapor"));
+        variablesMap.put("an_ml_q", new TemplateVariable(configuration.get_an_q_name(), "kg kg**-1", "Specific humidity", "specific_humidity", true));
+        variablesMap.put("an_ml_t", new TemplateVariable(configuration.get_an_t_name(), "K", "Temperature", "air_temperature", true));
+        variablesMap.put("an_ml_o3", new TemplateVariable(configuration.get_an_o3_name(), "kg kg**-1", "Ozone mass mixing ratio", null, true));
+        variablesMap.put("an_ml_lnsp", new TemplateVariable(configuration.get_an_lnsp_name(), "~", "Logarithm of surface pressure", null, false));
+        variablesMap.put("an_sfc_t2m", new TemplateVariable(configuration.get_an_t2m_name(), "K", "2 metre temperature", null, false));
+        variablesMap.put("an_sfc_u10", new TemplateVariable(configuration.get_an_u10_name(), "m s**-1", "10 metre U wind component", null, false));
+        variablesMap.put("an_sfc_v10", new TemplateVariable(configuration.get_an_v10_name(), "m s**-1", "10 metre V wind component", null, false));
+        variablesMap.put("an_sfc_siconc", new TemplateVariable(configuration.get_an_siconc_name(), "(0 - 1)", "Sea ice area fraction", "sea_ice_area_fraction", false));
+        variablesMap.put("an_sfc_msl", new TemplateVariable(configuration.get_an_msl_name(), "Pa", "Mean sea level pressure", "air_pressure_at_mean_sea_level", false));
+        variablesMap.put("an_sfc_skt", new TemplateVariable(configuration.get_an_skt_name(), "K", "Skin temperature", null, false));
+        variablesMap.put("an_sfc_sst", new TemplateVariable(configuration.get_an_sst_name(), "K", "Sea surface temperature", null, false));
+        variablesMap.put("an_sfc_tcc", new TemplateVariable(configuration.get_an_tcc_name(), "(0 - 1)", "Total cloud cover", "cloud_area_fraction", false));
+        variablesMap.put("an_sfc_tcwv", new TemplateVariable(configuration.get_an_tcwv_name(), "kg m**-2", "Total column water vapour", "lwe_thickness_of_atmosphere_mass_content_of_water_vapor", false));
         return variablesMap;
     }
 }

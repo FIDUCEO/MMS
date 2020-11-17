@@ -5,6 +5,7 @@ import org.junit.Test;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 
 public class SatelliteFieldsTest {
@@ -23,11 +24,13 @@ public class SatelliteFieldsTest {
         assertEquals("m s**-1", template.getUnits());
         assertEquals("10 metre U wind component", template.getLongName());
         assertEquals("nwp_u10", template.getName());
+        assertFalse(template.is3d());
 
         template = variables.get("an_sfc_skt");
         assertNull(template.getStandardName());
         assertEquals("K", template.getUnits());
         assertEquals("Skin temperature", template.getLongName());
         assertEquals("Skate", template.getName());
+        assertFalse(template.is3d());
     }
 }
