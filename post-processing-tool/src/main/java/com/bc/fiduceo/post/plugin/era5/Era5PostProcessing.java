@@ -95,8 +95,6 @@ class Era5PostProcessing extends PostProcessing {
             matchupFields = new MatchupFields();
             matchupFields.prepare();
         }
-
-        // @todo 1 tb/tb implement 2020-11-11
     }
 
     @Override
@@ -108,7 +106,6 @@ class Era5PostProcessing extends PostProcessing {
         if (matchupFields != null) {
             matchupFields.compute();
         }
-        // @todo 1 tb/tb implement 2020-11-11
     }
 
     @Override

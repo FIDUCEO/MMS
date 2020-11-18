@@ -49,12 +49,60 @@ class SatelliteFields {
     }
 
     void compute(SatelliteFieldsConfiguration satFieldsConfig, NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
-        final String timeVariableName = satFieldsConfig.get_time_variable_name();
-        final String escapedName = NetCDFUtils.escapeVariableName(timeVariableName);
-        final Variable timeVariable = reader.findVariable(escapedName);
-        if (timeVariable == null) {
-            throw new IOException("Variable not found: " + timeVariableName);
+        // open input time variable
+        // + read completely
+        // + convert to ERA-5 time stamps
+        // + write to MMD
+        final Array timeArray = readTimeArray(satFieldsConfig, reader);
+        final Array era5TimeArray = convertToEra5TimeStamp(timeArray);
+        writer.write(satFieldsConfig.get_nwp_time_variable_name(), era5TimeArray);
+
+
+        // open longitude and latitude input variables
+
+        // - read completely or specified x/y subset
+        // - scale if necessary
+        final String lonVarName = satFieldsConfig.get_longitude_variable_name();
+        final Variable lonVariable = getVariable(reader, lonVarName);
+
+        final String latVarName = satFieldsConfig.get_latitude_variable_name();
+        final Variable latVariable = getVariable(reader, latVarName);
+
+        // iterate over matchups
+        //   - convert geo-region to era-5 extract
+        //   - prepare interpolation context
+        //   iterate over variables
+        //     - assemble variable name
+        //     - read variable data extract
+        //     - interpolate (2d, 3d per layer)
+        //     - store to target raster
+    }
+
+    private Variable getVariable(NetcdfFile reader, String varName) throws IOException {
+        final String escapedName = NetCDFUtils.escapeVariableName(varName);
+        final Variable variable = reader.findVariable(escapedName);
+        if (variable == null) {
+            throw new IOException("Variable not found: " + varName);
         }
+
+        return variable;
+    }
+
+    private Array convertToEra5TimeStamp(Array timeArray) {
+        final Array era5TimeArray = Array.factory(timeArray.getDataType(), timeArray.getShape());
+        final IndexIterator era5Iterator = era5TimeArray.getIndexIterator();
+        final IndexIterator indexIterator = timeArray.getIndexIterator();
+        while(indexIterator.hasNext() && era5Iterator.hasNext()){
+            final int satelliteTime = indexIterator.getIntNext();
+            final int era5Time = toEra5TimeStamp(satelliteTime);
+            era5Iterator.setIntNext(era5Time);
+        }
+        return era5TimeArray;
+    }
+
+    private Array readTimeArray(SatelliteFieldsConfiguration satFieldsConfig, NetcdfFile reader) throws IOException, InvalidRangeException {
+        final String timeVariableName = satFieldsConfig.get_time_variable_name();
+        final Variable timeVariable = getVariable(reader, timeVariableName);
 
         final Array timeArray;
         final int rank = timeVariable.getRank();
@@ -76,36 +124,7 @@ class SatelliteFields {
         } else {
             throw new IllegalArgumentException("Rank of time-variable not supported");
         }
-
-        final Array era5TimeArray = Array.factory(timeArray.getDataType(), timeArray.getShape());
-        final IndexIterator era5Iterator = era5TimeArray.getIndexIterator();
-        final IndexIterator indexIterator = timeArray.getIndexIterator();
-        while(indexIterator.hasNext() && era5Iterator.hasNext()){
-            final int satelliteTime = indexIterator.getIntNext();
-            final int era5Time = toEra5TimeStamp(satelliteTime);
-            era5Iterator.setIntNext(era5Time);
-        }
-
-        writer.write(satFieldsConfig.get_nwp_time_variable_name(), era5TimeArray);
-
-
-        // open input time variable
-        // + read completely
-        // - convert to ERA-5 time stamps
-        // - write to MMD
-
-        // open longitude and latitude input variables
-        // - read completely
-        // - scale if necessary
-
-        // iterate over matchups
-        //   - convert geo-region to era-5 extract
-        //   - prepare interpolation context
-        //   iterate over variables
-        //     - assemble variable name
-        //     - read varaible data extract
-        //     - interpolate (2d, 3d per layer)
-        //     - store to target raster
+        return timeArray;
     }
 
     private void addTimeVariable(SatelliteFieldsConfiguration satFieldsConfig, NetcdfFileWriter writer) {
