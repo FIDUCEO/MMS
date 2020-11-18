@@ -104,6 +104,8 @@ public class PostProcessingToolIntegrationTest_Era5 {
 
             variable = NCTestUtils.getVariable("era5-time", mmd);
             NCTestUtils.assertAttribute(variable, "units", "seconds since 1970-01-01");
+            NCTestUtils.assert1DValueLong(2, 1212400800, variable);
+            NCTestUtils.assert1DValueLong(6, 1212145200, variable);
         }
     }
 

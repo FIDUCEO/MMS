@@ -2,16 +2,36 @@ package com.bc.fiduceo.post.plugin.era5;
 
 import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.util.NetCDFUtils;
+import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.util.StringUtils;
+import ucar.ma2.Array;
 import ucar.ma2.DataType;
+import ucar.ma2.IndexIterator;
+import ucar.ma2.InvalidRangeException;
 import ucar.nc2.*;
 
+import java.io.IOException;
 import java.util.*;
 
 class SatelliteFields {
 
     private List<Dimension> dimension2d;
     private List<Dimension> dimension3d;
+
+    static int toEra5TimeStamp(int utc1970Seconds) {
+        final Calendar utcCalendar = TimeUtils.getUTCCalendar();
+        utcCalendar.setTime(new Date(utc1970Seconds * 1000L));
+
+        final int minutes = utcCalendar.get(Calendar.MINUTE);
+        if (minutes >= 30) {
+            utcCalendar.add(Calendar.HOUR_OF_DAY, 1);
+        }
+        utcCalendar.set(Calendar.MINUTE, 0);
+        utcCalendar.set(Calendar.SECOND, 0);
+        utcCalendar.set(Calendar.MILLISECOND, 0);
+
+        return (int) (utcCalendar.getTimeInMillis() / 1000L);
+    }
 
     void prepare(SatelliteFieldsConfiguration satFieldsConfig, NetcdfFile reader, NetcdfFileWriter writer) {
         setDimensions(satFieldsConfig, writer, reader);
@@ -28,8 +48,64 @@ class SatelliteFields {
         addTimeVariable(satFieldsConfig, writer);
     }
 
-    void compute() {
+    void compute(SatelliteFieldsConfiguration satFieldsConfig, NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
+        final String timeVariableName = satFieldsConfig.get_time_variable_name();
+        final String escapedName = NetCDFUtils.escapeVariableName(timeVariableName);
+        final Variable timeVariable = reader.findVariable(escapedName);
+        if (timeVariable == null) {
+            throw new IOException("Variable not found: " + timeVariableName);
+        }
 
+        final Array timeArray;
+        final int rank = timeVariable.getRank();
+
+        // @todo 2 tb/tb this block might be of general interest, extract and test 2020-11-17
+        if (rank == 1) {
+            timeArray = timeVariable.read();
+        } else if (rank == 2) {
+            final int[] shape = timeVariable.getShape();
+            final int shapeOffset = shape[1] / 2;
+            final int[] offset = {0, shapeOffset};
+            timeArray = timeVariable.read(offset, new int[]{shape[0], 1});
+        } else if (rank == 3) {
+            final int[] shape = timeVariable.getShape();
+            final int yOffset = shape[1] / 2;
+            final int xOffset = shape[2] / 2;
+            final int[] offset = {0, yOffset, xOffset};
+            timeArray = timeVariable.read(offset, new int[]{shape[0], 1, 1});
+        } else {
+            throw new IllegalArgumentException("Rank of time-variable not supported");
+        }
+
+        final Array era5TimeArray = Array.factory(timeArray.getDataType(), timeArray.getShape());
+        final IndexIterator era5Iterator = era5TimeArray.getIndexIterator();
+        final IndexIterator indexIterator = timeArray.getIndexIterator();
+        while(indexIterator.hasNext() && era5Iterator.hasNext()){
+            final int satelliteTime = indexIterator.getIntNext();
+            final int era5Time = toEra5TimeStamp(satelliteTime);
+            era5Iterator.setIntNext(era5Time);
+        }
+
+        writer.write(satFieldsConfig.get_nwp_time_variable_name(), era5TimeArray);
+
+
+        // open input time variable
+        // + read completely
+        // - convert to ERA-5 time stamps
+        // - write to MMD
+
+        // open longitude and latitude input variables
+        // - read completely
+        // - scale if necessary
+
+        // iterate over matchups
+        //   - convert geo-region to era-5 extract
+        //   - prepare interpolation context
+        //   iterate over variables
+        //     - assemble variable name
+        //     - read varaible data extract
+        //     - interpolate (2d, 3d per layer)
+        //     - store to target raster
     }
 
     private void addTimeVariable(SatelliteFieldsConfiguration satFieldsConfig, NetcdfFileWriter writer) {
@@ -59,6 +135,7 @@ class SatelliteFields {
         return dimensions;
     }
 
+    // @todo 2 tb/tb write tests for this pair of methods 2020-11-17
     private void setDimensions(SatelliteFieldsConfiguration satFieldsConfig, NetcdfFileWriter writer, NetcdfFile reader) {
         satFieldsConfig.verify();
         final Dimension xDim = writer.addDimension(satFieldsConfig.get_x_dim_name(), satFieldsConfig.get_x_dim());

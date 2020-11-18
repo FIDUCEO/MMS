@@ -33,4 +33,10 @@ public class SatelliteFieldsTest {
         assertEquals("Skate", template.getName());
         assertFalse(template.is3d());
     }
+
+    @Test
+    public void testToEra5TimeStamp() {
+        assertEquals(1212400800, SatelliteFields.toEra5TimeStamp(1212399488));
+        assertEquals(1212145200, SatelliteFields.toEra5TimeStamp(1212145250));
+    }
 }
