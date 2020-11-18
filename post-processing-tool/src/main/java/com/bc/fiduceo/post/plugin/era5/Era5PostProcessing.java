@@ -50,8 +50,8 @@ class Era5PostProcessing extends PostProcessing {
         final double scaledLatMax = Math.ceil(geoRect.getLatMax() * 4) / 4;
 
         // remember: y axis runs top->down so we need to invert the coordinates tb 2020-11-17
-        final int yMax = (int)(90.0 - scaledLatMin) * 4;
-        final int yMin = (int)(90.0 - scaledLatMax) * 4;
+        final int yMax = (int)((90.0 - scaledLatMin) * 4.0);
+        final int yMin = (int)((90.0 - scaledLatMax) * 4.0);
 
         return new Rectangle(xMin, yMin, xMax - xMin + 1, yMax - yMin + 1);
     }

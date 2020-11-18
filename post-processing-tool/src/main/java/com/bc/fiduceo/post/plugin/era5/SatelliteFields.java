@@ -19,27 +19,44 @@ class SatelliteFields {
         final Map<String, TemplateVariable> variables = getVariables(satFieldsConfig);
         final Collection<TemplateVariable> values = variables.values();
         for (TemplateVariable template : values) {
-            List<Dimension> dimensions;
-            if (template.is3d()) {
-                dimensions = dimension3d;
-            } else {
-                dimensions = dimension2d;
-            }
+            final List<Dimension> dimensions = getDimensions(template);
+
             final Variable variable = writer.addVariable(template.getName(), DataType.FLOAT, dimensions);
-            variable.addAttribute(new Attribute("units", template.getUnits()));
-            variable.addAttribute(new Attribute("long_name", template.getLongName()));
-            final String standardName = template.getStandardName();
-            if (StringUtils.isNotNullAndNotEmpty(standardName)) {
-                variable.addAttribute(new Attribute("standard_name", standardName));
-            }
-            variable.addAttribute(new Attribute("_FillValue", template.getFillValue()));
+            addAttributes(template, variable);
         }
 
-        final Variable variable = writer.addVariable(satFieldsConfig.get_time_variable_name(), DataType.INT, FiduceoConstants.MATCHUP_COUNT);
+        addTimeVariable(satFieldsConfig, writer);
+    }
+
+    void compute() {
+
+    }
+
+    private void addTimeVariable(SatelliteFieldsConfiguration satFieldsConfig, NetcdfFileWriter writer) {
+        final Variable variable = writer.addVariable(satFieldsConfig.get_nwp_time_variable_name(), DataType.INT, FiduceoConstants.MATCHUP_COUNT);
         variable.addAttribute(new Attribute("description", "Timestamp of ERA-5 data"));
         variable.addAttribute(new Attribute("units", "seconds since 1970-01-01"));
         variable.addAttribute(new Attribute("_FillValue", NetCDFUtils.getDefaultFillValue(DataType.INT, false)));
+    }
 
+    private void addAttributes(TemplateVariable template, Variable variable) {
+        variable.addAttribute(new Attribute("units", template.getUnits()));
+        variable.addAttribute(new Attribute("long_name", template.getLongName()));
+        final String standardName = template.getStandardName();
+        if (StringUtils.isNotNullAndNotEmpty(standardName)) {
+            variable.addAttribute(new Attribute("standard_name", standardName));
+        }
+        variable.addAttribute(new Attribute("_FillValue", template.getFillValue()));
+    }
+
+    private List<Dimension> getDimensions(TemplateVariable template) {
+        List<Dimension> dimensions;
+        if (template.is3d()) {
+            dimensions = dimension3d;
+        } else {
+            dimensions = dimension2d;
+        }
+        return dimensions;
     }
 
     private void setDimensions(SatelliteFieldsConfiguration satFieldsConfig, NetcdfFileWriter writer, NetcdfFile reader) {
@@ -65,10 +82,6 @@ class SatelliteFields {
         dimension3d.add(zDim);
         dimension3d.add(yDim);
         dimension3d.add(xDim);
-    }
-
-    void compute() {
-
     }
 
     Map<String, TemplateVariable> getVariables(SatelliteFieldsConfiguration configuration) {

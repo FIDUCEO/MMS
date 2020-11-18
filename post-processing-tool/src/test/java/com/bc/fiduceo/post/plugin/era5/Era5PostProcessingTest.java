@@ -25,13 +25,33 @@ public class Era5PostProcessingTest {
 
     @Test
     public void testGetEra5RasterPosition() {
-        final GeoRect geoRect = new GeoRect(8.34f, 8.56f, -56.85f, -56.34f);
+        GeoRect geoRect = new GeoRect(8.34f, 8.56f, -56.85f, -56.34f);
 
-        final Rectangle rasterPosition = Era5PostProcessing.getEra5RasterPosition(geoRect);
+        Rectangle rasterPosition = Era5PostProcessing.getEra5RasterPosition(geoRect);
         assertEquals(753, rasterPosition.x);
         assertEquals(3, rasterPosition.width);
-        assertEquals(584, rasterPosition.y);
-        // @todo 1 tb/tb check this, it should be only 4 px height
-        assertEquals(5, rasterPosition.height);
+        assertEquals(585, rasterPosition.y);
+        assertEquals(4, rasterPosition.height);
+
+        geoRect = new GeoRect(-16.602997f, -16.339996f, 63.629f, 63.729f);
+
+        rasterPosition = Era5PostProcessing.getEra5RasterPosition(geoRect);
+        assertEquals(653, rasterPosition.x);
+        assertEquals(3, rasterPosition.width);
+        assertEquals(105, rasterPosition.y);
+        assertEquals(2, rasterPosition.height);
     }
+
+    @Test
+    public void testGetEra5RasterPosition_point() {
+        GeoRect geoRect = new GeoRect(-17.233136f, -17.233136f, 63.677588f, 63.677588f);
+
+        Rectangle rasterPosition = Era5PostProcessing.getEra5RasterPosition(geoRect);
+        assertEquals(651, rasterPosition.x);
+        assertEquals(2, rasterPosition.width);
+        assertEquals(105, rasterPosition.y);
+        assertEquals(2, rasterPosition.height);
+    }
+
+    // @todo 1 tb/tb check anti-meridian data 2020-11-18
 }

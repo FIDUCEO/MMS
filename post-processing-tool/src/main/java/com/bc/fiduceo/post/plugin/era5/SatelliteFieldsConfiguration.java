@@ -25,6 +25,9 @@ class SatelliteFieldsConfiguration {
     private String y_dim_name;
     private String z_dim_name;
 
+    private String nwp_time_variable_name;
+    private String longitude_variable_name;
+    private String latitude_variable_name;
     private String time_variable_name;
 
     SatelliteFieldsConfiguration() {
@@ -199,12 +202,37 @@ class SatelliteFieldsConfiguration {
         this.z_dim_name = z_dim_name;
     }
 
-    String get_time_variable_name() {
-        return time_variable_name;
+    void set_nwp_time_variable_name(String nwp_time_variable_name) {
+        this.nwp_time_variable_name = nwp_time_variable_name;
+    }
+
+    String get_nwp_time_variable_name() {
+        return nwp_time_variable_name;
     }
 
     void set_time_variable_name(String time_variable_name) {
         this.time_variable_name = time_variable_name;
+    }
+
+    String get_longitude_variable_name() {
+        return longitude_variable_name;
+    }
+
+    void set_longitude_variable_name(String longitude_variable_name) {
+        this.longitude_variable_name = longitude_variable_name;
+    }
+
+    String get_latitude_variable_name() {
+        return latitude_variable_name;
+    }
+
+    void set_latitude_variable_name(String latitude_variable_name) {
+        this.latitude_variable_name = latitude_variable_name;
+    }
+
+
+    String get_time_variable_name() {
+        return time_variable_name;
     }
 
     void verify() {
@@ -225,8 +253,20 @@ class SatelliteFieldsConfiguration {
             throw new IllegalArgumentException("z dimension name not configured");
         }
 
+        if (StringUtils.isNullOrEmpty(nwp_time_variable_name)) {
+            throw new IllegalArgumentException("era-5 time variable name not configured");
+        }
+
         if (StringUtils.isNullOrEmpty(time_variable_name)) {
-            throw new IllegalArgumentException("time variable name not configured");
+            throw new IllegalArgumentException("satellite time variable name not configured");
+        }
+
+        if (StringUtils.isNullOrEmpty(longitude_variable_name)) {
+            throw new IllegalArgumentException("satellite lon variable name not configured");
+        }
+
+        if (StringUtils.isNullOrEmpty(latitude_variable_name)) {
+            throw new IllegalArgumentException("satellite lat variable name not configured");
         }
     }
 }

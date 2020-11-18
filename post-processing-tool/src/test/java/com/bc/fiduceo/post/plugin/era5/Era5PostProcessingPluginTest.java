@@ -1,13 +1,10 @@
 package com.bc.fiduceo.post.plugin.era5;
 
 import com.bc.fiduceo.TestUtil;
-import com.bc.fiduceo.core.GeoRect;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.junit.Before;
 import org.junit.Test;
-import ucar.ma2.Array;
-import ucar.ma2.DataType;
 
 import java.io.IOException;
 
@@ -59,7 +56,10 @@ public class Era5PostProcessingPluginTest {
                 "        <x_dim name='left' length='5' />" +
                 "        <y_dim name='right' length='7' />" +
                 "        <z_dim name='up' length='118' />" +
-                "        <era5_time_variable_name>era5-time</era5_time_variable_name>" +
+                "        <era5_time_variable>era5-time</era5_time_variable>" +
+                "        <longitude_variable>along_way</longitude_variable>" +
+                "        <latitude_variable>alattemacchiato</latitude_variable>" +
+                "        <time_variable>sensor_clock</time_variable>" +
                 "" +
                 "        <an_ml_q>Kjuh</an_ml_q>" +
                 "        <an_ml_t>tea</an_ml_t>" +
@@ -103,7 +103,10 @@ public class Era5PostProcessingPluginTest {
         assertEquals(118, satConfig.get_z_dim());
         assertEquals("up", satConfig.get_z_dim_name());
 
-        assertEquals("era5-time", satConfig.get_time_variable_name());
+        assertEquals("era5-time", satConfig.get_nwp_time_variable_name());
+        assertEquals("along_way", satConfig.get_longitude_variable_name());
+        assertEquals("alattemacchiato", satConfig.get_latitude_variable_name());
+        assertEquals("sensor_clock", satConfig.get_time_variable_name());
     }
 
     @Test

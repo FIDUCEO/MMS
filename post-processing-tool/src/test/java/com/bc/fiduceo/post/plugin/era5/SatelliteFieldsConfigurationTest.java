@@ -38,7 +38,11 @@ public class SatelliteFieldsConfigurationTest {
         assertNull(config.get_x_dim_name());
         assertNull(config.get_y_dim_name());
         assertNull(config.get_z_dim_name());
+        assertNull(config.get_nwp_time_variable_name());
         assertNull(config.get_time_variable_name());
+        assertNull(config.get_longitude_variable_name());
+        assertNull(config.get_latitude_variable_name());
+
     }
 
     @Test
@@ -169,7 +173,10 @@ public class SatelliteFieldsConfigurationTest {
         config.set_y_dim_name("B");
         config.set_z_dim(4);
         config.set_z_dim_name("C");
-        config.set_time_variable_name("watch");
+        config.set_nwp_time_variable_name("D");
+        config.set_time_variable_name("E");
+        config.set_longitude_variable_name("F");
+        config.set_latitude_variable_name("G");
     }
 
     @Test
@@ -231,6 +238,19 @@ public class SatelliteFieldsConfigurationTest {
         } catch(IllegalArgumentException expected) {
         }
     }
+
+    @Test
+    public void testVerify_nwp_time_variable_name() {
+        prepareConfig();
+        config.set_nwp_time_variable_name(null);
+
+        try {
+            config.verify();
+            fail("IllegalArgumentException expected");
+        } catch(IllegalArgumentException expected) {
+        }
+    }
+
     @Test
     public void testVerify_time_variable_name() {
         prepareConfig();
@@ -244,8 +264,38 @@ public class SatelliteFieldsConfigurationTest {
     }
 
     @Test
+    public void testVerify_lon_variable_name() {
+        prepareConfig();
+        config.set_longitude_variable_name(null);
+
+        try {
+            config.verify();
+            fail("IllegalArgumentException expected");
+        } catch(IllegalArgumentException expected) {
+        }
+    }
+
+    @Test
+    public void testVerify_lat_variable_name() {
+        prepareConfig();
+        config.set_latitude_variable_name(null);
+
+        try {
+            config.verify();
+            fail("IllegalArgumentException expected");
+        } catch(IllegalArgumentException expected) {
+        }
+    }
+
+    @Test
+    public void testSetGet_nwp_time_variable_name() {
+        config.set_nwp_time_variable_name("tickTock");
+        assertEquals("tickTock", config.get_nwp_time_variable_name());
+    }
+
+    @Test
     public void testSetGet_time_variable_name() {
-        config.set_time_variable_name("tickTock");
-        assertEquals("tickTock", config.get_time_variable_name());
+        config.set_time_variable_name("twomins");
+        assertEquals("twomins", config.get_time_variable_name());
     }
 }

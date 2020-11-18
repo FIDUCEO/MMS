@@ -125,7 +125,10 @@ public class PostProcessingToolIntegrationTest_Era5 {
                 "                <x_dim name='left' length='5' />" +
                 "                <y_dim name='right' length='7' />" +
                 "                <z_dim name='up' length='23' />" +
-                "                <era5_time_variable_name>era5-time</era5_time_variable_name>" +
+                "                <era5_time_variable>era5-time</era5_time_variable>" +
+                "                <time_variable>amsre.acquisition_time</time_variable>" +
+                "                <longitude_variable>amsre.longitude</longitude_variable>" +
+                "                <latitude_variable>amsre.latitude</latitude_variable>" +
                 "            </satellite-fields>" +
                 "            <matchup-fields>" +
                 "            </matchup-fields>" +
