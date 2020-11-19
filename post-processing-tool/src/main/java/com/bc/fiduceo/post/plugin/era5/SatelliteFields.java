@@ -1,17 +1,19 @@
 package com.bc.fiduceo.post.plugin.era5;
 
 import com.bc.fiduceo.FiduceoConstants;
+import com.bc.fiduceo.core.GeoRect;
+import com.bc.fiduceo.reader.ReaderUtils;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.util.StringUtils;
-import ucar.ma2.Array;
-import ucar.ma2.DataType;
-import ucar.ma2.IndexIterator;
-import ucar.ma2.InvalidRangeException;
+import ucar.ma2.*;
 import ucar.nc2.*;
+import ucar.nc2.Dimension;
 
+import java.awt.*;
 import java.io.IOException;
 import java.util.*;
+import java.util.List;
 
 class SatelliteFields {
 
@@ -59,23 +61,62 @@ class SatelliteFields {
 
 
         // open longitude and latitude input variables
-
-        // - read completely or specified x/y subset
-        // - scale if necessary
-        final String lonVarName = satFieldsConfig.get_longitude_variable_name();
-        final Variable lonVariable = getVariable(reader, lonVarName);
-
-        final String latVarName = satFieldsConfig.get_latitude_variable_name();
-        final Variable latVariable = getVariable(reader, latVarName);
+        // + read completely or specified x/y subset
+        // + scale if necessary
+        final Array lonArray = readGeolocationVariable(satFieldsConfig, reader, satFieldsConfig.get_longitude_variable_name());
+        final Array latArray = readGeolocationVariable(satFieldsConfig, reader, satFieldsConfig.get_latitude_variable_name());
 
         // iterate over matchups
         //   - convert geo-region to era-5 extract
         //   - prepare interpolation context
+        final int numMatches = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, reader);
+        final int[] shape = lonArray.getShape();
+        final int[] size = {1, shape[1], shape[2]};
+
+        for (int m = 0; m < numMatches; m++) {
+            final int[] offsets = {m, 0, 0};
+            final Array lonLayer = lonArray.section(offsets, size);
+            final Array latLayer = latArray.section(offsets, size);
+
+            final GeoRect geoRegion = Era5PostProcessing.getGeoRegion(lonLayer, latLayer);
+            final Rectangle era5RasterPosition = Era5PostProcessing.getEra5RasterPosition(geoRegion);
+        }
+
+
         //   iterate over variables
         //     - assemble variable name
         //     - read variable data extract
         //     - interpolate (2d, 3d per layer)
         //     - store to target raster
+    }
+
+    private Array readGeolocationVariable(SatelliteFieldsConfiguration satFieldsConfig, NetcdfFile reader, String lonVarName) throws IOException, InvalidRangeException {
+        final Variable geoVariable = getVariable(reader, lonVarName);
+
+        int xExtract = satFieldsConfig.get_x_dim();
+        int yExtract = satFieldsConfig.get_y_dim();
+
+        final int[] shape = geoVariable.getShape();
+        if (yExtract >= shape[1]) {
+            yExtract = shape[1];
+        }
+        if (xExtract >= shape[2]) {
+            xExtract = shape[2];
+        }
+
+        final int yOffset = shape[1] / 2 - yExtract / 2;
+        final int xOffset = shape[2] / 2 - xExtract / 2;
+        final int[] offset = {0, yOffset, xOffset};
+
+        Array rawData = geoVariable.read(offset, new int[]{shape[0], yExtract, xExtract});
+
+        final double scaleFactor = NetCDFUtils.getScaleFactor(geoVariable);
+        final double addOffset = NetCDFUtils.getOffset(geoVariable);
+        if (ReaderUtils.mustScale(scaleFactor, addOffset)) {
+            final MAMath.ScaleOffset scaleOffset = new MAMath.ScaleOffset(scaleFactor, addOffset);
+            rawData = MAMath.convert2Unpacked(rawData, scaleOffset);
+        }
+        return rawData;
     }
 
     private Variable getVariable(NetcdfFile reader, String varName) throws IOException {
@@ -92,7 +133,7 @@ class SatelliteFields {
         final Array era5TimeArray = Array.factory(timeArray.getDataType(), timeArray.getShape());
         final IndexIterator era5Iterator = era5TimeArray.getIndexIterator();
         final IndexIterator indexIterator = timeArray.getIndexIterator();
-        while(indexIterator.hasNext() && era5Iterator.hasNext()){
+        while (indexIterator.hasNext() && era5Iterator.hasNext()) {
             final int satelliteTime = indexIterator.getIntNext();
             final int era5Time = toEra5TimeStamp(satelliteTime);
             era5Iterator.setIntNext(era5Time);
