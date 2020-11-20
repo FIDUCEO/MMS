@@ -19,6 +19,7 @@ class SatelliteFields {
 
     private List<Dimension> dimension2d;
     private List<Dimension> dimension3d;
+    private Map<String, TemplateVariable> variables;
 
     static int toEra5TimeStamp(int utc1970Seconds) {
         final Calendar utcCalendar = TimeUtils.getUTCCalendar();
@@ -38,7 +39,7 @@ class SatelliteFields {
     void prepare(SatelliteFieldsConfiguration satFieldsConfig, NetcdfFile reader, NetcdfFileWriter writer) {
         setDimensions(satFieldsConfig, writer, reader);
 
-        final Map<String, TemplateVariable> variables = getVariables(satFieldsConfig);
+        variables = getVariables(satFieldsConfig);
         final Collection<TemplateVariable> values = variables.values();
         for (TemplateVariable template : values) {
             final List<Dimension> dimensions = getDimensions(template);
@@ -59,7 +60,6 @@ class SatelliteFields {
         final Array era5TimeArray = convertToEra5TimeStamp(timeArray);
         writer.write(satFieldsConfig.get_nwp_time_variable_name(), era5TimeArray);
 
-
         // open longitude and latitude input variables
         // + read completely or specified x/y subset
         // + scale if necessary
@@ -67,8 +67,8 @@ class SatelliteFields {
         final Array latArray = readGeolocationVariable(satFieldsConfig, reader, satFieldsConfig.get_latitude_variable_name());
 
         // iterate over matchups
-        //   - convert geo-region to era-5 extract
-        //   - prepare interpolation context
+        //   + convert geo-region to era-5 extract
+        //   + prepare interpolation context
         final int numMatches = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, reader);
         final int[] shape = lonArray.getShape();
         final int[] size = {1, shape[1], shape[2]};
@@ -80,18 +80,22 @@ class SatelliteFields {
 
             final GeoRect geoRegion = Era5PostProcessing.getGeoRegion(lonLayer, latLayer);
             final Rectangle era5RasterPosition = Era5PostProcessing.getEra5RasterPosition(geoRegion);
+            final InterpolationContext interpolationContext = Era5PostProcessing.getInterpolationContext(lonLayer, latLayer);
+
+            //   iterate over variables
+            //     - assemble variable file name
+            //     - read variable data extract
+            //     - interpolate (2d, 3d per layer)
+            //     - store to target raster
+            final Set<String> variableKeys = variables.keySet();
+            for (final String variableKey : variableKeys) {
+
+            }
         }
-
-
-        //   iterate over variables
-        //     - assemble variable name
-        //     - read variable data extract
-        //     - interpolate (2d, 3d per layer)
-        //     - store to target raster
     }
 
     private Array readGeolocationVariable(SatelliteFieldsConfiguration satFieldsConfig, NetcdfFile reader, String lonVarName) throws IOException, InvalidRangeException {
-        final Variable geoVariable = getVariable(reader, lonVarName);
+        final Variable geoVariable = NetCDFUtils.getVariable(reader, lonVarName);
 
         int xExtract = satFieldsConfig.get_x_dim();
         int yExtract = satFieldsConfig.get_y_dim();
@@ -119,17 +123,7 @@ class SatelliteFields {
         return rawData;
     }
 
-    private Variable getVariable(NetcdfFile reader, String varName) throws IOException {
-        final String escapedName = NetCDFUtils.escapeVariableName(varName);
-        final Variable variable = reader.findVariable(escapedName);
-        if (variable == null) {
-            throw new IOException("Variable not found: " + varName);
-        }
-
-        return variable;
-    }
-
-    private Array convertToEra5TimeStamp(Array timeArray) {
+    static Array convertToEra5TimeStamp(Array timeArray) {
         final Array era5TimeArray = Array.factory(timeArray.getDataType(), timeArray.getShape());
         final IndexIterator era5Iterator = era5TimeArray.getIndexIterator();
         final IndexIterator indexIterator = timeArray.getIndexIterator();
@@ -143,7 +137,7 @@ class SatelliteFields {
 
     private Array readTimeArray(SatelliteFieldsConfiguration satFieldsConfig, NetcdfFile reader) throws IOException, InvalidRangeException {
         final String timeVariableName = satFieldsConfig.get_time_variable_name();
-        final Variable timeVariable = getVariable(reader, timeVariableName);
+        final Variable timeVariable = NetCDFUtils.getVariable(reader, timeVariableName);
 
         final Array timeArray;
         final int rank = timeVariable.getRank();
