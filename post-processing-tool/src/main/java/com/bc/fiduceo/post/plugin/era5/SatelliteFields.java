@@ -51,7 +51,9 @@ class SatelliteFields {
         addTimeVariable(satFieldsConfig, writer);
     }
 
-    void compute(SatelliteFieldsConfiguration satFieldsConfig, NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
+    void compute(Configuration config, NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
+        final SatelliteFieldsConfiguration satFieldsConfig = config.getSatelliteFields();
+        final ArchiveUtils archiveUtils = new ArchiveUtils(config.getNWPAuxDir());
         // open input time variable
         // + read completely
         // + convert to ERA-5 time stamps
@@ -73,6 +75,7 @@ class SatelliteFields {
         final int[] shape = lonArray.getShape();
         final int[] size = {1, shape[1], shape[2]};
 
+        final Index index = era5TimeArray.getIndex();
         for (int m = 0; m < numMatches; m++) {
             final int[] offsets = {m, 0, 0};
             final Array lonLayer = lonArray.section(offsets, size);
@@ -82,6 +85,9 @@ class SatelliteFields {
             final Rectangle era5RasterPosition = Era5PostProcessing.getEra5RasterPosition(geoRegion);
             final InterpolationContext interpolationContext = Era5PostProcessing.getInterpolationContext(lonLayer, latLayer);
 
+            index.set(m);
+            final int era5Time = era5TimeArray.getInt(index);
+
             //   iterate over variables
             //     - assemble variable file name
             //     - read variable data extract
@@ -89,7 +95,7 @@ class SatelliteFields {
             //     - store to target raster
             final Set<String> variableKeys = variables.keySet();
             for (final String variableKey : variableKeys) {
-
+                final String nwpFilePath = archiveUtils.get(variableKey, era5Time);
             }
         }
     }

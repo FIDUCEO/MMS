@@ -159,7 +159,7 @@ class Era5PostProcessing extends PostProcessing {
     @Override
     protected void compute(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
         if (satelliteFields != null) {
-            satelliteFields.compute(configuration.getSatelliteFields(), reader, writer);
+            satelliteFields.compute(configuration, reader, writer);
         }
 
         if (matchupFields != null) {
