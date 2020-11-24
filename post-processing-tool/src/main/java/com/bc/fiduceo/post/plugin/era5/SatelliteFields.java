@@ -36,6 +36,36 @@ class SatelliteFields {
         return (int) (utcCalendar.getTimeInMillis() / 1000L);
     }
 
+    static int[] getNwpOffset(int[] shape, int[] nwpShape) {
+        final int yOffset = shape[1] / 2 - nwpShape[1] / 2;
+        final int xOffset = shape[2] / 2 - nwpShape[2] / 2;
+        return new int[]{0, yOffset, xOffset};
+    }
+
+    static int[] getNwpShape(SatelliteFieldsConfiguration satFieldsConfig, int[] shape) {
+        int xExtract = satFieldsConfig.get_x_dim();
+        int yExtract = satFieldsConfig.get_y_dim();
+        if (yExtract >= shape[1]) {
+            yExtract = shape[1];
+        }
+        if (xExtract >= shape[2]) {
+            xExtract = shape[2];
+        }
+        return new int[]{shape[0], yExtract, xExtract};
+    }
+
+    static Array convertToEra5TimeStamp(Array timeArray) {
+        final Array era5TimeArray = Array.factory(timeArray.getDataType(), timeArray.getShape());
+        final IndexIterator era5Iterator = era5TimeArray.getIndexIterator();
+        final IndexIterator indexIterator = timeArray.getIndexIterator();
+        while (indexIterator.hasNext() && era5Iterator.hasNext()) {
+            final int satelliteTime = indexIterator.getIntNext();
+            final int era5Time = toEra5TimeStamp(satelliteTime);
+            era5Iterator.setIntNext(era5Time);
+        }
+        return era5TimeArray;
+    }
+
     void prepare(SatelliteFieldsConfiguration satFieldsConfig, NetcdfFile reader, NetcdfFileWriter writer) {
         setDimensions(satFieldsConfig, writer, reader);
 
@@ -53,7 +83,7 @@ class SatelliteFields {
 
     void compute(Configuration config, NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
         final SatelliteFieldsConfiguration satFieldsConfig = config.getSatelliteFields();
-        final ArchiveUtils archiveUtils = new ArchiveUtils(config.getNWPAuxDir());
+        final Era5Archive era5Archive = new Era5Archive(config.getNWPAuxDir());
         // open input time variable
         // + read completely
         // + convert to ERA-5 time stamps
@@ -72,14 +102,15 @@ class SatelliteFields {
         //   + convert geo-region to era-5 extract
         //   + prepare interpolation context
         final int numMatches = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, reader);
-        final int[] shape = lonArray.getShape();
-        final int[] size = {1, shape[1], shape[2]};
+        final int[] nwpShape = getNwpShape(satFieldsConfig, lonArray.getShape());
+        final int[] nwpOffset = getNwpOffset(lonArray.getShape(), nwpShape);
 
         final Index index = era5TimeArray.getIndex();
         for (int m = 0; m < numMatches; m++) {
-            final int[] offsets = {m, 0, 0};
-            final Array lonLayer = lonArray.section(offsets, size);
-            final Array latLayer = latArray.section(offsets, size);
+            nwpOffset[0] = m;
+            nwpShape[0] = 1;    // @todo 1 tb/tb adapt to 3d variables 2020-11-24
+            final Array lonLayer = lonArray.section(nwpOffset, nwpShape);
+            final Array latLayer = latArray.section(nwpOffset, nwpShape);
 
             final GeoRect geoRegion = Era5PostProcessing.getGeoRegion(lonLayer, latLayer);
             final Rectangle era5RasterPosition = Era5PostProcessing.getEra5RasterPosition(geoRegion);
@@ -89,13 +120,13 @@ class SatelliteFields {
             final int era5Time = era5TimeArray.getInt(index);
 
             //   iterate over variables
-            //     - assemble variable file name
+            //     + assemble variable file name
             //     - read variable data extract
             //     - interpolate (2d, 3d per layer)
             //     - store to target raster
             final Set<String> variableKeys = variables.keySet();
             for (final String variableKey : variableKeys) {
-                final String nwpFilePath = archiveUtils.get(variableKey, era5Time);
+                final String nwpFilePath = era5Archive.get(variableKey, era5Time);
             }
         }
     }
@@ -103,22 +134,12 @@ class SatelliteFields {
     private Array readGeolocationVariable(SatelliteFieldsConfiguration satFieldsConfig, NetcdfFile reader, String lonVarName) throws IOException, InvalidRangeException {
         final Variable geoVariable = NetCDFUtils.getVariable(reader, lonVarName);
 
-        int xExtract = satFieldsConfig.get_x_dim();
-        int yExtract = satFieldsConfig.get_y_dim();
-
         final int[] shape = geoVariable.getShape();
-        if (yExtract >= shape[1]) {
-            yExtract = shape[1];
-        }
-        if (xExtract >= shape[2]) {
-            xExtract = shape[2];
-        }
 
-        final int yOffset = shape[1] / 2 - yExtract / 2;
-        final int xOffset = shape[2] / 2 - xExtract / 2;
-        final int[] offset = {0, yOffset, xOffset};
+        final int[] nwpShape = getNwpShape(satFieldsConfig, shape);
+        final int[] offset = getNwpOffset(shape, nwpShape);
 
-        Array rawData = geoVariable.read(offset, new int[]{shape[0], yExtract, xExtract});
+        Array rawData = geoVariable.read(offset, nwpShape);
 
         final double scaleFactor = NetCDFUtils.getScaleFactor(geoVariable);
         final double addOffset = NetCDFUtils.getOffset(geoVariable);
@@ -127,18 +148,6 @@ class SatelliteFields {
             rawData = MAMath.convert2Unpacked(rawData, scaleOffset);
         }
         return rawData;
-    }
-
-    static Array convertToEra5TimeStamp(Array timeArray) {
-        final Array era5TimeArray = Array.factory(timeArray.getDataType(), timeArray.getShape());
-        final IndexIterator era5Iterator = era5TimeArray.getIndexIterator();
-        final IndexIterator indexIterator = timeArray.getIndexIterator();
-        while (indexIterator.hasNext() && era5Iterator.hasNext()) {
-            final int satelliteTime = indexIterator.getIntNext();
-            final int era5Time = toEra5TimeStamp(satelliteTime);
-            era5Iterator.setIntNext(era5Time);
-        }
-        return era5TimeArray;
     }
 
     private Array readTimeArray(SatelliteFieldsConfiguration satFieldsConfig, NetcdfFile reader) throws IOException, InvalidRangeException {

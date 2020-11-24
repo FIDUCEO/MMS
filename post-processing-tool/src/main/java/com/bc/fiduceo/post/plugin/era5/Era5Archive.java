@@ -7,16 +7,15 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.Calendar;
 
-class ArchiveUtils {
+class Era5Archive {
 
     private static final DecimalFormat twoDigitsFormat = new DecimalFormat("00");
     private static final DecimalFormat threeDigitsFormat = new DecimalFormat("000");
-
     private static final String FILE_NAME_BEGIN = "ecmwf-era5_oper_";
 
     private final String rootPath;
 
-    ArchiveUtils(String rootPath) {
+    Era5Archive(String rootPath) {
         this.rootPath = rootPath;
     }
 
@@ -37,14 +36,6 @@ class ArchiveUtils {
             default:
                 return variable;
         }
-    }
-
-    static String getForecastTimeString(Calendar utcCalendar) {
-        return null;
-    }
-
-    static String getAnalysisTimeString(Calendar utcCalendar) {
-        return null;
     }
 
     static String getTimeString(String collection, Calendar utcCalendar) throws IOException {
@@ -82,7 +73,7 @@ class ArchiveUtils {
         }
     }
 
-    public String get(String variableType, int timeStamp) throws IOException {
+    String get(String variableType, int timeStamp) throws IOException {
         final Calendar utcCalendar = TimeUtils.getUTCCalendar();
         utcCalendar.setTimeInMillis(timeStamp * 1000L);
 
