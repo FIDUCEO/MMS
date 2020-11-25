@@ -204,18 +204,22 @@ public class MxD021KM_Reader_IO_Test {
         variable = variables.get(18);
         assertEquals("EV_1KM_RefSB_ch10", variable.getShortName());
         assertEquals(DataType.USHORT, variable.getDataType());
+        NCTestUtils.assertAttribute(variable, "radiance_scales", "0.0036217605");
 
         variable = variables.get(34);
         assertEquals("EV_1KM_RefSB_Uncert_Indexes_ch11", variable.getShortName());
         assertEquals(DataType.UBYTE, variable.getDataType());
+        NCTestUtils.assertAttribute(variable, "specified_uncertainty", "1.5");
 
         variable = variables.get(48);
         assertEquals("EV_1KM_Emissive_ch22", variable.getShortName());
         assertEquals(DataType.USHORT, variable.getDataType());
+        NCTestUtils.assertAttribute(variable, "band_names", "22");
 
         variable = variables.get(65);
         assertEquals("EV_1KM_Emissive_Uncert_Indexes_ch23", variable.getShortName());
         assertEquals(DataType.UBYTE, variable.getDataType());
+        NCTestUtils.assertAttribute(variable, "scaling_factor", "4.0");
 
         variable = variables.get(69);
         assertEquals("EV_1KM_Emissive_Uncert_Indexes_ch28", variable.getShortName());

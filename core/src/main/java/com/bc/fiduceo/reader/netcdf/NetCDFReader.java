@@ -150,9 +150,14 @@ public abstract class NetCDFReader implements Reader {
             final Variable channelVariable = variable.section(section);
             final String channelVariableName = variableBaseName + layerExtension.getExtension(channel);
             channelVariable.setName(channelVariableName);
+            splitAttributes(channelVariable, channel, numChannels);
             result.add(channelVariable);
             origin[channel_dimension_index]++;
         }
+    }
+
+    protected void splitAttributes(Variable channelVariable, int index, int numChannels) {
+        // nothing to do here. If required, readers may override this method tb 2020-11-25
     }
 
     protected Array acquisitionTimeFromTimeLocator(int y, Interval interval) throws IOException {
