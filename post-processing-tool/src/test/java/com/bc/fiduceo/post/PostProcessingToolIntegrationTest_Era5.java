@@ -111,7 +111,7 @@ public class PostProcessingToolIntegrationTest_Era5 {
 
     private void writeConfiguration() throws IOException {
         final File testDataDirectory = TestUtil.getTestDataDirectory();
-        final File era5Dir = new File(testDataDirectory, "era5/v1");
+        final File era5Dir = new File(testDataDirectory, "era-5/v1");
         final String postProcessingConfig = "<post-processing-config>\n" +
                 "    <create-new-files>\n" +
                 "        <output-directory>\n" +

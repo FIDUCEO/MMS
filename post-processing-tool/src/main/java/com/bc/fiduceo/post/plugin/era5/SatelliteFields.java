@@ -83,52 +83,85 @@ class SatelliteFields {
 
     void compute(Configuration config, NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
         final SatelliteFieldsConfiguration satFieldsConfig = config.getSatelliteFields();
+        // @todo 2 tb/tb ensure valid range 2020-11-25
+        final int numLayers = satFieldsConfig.get_z_dim();
         final Era5Archive era5Archive = new Era5Archive(config.getNWPAuxDir());
-        // open input time variable
-        // + read completely
-        // + convert to ERA-5 time stamps
-        // + write to MMD
-        final Array timeArray = readTimeArray(satFieldsConfig, reader);
-        final Array era5TimeArray = convertToEra5TimeStamp(timeArray);
-        writer.write(satFieldsConfig.get_nwp_time_variable_name(), era5TimeArray);
+        final VariableCache variableCache = new VariableCache(era5Archive, 52); // 4 * 13 variables tb 2020-11-25
 
-        // open longitude and latitude input variables
-        // + read completely or specified x/y subset
-        // + scale if necessary
-        final Array lonArray = readGeolocationVariable(satFieldsConfig, reader, satFieldsConfig.get_longitude_variable_name());
-        final Array latArray = readGeolocationVariable(satFieldsConfig, reader, satFieldsConfig.get_latitude_variable_name());
+        try {
+            // open input time variable
+            // + read completely
+            // + convert to ERA-5 time stamps
+            // + write to MMD
+            final Array timeArray = readTimeArray(satFieldsConfig, reader);
+            final Array era5TimeArray = convertToEra5TimeStamp(timeArray);
+            writer.write(satFieldsConfig.get_nwp_time_variable_name(), era5TimeArray);
 
-        // iterate over matchups
-        //   + convert geo-region to era-5 extract
-        //   + prepare interpolation context
-        final int numMatches = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, reader);
-        final int[] nwpShape = getNwpShape(satFieldsConfig, lonArray.getShape());
-        final int[] nwpOffset = getNwpOffset(lonArray.getShape(), nwpShape);
+            // open longitude and latitude input variables
+            // + read completely or specified x/y subset
+            // + scale if necessary
+            final Array lonArray = readGeolocationVariable(satFieldsConfig, reader, satFieldsConfig.get_longitude_variable_name());
+            final Array latArray = readGeolocationVariable(satFieldsConfig, reader, satFieldsConfig.get_latitude_variable_name());
 
-        final Index index = era5TimeArray.getIndex();
-        for (int m = 0; m < numMatches; m++) {
-            nwpOffset[0] = m;
-            nwpShape[0] = 1;    // @todo 1 tb/tb adapt to 3d variables 2020-11-24
-            final Array lonLayer = lonArray.section(nwpOffset, nwpShape);
-            final Array latLayer = latArray.section(nwpOffset, nwpShape);
+            // iterate over matchups
+            //   + convert geo-region to era-5 extract
+            //   + prepare interpolation context
+            final int numMatches = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, reader);
+            final int[] nwpShape = getNwpShape(satFieldsConfig, lonArray.getShape());
+            final int[] nwpOffset = getNwpOffset(lonArray.getShape(), nwpShape);
 
-            final GeoRect geoRegion = Era5PostProcessing.getGeoRegion(lonLayer, latLayer);
-            final Rectangle era5RasterPosition = Era5PostProcessing.getEra5RasterPosition(geoRegion);
-            final InterpolationContext interpolationContext = Era5PostProcessing.getInterpolationContext(lonLayer, latLayer);
+            final Index index = era5TimeArray.getIndex();
+            for (int m = 0; m < numMatches; m++) {
+                nwpOffset[0] = m;
+                nwpShape[0] = 1;    // @todo 1 tb/tb adapt to 3d variables 2020-11-24
+                final Array lonLayer = lonArray.section(nwpOffset, nwpShape).reduce();
+                final Array latLayer = latArray.section(nwpOffset, nwpShape).reduce();
 
-            index.set(m);
-            final int era5Time = era5TimeArray.getInt(index);
+                final GeoRect geoRegion = Era5PostProcessing.getGeoRegion(lonLayer, latLayer);
+                final Rectangle era5RasterPosition = Era5PostProcessing.getEra5RasterPosition(geoRegion);
+                final InterpolationContext interpolationContext = Era5PostProcessing.getInterpolationContext(lonLayer, latLayer);
 
-            //   iterate over variables
-            //     + assemble variable file name
-            //     - read variable data extract
-            //     - interpolate (2d, 3d per layer)
-            //     - store to target raster
-            final Set<String> variableKeys = variables.keySet();
-            for (final String variableKey : variableKeys) {
-                final String nwpFilePath = era5Archive.get(variableKey, era5Time);
+                index.set(m);
+                final int era5Time = era5TimeArray.getInt(index);
+
+                //   iterate over variables
+                //     + assemble variable file name
+                //     - read variable data extract
+                //     - interpolate (2d, 3d per layer)
+                //     - store to target raster
+                final Set<String> variableKeys = variables.keySet();
+                for (final String variableKey : variableKeys) {
+                    final Variable variable = variableCache.get(variableKey, era5Time);
+                    final Array subset = readSubset(numLayers, era5RasterPosition, variableKey, variable);
+
+                    // @todo 1 tb/tb continue here 2020-11-25
+                    final BilinearInterpolator bilinearInterpolator = interpolationContext.get(0, 0);
+                }
             }
+        } finally {
+            variableCache.close();
         }
+    }
+
+    private Array readSubset(int numLayers, Rectangle era5RasterPosition, String variableKey, Variable variable) throws IOException, InvalidRangeException {
+        final int rank = variable.getRank();
+        Array subset;
+        if (rank == 3) {
+            final int[] origin = new int[]{0, era5RasterPosition.y, era5RasterPosition.x};
+            final int[] shape = new int[]{1, era5RasterPosition.height, era5RasterPosition.width};
+            subset = variable.read(origin, shape);
+            subset = subset.reduce();
+            subset = NetCDFUtils.scaleIfNecessary(variable, subset);
+        } else if (rank == 4) {
+            final int[] origin = new int[]{0, 0, era5RasterPosition.y, era5RasterPosition.x};
+            final int[] shape = new int[]{1, numLayers, era5RasterPosition.height, era5RasterPosition.width};
+            subset = variable.read(origin, shape);
+            subset = subset.reduce();
+            subset = NetCDFUtils.scaleIfNecessary(variable, subset);
+        } else {
+            throw new IOException("variable rank invalid: " + variableKey);
+        }
+        return subset;
     }
 
     private Array readGeolocationVariable(SatelliteFieldsConfiguration satFieldsConfig, NetcdfFile reader, String lonVarName) throws IOException, InvalidRangeException {
