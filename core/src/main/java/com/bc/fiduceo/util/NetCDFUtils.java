@@ -342,14 +342,18 @@ public class NetCDFUtils {
     }
 
     public static Array readAndScaleIfNecessary(Variable angleVariable) throws IOException {
-        Array longitudes = angleVariable.read();
-        final double scaleFactor = NetCDFUtils.getScaleFactor(angleVariable);
-        final double offset = NetCDFUtils.getOffset(angleVariable);
+        final Array longitudes = angleVariable.read();
+        return scaleIfNecessary(angleVariable, longitudes);
+    }
+
+    public static Array scaleIfNecessary(Variable variable, Array array) {
+        final double scaleFactor = NetCDFUtils.getScaleFactor(variable);
+        final double offset = NetCDFUtils.getOffset(variable);
         if (ReaderUtils.mustScale(scaleFactor, offset)) {
             final MAMath.ScaleOffset scaleOffset = new MAMath.ScaleOffset(scaleFactor, offset);
-            longitudes = MAMath.convert2Unpacked(longitudes, scaleOffset);
+            array = MAMath.convert2Unpacked(array, scaleOffset);
         }
-        return longitudes;
+        return array;
     }
 
     public static Attribute getGlobalAttributeSafe(String attributeName, NetcdfFile netcdfFile) {

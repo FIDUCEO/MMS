@@ -12,3 +12,4 @@ com.bc.fiduceo.post.plugin.caliop.sst_wp100.CALIOP_SST_WP100_CLay_PPPlugin
 com.bc.fiduceo.post.plugin.airs.AddAirsSpectrumPlugin
 com.bc.fiduceo.post.plugin.gruan_uleic.AddGruanSourcePlugin
 com.bc.fiduceo.post.plugin.avhrr_fcdr.AddAvhrrCorrCoeffsPlugin
+com.bc.fiduceo.post.plugin.era5.Era5PostProcessingPlugin

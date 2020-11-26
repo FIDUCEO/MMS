@@ -16,12 +16,11 @@ import com.bc.fiduceo.reader.netcdf.StandardLayerExtension;
 import com.bc.fiduceo.reader.time.TimeLocator;
 import com.bc.fiduceo.reader.time.TimeLocator_TAI1993Scan;
 import com.bc.fiduceo.util.NetCDFUtils;
-import com.bc.fiduceo.util.TimeUtils;
-import ucar.ma2.Array;
-import ucar.ma2.ArrayInt;
-import ucar.ma2.InvalidRangeException;
-import ucar.ma2.MAMath;
+import org.esa.snap.core.util.StringUtils;
+import ucar.ma2.*;
+import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
+import ucar.nc2.AttributeContainer;
 import ucar.nc2.Structure;
 import ucar.nc2.Variable;
 
@@ -31,8 +30,6 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import static com.bc.fiduceo.reader.modis.ModisConstants.LATITUDE_VAR_NAME;
@@ -481,6 +478,46 @@ class MxD021KM_Reader extends NetCDFReader {
         final Dimension productSize = getProductSize();
         for (int i = 0; i < NUM_EMISSIVE_CHAN; i++) {
             arrayCache.inject(new ThermalNoiseVariable(noiseVariable, i, productSize.getNy()));
+        }
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    @Override
+    protected void splitAttributes(Variable channelVariable, int index, int numChannels) {
+        final ArrayList<Attribute> toRemove = new ArrayList<>();
+        final ArrayList<Attribute> toAdd = new ArrayList<>();
+
+        final AttributeContainer attributes = channelVariable.attributes();
+        for (Attribute attribute : attributes) {
+            toRemove.add(attribute);
+
+            final DataType dataType = attribute.getDataType();
+            if (dataType.isString()) {
+                final String stringValue = attribute.getStringValue();
+                final String[] tokens = StringUtils.split(stringValue, new char[]{','}, true);
+                if (tokens.length == numChannels) {
+                    final Attribute newAttribute = new Attribute(attribute.getShortName(), tokens[index]);
+                    toAdd.add(newAttribute);
+                } else {
+                    toAdd.add(attribute);
+                }
+            } else if (dataType.isNumeric()) {
+                final int length = attribute.getLength();
+                if (length == numChannels) {
+                    final Number numericValue = attribute.getNumericValue(index);
+                    final Attribute newAttribute = new Attribute(attribute.getShortName(), numericValue);
+                    toAdd.add(newAttribute);
+                } else {
+                    toAdd.add(attribute);
+                }
+            }
+        }
+
+        for (Attribute attribute : toRemove) {
+            attributes.remove(attribute);
+        }
+        for (Attribute attribute : toAdd) {
+            attributes.addAttribute(attribute);
         }
     }
 }

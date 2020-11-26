@@ -204,30 +204,37 @@ public class MxD021KM_Reader_IO_Test {
         variable = variables.get(18);
         assertEquals("EV_1KM_RefSB_ch10", variable.getShortName());
         assertEquals(DataType.USHORT, variable.getDataType());
+        NCTestUtils.assertAttribute(variable, "radiance_scales", "0.0036217605");
 
         variable = variables.get(34);
         assertEquals("EV_1KM_RefSB_Uncert_Indexes_ch11", variable.getShortName());
         assertEquals(DataType.UBYTE, variable.getDataType());
+        NCTestUtils.assertAttribute(variable, "specified_uncertainty", "1.5");
 
         variable = variables.get(48);
         assertEquals("EV_1KM_Emissive_ch22", variable.getShortName());
         assertEquals(DataType.USHORT, variable.getDataType());
+        NCTestUtils.assertAttribute(variable, "band_names", "22");
 
         variable = variables.get(65);
         assertEquals("EV_1KM_Emissive_Uncert_Indexes_ch23", variable.getShortName());
         assertEquals(DataType.UBYTE, variable.getDataType());
+        NCTestUtils.assertAttribute(variable, "scaling_factor", "4.0");
 
         variable = variables.get(69);
         assertEquals("EV_1KM_Emissive_Uncert_Indexes_ch28", variable.getShortName());
         assertEquals(DataType.UBYTE, variable.getDataType());
+        NCTestUtils.assertAttribute(variable, "scaling_factor", "4.0");
 
         variable = variables.get(72);
         assertEquals("EV_1KM_Emissive_Uncert_Indexes_ch31", variable.getShortName());
         assertEquals(DataType.UBYTE, variable.getDataType());
+        NCTestUtils.assertAttribute(variable, "specified_uncertainty", "0.375");
 
         variable = variables.get(78);
         assertEquals("EV_250_Aggr1km_RefSB_ch01", variable.getShortName());
         assertEquals(DataType.USHORT, variable.getDataType());
+        NCTestUtils.assertAttribute(variable, "corrected_counts_scales", "0.1249733");
 
         variable = variables.get(83);
         assertEquals("EV_250_Aggr1km_RefSB_Samples_Used_ch02", variable.getShortName());
@@ -236,10 +243,12 @@ public class MxD021KM_Reader_IO_Test {
         variable = variables.get(88);
         assertEquals("EV_500_Aggr1km_RefSB_ch07", variable.getShortName());
         assertEquals(DataType.USHORT, variable.getDataType());
+        NCTestUtils.assertAttribute(variable, "corrected_counts_offsets", "-0.0");
 
         variable = variables.get(93);
         assertEquals("EV_500_Aggr1km_RefSB_Uncert_Indexes_ch07", variable.getShortName());
         assertEquals(DataType.UBYTE, variable.getDataType());
+        NCTestUtils.assertAttribute(variable, "specified_uncertainty", "1.5");
 
         variable = variables.get(98);
         assertEquals("EV_500_Aggr1km_RefSB_Samples_Used_ch07", variable.getShortName());
@@ -266,10 +275,6 @@ public class MxD021KM_Reader_IO_Test {
         final List<Variable> variables = reader.getVariables();
         assertEquals(113, variables.size());
 
-        for(final Variable var : variables) {
-            System.out.println(var.getShortName());
-        }
-
         Variable variable = variables.get(1);
         assertEquals("Noise_in_Thermal_Detectors_ch21", variable.getShortName());
         assertEquals(DataType.UBYTE, variable.getDataType());
@@ -285,38 +290,47 @@ public class MxD021KM_Reader_IO_Test {
         variable = variables.get(19);
         assertEquals("EV_1KM_RefSB_ch11", variable.getShortName());
         assertEquals(DataType.USHORT, variable.getDataType());
+        NCTestUtils.assertAttribute(variable, "band_names", "11");
 
         variable = variables.get(35);
         assertEquals("EV_1KM_RefSB_Uncert_Indexes_ch12", variable.getShortName());
         assertEquals(DataType.UBYTE, variable.getDataType());
+        NCTestUtils.assertAttribute(variable, "specified_uncertainty", "1.5");
 
         variable = variables.get(49);
         assertEquals("EV_1KM_Emissive_ch23", variable.getShortName());
         assertEquals(DataType.USHORT, variable.getDataType());
+        NCTestUtils.assertAttribute(variable, "radiance_offsets", "2402.468505859375");
 
         variable = variables.get(66);
         assertEquals("EV_1KM_Emissive_Uncert_Indexes_ch24", variable.getShortName());
         assertEquals(DataType.UBYTE, variable.getDataType());
+        NCTestUtils.assertAttribute(variable, "specified_uncertainty", "0.5");
 
         variable = variables.get(70);
         assertEquals("EV_1KM_Emissive_Uncert_Indexes_ch29", variable.getShortName());
         assertEquals(DataType.UBYTE, variable.getDataType());
+        NCTestUtils.assertAttribute(variable, "scaling_factor", "4.0");
 
         variable = variables.get(73);
         assertEquals("EV_1KM_Emissive_Uncert_Indexes_ch32", variable.getShortName());
         assertEquals(DataType.UBYTE, variable.getDataType());
+        NCTestUtils.assertAttribute(variable, "scaling_factor", "4.0");
 
         variable = variables.get(79);
         assertEquals("EV_250_Aggr1km_RefSB_ch02", variable.getShortName());
         assertEquals(DataType.USHORT, variable.getDataType());
+        NCTestUtils.assertAttribute(variable, "reflectance_scales", "2.8540927814901806E-5");
 
         variable = variables.get(84);
         assertEquals("EV_500_Aggr1km_RefSB_ch03", variable.getShortName());
         assertEquals(DataType.USHORT, variable.getDataType());
+        NCTestUtils.assertAttribute(variable, "reflectance_offsets", "-0.0");
 
         variable = variables.get(89);
         assertEquals("EV_500_Aggr1km_RefSB_Uncert_Indexes_ch03", variable.getShortName());
         assertEquals(DataType.UBYTE, variable.getDataType());
+        NCTestUtils.assertAttribute(variable, "specified_uncertainty", "1.5");
 
         variable = variables.get(94);
         assertEquals("EV_500_Aggr1km_RefSB_Samples_Used_ch03", variable.getShortName());

@@ -25,8 +25,8 @@ import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.Index;
 import ucar.ma2.InvalidRangeException;
+import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
-import ucar.nc2.NetcdfFiles;
 import ucar.nc2.Variable;
 
 import java.io.IOException;
@@ -142,6 +142,18 @@ public class NCTestUtils {
     public static Variable getVariable(String variableName, NetcdfFile netcdfFile) {
         final String escapedName = NetCDFUtils.escapeVariableName(variableName);
         return netcdfFile.findVariable(escapedName);
+    }
+
+    public static void assertAttribute(Variable variable, String attributeName, String expected) {
+        final Attribute attribute = variable.findAttribute(attributeName);
+        assertNotNull(attribute);
+
+        final DataType dataType = attribute.getDataType();
+        if (dataType == DataType.STRING) {
+            assertEquals(expected, attribute.getStringValue());
+        } else if (dataType == DataType.FLOAT) {
+            assertEquals(Float.parseFloat(expected), attribute.getNumericValue().floatValue(), 1e-8);
+        }
     }
 
     public static Variable getVariable(String variableName, NetcdfFile netcdfFile, boolean escapeName) {

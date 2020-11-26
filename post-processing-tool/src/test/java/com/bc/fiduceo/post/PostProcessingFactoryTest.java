@@ -48,7 +48,7 @@ public class PostProcessingFactoryTest {
         assertNotNull(postProcessingFactory);
         final Map<String, PostProcessingPlugin> plugins = postProcessingFactory.getPlugins();
         assertEquals("java.util.Collections$UnmodifiableMap", plugins.getClass().getTypeName());
-        assertEquals(15, plugins.size());
+        assertEquals(16, plugins.size());
         /* 01 */
         assertTrue(plugins.containsKey("dummy-post-processing"));
         /* 02 */
@@ -79,6 +79,8 @@ public class PostProcessingFactoryTest {
         assertTrue(plugins.containsKey("add-gruan-source"));
         /* 15 */
         assertTrue(plugins.containsKey("add-avhrr-corr-coeffs"));
+        /* 16 */
+        assertTrue(plugins.containsKey("era5"));
     }
 
     @Test

@@ -2,6 +2,8 @@
 * updated to use SNAP version 8.0.0
 * added random string to SLSTR uncompressed temp directory
 * updated workflow handling to new PMonitor version
+* updated random seed strategy: keeps on iterating after IOException
+* update MxD021km reader - split vector based attributes to channel layer
 
 ### Updates from version 1.5.1 to 1.5.2
 * updated to use SNAP version 8.0-SNAPSHOT
