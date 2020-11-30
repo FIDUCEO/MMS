@@ -1,7 +1,6 @@
 package com.bc.fiduceo.post.plugin.era5;
 
 import com.bc.fiduceo.FiduceoConstants;
-import com.bc.fiduceo.core.GeoRect;
 import com.bc.fiduceo.reader.ReaderUtils;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
@@ -108,34 +107,98 @@ class SatelliteFields {
             //   + prepare interpolation context
             final int numMatches = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, reader);
             final int[] nwpShape = getNwpShape(satFieldsConfig, lonArray.getShape());
+            nwpShape[0] = 1; // we read matchup layer by layer
             final int[] nwpOffset = getNwpOffset(lonArray.getShape(), nwpShape);
 
-            final Index index = era5TimeArray.getIndex();
+            final Index timeIndex = era5TimeArray.getIndex();
             for (int m = 0; m < numMatches; m++) {
                 nwpOffset[0] = m;
-                nwpShape[0] = 1;    // @todo 1 tb/tb adapt to 3d variables 2020-11-24
+
                 final Array lonLayer = lonArray.section(nwpOffset, nwpShape).reduce();
                 final Array latLayer = latArray.section(nwpOffset, nwpShape).reduce();
 
-                final GeoRect geoRegion = Era5PostProcessing.getGeoRegion(lonLayer, latLayer);
-                final Rectangle era5RasterPosition = Era5PostProcessing.getEra5RasterPosition(geoRegion);
-                final InterpolationContext interpolationContext = Era5PostProcessing.getInterpolationContext(lonLayer, latLayer);
+                final int[] shape = lonLayer.getShape();
+                final int width = shape[1];
+                final int height = shape[0];
 
-                index.set(m);
-                final int era5Time = era5TimeArray.getInt(index);
+                //final Rectangle era5RasterPosition = Era5PostProcessing.getEra5RasterPosition(geoRegion);
+                final InterpolationContext interpolationContext = Era5PostProcessing.getInterpolationContext(lonLayer, latLayer);
+                final Rectangle layerRegion = interpolationContext.getEra5Region();
+
+                timeIndex.set(m);
+                final int era5Time = era5TimeArray.getInt(timeIndex);
 
                 //   iterate over variables
                 //     + assemble variable file name
-                //     - read variable data extract
-                //     - interpolate (2d, 3d per layer)
+                //     + read variable data extract
+                //     + interpolate (2d, 3d per layer)
                 //     - store to target raster
                 final Set<String> variableKeys = variables.keySet();
                 for (final String variableKey : variableKeys) {
                     final Variable variable = variableCache.get(variableKey, era5Time);
-                    final Array subset = readSubset(numLayers, era5RasterPosition, variableKey, variable);
+                    final Array subset = readSubset(numLayers, layerRegion, variableKey, variable);
+                    final Index subsetIndex = subset.getIndex();
 
-                    // @todo 1 tb/tb continue here 2020-11-25
-                    final BilinearInterpolator bilinearInterpolator = interpolationContext.get(0, 0);
+//                    final TemplateVariable templateVariable = variables.get(variableKey);
+//                    final Variable targetVariable = writer.findVariable(templateVariable.getName());
+//                    final Array targetArray = Array.factory(subset.getDataType(), subset.getShape());
+//                    final Index targetIndex = targetArray.getIndex();
+
+                    final int rank = subset.getRank();
+                    if (rank == 2) {
+                        for (int y = 0; y < height; y++) {
+                            for (int x = 0; x < width; x++) {
+                                final BilinearInterpolator interpolator = interpolationContext.get(x, y);
+                                final int offsetX = interpolator.getXMin() - layerRegion.x;
+                                final int offsetY = interpolator.getYMin() - layerRegion.y;
+
+                                subsetIndex.set(offsetY, offsetX);
+                                final float c00 = subset.getFloat(subsetIndex);
+
+                                subsetIndex.set(offsetY, offsetX + 1);
+                                final float c10 = subset.getFloat(subsetIndex);
+
+                                subsetIndex.set(offsetY + 1, offsetX);
+                                final float c01 = subset.getFloat(subsetIndex);
+
+                                subsetIndex.set(offsetY + 1, offsetX + 1);
+                                final float c11 = subset.getFloat(subsetIndex);
+
+                                final double interpolate = interpolator.interpolate(c00, c01, c10, c11);
+//                                targetIndex.set(y, x);
+//                                targetArray.setFloat(targetIndex, (float) interpolate);
+                            }
+                        }
+                    } else if (rank == 3) {
+                        for (int z = 0; z < numLayers; z++) {
+                            for (int y = 0; y < height; y++) {
+                                for (int x = 0; x < width; x++) {
+                                    final BilinearInterpolator interpolator = interpolationContext.get(x, y);
+                                    final int offsetX = interpolator.getXMin() - layerRegion.x;
+                                    final int offsetY = interpolator.getYMin() - layerRegion.y;
+
+                                    subsetIndex.set(z, offsetY, offsetX);
+                                    final float c00 = subset.getFloat(subsetIndex);
+
+                                    subsetIndex.set(z, offsetY, offsetX + 1);
+                                    final float c10 = subset.getFloat(subsetIndex);
+
+                                    subsetIndex.set(z, offsetY + 1, offsetX);
+                                    final float c01 = subset.getFloat(subsetIndex);
+
+                                    subsetIndex.set(z, offsetY + 1, offsetX + 1);
+                                    final float c11 = subset.getFloat(subsetIndex);
+
+                                    final double interpolate = interpolator.interpolate(c00, c01, c10, c11);
+//                                    targetIndex.set(z, y, x);
+//                                    targetArray.setFloat(targetIndex, (float) interpolate);
+                                }
+                            }
+                        }
+                    } else {
+                        throw new IllegalStateException("Unexpected variable rank: " + rank + "  " + variableKey);
+                    }
+//                    writer.write(targetVariable, targetArray);
                 }
             }
         } finally {
@@ -150,17 +213,16 @@ class SatelliteFields {
             final int[] origin = new int[]{0, era5RasterPosition.y, era5RasterPosition.x};
             final int[] shape = new int[]{1, era5RasterPosition.height, era5RasterPosition.width};
             subset = variable.read(origin, shape);
-            subset = subset.reduce();
-            subset = NetCDFUtils.scaleIfNecessary(variable, subset);
         } else if (rank == 4) {
             final int[] origin = new int[]{0, 0, era5RasterPosition.y, era5RasterPosition.x};
             final int[] shape = new int[]{1, numLayers, era5RasterPosition.height, era5RasterPosition.width};
             subset = variable.read(origin, shape);
-            subset = subset.reduce();
-            subset = NetCDFUtils.scaleIfNecessary(variable, subset);
         } else {
             throw new IOException("variable rank invalid: " + variableKey);
         }
+
+        subset = subset.reduce();
+        subset = NetCDFUtils.scaleIfNecessary(variable, subset);
         return subset;
     }
 
