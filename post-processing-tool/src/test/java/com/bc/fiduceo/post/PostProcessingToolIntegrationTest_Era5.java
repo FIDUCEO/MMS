@@ -90,17 +90,27 @@ public class PostProcessingToolIntegrationTest_Era5 {
 //
             variable = NCTestUtils.getVariable("nwp_q", mmd);
             NCTestUtils.assertAttribute(variable, "units", "kg kg**-1");
-//            NCTestUtils.assert3DValueDouble(2, 0, 0, 183.0, variable);
-//            NCTestUtils.assert3DValueDouble(3, 0, 0, 177.0, variable);
+            NCTestUtils.assert4DVariable(variable.getFullName(), 2, 0, 0, 0, 2.067875129796448E-6, mmd);
+            NCTestUtils.assert4DVariable(variable.getFullName(), 2, 0, 10, 0, 4.002843979833415E-6, mmd);
+            NCTestUtils.assert4DVariable(variable.getFullName(), 2, 0, 20, 0, 3.6158501188765513E-6, mmd);
 
             variable = NCTestUtils.getVariable("nwp_lnsp", mmd);
             NCTestUtils.assertAttribute(variable, "long_name", "Logarithm of surface pressure");
+            NCTestUtils.assert3DValueDouble(3, 1, 1, 11.514025688171387, variable);
+            NCTestUtils.assert3DValueDouble(3, 2, 1, 11.513952255249023, variable);
+            NCTestUtils.assert3DValueDouble(3, 3, 1, 11.513876914978027, variable);
 
             variable = NCTestUtils.getVariable("nwp_v10", mmd);
             assertNull(variable.findAttribute("standard_name"));
+            NCTestUtils.assert3DValueDouble(4, 2, 2, 3.7464919090270996, variable);
+            NCTestUtils.assert3DValueDouble(4, 3, 2, 3.842674493789673, variable);
+            NCTestUtils.assert3DValueDouble(4, 4, 2, 3.5886740684509277, variable);
 
             variable = NCTestUtils.getVariable("nwp_sst", mmd);
             NCTestUtils.assertAttribute(variable, "_FillValue", "9.969209968386869E36");
+            NCTestUtils.assert3DValueDouble(0, 3, 3, 271.46014404296875, variable);
+            NCTestUtils.assert3DValueDouble(0, 4, 3, 271.46014404296875, variable);
+            NCTestUtils.assert3DValueDouble(0, 5, 3, 271.46014404296875, variable);
 
             variable = NCTestUtils.getVariable("era5-time", mmd);
             NCTestUtils.assertAttribute(variable, "units", "seconds since 1970-01-01");

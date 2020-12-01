@@ -102,17 +102,21 @@ class SatelliteFields {
             final Array lonArray = readGeolocationVariable(satFieldsConfig, reader, satFieldsConfig.get_longitude_variable_name());
             final Array latArray = readGeolocationVariable(satFieldsConfig, reader, satFieldsConfig.get_latitude_variable_name());
 
+            // prepare data
+            // + calculate dimensions
+            // - allocate target data arrays
+            final int numMatches = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, reader);
+            final int[] nwpShape = getNwpShape(satFieldsConfig, lonArray.getShape());
+            final int[] nwpOffset = getNwpOffset(lonArray.getShape(), nwpShape);
+            final HashMap<String, Array> targetArrays = allocateTargetData(writer);
+
             // iterate over matchups
             //   + convert geo-region to era-5 extract
             //   + prepare interpolation context
-            final int numMatches = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, reader);
-            final int[] nwpShape = getNwpShape(satFieldsConfig, lonArray.getShape());
-            nwpShape[0] = 1; // we read matchup layer by layer
-            final int[] nwpOffset = getNwpOffset(lonArray.getShape(), nwpShape);
-
             final Index timeIndex = era5TimeArray.getIndex();
             for (int m = 0; m < numMatches; m++) {
                 nwpOffset[0] = m;
+                nwpShape[0] = 1; // we read matchups layer by layer
 
                 final Array lonLayer = lonArray.section(nwpOffset, nwpShape).reduce();
                 final Array latLayer = latArray.section(nwpOffset, nwpShape).reduce();
@@ -139,10 +143,8 @@ class SatelliteFields {
                     final Array subset = readSubset(numLayers, layerRegion, variableKey, variable);
                     final Index subsetIndex = subset.getIndex();
 
-//                    final TemplateVariable templateVariable = variables.get(variableKey);
-//                    final Variable targetVariable = writer.findVariable(templateVariable.getName());
-//                    final Array targetArray = Array.factory(subset.getDataType(), subset.getShape());
-//                    final Index targetIndex = targetArray.getIndex();
+                    final Array targetArray = targetArrays.get(variableKey);
+                    final Index targetIndex = targetArray.getIndex();
 
                     final int rank = subset.getRank();
                     if (rank == 2) {
@@ -165,8 +167,8 @@ class SatelliteFields {
                                 final float c11 = subset.getFloat(subsetIndex);
 
                                 final double interpolate = interpolator.interpolate(c00, c01, c10, c11);
-//                                targetIndex.set(y, x);
-//                                targetArray.setFloat(targetIndex, (float) interpolate);
+                                targetIndex.set(m, y, x);
+                                targetArray.setFloat(targetIndex, (float) interpolate);
                             }
                         }
                     } else if (rank == 3) {
@@ -190,20 +192,36 @@ class SatelliteFields {
                                     final float c11 = subset.getFloat(subsetIndex);
 
                                     final double interpolate = interpolator.interpolate(c00, c01, c10, c11);
-//                                    targetIndex.set(z, y, x);
-//                                    targetArray.setFloat(targetIndex, (float) interpolate);
+                                    targetIndex.set(m, z, y, x);
+                                    targetArray.setFloat(targetIndex, (float) interpolate);
                                 }
                             }
                         }
                     } else {
                         throw new IllegalStateException("Unexpected variable rank: " + rank + "  " + variableKey);
                     }
-//                    writer.write(targetVariable, targetArray);
+                    
+                    final TemplateVariable templateVariable = variables.get(variableKey);
+                    final Variable targetVariable = writer.findVariable(templateVariable.getName());
+                    writer.write(targetVariable, targetArray);
                 }
             }
         } finally {
             variableCache.close();
         }
+    }
+
+    private HashMap<String, Array> allocateTargetData(NetcdfFileWriter writer) {
+        final HashMap<String, Array> targetArrays = new HashMap<>();
+        final Set<Map.Entry<String, TemplateVariable>> entries = variables.entrySet();
+        for (final Map.Entry<String, TemplateVariable> entry : entries) {
+            final TemplateVariable templateVariable = entry.getValue();
+            final Variable variable = writer.findVariable(templateVariable.getName());
+            final Array targetArray = Array.factory(DataType.FLOAT, variable.getShape());
+            targetArrays.put(entry.getKey(), targetArray);
+        }
+
+        return targetArrays;
     }
 
     private Array readSubset(int numLayers, Rectangle era5RasterPosition, String variableKey, Variable variable) throws IOException, InvalidRangeException {
@@ -319,7 +337,7 @@ class SatelliteFields {
         dimension2d.add(xDim);
 
         dimension3d = new ArrayList<>();
-        dimension2d.add(matchupDim);
+        dimension3d.add(matchupDim);
         dimension3d.add(zDim);
         dimension3d.add(yDim);
         dimension3d.add(xDim);
