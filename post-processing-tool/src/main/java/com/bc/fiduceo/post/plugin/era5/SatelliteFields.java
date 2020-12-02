@@ -297,7 +297,8 @@ class SatelliteFields {
         variable.addAttribute(new Attribute("_FillValue", NetCDFUtils.getDefaultFillValue(DataType.INT, false)));
     }
 
-    private void addAttributes(TemplateVariable template, Variable variable) {
+    // package access for testing purpose only tb 2020-12-02
+    static void addAttributes(TemplateVariable template, Variable variable) {
         variable.addAttribute(new Attribute("units", template.getUnits()));
         variable.addAttribute(new Attribute("long_name", template.getLongName()));
         final String standardName = template.getStandardName();

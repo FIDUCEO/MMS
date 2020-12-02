@@ -1,7 +1,6 @@
 package com.bc.fiduceo.post.plugin.era5;
 
 import com.bc.fiduceo.FiduceoConstants;
-import com.bc.fiduceo.core.GeoRect;
 import com.bc.fiduceo.post.PostProcessing;
 import ucar.ma2.Array;
 import ucar.ma2.Index;
@@ -34,19 +33,6 @@ class Era5PostProcessing extends PostProcessing {
         final double shiftedLat = latMax + EPS;
         final double scaledLatMax = Math.ceil(shiftedLat * 4) / 4;
         return (int) ((90.0 - scaledLatMax) * 4.0);
-    }
-
-    private static int getEra5LatMax(float latMin) {
-        final double shiftedLat = latMin - EPS;
-        final double scaledLatMin = Math.floor(shiftedLat * 4) / 4;
-        return (int) ((90.0 - scaledLatMin) * 4.0);
-    }
-
-    private static int getEra5LonMax(float lonMax) {
-        final double shiftedLon = lonMax + EPS;
-        final double normLonMax = shiftedLon + 180.0;
-        final double scaledLonMax = Math.ceil(normLonMax * 4) / 4;
-        return (int) (scaledLonMax * 4);
     }
 
     private static int getEra5LonMin(float lonMin) {
@@ -113,27 +99,6 @@ class Era5PostProcessing extends PostProcessing {
         }
         return context;
     }
-
-    private static float[] getMinMax(Array floatArray) {
-        float min = Float.MAX_VALUE;
-        float max = -Float.MAX_VALUE;
-        final Index index = floatArray.getIndex();
-        final int[] shape = floatArray.getShape();
-        for (int y = 0; y < shape[0]; y++) {
-            for (int x = 0; x < shape[1]; x++) {
-                index.set(y, x);
-                final float value = floatArray.getFloat(index);
-                if (value < min) {
-                    min = value;
-                }
-                if (value > max) {
-                    max = value;
-                }
-            }
-        }
-        return new float[]{min, max};
-    }
-
 
     @Override
     protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) {
