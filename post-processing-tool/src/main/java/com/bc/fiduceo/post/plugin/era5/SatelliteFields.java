@@ -200,7 +200,7 @@ class SatelliteFields {
                     } else {
                         throw new IllegalStateException("Unexpected variable rank: " + rank + "  " + variableKey);
                     }
-                    
+
                     final TemplateVariable templateVariable = variables.get(variableKey);
                     final Variable targetVariable = writer.findVariable(templateVariable.getName());
                     writer.write(targetVariable, targetArray);
@@ -307,7 +307,8 @@ class SatelliteFields {
         variable.addAttribute(new Attribute("_FillValue", template.getFillValue()));
     }
 
-    private List<Dimension> getDimensions(TemplateVariable template) {
+    // package access for testing purpose only tb 2020-12-02
+    List<Dimension> getDimensions(TemplateVariable template) {
         List<Dimension> dimensions;
         if (template.is3d()) {
             dimensions = dimension3d;
@@ -317,14 +318,14 @@ class SatelliteFields {
         return dimensions;
     }
 
-    // @todo 2 tb/tb write tests for this pair of methods 2020-11-17
-    private void setDimensions(SatelliteFieldsConfiguration satFieldsConfig, NetcdfFileWriter writer, NetcdfFile reader) {
+    // package access for testing purpose only tb 2020-12-02
+    void setDimensions(SatelliteFieldsConfiguration satFieldsConfig, NetcdfFileWriter writer, NetcdfFile reader) {
         satFieldsConfig.verify();
         final Dimension xDim = writer.addDimension(satFieldsConfig.get_x_dim_name(), satFieldsConfig.get_x_dim());
         final Dimension yDim = writer.addDimension(satFieldsConfig.get_y_dim_name(), satFieldsConfig.get_y_dim());
 
         int z_dim = satFieldsConfig.get_z_dim();
-        if (z_dim < 1) {
+        if (z_dim < 1 || z_dim > 137) {
             z_dim = 137; // the we take all levels tb 2020-11-16
         }
         final Dimension zDim = writer.addDimension(satFieldsConfig.get_z_dim_name(), z_dim);

@@ -1,6 +1,7 @@
 package com.bc.fiduceo.post.plugin.era5;
 
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.post.PostProcessing;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.junit.Before;
@@ -142,6 +143,20 @@ public class Era5PostProcessingPluginTest {
         assertEquals("longWave", matchupConfig.get_fc_msnlwrf_name());
         assertEquals("shortWave", matchupConfig.get_fc_msnswrf_name());
         assertEquals("heat_flux", matchupConfig.get_fc_msshf_name());
+    }
+
+    @Test
+    public void testCreatePostProcessing() throws JDOMException, IOException {
+        final String XML = "<era5>" +
+                "    <nwp-aux-dir>/where/the/data/is</nwp-aux-dir>" +
+                "    <matchup-fields>" +
+                "    </matchup-fields>" +
+                "</era5>";
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        final PostProcessing postProcessing = plugin.createPostProcessing(rootElement);
+        assertNotNull(postProcessing);
+        assertTrue(postProcessing instanceof Era5PostProcessing);
     }
 }
 
