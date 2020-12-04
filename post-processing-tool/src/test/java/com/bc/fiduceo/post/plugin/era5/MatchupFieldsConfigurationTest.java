@@ -3,7 +3,7 @@ package com.bc.fiduceo.post.plugin.era5;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class MatchupFieldsConfigurationTest {
 
@@ -27,6 +27,9 @@ public class MatchupFieldsConfigurationTest {
         assertEquals("nwp_mu_msnlwrf", config.get_fc_msnlwrf_name());
         assertEquals("nwp_mu_msnswrf", config.get_fc_msnswrf_name());
         assertEquals("nwp_mu_msshf", config.get_fc_msshf_name());
+
+        assertEquals(-1, config.getTime_steps_past());
+        assertEquals(-1, config.getTime_steps_future());
     }
 
     @Test
@@ -87,5 +90,68 @@ public class MatchupFieldsConfigurationTest {
     public void testSetGet_fc_msshf() {
         config.set_fc_msshf_name("heffalump");
         assertEquals("heffalump", config.get_fc_msshf_name());
+    }
+
+    @Test
+    public void testSetGetTimeStepsPast() {
+        config.setTime_steps_past(12);
+        assertEquals(12, config.getTime_steps_past());
+    }
+
+    @Test
+    public void testSetGetTimeStepsFuture() {
+        config.setTime_steps_future(13);
+        assertEquals(13, config.getTime_steps_future());
+    }
+
+    @Test
+    public void testSetGetTimeDimName() {
+        config.setTime_dim_name("Rolex");
+        assertEquals("Rolex", config.getTime_dim_name());
+    }
+
+    @Test
+    public void testVerify() {
+        config.setTime_steps_past(13);
+        config.setTime_steps_future(14);
+        config.setTime_dim_name("ticktock");
+
+        assertTrue(config.verify());
+    }
+
+    @Test
+    public void testVerify_missingTimeStepsPast() {
+        // config.setTime_steps_past(13);
+        config.setTime_steps_future(14);
+        config.setTime_dim_name("ticktock");
+        try {
+            assertTrue(config.verify());
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException expected) {
+        }
+    }
+
+    @Test
+    public void testVerify_missingTimeStepsFuture() {
+        config.setTime_steps_past(13);
+        // config.setTime_steps_future(14);
+        config.setTime_dim_name("ticktock");
+        try {
+            assertTrue(config.verify());
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException expected) {
+        }
+    }
+
+    @Test
+    public void testVerify_missingTimeDimName() {
+        config.setTime_steps_past(13);
+        config.setTime_steps_future(14);
+//         config.setTime_dim_name("ticktock");
+        try {
+            assertTrue(config.verify());
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException expected) {
+        }
     }
 }

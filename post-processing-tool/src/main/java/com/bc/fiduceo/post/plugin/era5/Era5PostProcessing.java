@@ -116,7 +116,7 @@ class Era5PostProcessing extends PostProcessing {
         final MatchupFieldsConfiguration matchupFieldsConfig = configuration.getMatchupFields();
         if (matchupFieldsConfig != null) {
             matchupFields = new MatchupFields();
-            matchupFields.prepare();
+            matchupFields.prepare(matchupFieldsConfig, reader, writer);
         }
     }
 

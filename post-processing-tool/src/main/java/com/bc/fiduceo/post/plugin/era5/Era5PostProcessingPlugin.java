@@ -196,6 +196,22 @@ public class Era5PostProcessingPlugin implements PostProcessingPlugin {
                 matchupFieldsConfiguration.set_fc_msshf_name(getElementValueTrimmed(msshfElement));
             }
 
+            final Element timeStepsPastElement = matchupFieldsElements.getChild("time_steps_past");
+            if (timeStepsPastElement != null) {
+                final String value = timeStepsPastElement.getValue();
+                matchupFieldsConfiguration.setTime_steps_past(Integer.parseInt(value));
+            }
+
+            final Element timeStepsFutureElement = matchupFieldsElements.getChild("time_steps_future");
+            if (timeStepsFutureElement != null) {
+                final String value = timeStepsFutureElement.getValue();
+                matchupFieldsConfiguration.setTime_steps_future(Integer.parseInt(value));
+            }
+            final Element timeDimNameElement = matchupFieldsElements.getChild("time_dim_name");
+            if (timeDimNameElement != null) {
+                matchupFieldsConfiguration.setTime_dim_name(getElementValueTrimmed(timeDimNameElement));
+            }
+
             configuration.setMatchupFields(matchupFieldsConfiguration);
         }
     }

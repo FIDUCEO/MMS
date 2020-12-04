@@ -82,12 +82,12 @@ public class PostProcessingToolIntegrationTest_Era5 {
             NCTestUtils.assert3DValueDouble(1, 0, 0, 4087, variable);
 
             NCTestUtils.assertDimension(FiduceoConstants.MATCHUP_COUNT, 7, mmd);
+
+            // satellite fields
             NCTestUtils.assertDimension("left", 5, mmd);
             NCTestUtils.assertDimension("right", 7, mmd);
             NCTestUtils.assertDimension("up", 23, mmd);
 
-           // @todo 1 tb/tb add assertions
-//
             variable = NCTestUtils.getVariable("nwp_q", mmd);
             NCTestUtils.assertAttribute(variable, "units", "kg kg**-1");
             NCTestUtils.assert4DVariable(variable.getFullName(), 2, 0, 0, 0, 2.067875129796448E-6, mmd);
@@ -116,6 +116,9 @@ public class PostProcessingToolIntegrationTest_Era5 {
             NCTestUtils.assertAttribute(variable, "units", "seconds since 1970-01-01");
             NCTestUtils.assert1DValueLong(2, 1212400800, variable);
             NCTestUtils.assert1DValueLong(6, 1212145200, variable);
+
+            // matchup fields
+            NCTestUtils.assertDimension("the_time", 54, mmd);
         }
     }
 
@@ -143,6 +146,9 @@ public class PostProcessingToolIntegrationTest_Era5 {
                 "                <latitude_variable>amsre.latitude</latitude_variable>" +
                 "            </satellite-fields>" +
                 "            <matchup-fields>" +
+                "                <time_steps_past>41</time_steps_past>" +
+                "                <time_steps_future>12</time_steps_future>" +
+                "                <time_dim_name>the_time</time_dim_name>" +
                 "            </matchup-fields>" +
                 "        </era5>\n" +
                 "    </post-processings>\n" +

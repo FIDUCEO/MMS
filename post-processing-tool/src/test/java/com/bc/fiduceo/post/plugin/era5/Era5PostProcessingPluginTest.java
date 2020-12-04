@@ -125,6 +125,10 @@ public class Era5PostProcessingPluginTest {
                 "        <fc_sfc_msnlwrf>longWave</fc_sfc_msnlwrf>" +
                 "        <fc_sfc_msnswrf>shortWave</fc_sfc_msnswrf>" +
                 "        <fc_sfc_msshf>heat_flux</fc_sfc_msshf>" +
+                "" +
+                "        <time_steps_past>14</time_steps_past>" +
+                "        <time_steps_future>15</time_steps_future>" +
+                "        <time_dim_name>sapperlot</time_dim_name>" +
                 "    </matchup-fields>" +
                 "</era5>";
         final Element rootElement = TestUtil.createDomElement(XML);
@@ -143,6 +147,10 @@ public class Era5PostProcessingPluginTest {
         assertEquals("longWave", matchupConfig.get_fc_msnlwrf_name());
         assertEquals("shortWave", matchupConfig.get_fc_msnswrf_name());
         assertEquals("heat_flux", matchupConfig.get_fc_msshf_name());
+
+        assertEquals(14, matchupConfig.getTime_steps_past());
+        assertEquals(15, matchupConfig.getTime_steps_future());
+        assertEquals("sapperlot", matchupConfig.getTime_dim_name());
     }
 
     @Test

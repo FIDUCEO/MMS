@@ -66,6 +66,7 @@ class SatelliteFields {
     }
 
     void prepare(SatelliteFieldsConfiguration satFieldsConfig, NetcdfFile reader, NetcdfFileWriter writer) {
+        satFieldsConfig.verify();
         setDimensions(satFieldsConfig, writer, reader);
 
         variables = getVariables(satFieldsConfig);
@@ -82,7 +83,6 @@ class SatelliteFields {
 
     void compute(Configuration config, NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
         final SatelliteFieldsConfiguration satFieldsConfig = config.getSatelliteFields();
-        // @todo 2 tb/tb ensure valid range 2020-11-25
         final int numLayers = satFieldsConfig.get_z_dim();
         final Era5Archive era5Archive = new Era5Archive(config.getNWPAuxDir());
         final VariableCache variableCache = new VariableCache(era5Archive, 52); // 4 * 13 variables tb 2020-11-25
@@ -321,7 +321,6 @@ class SatelliteFields {
 
     // package access for testing purpose only tb 2020-12-02
     void setDimensions(SatelliteFieldsConfiguration satFieldsConfig, NetcdfFileWriter writer, NetcdfFile reader) {
-        satFieldsConfig.verify();
         final Dimension xDim = writer.addDimension(satFieldsConfig.get_x_dim_name(), satFieldsConfig.get_x_dim());
         final Dimension yDim = writer.addDimension(satFieldsConfig.get_y_dim_name(), satFieldsConfig.get_y_dim());
 
