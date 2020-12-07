@@ -1,19 +1,17 @@
 package com.bc.fiduceo.post.plugin.era5;
 
+import com.bc.fiduceo.FiduceoConstants;
 import org.junit.Before;
 import org.junit.Test;
 import ucar.nc2.Dimension;
+import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriter;
 
+import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 public class MatchupFieldsTest {
 
@@ -53,14 +51,25 @@ public class MatchupFieldsTest {
         config.setTime_dim_name("tihime");
         config.setTime_steps_future(12);
         config.setTime_steps_past(29);
-        final int timeDimLenght = 12 + 29 +1;
+        final int timeDimLenght = 12 + 29 + 1;
 
         final NetcdfFileWriter writer = mock(NetcdfFileWriter.class);
         when(writer.addDimension(config.getTime_dim_name(), timeDimLenght)).thenReturn(new Dimension(config.getTime_dim_name(), timeDimLenght));
 
-        matchupFields.setDimensions(config, writer, null);
+        final NetcdfFile ncFile = mock(NetcdfFile.class);
+        when(ncFile.findDimension(FiduceoConstants.MATCHUP_COUNT)).thenReturn(new Dimension(FiduceoConstants.MATCHUP_COUNT, 11));
+
+        final List<Dimension> dimensions = matchupFields.getDimensions(config, writer, ncFile);
+        assertEquals(2, dimensions.size());
+        Dimension dimension = dimensions.get(0);
+        assertEquals(FiduceoConstants.MATCHUP_COUNT, dimension.getShortName());
+        assertEquals(11, dimension.getLength());
+        dimension = dimensions.get(1);
+        assertEquals("tihime", dimension.getShortName());
+        assertEquals(42, dimension.getLength());
 
         verify(writer, times(1)).addDimension("tihime", timeDimLenght);
-        verifyNoMoreInteractions(writer);
+        verify(ncFile, times(1)).findDimension(FiduceoConstants.MATCHUP_COUNT);
+        verifyNoMoreInteractions(writer, ncFile);
     }
 }

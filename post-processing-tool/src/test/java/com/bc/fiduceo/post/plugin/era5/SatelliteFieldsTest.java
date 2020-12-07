@@ -105,33 +105,6 @@ public class SatelliteFieldsTest {
     }
 
     @Test
-    public void testAddAttributes() {
-        final TemplateVariable templateVariable = new TemplateVariable("theName", "metres", "a_long_name", "a_standard_name", true);
-        final Variable variable = mock(Variable.class);
-
-        SatelliteFields.addAttributes(templateVariable, variable);
-
-        verify(variable, times(1)).addAttribute(new Attribute("units", "metres"));
-        verify(variable, times(1)).addAttribute(new Attribute("long_name", "a_long_name"));
-        verify(variable, times(1)).addAttribute(new Attribute("standard_name", "a_standard_name"));
-        verify(variable, times(1)).addAttribute(new Attribute("_FillValue", 9.96921E36f));
-        verifyNoMoreInteractions(variable);
-    }
-
-    @Test
-    public void testAddAttributes_missingStandarName() {
-        final TemplateVariable templateVariable = new TemplateVariable("Carola", "gramm", "Heffalump", null, true);
-        final Variable variable = mock(Variable.class);
-
-        SatelliteFields.addAttributes(templateVariable, variable);
-
-        verify(variable, times(1)).addAttribute(new Attribute("units", "gramm"));
-        verify(variable, times(1)).addAttribute(new Attribute("long_name", "Heffalump"));
-        verify(variable, times(1)).addAttribute(new Attribute("_FillValue", 9.96921E36f));
-        verifyNoMoreInteractions(variable);
-    }
-
-    @Test
     public void testSetGetDimensions_2D() {
         final NetcdfFile ncFile = mock(NetcdfFile.class);
         when(ncFile.findDimension(FiduceoConstants.MATCHUP_COUNT)).thenReturn(new Dimension(FiduceoConstants.MATCHUP_COUNT, 10));

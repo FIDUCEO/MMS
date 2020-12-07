@@ -75,7 +75,7 @@ class SatelliteFields {
             final List<Dimension> dimensions = getDimensions(template);
 
             final Variable variable = writer.addVariable(template.getName(), DataType.FLOAT, dimensions);
-            addAttributes(template, variable);
+            VariableUtils.addAttributes(template, variable);
         }
 
         addTimeVariable(satFieldsConfig, writer);
@@ -295,17 +295,6 @@ class SatelliteFields {
         variable.addAttribute(new Attribute("description", "Timestamp of ERA-5 data"));
         variable.addAttribute(new Attribute("units", "seconds since 1970-01-01"));
         variable.addAttribute(new Attribute("_FillValue", NetCDFUtils.getDefaultFillValue(DataType.INT, false)));
-    }
-
-    // package access for testing purpose only tb 2020-12-02
-    static void addAttributes(TemplateVariable template, Variable variable) {
-        variable.addAttribute(new Attribute("units", template.getUnits()));
-        variable.addAttribute(new Attribute("long_name", template.getLongName()));
-        final String standardName = template.getStandardName();
-        if (StringUtils.isNotNullAndNotEmpty(standardName)) {
-            variable.addAttribute(new Attribute("standard_name", standardName));
-        }
-        variable.addAttribute(new Attribute("_FillValue", template.getFillValue()));
     }
 
     // package access for testing purpose only tb 2020-12-02

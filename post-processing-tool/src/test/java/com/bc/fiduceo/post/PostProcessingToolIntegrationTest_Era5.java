@@ -119,6 +119,18 @@ public class PostProcessingToolIntegrationTest_Era5 {
 
             // matchup fields
             NCTestUtils.assertDimension("the_time", 54, mmd);
+
+            variable = NCTestUtils.getVariable("nwp_mu_u10", mmd);
+            NCTestUtils.assertAttribute(variable, "units", "m s**-1");
+
+            variable = NCTestUtils.getVariable("nwp_mu_sst", mmd);
+            NCTestUtils.assertAttribute(variable, "long_name", "Sea surface temperature");
+
+            variable = NCTestUtils.getVariable("nwp_mu_mslhf", mmd);
+            assertNull(variable.findAttribute("standard_name"));
+
+            variable = NCTestUtils.getVariable("nwp_mu_msshf", mmd);
+            NCTestUtils.assertAttribute(variable, "_FillValue", "9.969209968386869E36");
         }
     }
 

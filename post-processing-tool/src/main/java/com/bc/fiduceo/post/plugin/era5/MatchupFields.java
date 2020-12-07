@@ -1,10 +1,13 @@
 package com.bc.fiduceo.post.plugin.era5;
 
+import com.bc.fiduceo.FiduceoConstants;
+import ucar.ma2.DataType;
+import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriter;
+import ucar.nc2.Variable;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 class MatchupFields {
 
@@ -12,11 +15,15 @@ class MatchupFields {
 
     void prepare(MatchupFieldsConfiguration matchupFieldsConfig, NetcdfFile reader, NetcdfFileWriter writer) {
         matchupFieldsConfig.verify();
-        setDimensions(matchupFieldsConfig, writer, reader);
+
+        final List<Dimension> dimensions = getDimensions(matchupFieldsConfig, writer, reader);
 
         variables = getVariables(matchupFieldsConfig);
-        // @todo 1 tb/tb ad variables here 2020-12-04
-
+        final Collection<TemplateVariable> values = variables.values();
+        for (TemplateVariable template : values) {
+            final Variable variable = writer.addVariable(template.getName(), DataType.FLOAT, dimensions);
+            VariableUtils.addAttributes(template, variable);
+        }
     }
 
     void compute() {
@@ -24,13 +31,21 @@ class MatchupFields {
     }
 
     // package access for testing purpose only tb 2020-12-02
-    void setDimensions(MatchupFieldsConfiguration matchupFieldsConfig, NetcdfFileWriter writer, NetcdfFile reader) {
+    List<Dimension> getDimensions(MatchupFieldsConfiguration matchupFieldsConfig, NetcdfFileWriter writer, NetcdfFile reader) {
+        final ArrayList<Dimension> dimensions = new ArrayList<>();
+
+        final Dimension matchupDim = reader.findDimension(FiduceoConstants.MATCHUP_COUNT);
+        dimensions.add(matchupDim);
+
         final int time_steps_past = matchupFieldsConfig.getTime_steps_past();
         final int time_steps_future = matchupFieldsConfig.getTime_steps_future();
         final int time_dim_length = time_steps_past + time_steps_future + 1;
         final String time_dim_name = matchupFieldsConfig.getTime_dim_name();
 
-        writer.addDimension(time_dim_name, time_dim_length);
+        final Dimension timeDimension = writer.addDimension(time_dim_name, time_dim_length);
+        dimensions.add(timeDimension);
+
+        return dimensions;
     }
 
     // package access for testing purpose only tb 2020-12-03
