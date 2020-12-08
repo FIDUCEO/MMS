@@ -23,11 +23,11 @@ class Configuration {
         this.satelliteFields = satelliteFields;
     }
 
-    public MatchupFieldsConfiguration getMatchupFields() {
+    MatchupFieldsConfiguration getMatchupFields() {
         return matchupFields;
     }
 
-    public void setMatchupFields(MatchupFieldsConfiguration matchupFields) {
+    void setMatchupFields(MatchupFieldsConfiguration matchupFields) {
         this.matchupFields = matchupFields;
     }
 }

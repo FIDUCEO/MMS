@@ -48,13 +48,13 @@ public class MatchupFieldsTest {
 
     @Test
     public void testSetGetDimensions() {
-        config.setTime_dim_name("tihime");
-        config.setTime_steps_future(12);
-        config.setTime_steps_past(29);
+        config.set_time_dim_name("tihime");
+        config.set_time_steps_future(12);
+        config.set_time_steps_past(29);
         final int timeDimLenght = 12 + 29 + 1;
 
         final NetcdfFileWriter writer = mock(NetcdfFileWriter.class);
-        when(writer.addDimension(config.getTime_dim_name(), timeDimLenght)).thenReturn(new Dimension(config.getTime_dim_name(), timeDimLenght));
+        when(writer.addDimension(config.get_time_dim_name(), timeDimLenght)).thenReturn(new Dimension(config.get_time_dim_name(), timeDimLenght));
 
         final NetcdfFile ncFile = mock(NetcdfFile.class);
         when(ncFile.findDimension(FiduceoConstants.MATCHUP_COUNT)).thenReturn(new Dimension(FiduceoConstants.MATCHUP_COUNT, 11));

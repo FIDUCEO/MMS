@@ -17,7 +17,6 @@ public class Era5PostProcessingPlugin implements PostProcessingPlugin {
         parseSatelliteFields(rootElement, configuration);
         parseMatchupFields(rootElement, configuration);
 
-
         return configuration;
     }
 
@@ -199,17 +198,28 @@ public class Era5PostProcessingPlugin implements PostProcessingPlugin {
             final Element timeStepsPastElement = matchupFieldsElements.getChild("time_steps_past");
             if (timeStepsPastElement != null) {
                 final String value = timeStepsPastElement.getValue();
-                matchupFieldsConfiguration.setTime_steps_past(Integer.parseInt(value));
+                matchupFieldsConfiguration.set_time_steps_past(Integer.parseInt(value));
             }
 
             final Element timeStepsFutureElement = matchupFieldsElements.getChild("time_steps_future");
             if (timeStepsFutureElement != null) {
                 final String value = timeStepsFutureElement.getValue();
-                matchupFieldsConfiguration.setTime_steps_future(Integer.parseInt(value));
+                matchupFieldsConfiguration.set_time_steps_future(Integer.parseInt(value));
             }
+
             final Element timeDimNameElement = matchupFieldsElements.getChild("time_dim_name");
             if (timeDimNameElement != null) {
-                matchupFieldsConfiguration.setTime_dim_name(getElementValueTrimmed(timeDimNameElement));
+                matchupFieldsConfiguration.set_time_dim_name(getElementValueTrimmed(timeDimNameElement));
+            }
+
+            final Element timeVarNameElement = matchupFieldsElements.getChild("time_variable");
+            if (timeVarNameElement != null) {
+                matchupFieldsConfiguration.set_time_variable_name(getElementValueTrimmed(timeVarNameElement));
+            }
+
+            final Element nwpTimeVarNameElement = matchupFieldsElements.getChild("era5_time_variable");
+            if (nwpTimeVarNameElement != null) {
+                matchupFieldsConfiguration.set_nwp_time_variable_name(getElementValueTrimmed(nwpTimeVarNameElement));
             }
 
             configuration.setMatchupFields(matchupFieldsConfiguration);

@@ -14,26 +14,13 @@ import java.io.IOException;
 import java.util.*;
 import java.util.List;
 
+import static com.bc.fiduceo.post.plugin.era5.VariableUtils.convertToEra5TimeStamp;
+
 class SatelliteFields {
 
     private List<Dimension> dimension2d;
     private List<Dimension> dimension3d;
     private Map<String, TemplateVariable> variables;
-
-    static int toEra5TimeStamp(int utc1970Seconds) {
-        final Calendar utcCalendar = TimeUtils.getUTCCalendar();
-        utcCalendar.setTime(new Date(utc1970Seconds * 1000L));
-
-        final int minutes = utcCalendar.get(Calendar.MINUTE);
-        if (minutes >= 30) {
-            utcCalendar.add(Calendar.HOUR_OF_DAY, 1);
-        }
-        utcCalendar.set(Calendar.MINUTE, 0);
-        utcCalendar.set(Calendar.SECOND, 0);
-        utcCalendar.set(Calendar.MILLISECOND, 0);
-
-        return (int) (utcCalendar.getTimeInMillis() / 1000L);
-    }
 
     static int[] getNwpOffset(int[] shape, int[] nwpShape) {
         final int yOffset = shape[1] / 2 - nwpShape[1] / 2;
@@ -51,18 +38,6 @@ class SatelliteFields {
             xExtract = shape[2];
         }
         return new int[]{shape[0], yExtract, xExtract};
-    }
-
-    static Array convertToEra5TimeStamp(Array timeArray) {
-        final Array era5TimeArray = Array.factory(timeArray.getDataType(), timeArray.getShape());
-        final IndexIterator era5Iterator = era5TimeArray.getIndexIterator();
-        final IndexIterator indexIterator = timeArray.getIndexIterator();
-        while (indexIterator.hasNext() && era5Iterator.hasNext()) {
-            final int satelliteTime = indexIterator.getIntNext();
-            final int era5Time = toEra5TimeStamp(satelliteTime);
-            era5Iterator.setIntNext(era5Time);
-        }
-        return era5TimeArray;
     }
 
     void prepare(SatelliteFieldsConfiguration satFieldsConfig, NetcdfFile reader, NetcdfFileWriter writer) {
@@ -92,7 +67,7 @@ class SatelliteFields {
             // + read completely
             // + convert to ERA-5 time stamps
             // + write to MMD
-            final Array timeArray = readTimeArray(satFieldsConfig, reader);
+            final Array timeArray = VariableUtils.readTimeArray(satFieldsConfig.get_time_variable_name(), reader);
             final Array era5TimeArray = convertToEra5TimeStamp(timeArray);
             writer.write(satFieldsConfig.get_nwp_time_variable_name(), era5TimeArray);
 
@@ -263,35 +238,10 @@ class SatelliteFields {
         return rawData;
     }
 
-    private Array readTimeArray(SatelliteFieldsConfiguration satFieldsConfig, NetcdfFile reader) throws IOException, InvalidRangeException {
-        final String timeVariableName = satFieldsConfig.get_time_variable_name();
-        final Variable timeVariable = NetCDFUtils.getVariable(reader, timeVariableName);
-
-        final Array timeArray;
-        final int rank = timeVariable.getRank();
-
-        // @todo 2 tb/tb this block might be of general interest, extract and test 2020-11-17
-        if (rank == 1) {
-            timeArray = timeVariable.read();
-        } else if (rank == 2) {
-            final int[] shape = timeVariable.getShape();
-            final int shapeOffset = shape[1] / 2;
-            final int[] offset = {0, shapeOffset};
-            timeArray = timeVariable.read(offset, new int[]{shape[0], 1});
-        } else if (rank == 3) {
-            final int[] shape = timeVariable.getShape();
-            final int yOffset = shape[1] / 2;
-            final int xOffset = shape[2] / 2;
-            final int[] offset = {0, yOffset, xOffset};
-            timeArray = timeVariable.read(offset, new int[]{shape[0], 1, 1});
-        } else {
-            throw new IllegalArgumentException("Rank of time-variable not supported");
-        }
-        return timeArray;
-    }
-
     private void addTimeVariable(SatelliteFieldsConfiguration satFieldsConfig, NetcdfFileWriter writer) {
-        final Variable variable = writer.addVariable(satFieldsConfig.get_nwp_time_variable_name(), DataType.INT, FiduceoConstants.MATCHUP_COUNT);
+        final String nwp_time_variable_name = satFieldsConfig.get_nwp_time_variable_name();
+        final String escapedName = NetCDFUtils.escapeVariableName(nwp_time_variable_name);
+        final Variable variable = writer.addVariable(escapedName, DataType.INT, FiduceoConstants.MATCHUP_COUNT);
         variable.addAttribute(new Attribute("description", "Timestamp of ERA-5 data"));
         variable.addAttribute(new Attribute("units", "seconds since 1970-01-01"));
         variable.addAttribute(new Attribute("_FillValue", NetCDFUtils.getDefaultFillValue(DataType.INT, false)));

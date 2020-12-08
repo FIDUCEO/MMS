@@ -120,6 +120,9 @@ public class PostProcessingToolIntegrationTest_Era5 {
             // matchup fields
             NCTestUtils.assertDimension("the_time", 54, mmd);
 
+            variable = NCTestUtils.getVariable("era5-mu-time", mmd);
+            NCTestUtils.assertAttribute(variable, "units", "seconds since 1970-01-01");
+
             variable = NCTestUtils.getVariable("nwp_mu_u10", mmd);
             NCTestUtils.assertAttribute(variable, "units", "m s**-1");
 
@@ -131,6 +134,7 @@ public class PostProcessingToolIntegrationTest_Era5 {
 
             variable = NCTestUtils.getVariable("nwp_mu_msshf", mmd);
             NCTestUtils.assertAttribute(variable, "_FillValue", "9.969209968386869E36");
+
         }
     }
 
@@ -161,6 +165,8 @@ public class PostProcessingToolIntegrationTest_Era5 {
                 "                <time_steps_past>41</time_steps_past>" +
                 "                <time_steps_future>12</time_steps_future>" +
                 "                <time_dim_name>the_time</time_dim_name>" +
+                "                <era5_time_variable>era5-mu-time</era5_time_variable>" +
+                "                <time_variable>drifter-sst.insitu.time</time_variable>" +
                 "            </matchup-fields>" +
                 "        </era5>\n" +
                 "    </post-processings>\n" +

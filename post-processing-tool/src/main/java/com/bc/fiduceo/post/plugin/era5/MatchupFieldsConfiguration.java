@@ -18,6 +18,8 @@ class MatchupFieldsConfiguration {
     private int time_steps_past;
     private int time_steps_future;
     private String time_dim_name;
+    private String time_variable_name;
+    private String nwp_time_variable_name;
 
     MatchupFieldsConfiguration() {
         an_u10_name = "nwp_mu_u10";
@@ -34,6 +36,8 @@ class MatchupFieldsConfiguration {
         time_steps_past = -1;
         time_steps_future = -1;
         time_dim_name = null;
+        time_variable_name = null;
+        nwp_time_variable_name = null;
     }
 
     String get_an_u10_name() {
@@ -116,28 +120,44 @@ class MatchupFieldsConfiguration {
         this.fc_msshf_name = fc_msshf_name;
     }
 
-    int getTime_steps_past() {
+    int get_time_steps_past() {
         return time_steps_past;
     }
 
-    void setTime_steps_past(int time_steps_past) {
+    void set_time_steps_past(int time_steps_past) {
         this.time_steps_past = time_steps_past;
     }
 
-    int getTime_steps_future() {
+    int get_time_steps_future() {
         return time_steps_future;
     }
 
-    void setTime_steps_future(int time_steps_future) {
+    void set_time_steps_future(int time_steps_future) {
         this.time_steps_future = time_steps_future;
     }
 
-    String getTime_dim_name() {
+    String get_time_dim_name() {
         return time_dim_name;
     }
 
-    void setTime_dim_name(String time_dim_name) {
+    void set_time_dim_name(String time_dim_name) {
         this.time_dim_name = time_dim_name;
+    }
+
+    String get_time_variable_name() {
+        return time_variable_name;
+    }
+
+    void set_time_variable_name(String time_variable_name) {
+        this.time_variable_name = time_variable_name;
+    }
+
+    String get_nwp_time_variable_name() {
+        return nwp_time_variable_name;
+    }
+
+    void set_nwp_time_variable_name(String nwp_time_variable_name) {
+        this.nwp_time_variable_name = nwp_time_variable_name;
     }
 
     boolean verify() {
@@ -149,6 +169,12 @@ class MatchupFieldsConfiguration {
         }
         if (StringUtils.isNullOrEmpty(time_dim_name)){
             throw new IllegalArgumentException("time dimension name not configured");
+        }
+        if (StringUtils.isNullOrEmpty(time_variable_name)){
+            throw new IllegalArgumentException("time variable name not configured");
+        }
+        if (StringUtils.isNullOrEmpty(nwp_time_variable_name)){
+            throw new IllegalArgumentException("nwp time variable name not configured");
         }
         return true;
     }

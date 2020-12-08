@@ -129,6 +129,8 @@ public class Era5PostProcessingPluginTest {
                 "        <time_steps_past>14</time_steps_past>" +
                 "        <time_steps_future>15</time_steps_future>" +
                 "        <time_dim_name>sapperlot</time_dim_name>" +
+                "        <time_variable>hurry_up</time_variable>" +
+                "        <era5_time_variable>watch_me</era5_time_variable>" +
                 "    </matchup-fields>" +
                 "</era5>";
         final Element rootElement = TestUtil.createDomElement(XML);
@@ -148,9 +150,11 @@ public class Era5PostProcessingPluginTest {
         assertEquals("shortWave", matchupConfig.get_fc_msnswrf_name());
         assertEquals("heat_flux", matchupConfig.get_fc_msshf_name());
 
-        assertEquals(14, matchupConfig.getTime_steps_past());
-        assertEquals(15, matchupConfig.getTime_steps_future());
-        assertEquals("sapperlot", matchupConfig.getTime_dim_name());
+        assertEquals(14, matchupConfig.get_time_steps_past());
+        assertEquals(15, matchupConfig.get_time_steps_future());
+        assertEquals("sapperlot", matchupConfig.get_time_dim_name());
+        assertEquals("hurry_up", matchupConfig.get_time_variable_name());
+        assertEquals("watch_me", matchupConfig.get_nwp_time_variable_name());
     }
 
     @Test
