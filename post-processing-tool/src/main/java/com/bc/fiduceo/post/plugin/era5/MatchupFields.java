@@ -52,7 +52,19 @@ class MatchupFields {
             final Array targetTimeArray = createTimeArray(reader, matchupConfig, numTimeSteps, nwpTimeVariable);
             writer.write(nwpTimeVariable, targetTimeArray);
 
-            targetTimeArray.getIndex();
+            // for all nwp variables
+            // - get variable
+            // - get data array
+            final int numMatches = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, reader);
+            for (final TemplateVariable templateVariable : variables.values()) {
+                // iterate over matchups
+                for(int m = 0; m < numMatches; m++) {
+                    // iterate over time stamps
+                }
+
+            }
+
+
 
         } finally {
             variableCache.close();

@@ -79,7 +79,7 @@ class SatelliteFields {
 
             // prepare data
             // + calculate dimensions
-            // - allocate target data arrays
+            // + allocate target data arrays
             final int numMatches = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, reader);
             final int[] nwpShape = getNwpShape(satFieldsConfig, lonArray.getShape());
             final int[] nwpOffset = getNwpOffset(lonArray.getShape(), nwpShape);
