@@ -50,7 +50,7 @@ class VariableUtils {
         } else {
             throw new IllegalArgumentException("Rank of time-variable not supported");
         }
-        return timeArray;
+        return timeArray.reduce();
     }
 
     static Array convertToEra5TimeStamp(Array timeArray) {

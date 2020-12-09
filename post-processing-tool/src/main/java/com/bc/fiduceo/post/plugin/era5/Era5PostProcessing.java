@@ -127,7 +127,7 @@ class Era5PostProcessing extends PostProcessing {
         }
 
         if (matchupFields != null) {
-            matchupFields.compute(configuration, reader);
+            matchupFields.compute(configuration, reader, writer);
         }
     }
 

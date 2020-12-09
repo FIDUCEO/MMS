@@ -122,6 +122,9 @@ public class PostProcessingToolIntegrationTest_Era5 {
 
             variable = NCTestUtils.getVariable("era5-mu-time", mmd);
             NCTestUtils.assertAttribute(variable, "units", "seconds since 1970-01-01");
+            NCTestUtils.assert2DValueInt( 1, 1, 959796000, variable);
+            NCTestUtils.assert2DValueInt( 2, 2, 959803200, variable);
+            NCTestUtils.assert2DValueInt( 3, 2, 959806800, variable);
 
             variable = NCTestUtils.getVariable("nwp_mu_u10", mmd);
             NCTestUtils.assertAttribute(variable, "units", "m s**-1");

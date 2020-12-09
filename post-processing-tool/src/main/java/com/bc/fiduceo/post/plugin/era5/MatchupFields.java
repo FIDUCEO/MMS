@@ -4,6 +4,7 @@ import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.util.NetCDFUtils;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
+import ucar.ma2.Index;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.*;
 
@@ -13,6 +14,8 @@ import java.util.*;
 import static com.bc.fiduceo.post.plugin.era5.VariableUtils.convertToEra5TimeStamp;
 
 class MatchupFields {
+
+    private static final int SECS_PER_HOUR = 3600;
 
     private Map<String, TemplateVariable> variables;
 
@@ -31,26 +34,51 @@ class MatchupFields {
         addTimeVariable(matchupFieldsConfig, dimensions, writer);
     }
 
-    void compute(Configuration config, NetcdfFile reader) throws IOException, InvalidRangeException {
+    void compute(Configuration config, NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
         final Era5Archive era5Archive = new Era5Archive(config.getNWPAuxDir());
         final MatchupFieldsConfiguration matchupConfig = config.getMatchupFields();
 
         // allocate cache large enough to hold the time-series for one Era-5 variable
-        final int cacheSize = matchupConfig.get_time_steps_future() + matchupConfig.get_time_steps_past() + 1;
-        final VariableCache variableCache = new VariableCache(era5Archive, cacheSize);
+        final int numTimeSteps = matchupConfig.get_time_steps_future() + matchupConfig.get_time_steps_past() + 1;
+        final VariableCache variableCache = new VariableCache(era5Archive, numTimeSteps);
 
         try {
             // open input time variable
             // + read completely
             // + convert to ERA-5 time stamps
-            // - calculate time past and future timestamps for each matchup
-            // - write to MMD
-            final Array timeArray = VariableUtils.readTimeArray(matchupConfig.get_time_variable_name(), reader);
-            final Array era5TimeArray = convertToEra5TimeStamp(timeArray);
+            // + calculate time past and future timestamps for each matchup
+            // + write to MMD
+            final Variable nwpTimeVariable = NetCDFUtils.getVariable(writer, matchupConfig.get_nwp_time_variable_name());
+            final Array targetTimeArray = createTimeArray(reader, matchupConfig, numTimeSteps, nwpTimeVariable);
+            writer.write(nwpTimeVariable, targetTimeArray);
 
-        }finally {
+            targetTimeArray.getIndex();
+
+        } finally {
             variableCache.close();
         }
+    }
+
+    private static Array createTimeArray(NetcdfFile reader, MatchupFieldsConfiguration matchupConfig, int numTimeSteps, Variable nwpTimeVariable) throws IOException, InvalidRangeException {
+        final Array timeArray = VariableUtils.readTimeArray(matchupConfig.get_time_variable_name(), reader);
+        final Array era5TimeArray = convertToEra5TimeStamp(timeArray);
+        final int numMatchups = era5TimeArray.getShape()[0];
+
+        final Array targetTimeArray = Array.factory(DataType.INT, nwpTimeVariable.getShape());
+        final Index targetIndex = targetTimeArray.getIndex();
+
+        final int offset = -matchupConfig.get_time_steps_past();
+        final Index index = era5TimeArray.getIndex();
+        for (int i = 0; i < numMatchups; i++) {
+            index.set(i);
+            final int timeStamp = era5TimeArray.getInt(index);
+            for (int k = 0; k < numTimeSteps; k++) {
+                final int timeStep = timeStamp + (offset + k) * SECS_PER_HOUR;
+                targetIndex.set(i, k);
+                targetTimeArray.setInt(targetIndex, timeStep);
+            }
+        }
+        return targetTimeArray;
     }
 
     private void addTimeVariable(MatchupFieldsConfiguration matchupFieldsConfig, List<Dimension> dimensions, NetcdfFileWriter writer) {

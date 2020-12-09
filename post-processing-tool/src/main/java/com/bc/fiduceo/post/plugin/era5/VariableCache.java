@@ -79,6 +79,7 @@ class VariableCache {
         }
 
         if (entryToRemove != null) {
+            System.out.println("close = " + entryToRemove.netcdfFile.getLocation());
             entryToRemove.netcdfFile.close();
 
             cache.remove(toRemove);
