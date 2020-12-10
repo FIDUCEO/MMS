@@ -117,11 +117,22 @@ public class MatchupFieldsConfigurationTest {
     }
 
     @Test
+    public void testSetGetLongitudeVariableName() {
+        config.set_longitude_variable_name("longo");
+        assertEquals("longo", config.get_longitude_variable_name());
+    }
+
+    @Test
+    public void testSetGetLatitudeVariableName() {
+        config.set_latitude_variable_name("latti");
+        assertEquals("latti", config.get_latitude_variable_name());
+    }
+
+    @Test
     public void testSetGet_nwp_time_variable_name() {
         config.set_nwp_time_variable_name("the_time");
         assertEquals("the_time", config.get_nwp_time_variable_name());
     }
-
 
     @Test
     public void testVerify() {
@@ -129,6 +140,8 @@ public class MatchupFieldsConfigurationTest {
         config.set_time_steps_future(14);
         config.set_time_dim_name("ticktock");
         config.set_time_variable_name("yamas");
+        config.set_longitude_variable_name("Lore");
+        config.set_latitude_variable_name("Lama");
         config.set_nwp_time_variable_name("sachupang");
 
         assertTrue(config.verify());
@@ -140,6 +153,8 @@ public class MatchupFieldsConfigurationTest {
         config.set_time_steps_future(14);
         config.set_time_dim_name("ticktock");
         config.set_time_variable_name("yamas");
+        config.set_longitude_variable_name("Lore");
+        config.set_latitude_variable_name("Lama");
         config.set_nwp_time_variable_name("sachupang");
 
         try {
@@ -155,6 +170,8 @@ public class MatchupFieldsConfigurationTest {
         // config.set_time_steps_future(14);
         config.set_time_dim_name("ticktock");
         config.set_time_variable_name("yamas");
+        config.set_longitude_variable_name("Lore");
+        config.set_latitude_variable_name("Lama");
         config.set_nwp_time_variable_name("sachupang");
 
         try {
@@ -170,6 +187,8 @@ public class MatchupFieldsConfigurationTest {
         config.set_time_steps_future(14);
 //         config.set_time_dim_name("ticktock");
         config.set_time_variable_name("yamas");
+        config.set_longitude_variable_name("Lore");
+        config.set_latitude_variable_name("Lama");
         config.set_nwp_time_variable_name("sachupang");
 
         try {
@@ -185,6 +204,42 @@ public class MatchupFieldsConfigurationTest {
         config.set_time_steps_future(14);
         config.set_time_dim_name("ticktock");
 //        config.set_time_variable_name("yamas");
+        config.set_longitude_variable_name("Lore");
+        config.set_latitude_variable_name("Lama");
+        config.set_nwp_time_variable_name("sachupang");
+
+        try {
+            assertTrue(config.verify());
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException expected) {
+        }
+    }
+
+    @Test
+    public void testVerify_missingLongitudeVariableName() {
+        config.set_time_steps_past(13);
+        config.set_time_steps_future(14);
+        config.set_time_dim_name("ticktock");
+        config.set_time_variable_name("yamas");
+//        config.set_longitude_variable_name("Lore");
+        config.set_latitude_variable_name("Lama");
+        config.set_nwp_time_variable_name("sachupang");
+
+        try {
+            assertTrue(config.verify());
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException expected) {
+        }
+    }
+
+    @Test
+    public void testVerify_missingLatitudeVariableName() {
+        config.set_time_steps_past(13);
+        config.set_time_steps_future(14);
+        config.set_time_dim_name("ticktock");
+        config.set_time_variable_name("yamas");
+        config.set_longitude_variable_name("Lore");
+//        config.set_latitude_variable_name("Lama");
         config.set_nwp_time_variable_name("sachupang");
 
         try {
@@ -200,6 +255,8 @@ public class MatchupFieldsConfigurationTest {
         config.set_time_steps_future(14);
         config.set_time_dim_name("ticktock");
         config.set_time_variable_name("yamas");
+        config.set_longitude_variable_name("Lore");
+        config.set_latitude_variable_name("Lama");
 //        config.set_nwp_time_variable_name("sachupang");
 
         try {

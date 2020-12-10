@@ -7,11 +7,14 @@ import ucar.ma2.DataType;
 import ucar.ma2.Index;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.*;
+import ucar.nc2.Dimension;
 
+import java.awt.*;
 import java.io.IOException;
 import java.util.*;
+import java.util.List;
 
-import static com.bc.fiduceo.post.plugin.era5.VariableUtils.convertToEra5TimeStamp;
+import static com.bc.fiduceo.post.plugin.era5.VariableUtils.*;
 
 class MatchupFields {
 
@@ -52,14 +55,39 @@ class MatchupFields {
             final Array targetTimeArray = createTimeArray(reader, matchupConfig, numTimeSteps, nwpTimeVariable);
             writer.write(nwpTimeVariable, targetTimeArray);
 
+            // open longitude and latitude input variables
+            // + read 1/1 subset
+            // + scale if necessary
+            final com.bc.fiduceo.core.Dimension geoDimension = new com.bc.fiduceo.core.Dimension("geoloc", 1, 1);
+            final Array lonArray = readGeolocationVariable(geoDimension, reader, matchupConfig.get_longitude_variable_name());
+            final Array latArray = readGeolocationVariable(geoDimension, reader, matchupConfig.get_latitude_variable_name());
+
             // for all nwp variables
             // - get variable
             // - get data array
             final int numMatches = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, reader);
-            for (final TemplateVariable templateVariable : variables.values()) {
+            final int[] nwpShape = new int[]{1};
+            final int[] nwpOffset = new int[]{0};
+            final Index timeIndex = targetTimeArray.getIndex();
+            final Set<String> variableKeys = variables.keySet();
+            for (final String variableKey : variableKeys) {
                 // iterate over matchups
                 for(int m = 0; m < numMatches; m++) {
+                    nwpOffset[0] = m;
+
+                    final Array lonLayer = lonArray.section(nwpOffset, nwpShape).reduce();
+                    final Array latLayer = latArray.section(nwpOffset, nwpShape).reduce();
+
+                    final InterpolationContext interpolationContext = Era5PostProcessing.getInterpolationContext(lonLayer, latLayer);
+                    final Rectangle layerRegion = interpolationContext.getEra5Region();
+
                     // iterate over time stamps
+                    for (int t = 0; t < numTimeSteps; t++) {
+                        timeIndex.set(m, t);
+                        final int timeStamp = targetTimeArray.getInt(timeIndex);
+                        // @todo 1 tb/tb continue here 2020-12-10
+//                        final Variable variable = variableCache.get(variableKey, timeStamp);
+                    }
                 }
 
             }

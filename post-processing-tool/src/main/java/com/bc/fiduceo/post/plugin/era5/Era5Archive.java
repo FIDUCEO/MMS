@@ -9,7 +9,7 @@ import java.util.Calendar;
 class Era5Archive {
 
     private static final DecimalFormat twoDigitsFormat = new DecimalFormat("00");
-    private static final DecimalFormat threeDigitsFormat = new DecimalFormat("000");
+    private static final DecimalFormat fourDigitsFormat = new DecimalFormat("0000");
     private static final String FILE_NAME_BEGIN = "ecmwf-era5_oper_";
 
     private final String rootPath;
@@ -70,7 +70,7 @@ class Era5Archive {
             }
 
             final String hourString = twoDigitsFormat.format(hour);
-            return year + monthString + dayString + hourString + threeDigitsFormat.format(forecastTimeStep);
+            return year + monthString + dayString + hourString + "00" + forecastTimeStep;
         } else {
             throw new IllegalArgumentException("Unknown era5 collection: " + collection);
         }

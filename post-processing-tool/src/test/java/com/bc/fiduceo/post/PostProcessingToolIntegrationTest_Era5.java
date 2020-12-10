@@ -170,6 +170,8 @@ public class PostProcessingToolIntegrationTest_Era5 {
                 "                <time_dim_name>the_time</time_dim_name>" +
                 "                <era5_time_variable>era5-mu-time</era5_time_variable>" +
                 "                <time_variable>drifter-sst.insitu.time</time_variable>" +
+                "                <longitude_variable>drifter-sst.insitu.lon</longitude_variable>" +
+                "                <latitude_variable>drifter-sst.insitu.lat</latitude_variable>" +
                 "            </matchup-fields>" +
                 "        </era5>\n" +
                 "    </post-processings>\n" +

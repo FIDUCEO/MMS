@@ -130,6 +130,8 @@ public class Era5PostProcessingPluginTest {
                 "        <time_steps_future>15</time_steps_future>" +
                 "        <time_dim_name>sapperlot</time_dim_name>" +
                 "        <time_variable>hurry_up</time_variable>" +
+                "        <longitude_variable>lon_man</longitude_variable>" +
+                "        <latitude_variable>lat_chi</latitude_variable>" +
                 "        <era5_time_variable>watch_me</era5_time_variable>" +
                 "    </matchup-fields>" +
                 "</era5>";
@@ -154,6 +156,8 @@ public class Era5PostProcessingPluginTest {
         assertEquals(15, matchupConfig.get_time_steps_future());
         assertEquals("sapperlot", matchupConfig.get_time_dim_name());
         assertEquals("hurry_up", matchupConfig.get_time_variable_name());
+        assertEquals("lon_man", matchupConfig.get_longitude_variable_name());
+        assertEquals("lat_chi", matchupConfig.get_latitude_variable_name());
         assertEquals("watch_me", matchupConfig.get_nwp_time_variable_name());
     }
 

@@ -19,6 +19,8 @@ class MatchupFieldsConfiguration {
     private int time_steps_future;
     private String time_dim_name;
     private String time_variable_name;
+    private String longitude_variable_name;
+    private String latitude_variable_name;
     private String nwp_time_variable_name;
 
     MatchupFieldsConfiguration() {
@@ -37,6 +39,8 @@ class MatchupFieldsConfiguration {
         time_steps_future = -1;
         time_dim_name = null;
         time_variable_name = null;
+        longitude_variable_name = null;
+        latitude_variable_name = null;
         nwp_time_variable_name = null;
     }
 
@@ -152,6 +156,22 @@ class MatchupFieldsConfiguration {
         this.time_variable_name = time_variable_name;
     }
 
+    String get_longitude_variable_name() {
+        return longitude_variable_name;
+    }
+
+    void set_longitude_variable_name(String longitude_variable_name) {
+        this.longitude_variable_name = longitude_variable_name;
+    }
+
+    String get_latitude_variable_name() {
+        return latitude_variable_name;
+    }
+
+    void set_latitude_variable_name(String latitude_variable_name) {
+        this.latitude_variable_name = latitude_variable_name;
+    }
+
     String get_nwp_time_variable_name() {
         return nwp_time_variable_name;
     }
@@ -167,13 +187,19 @@ class MatchupFieldsConfiguration {
         if (time_steps_future < 0) {
             throw new IllegalArgumentException("time steps future not configured");
         }
-        if (StringUtils.isNullOrEmpty(time_dim_name)){
+        if (StringUtils.isNullOrEmpty(time_dim_name)) {
             throw new IllegalArgumentException("time dimension name not configured");
         }
-        if (StringUtils.isNullOrEmpty(time_variable_name)){
+        if (StringUtils.isNullOrEmpty(time_variable_name)) {
             throw new IllegalArgumentException("time variable name not configured");
         }
-        if (StringUtils.isNullOrEmpty(nwp_time_variable_name)){
+        if (StringUtils.isNullOrEmpty(longitude_variable_name)) {
+            throw new IllegalArgumentException("longitude variable name not configured");
+        }
+        if (StringUtils.isNullOrEmpty(latitude_variable_name)) {
+            throw new IllegalArgumentException("latitude variable name not configured");
+        }
+        if (StringUtils.isNullOrEmpty(nwp_time_variable_name)) {
             throw new IllegalArgumentException("nwp time variable name not configured");
         }
         return true;

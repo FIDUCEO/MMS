@@ -44,8 +44,17 @@ class Era5PostProcessing extends PostProcessing {
 
     // package access for testing only tb 2020-11-20
     static InterpolationContext getInterpolationContext(Array lonArray, Array latArray) {
-        // todo 2 tb/tb check shape 2020-11-20
         final int[] shape = lonArray.getShape();
+        if (shape.length == 2) {
+            return createInterpolationContext_2D(lonArray, latArray, shape);
+        } else if (shape.length == 0) {
+            return createInterpolationContext_1D(lonArray, latArray);
+        }
+
+        throw new IllegalStateException("Unsupported dimensionality of geolocation data");
+    }
+
+    private static InterpolationContext createInterpolationContext_2D(Array lonArray, Array latArray, int[] shape) {
         final InterpolationContext context = new InterpolationContext(shape[1], shape[0]);
 
         final Index lonIdx = lonArray.getIndex();
@@ -97,6 +106,31 @@ class Era5PostProcessing extends PostProcessing {
             final Rectangle era5Rect = new Rectangle(xMin, yMin, xMax - xMin + 2, yMax - yMin + 2);
             context.setEra5Region(era5Rect);
         }
+        return context;
+    }
+
+    private static InterpolationContext createInterpolationContext_1D(Array lonArray, Array latArray) {
+        final InterpolationContext context = new InterpolationContext(1, 1);
+
+        final float lon = lonArray.getFloat(0);
+        final float lat = latArray.getFloat(0);
+
+        final int era5_X_min = getEra5LonMin(lon);
+        final int era5_Y_min = getEra5LatMin(lat);
+
+        final double era5LonMin = era5_X_min * 0.25 - 180.0;
+        final double era5LatMin = 90.0 - era5_Y_min * 0.25;
+
+        // we have a quarter degree raster and need to normalize the distance tb 2020-11-20
+        final double lonDelta = (lon - era5LonMin) * 4.0;
+        final double latDelta = (era5LatMin - lat) * 4.0;
+
+        final BilinearInterpolator interpolator = new BilinearInterpolator(lonDelta, latDelta, era5_X_min, era5_Y_min);
+        context.set(0, 0, interpolator);
+
+        final Rectangle era5Rect = new Rectangle(era5_X_min, era5_Y_min, 2, 2);
+        context.setEra5Region(era5Rect);
+
         return context;
     }
 

@@ -1,11 +1,13 @@
 package com.bc.fiduceo.post.plugin.era5;
 
+import com.bc.fiduceo.reader.ReaderUtils;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.util.StringUtils;
 import ucar.ma2.Array;
 import ucar.ma2.IndexIterator;
 import ucar.ma2.InvalidRangeException;
+import ucar.ma2.MAMath;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
@@ -78,5 +80,42 @@ class VariableUtils {
         utcCalendar.set(Calendar.MILLISECOND, 0);
 
         return (int) (utcCalendar.getTimeInMillis() / 1000L);
+    }
+
+    static int[] getNwpShape(com.bc.fiduceo.core.Dimension dimension, int[] shape) {
+        int xExtract = dimension.getNx();
+        int yExtract = dimension.getNy();
+        if (yExtract >= shape[1]) {
+            yExtract = shape[1];
+        }
+        if (xExtract >= shape[2]) {
+            xExtract = shape[2];
+        }
+        return new int[]{shape[0], yExtract, xExtract};
+    }
+
+    static int[] getNwpOffset(int[] shape, int[] nwpShape) {
+        final int yOffset = shape[1] / 2 - nwpShape[1] / 2;
+        final int xOffset = shape[2] / 2 - nwpShape[2] / 2;
+        return new int[]{0, yOffset, xOffset};
+    }
+
+    static Array readGeolocationVariable(com.bc.fiduceo.core.Dimension dimension, NetcdfFile reader, String lonVarName) throws IOException, InvalidRangeException {
+        final Variable geoVariable = NetCDFUtils.getVariable(reader, lonVarName);
+
+        final int[] shape = geoVariable.getShape();
+
+        final int[] nwpShape = getNwpShape(dimension, shape);
+        final int[] offset = getNwpOffset(shape, nwpShape);
+
+        Array rawData = geoVariable.read(offset, nwpShape);
+
+        final double scaleFactor = NetCDFUtils.getScaleFactor(geoVariable);
+        final double addOffset = NetCDFUtils.getOffset(geoVariable);
+        if (ReaderUtils.mustScale(scaleFactor, addOffset)) {
+            final MAMath.ScaleOffset scaleOffset = new MAMath.ScaleOffset(scaleFactor, addOffset);
+            rawData = MAMath.convert2Unpacked(rawData, scaleOffset);
+        }
+        return rawData.reduce();
     }
 }

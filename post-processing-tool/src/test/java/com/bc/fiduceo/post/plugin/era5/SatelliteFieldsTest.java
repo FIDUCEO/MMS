@@ -2,8 +2,6 @@ package com.bc.fiduceo.post.plugin.era5;
 
 import com.bc.fiduceo.FiduceoConstants;
 import org.junit.Test;
-import ucar.ma2.Array;
-import ucar.ma2.DataType;
 import ucar.nc2.*;
 
 import java.util.List;
@@ -40,48 +38,6 @@ public class SatelliteFieldsTest {
         assertEquals("Skin temperature", template.getLongName());
         assertEquals("Skate", template.getName());
         assertFalse(template.is3d());
-    }
-
-    @Test
-    public void testGetNwpShape() {
-        final SatelliteFieldsConfiguration config = new SatelliteFieldsConfiguration();
-        config.set_x_dim(3);
-        config.set_y_dim(5);
-
-        final int[] matchupShape = {11, 7, 7};
-
-        final int[] nwpShape = SatelliteFields.getNwpShape(config, matchupShape);
-        assertEquals(3, nwpShape.length);
-        assertEquals(11, nwpShape[0]);
-        assertEquals(5, nwpShape[1]);
-        assertEquals(3, nwpShape[2]);
-    }
-
-    @Test
-    public void testGetNwpShape_clip() {
-        final SatelliteFieldsConfiguration config = new SatelliteFieldsConfiguration();
-        config.set_x_dim(7);
-        config.set_y_dim(7);
-
-        final int[] matchupShape = {12, 3, 5};
-
-        final int[] nwpShape = SatelliteFields.getNwpShape(config, matchupShape);
-        assertEquals(3, nwpShape.length);
-        assertEquals(12, nwpShape[0]);
-        assertEquals(3, nwpShape[1]);
-        assertEquals(5, nwpShape[2]);
-    }
-
-    @Test
-    public void testGetNwpOffset() {
-        final int[] matchupShape = {118, 7, 7};
-        final int[] nwpShape = {118, 5, 5};
-
-        final int[] nwpOffset = SatelliteFields.getNwpOffset(matchupShape, nwpShape);
-        assertEquals(3, nwpOffset.length);
-        assertEquals(0, nwpOffset[0]);
-        assertEquals(1, nwpOffset[1]);
-        assertEquals(1, nwpOffset[2]);
     }
 
     @Test

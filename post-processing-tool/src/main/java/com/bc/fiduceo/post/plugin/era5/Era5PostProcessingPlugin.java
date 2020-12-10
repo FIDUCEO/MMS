@@ -217,6 +217,16 @@ public class Era5PostProcessingPlugin implements PostProcessingPlugin {
                 matchupFieldsConfiguration.set_time_variable_name(getElementValueTrimmed(timeVarNameElement));
             }
 
+            final Element lonVarNameElement = matchupFieldsElements.getChild("longitude_variable");
+            if (lonVarNameElement != null) {
+                matchupFieldsConfiguration.set_longitude_variable_name(getElementValueTrimmed(lonVarNameElement));
+            }
+
+            final Element latVarNameElement = matchupFieldsElements.getChild("latitude_variable");
+            if (latVarNameElement != null) {
+                matchupFieldsConfiguration.set_latitude_variable_name(getElementValueTrimmed(latVarNameElement));
+            }
+
             final Element nwpTimeVarNameElement = matchupFieldsElements.getChild("era5_time_variable");
             if (nwpTimeVarNameElement != null) {
                 matchupFieldsConfiguration.set_nwp_time_variable_name(getElementValueTrimmed(nwpTimeVarNameElement));

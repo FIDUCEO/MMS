@@ -57,4 +57,42 @@ public class VariableUtilsTest {
         assertEquals(1480543200, converted.getInt(4));
         assertEquals(1480543200, converted.getInt(5));
     }
+
+    @Test
+    public void testGetNwpShape() {
+        final com.bc.fiduceo.core.Dimension dimension = new com.bc.fiduceo.core.Dimension("whatever", 3, 5);
+
+        final int[] matchupShape = {11, 7, 7};
+
+        final int[] nwpShape = VariableUtils.getNwpShape(dimension, matchupShape);
+        assertEquals(3, nwpShape.length);
+        assertEquals(11, nwpShape[0]);
+        assertEquals(5, nwpShape[1]);
+        assertEquals(3, nwpShape[2]);
+    }
+
+    @Test
+    public void testGetNwpShape_clip() {
+        final com.bc.fiduceo.core.Dimension dimension = new com.bc.fiduceo.core.Dimension("clipped", 7, 7);
+
+        final int[] matchupShape = {12, 3, 5};
+
+        final int[] nwpShape = VariableUtils.getNwpShape(dimension, matchupShape);
+        assertEquals(3, nwpShape.length);
+        assertEquals(12, nwpShape[0]);
+        assertEquals(3, nwpShape[1]);
+        assertEquals(5, nwpShape[2]);
+    }
+
+    @Test
+    public void testGetNwpOffset() {
+        final int[] matchupShape = {118, 7, 7};
+        final int[] nwpShape = {118, 5, 5};
+
+        final int[] nwpOffset = VariableUtils.getNwpOffset(matchupShape, nwpShape);
+        assertEquals(3, nwpOffset.length);
+        assertEquals(0, nwpOffset[0]);
+        assertEquals(1, nwpOffset[1]);
+        assertEquals(1, nwpOffset[2]);
+    }
 }

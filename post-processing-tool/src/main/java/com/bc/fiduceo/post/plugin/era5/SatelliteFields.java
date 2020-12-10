@@ -3,8 +3,6 @@ package com.bc.fiduceo.post.plugin.era5;
 import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.reader.ReaderUtils;
 import com.bc.fiduceo.util.NetCDFUtils;
-import com.bc.fiduceo.util.TimeUtils;
-import org.esa.snap.core.util.StringUtils;
 import ucar.ma2.*;
 import ucar.nc2.*;
 import ucar.nc2.Dimension;
@@ -14,31 +12,13 @@ import java.io.IOException;
 import java.util.*;
 import java.util.List;
 
-import static com.bc.fiduceo.post.plugin.era5.VariableUtils.convertToEra5TimeStamp;
+import static com.bc.fiduceo.post.plugin.era5.VariableUtils.*;
 
 class SatelliteFields {
 
     private List<Dimension> dimension2d;
     private List<Dimension> dimension3d;
     private Map<String, TemplateVariable> variables;
-
-    static int[] getNwpOffset(int[] shape, int[] nwpShape) {
-        final int yOffset = shape[1] / 2 - nwpShape[1] / 2;
-        final int xOffset = shape[2] / 2 - nwpShape[2] / 2;
-        return new int[]{0, yOffset, xOffset};
-    }
-
-    static int[] getNwpShape(SatelliteFieldsConfiguration satFieldsConfig, int[] shape) {
-        int xExtract = satFieldsConfig.get_x_dim();
-        int yExtract = satFieldsConfig.get_y_dim();
-        if (yExtract >= shape[1]) {
-            yExtract = shape[1];
-        }
-        if (xExtract >= shape[2]) {
-            xExtract = shape[2];
-        }
-        return new int[]{shape[0], yExtract, xExtract};
-    }
 
     void prepare(SatelliteFieldsConfiguration satFieldsConfig, NetcdfFile reader, NetcdfFileWriter writer) {
         satFieldsConfig.verify();
@@ -74,14 +54,15 @@ class SatelliteFields {
             // open longitude and latitude input variables
             // + read completely or specified x/y subset
             // + scale if necessary
-            final Array lonArray = readGeolocationVariable(satFieldsConfig, reader, satFieldsConfig.get_longitude_variable_name());
-            final Array latArray = readGeolocationVariable(satFieldsConfig, reader, satFieldsConfig.get_latitude_variable_name());
+            final com.bc.fiduceo.core.Dimension geoDimension = new com.bc.fiduceo.core.Dimension("geoloc", satFieldsConfig.get_x_dim(), satFieldsConfig.get_y_dim());
+            final Array lonArray = readGeolocationVariable(geoDimension, reader, satFieldsConfig.get_longitude_variable_name());
+            final Array latArray = readGeolocationVariable(geoDimension, reader, satFieldsConfig.get_latitude_variable_name());
 
             // prepare data
             // + calculate dimensions
             // + allocate target data arrays
             final int numMatches = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, reader);
-            final int[] nwpShape = getNwpShape(satFieldsConfig, lonArray.getShape());
+            final int[] nwpShape = getNwpShape(geoDimension, lonArray.getShape());
             final int[] nwpOffset = getNwpOffset(lonArray.getShape(), nwpShape);
             final HashMap<String, Array> targetArrays = allocateTargetData(writer);
 
@@ -217,25 +198,6 @@ class SatelliteFields {
         subset = subset.reduce();
         subset = NetCDFUtils.scaleIfNecessary(variable, subset);
         return subset;
-    }
-
-    private Array readGeolocationVariable(SatelliteFieldsConfiguration satFieldsConfig, NetcdfFile reader, String lonVarName) throws IOException, InvalidRangeException {
-        final Variable geoVariable = NetCDFUtils.getVariable(reader, lonVarName);
-
-        final int[] shape = geoVariable.getShape();
-
-        final int[] nwpShape = getNwpShape(satFieldsConfig, shape);
-        final int[] offset = getNwpOffset(shape, nwpShape);
-
-        Array rawData = geoVariable.read(offset, nwpShape);
-
-        final double scaleFactor = NetCDFUtils.getScaleFactor(geoVariable);
-        final double addOffset = NetCDFUtils.getOffset(geoVariable);
-        if (ReaderUtils.mustScale(scaleFactor, addOffset)) {
-            final MAMath.ScaleOffset scaleOffset = new MAMath.ScaleOffset(scaleFactor, addOffset);
-            rawData = MAMath.convert2Unpacked(rawData, scaleOffset);
-        }
-        return rawData;
     }
 
     private void addTimeVariable(SatelliteFieldsConfiguration satFieldsConfig, NetcdfFileWriter writer) {
