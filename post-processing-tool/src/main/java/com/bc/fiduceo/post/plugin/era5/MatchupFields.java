@@ -86,14 +86,10 @@ class MatchupFields {
                         timeIndex.set(m, t);
                         final int timeStamp = targetTimeArray.getInt(timeIndex);
                         // @todo 1 tb/tb continue here 2020-12-10
-//                        final Variable variable = variableCache.get(variableKey, timeStamp);
+                        final Variable variable = variableCache.get(variableKey, timeStamp);
                     }
                 }
-
             }
-
-
-
         } finally {
             variableCache.close();
         }
@@ -107,7 +103,7 @@ class MatchupFields {
         final Array targetTimeArray = Array.factory(DataType.INT, nwpTimeVariable.getShape());
         final Index targetIndex = targetTimeArray.getIndex();
 
-        final int offset = -matchupConfig.get_time_steps_past();
+        final int offset = - matchupConfig.get_time_steps_past();
         final Index index = era5TimeArray.getIndex();
         for (int i = 0; i < numMatchups; i++) {
             index.set(i);

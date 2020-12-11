@@ -73,7 +73,7 @@ public class Era5ArchiveTest {
         utcCalendar.set(Calendar.HOUR_OF_DAY, 3);
 
         String metssTime = Era5Archive.getTimeString("fc_sfc_metss", utcCalendar);
-        assertEquals("2008060318009", metssTime);
+        assertEquals("2008060418009", metssTime);
 
         utcCalendar.setTimeInMillis(1212600800000L);
         utcCalendar.set(Calendar.HOUR_OF_DAY, 11);

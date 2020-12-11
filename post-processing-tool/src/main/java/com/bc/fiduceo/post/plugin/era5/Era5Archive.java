@@ -38,19 +38,13 @@ class Era5Archive {
     }
 
     static String getTimeString(String collection, Calendar utcCalendar) {
-        final Calendar clonedCalendar = (Calendar) utcCalendar.clone();
+        int hour = utcCalendar.get(Calendar.HOUR_OF_DAY);
+        final int year = utcCalendar.get(Calendar.YEAR);
 
-        int hour = clonedCalendar.get(Calendar.HOUR_OF_DAY);
-        if (hour < 6 && collection.startsWith("fc_")) {
-            clonedCalendar.add(Calendar.DATE, -1);
-        }
-
-        final int year = clonedCalendar.get(Calendar.YEAR);
-
-        final int month = clonedCalendar.get(Calendar.MONTH) + 1;
+        final int month = utcCalendar.get(Calendar.MONTH) + 1;
         final String monthString = twoDigitsFormat.format(month);
 
-        final int day = clonedCalendar.get(Calendar.DAY_OF_MONTH);
+        final int day = utcCalendar.get(Calendar.DAY_OF_MONTH);
         final String dayString = twoDigitsFormat.format(day);
 
         if (collection.startsWith("an_")) {
@@ -86,6 +80,8 @@ class Era5Archive {
         String variable = variableType.substring(cutPoint + 1, variableType.length());
         variable = mapVariable(variable);
 
+        adjustCalendarForForecast(utcCalendar, collection);
+
         final String timeString = getTimeString(collection, utcCalendar);
         final String fileName = getFileName(collection, variable, timeString);
 
@@ -100,5 +96,13 @@ class Era5Archive {
         return rootPath + File.separator + collection + File.separator +
                 year + File.separator + monthString + File.separator + dayString + File.separator +
                 fileName;
+    }
+
+    // @todo 1 tb/tb make static and add test 2020-12-11
+    private void adjustCalendarForForecast(Calendar utcCalendar, String collection) {
+        int hour = utcCalendar.get(Calendar.HOUR_OF_DAY);
+        if (hour <= 6 && collection.startsWith("fc_")) {
+            utcCalendar.add(Calendar.DATE, -1);
+        }
     }
 }
