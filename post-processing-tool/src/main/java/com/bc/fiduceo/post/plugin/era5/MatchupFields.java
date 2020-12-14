@@ -70,9 +70,14 @@ class MatchupFields {
             final int[] nwpOffset = new int[]{0};
             final Index timeIndex = targetTimeArray.getIndex();
             final Set<String> variableKeys = variables.keySet();
+            final HashMap<String, Array> targetArrays = allocateTargetData(writer, variables);
+
+            // iterate over matchups
             for (final String variableKey : variableKeys) {
-                // iterate over matchups
-                for(int m = 0; m < numMatches; m++) {
+                final Array targetArray = targetArrays.get(variableKey);
+                final Index targetIndex = targetArray.getIndex();
+
+                for (int m = 0; m < numMatches; m++) {
                     nwpOffset[0] = m;
 
                     final Array lonLayer = lonArray.section(nwpOffset, nwpShape).reduce();
@@ -80,15 +85,41 @@ class MatchupFields {
 
                     final InterpolationContext interpolationContext = Era5PostProcessing.getInterpolationContext(lonLayer, latLayer);
                     final Rectangle layerRegion = interpolationContext.getEra5Region();
+                    final int[] offset = new int[]{0, layerRegion.y, layerRegion.x};
+                    final int[] shape = new int[]{1, layerRegion.height, layerRegion.width};
 
                     // iterate over time stamps
                     for (int t = 0; t < numTimeSteps; t++) {
                         timeIndex.set(m, t);
                         final int timeStamp = targetTimeArray.getInt(timeIndex);
-                        // @todo 1 tb/tb continue here 2020-12-10
                         final Variable variable = variableCache.get(variableKey, timeStamp);
+
+                        Array subset = variable.read(offset, shape).reduce();
+                        subset = NetCDFUtils.scaleIfNecessary(variable, subset);
+                        final Index subsetIndex = subset.getIndex();
+                        final BilinearInterpolator bilinearInterpolator = interpolationContext.get(0, 0);
+
+                        subsetIndex.set(0, 0);
+                        final float c00 = subset.getFloat(subsetIndex);
+
+                        subsetIndex.set(0, 1);
+                        final float c10 = subset.getFloat(subsetIndex);
+
+                        subsetIndex.set(1, 0);
+                        final float c01 = subset.getFloat(subsetIndex);
+
+                        subsetIndex.set(1, 1);
+                        final float c11 = subset.getFloat(subsetIndex);
+                        final double interpolated = bilinearInterpolator.interpolate(c00, c10, c01, c11);
+
+                        targetIndex.set(m, t);
+                        targetArray.setFloat(targetIndex, (float) interpolated);
                     }
                 }
+
+                final TemplateVariable templateVariable = variables.get(variableKey);
+                final Variable targetVariable = writer.findVariable(templateVariable.getName());
+                writer.write(targetVariable, targetArray);
             }
         } finally {
             variableCache.close();

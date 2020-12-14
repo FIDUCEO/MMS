@@ -64,7 +64,7 @@ class SatelliteFields {
             final int numMatches = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, reader);
             final int[] nwpShape = getNwpShape(geoDimension, lonArray.getShape());
             final int[] nwpOffset = getNwpOffset(lonArray.getShape(), nwpShape);
-            final HashMap<String, Array> targetArrays = allocateTargetData(writer);
+            final HashMap<String, Array> targetArrays = allocateTargetData(writer, variables);
 
             // iterate over matchups
             //   + convert geo-region to era-5 extract
@@ -165,19 +165,6 @@ class SatelliteFields {
         } finally {
             variableCache.close();
         }
-    }
-
-    private HashMap<String, Array> allocateTargetData(NetcdfFileWriter writer) {
-        final HashMap<String, Array> targetArrays = new HashMap<>();
-        final Set<Map.Entry<String, TemplateVariable>> entries = variables.entrySet();
-        for (final Map.Entry<String, TemplateVariable> entry : entries) {
-            final TemplateVariable templateVariable = entry.getValue();
-            final Variable variable = writer.findVariable(templateVariable.getName());
-            final Array targetArray = Array.factory(DataType.FLOAT, variable.getShape());
-            targetArrays.put(entry.getKey(), targetArray);
-        }
-
-        return targetArrays;
     }
 
     private Array readSubset(int numLayers, Rectangle era5RasterPosition, String variableKey, Variable variable) throws IOException, InvalidRangeException {

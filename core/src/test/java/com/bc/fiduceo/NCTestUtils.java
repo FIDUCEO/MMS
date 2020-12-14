@@ -172,6 +172,12 @@ public class NCTestUtils {
         assertEquals(expected, data.getInt(0));
     }
 
+    public static void assert2DValueFloat(int x, int y, float expected, Variable variable) throws IOException, InvalidRangeException {
+        assertNotNull("NetCDF Variable '" + variable.getShortName() + "' expected", variable);
+        final Array data = variable.read(new int[]{y, x}, new int[]{1, 1});
+        assertEquals(expected, data.getFloat(0), 1e-8);
+    }
+
     public static void assert3DValueDouble(int x, int y, int z, double expected, Variable variable) throws IOException, InvalidRangeException {
         assertNotNull("NetCDF Variable '" + variable.getShortName() + "' expected", variable);
         final Array data = variable.read(new int[]{z, y, x}, new int[]{1, 1, 1});

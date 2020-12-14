@@ -4,17 +4,14 @@ import com.bc.fiduceo.reader.ReaderUtils;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.util.StringUtils;
-import ucar.ma2.Array;
-import ucar.ma2.IndexIterator;
-import ucar.ma2.InvalidRangeException;
-import ucar.ma2.MAMath;
+import ucar.ma2.*;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
+import ucar.nc2.NetcdfFileWriter;
 import ucar.nc2.Variable;
 
 import java.io.IOException;
-import java.util.Calendar;
-import java.util.Date;
+import java.util.*;
 
 class VariableUtils {
 
@@ -117,5 +114,20 @@ class VariableUtils {
             rawData = MAMath.convert2Unpacked(rawData, scaleOffset);
         }
         return rawData.reduce();
+    }
+
+    static HashMap<String, Array> allocateTargetData(NetcdfFileWriter writer, Map<String, TemplateVariable> variables) {
+        final HashMap<String, Array> targetArrays = new HashMap<>();
+        final Set<Map.Entry<String, TemplateVariable>> entries = variables.entrySet();
+        for (final Map.Entry<String, TemplateVariable> entry : entries) {
+            final TemplateVariable templateVariable = entry.getValue();
+            final String name = templateVariable.getName();
+            final String escapedName = NetCDFUtils.escapeVariableName(name);
+            final Variable variable = writer.findVariable(escapedName);
+            final Array targetArray = Array.factory(DataType.FLOAT, variable.getShape());
+            targetArrays.put(entry.getKey(), targetArray);
+        }
+
+        return targetArrays;
     }
 }
