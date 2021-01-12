@@ -53,6 +53,7 @@ public class Era5PostProcessingPluginTest {
     public void testCreateConfiguration_satelliteFields() throws JDOMException, IOException {
         final String XML = "<era5>" +
                 "    <nwp-aux-dir>/where/the/data/is</nwp-aux-dir>" +
+                "    <era5-collection>The-One</era5-collection>" +
                 "    <satellite-fields>" +
                 "        <x_dim name='left' length='5' />" +
                 "        <y_dim name='right' length='7' />" +
@@ -80,6 +81,8 @@ public class Era5PostProcessingPluginTest {
         final Element rootElement = TestUtil.createDomElement(XML);
 
         final Configuration configuration = Era5PostProcessingPlugin.createConfiguration(rootElement);
+        assertEquals("The-One", configuration.getEra5Collection());
+
         final SatelliteFieldsConfiguration satConfig = configuration.getSatelliteFields();
         assertNotNull(satConfig);
 

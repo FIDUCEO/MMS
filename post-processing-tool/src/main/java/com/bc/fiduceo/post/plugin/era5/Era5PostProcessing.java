@@ -2,6 +2,7 @@ package com.bc.fiduceo.post.plugin.era5;
 
 import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.post.PostProcessing;
+import org.esa.snap.core.util.StringUtils;
 import ucar.ma2.Array;
 import ucar.ma2.Index;
 import ucar.ma2.InvalidRangeException;
@@ -141,6 +142,11 @@ class Era5PostProcessing extends PostProcessing {
             throw new RuntimeException("Expected dimension not present in file: " + FiduceoConstants.MATCHUP_COUNT);
         }
 
+        // @todo 1 tb/tb add generic prepare for global meta
+        // - ERA5 collection string
+
+        prepare(writer);
+
         final SatelliteFieldsConfiguration satFieldsConfig = configuration.getSatelliteFields();
         if (satFieldsConfig != null) {
             satelliteFields = new SatelliteFields();
@@ -152,6 +158,32 @@ class Era5PostProcessing extends PostProcessing {
             matchupFields = new MatchupFields();
             matchupFields.prepare(matchupFieldsConfig, reader, writer);
         }
+    }
+
+    private void prepare(NetcdfFileWriter writer) {
+        String collection = getEra5Collection(configuration);
+        writer.addGlobalAttribute("era5-collection", collection);
+    }
+
+    // package access for testing only tb 2021-01-12
+    static String getEra5Collection(Configuration configuration) {
+        String collection = configuration.getEra5Collection();
+        if (StringUtils.isNotNullAndNotEmpty(collection)) {
+            return collection;
+        }
+
+        // we need to find the collection in the path-name
+        final String nwpAuxDir = configuration.getNWPAuxDir();
+        final String upperCaseAuxDir = nwpAuxDir.toUpperCase();
+        collection = "UNKNOWN";
+        if (upperCaseAuxDir.contains("ERA5T") || upperCaseAuxDir.contains("ERA-5T")) {
+            collection = "ERA-5T";
+        } else if (upperCaseAuxDir.contains("ERA51") || upperCaseAuxDir.contains("ERA-51")) {
+            collection = "ERA-51";
+        } else if (upperCaseAuxDir.contains("ERA5") || upperCaseAuxDir.contains("ERA-5")) {
+            collection = "ERA-5";
+        }
+        return collection;
     }
 
     @Override

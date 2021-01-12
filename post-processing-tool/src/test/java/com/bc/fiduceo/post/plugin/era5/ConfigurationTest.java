@@ -17,6 +17,15 @@ public class ConfigurationTest {
     }
 
     @Test
+    public void testSetGetEra5Collection() {
+        final String collection = "the-most-recent";
+
+        final Configuration config = new Configuration();
+        config.setEra5Collection(collection);
+        assertEquals(collection, config.getEra5Collection());
+    }
+
+    @Test
     public void testSetGetSatelliteFields() {
         final Configuration config = new Configuration();
         final SatelliteFieldsConfiguration satFields = new SatelliteFieldsConfiguration();

@@ -3,6 +3,7 @@ package com.bc.fiduceo.post.plugin.era5;
 import com.bc.fiduceo.post.PostProcessing;
 import com.bc.fiduceo.post.PostProcessingPlugin;
 import com.bc.fiduceo.util.JDomUtils;
+import org.esa.snap.core.util.StringUtils;
 import org.jdom.Attribute;
 import org.jdom.Element;
 
@@ -13,6 +14,14 @@ public class Era5PostProcessingPlugin implements PostProcessingPlugin {
 
         final String nwpAuxDirValue = JDomUtils.getMandatoryChildTextTrim(rootElement, "nwp-aux-dir");
         configuration.setNWPAuxDir(nwpAuxDirValue);
+
+        final Element era5CollectionElement = rootElement.getChild("era5-collection");
+        if (era5CollectionElement != null) {
+            final String value = era5CollectionElement.getValue();
+            if (StringUtils.isNotNullAndNotEmpty(value)) {
+                configuration.setEra5Collection(value);
+            }
+        }
 
         parseSatelliteFields(rootElement, configuration);
         parseMatchupFields(rootElement, configuration);
