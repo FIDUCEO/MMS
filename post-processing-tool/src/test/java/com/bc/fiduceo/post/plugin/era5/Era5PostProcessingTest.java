@@ -108,4 +108,29 @@ public class Era5PostProcessingTest {
         configuration.setNWPAuxDir("/data/ERA-5T");
         assertEquals("ERA-5T", Era5PostProcessing.getEra5Collection(configuration));
     }
+
+    @Test
+    public void testGetLonMin() {
+        assertEquals(0, Era5PostProcessing.getEra5LonMin(-179.99f));
+        assertEquals(0, Era5PostProcessing.getEra5LonMin(-179.84f));
+        assertEquals(1, Era5PostProcessing.getEra5LonMin(-179.67f));
+        assertEquals(405, Era5PostProcessing.getEra5LonMin(-78.54f));
+        assertEquals(624, Era5PostProcessing.getEra5LonMin(-23.8f));
+        assertEquals(718, Era5PostProcessing.getEra5LonMin(-0.26f));
+        assertEquals(719, Era5PostProcessing.getEra5LonMin(0.f));
+        assertEquals(893, Era5PostProcessing.getEra5LonMin(43.32f));
+        assertEquals(1438, Era5PostProcessing.getEra5LonMin(179.58f));
+        assertEquals(1438, Era5PostProcessing.getEra5LonMin(179.72f));
+        assertEquals(1439, Era5PostProcessing.getEra5LonMin(179.98f));
+        assertEquals(1439, Era5PostProcessing.getEra5LonMin(179.99f));
+    }
+
+    @Test
+    public void testGetLatMin() {
+        assertEquals(0, Era5PostProcessing.getEra5LatMin(89.95f));
+        assertEquals(88, Era5PostProcessing.getEra5LatMin(67.87f));
+        assertEquals(359, Era5PostProcessing.getEra5LatMin(0.f));
+        assertEquals(448, Era5PostProcessing.getEra5LatMin(-22.19f));
+        assertEquals(719, Era5PostProcessing.getEra5LatMin(-89.95f));
+    }
 }

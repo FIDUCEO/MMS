@@ -30,13 +30,13 @@ class Era5PostProcessing extends PostProcessing {
         matchupFields = null;
     }
 
-    private static int getEra5LatMin(float latMax) {
+    static int getEra5LatMin(float latMax) {
         final double shiftedLat = latMax + EPS;
         final double scaledLatMax = Math.ceil(shiftedLat * 4) / 4;
         return (int) ((90.0 - scaledLatMax) * 4.0);
     }
 
-    private static int getEra5LonMin(float lonMin) {
+    static int getEra5LonMin(float lonMin) {
         final double shiftedLon = lonMin - EPS;
         final double normLonMin = shiftedLon + 180.0;
         final double scaledLonMin = Math.floor(normLonMin * 4) / 4;
@@ -141,9 +141,6 @@ class Era5PostProcessing extends PostProcessing {
         if (matchupCountDimension == null) {
             throw new RuntimeException("Expected dimension not present in file: " + FiduceoConstants.MATCHUP_COUNT);
         }
-
-        // @todo 1 tb/tb add generic prepare for global meta
-        // - ERA5 collection string
 
         prepare(writer);
 
