@@ -1,9 +1,11 @@
 package com.bc.fiduceo.post.plugin.era5;
 
 import com.bc.fiduceo.FiduceoConstants;
-import com.bc.fiduceo.reader.ReaderUtils;
 import com.bc.fiduceo.util.NetCDFUtils;
-import ucar.ma2.*;
+import ucar.ma2.Array;
+import ucar.ma2.DataType;
+import ucar.ma2.Index;
+import ucar.ma2.InvalidRangeException;
 import ucar.nc2.*;
 import ucar.nc2.Dimension;
 
@@ -16,9 +18,116 @@ import static com.bc.fiduceo.post.plugin.era5.VariableUtils.*;
 
 class SatelliteFields {
 
+    private static final int RASTER_WIDTH = 1440;
+
     private List<Dimension> dimension2d;
     private List<Dimension> dimension3d;
     private Map<String, TemplateVariable> variables;
+
+    static Array readSubset(int numLayers, Rectangle era5RasterPosition, Variable variable) throws IOException, InvalidRangeException {
+        Array subset = null;
+        final int maxRequestedX = era5RasterPosition.x + era5RasterPosition.width;
+        if (era5RasterPosition.x < 0 || maxRequestedX >= RASTER_WIDTH) {
+            int xMin = 0;
+            int xMax;
+            int leftWidth;
+            int rightWidth;
+            if (era5RasterPosition.x < 0) {
+                xMax = RASTER_WIDTH + era5RasterPosition.x; // notabene: rasterposition is negative tb 2021-01-13
+                leftWidth = era5RasterPosition.width + era5RasterPosition.x;
+                rightWidth = -era5RasterPosition.x;
+            } else {
+                xMax = era5RasterPosition.x;
+                rightWidth = RASTER_WIDTH - era5RasterPosition.x;
+                leftWidth = era5RasterPosition.width - rightWidth;
+            }
+            final Rectangle leftEraPos = new Rectangle(xMin, era5RasterPosition.y, leftWidth, era5RasterPosition.height);
+            final Array leftSubset = readVariableData(numLayers, leftEraPos, variable);
+
+            final Rectangle rightEraPos = new Rectangle(xMax, era5RasterPosition.y, rightWidth, era5RasterPosition.height);
+            final Array rightSubset = readVariableData(numLayers, rightEraPos, variable);
+
+            subset = mergeData(leftSubset, rightSubset, numLayers, era5RasterPosition, variable);
+        } else {
+            subset = readVariableData(numLayers, era5RasterPosition, variable);
+        }
+        return NetCDFUtils.scaleIfNecessary(variable, subset);
+    }
+
+    static Array mergeData(Array leftSubset, Array rightSubset, int numLayers, Rectangle era5RasterPosition, Variable variable) {
+        final int rank = variable.getRank();
+        final Array mergedArray;
+        if (rank == 4) {
+            mergedArray = Array.factory(variable.getDataType(), new int[]{numLayers, era5RasterPosition.height, era5RasterPosition.width});
+        } else {
+            mergedArray = Array.factory(variable.getDataType(), new int[]{era5RasterPosition.height, era5RasterPosition.width});
+            final Index targetIndex = mergedArray.getIndex();
+            if (era5RasterPosition.x < 0) {
+                Index srcIndex = leftSubset.getIndex();
+                int srcX = 0;
+                for (int x = 0; x < -era5RasterPosition.x; x++) {
+                    for (int y = 0; y < era5RasterPosition.height; y++) {
+                        targetIndex.set(y, x);
+                        srcIndex.set(y, srcX);
+                        mergedArray.setObject(targetIndex, leftSubset.getObject(srcIndex));
+                    }
+                    ++srcX;
+                }
+                srcIndex = rightSubset.getIndex();
+                srcX = 0;
+                for (int x = -era5RasterPosition.x; x < era5RasterPosition.width; x++) {
+                    for (int y = 0; y < era5RasterPosition.height; y++) {
+                        targetIndex.set(y, x);
+                        srcIndex.set(y, srcX);
+                        mergedArray.setObject(targetIndex, rightSubset.getObject(srcIndex));
+                    }
+                    ++srcX;
+                }
+            } else {
+                Index srcIndex = rightSubset.getIndex();
+                int srcX = 0;
+                for (int x = 0; x < RASTER_WIDTH - era5RasterPosition.x; x++) {
+                    for (int y = 0; y < era5RasterPosition.height; y++) {
+                        targetIndex.set(y, x);
+                        srcIndex.set(y, srcX);
+                        mergedArray.setObject(targetIndex, rightSubset.getObject(srcIndex));
+                    }
+                    ++srcX;
+                }
+                srcIndex = leftSubset.getIndex();
+                srcX = 0;
+                for (int x = RASTER_WIDTH - era5RasterPosition.x; x < era5RasterPosition.width; x++) {
+                    for (int y = 0; y < era5RasterPosition.height; y++) {
+                        targetIndex.set(y, x);
+                        srcIndex.set(y, srcX);
+                        mergedArray.setObject(targetIndex, leftSubset.getObject(srcIndex));
+                    }
+                    ++srcX;
+                }
+            }
+        }
+
+        return mergedArray;
+    }
+
+    private static Array readVariableData(int numLayers, Rectangle era5RasterPosition, Variable variable) throws IOException, InvalidRangeException {
+        final int rank = variable.getRank();
+        Array subset;
+        if (rank == 3) {
+            final int[] origin = new int[]{0, era5RasterPosition.y, era5RasterPosition.x};
+            final int[] shape = new int[]{1, era5RasterPosition.height, era5RasterPosition.width};
+            subset = variable.read(origin, shape);
+        } else if (rank == 4) {
+            final int[] origin = new int[]{0, 0, era5RasterPosition.y, era5RasterPosition.x};
+            final int[] shape = new int[]{1, numLayers, era5RasterPosition.height, era5RasterPosition.width};
+            subset = variable.read(origin, shape);
+        } else {
+            throw new IOException("variable rank invalid: " + variable.getShortName());
+        }
+
+        subset = subset.reduce();
+        return subset;
+    }
 
     void prepare(SatelliteFieldsConfiguration satFieldsConfig, NetcdfFile reader, NetcdfFileWriter writer) {
         satFieldsConfig.verify();
@@ -96,7 +205,7 @@ class SatelliteFields {
                 final Set<String> variableKeys = variables.keySet();
                 for (final String variableKey : variableKeys) {
                     final Variable variable = variableCache.get(variableKey, era5Time);
-                    final Array subset = readSubset(numLayers, layerRegion, variableKey, variable);
+                    final Array subset = readSubset(numLayers, layerRegion, variable);
                     final Index subsetIndex = subset.getIndex();
 
                     final Array targetArray = targetArrays.get(variableKey);
@@ -165,26 +274,6 @@ class SatelliteFields {
         } finally {
             variableCache.close();
         }
-    }
-
-    private Array readSubset(int numLayers, Rectangle era5RasterPosition, String variableKey, Variable variable) throws IOException, InvalidRangeException {
-        final int rank = variable.getRank();
-        Array subset;
-        if (rank == 3) {
-            final int[] origin = new int[]{0, era5RasterPosition.y, era5RasterPosition.x};
-            final int[] shape = new int[]{1, era5RasterPosition.height, era5RasterPosition.width};
-            subset = variable.read(origin, shape);
-        } else if (rank == 4) {
-            final int[] origin = new int[]{0, 0, era5RasterPosition.y, era5RasterPosition.x};
-            final int[] shape = new int[]{1, numLayers, era5RasterPosition.height, era5RasterPosition.width};
-            subset = variable.read(origin, shape);
-        } else {
-            throw new IOException("variable rank invalid: " + variableKey);
-        }
-
-        subset = subset.reduce();
-        subset = NetCDFUtils.scaleIfNecessary(variable, subset);
-        return subset;
     }
 
     private void addTimeVariable(SatelliteFieldsConfiguration satFieldsConfig, NetcdfFileWriter writer) {
