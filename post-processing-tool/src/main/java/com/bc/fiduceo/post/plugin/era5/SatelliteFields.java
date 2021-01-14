@@ -67,10 +67,17 @@ class SatelliteFields {
         final Array mergedArray;
         if (rank == 4) {
             mergedArray = Array.factory(variable.getDataType(), new int[]{numLayers, era5RasterPosition.height, era5RasterPosition.width});
+            if (era5RasterPosition.x < 0) {
+                final int xMax = era5RasterPosition.width + era5RasterPosition.x;
+                mergeArrays_3D(leftSubset, rightSubset, era5RasterPosition, mergedArray, xMax);
+            } else {
+                final int xMax = RASTER_WIDTH - era5RasterPosition.x;
+                mergeArrays_3D(rightSubset, leftSubset, era5RasterPosition, mergedArray, xMax);
+            }
         } else {
             mergedArray = Array.factory(variable.getDataType(), new int[]{era5RasterPosition.height, era5RasterPosition.width});
             if (era5RasterPosition.x < 0) {
-                final int xMax = era5RasterPosition.width  + era5RasterPosition.x;
+                final int xMax = era5RasterPosition.width + era5RasterPosition.x;
                 mergeArrays(leftSubset, rightSubset, era5RasterPosition, mergedArray, xMax);
             } else {
                 final int xMax = RASTER_WIDTH - era5RasterPosition.x;
@@ -100,6 +107,35 @@ class SatelliteFields {
                 targetIndex.set(y, x);
                 srcIndex.set(y, srcX);
                 mergedArray.setObject(targetIndex, rightSubset.getObject(srcIndex));
+            }
+            ++srcX;
+        }
+    }
+
+    private static void mergeArrays_3D(Array leftSubset, Array rightSubset, Rectangle era5RasterPosition, Array mergedArray, int xMax) {
+        final Index targetIndex = mergedArray.getIndex();
+        Index srcIndex = leftSubset.getIndex();
+        int srcX = 0;
+        final int numLayers = leftSubset.getShape()[0];
+        for (int x = 0; x < xMax; x++) {
+            for (int y = 0; y < era5RasterPosition.height; y++) {
+                for (int z = 0; z < numLayers; z++) {
+                    targetIndex.set(z, y, x);
+                    srcIndex.set(z, y, srcX);
+                    mergedArray.setObject(targetIndex, leftSubset.getObject(srcIndex));
+                }
+            }
+            ++srcX;
+        }
+        srcIndex = rightSubset.getIndex();
+        srcX = 0;
+        for (int x = xMax; x < era5RasterPosition.width; x++) {
+            for (int y = 0; y < era5RasterPosition.height; y++) {
+                for (int z = 0; z < numLayers; z++) {
+                    targetIndex.set(z, y, x);
+                    srcIndex.set(z, y, srcX);
+                    mergedArray.setObject(targetIndex, rightSubset.getObject(srcIndex));
+                }
             }
             ++srcX;
         }

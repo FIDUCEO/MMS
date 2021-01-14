@@ -5,16 +5,16 @@ import org.junit.Test;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.Index;
-import ucar.nc2.*;
 import ucar.nc2.Dimension;
+import ucar.nc2.NetcdfFile;
+import ucar.nc2.NetcdfFileWriter;
+import ucar.nc2.Variable;
 
 import java.awt.*;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -119,29 +119,8 @@ public class SatelliteFieldsTest {
 
     @Test
     public void testMergeData_2D_left() {
-        final Array right = Array.factory(DataType.INT, new int[]{3, 1});
-        Index index = right.getIndex();
-        index.set(0, 0);
-        right.setInt(index, 1);
-        index.set(1, 0);
-        right.setInt(index, 2);
-        index.set(2, 0);
-        right.setInt(index, 3);
-
-        final Array left = Array.factory(DataType.INT, new int[]{3, 2});
-        index = left.getIndex();
-        index.set(0, 0);
-        left.setInt(index, 4);
-        index.set(0, 1);
-        left.setInt(index, 5);
-        index.set(1, 0);
-        left.setInt(index, 6);
-        index.set(1, 1);
-        left.setInt(index, 7);
-        index.set(2, 0);
-        left.setInt(index, 8);
-        index.set(2, 1);
-        left.setInt(index, 9);
+        final Array right = createArray(3, 1, 1);
+        final Array left = createArray(3, 2, 4);
 
         final Variable variable = mock(Variable.class);
         when(variable.getRank()).thenReturn(3);
@@ -153,7 +132,7 @@ public class SatelliteFieldsTest {
         assertEquals(3, shape[0]);
         assertEquals(3, shape[1]);
 
-        index = merged.getIndex();
+        final Index index = merged.getIndex();
         index.set(0, 0);
         assertEquals(4, merged.getInt(index));
         index.set(0, 1);
@@ -168,29 +147,8 @@ public class SatelliteFieldsTest {
 
     @Test
     public void testMergeData_2D_right() {
-        final Array left = Array.factory(DataType.INT, new int[]{3, 1});
-        Index index = left.getIndex();
-        index.set(0, 0);
-        left.setInt(index, 6);
-        index.set(1, 0);
-        left.setInt(index, 7);
-        index.set(2, 0);
-        left.setInt(index, 8);
-
-        final Array right = Array.factory(DataType.INT, new int[]{3, 2});
-        index = right.getIndex();
-        index.set(0, 0);
-        right.setInt(index, 0);
-        index.set(0, 1);
-        right.setInt(index, 1);
-        index.set(1, 0);
-        right.setInt(index, 2);
-        index.set(1, 1);
-        right.setInt(index, 3);
-        index.set(2, 0);
-        right.setInt(index, 4);
-        index.set(2, 1);
-        right.setInt(index, 5);
+        final Array left = createArray(3, 1, 6);
+        final Array right = createArray(3, 2, 0);
 
         final Variable variable = mock(Variable.class);
         when(variable.getRank()).thenReturn(3);
@@ -202,7 +160,7 @@ public class SatelliteFieldsTest {
         assertEquals(3, shape[0]);
         assertEquals(3, shape[1]);
 
-        index = merged.getIndex();
+        final Index index = merged.getIndex();
         index.set(0, 0);
         assertEquals(0, merged.getInt(index));
         index.set(0, 1);
@@ -213,6 +171,108 @@ public class SatelliteFieldsTest {
         verify(variable, times(1)).getRank();
         verify(variable, times(1)).getDataType();
         verifyNoMoreInteractions(variable);
+    }
+
+    @Test
+    public void testMergeData_3D_left() {
+        final Array right = createArray_3D(5, 3, 1, 1);
+        final Array left = createArray_3D(5, 3, 2, 100);
+
+        final Variable variable = mock(Variable.class);
+        when(variable.getRank()).thenReturn(4);
+        when(variable.getDataType()).thenReturn(DataType.INT);
+
+        final Array merged = SatelliteFields.mergeData(left, right, 5, new Rectangle(-1, 100, 3, 3), variable);
+        final int[] shape = merged.getShape();
+        assertEquals(3, shape.length);
+        assertEquals(5, shape[0]);
+        assertEquals(3, shape[1]);
+        assertEquals(3, shape[2]);
+
+        final Index index = merged.getIndex();
+        index.set(0, 0, 0);
+        assertEquals(100, merged.getInt(index));
+        index.set(0, 0, 1);
+        assertEquals(101, merged.getInt(index));
+        index.set(0, 0, 2);
+        assertEquals(1, merged.getInt(index));
+
+        index.set(1, 0, 0);
+        assertEquals(106, merged.getInt(index));
+        index.set(1, 0, 1);
+        assertEquals(107, merged.getInt(index));
+        index.set(1, 0, 2);
+        assertEquals(4, merged.getInt(index));
+
+        verify(variable, times(1)).getRank();
+        verify(variable, times(1)).getDataType();
+        verifyNoMoreInteractions(variable);
+    }
+
+    @Test
+    public void testMergeData_3D_right() {
+        final Array left = createArray_3D(6, 3, 1, 0);
+        final Array right = createArray_3D(6, 3, 2, 100);
+
+        final Variable variable = mock(Variable.class);
+        when(variable.getRank()).thenReturn(4);
+        when(variable.getDataType()).thenReturn(DataType.INT);
+
+        final Array merged = SatelliteFields.mergeData(left, right, 6, new Rectangle(1438, 100, 3, 3), variable);
+        final int[] shape = merged.getShape();
+        assertEquals(3, shape.length);
+        assertEquals(6, shape[0]);
+        assertEquals(3, shape[1]);
+        assertEquals(3, shape[1]);
+
+        final Index index = merged.getIndex();
+        index.set(1, 0, 0);
+        assertEquals(106, merged.getInt(index));
+        index.set(1, 0, 1);
+        assertEquals(107, merged.getInt(index));
+        index.set(1, 0, 2);
+        assertEquals(3, merged.getInt(index));
+
+        index.set(2, 0, 0);
+        assertEquals(112, merged.getInt(index));
+        index.set(2, 0, 1);
+        assertEquals(113, merged.getInt(index));
+        index.set(2, 0, 2);
+        assertEquals(6, merged.getInt(index));
+
+        verify(variable, times(1)).getRank();
+        verify(variable, times(1)).getDataType();
+        verifyNoMoreInteractions(variable);
+    }
+
+    private Array createArray(int height, int width, int start) {
+        final Array array = Array.factory(DataType.INT, new int[]{height, width});
+        Index index = array.getIndex();
+        int value = start;
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                index.set(y, x);
+                array.setInt(index, value);
+                ++value;
+            }
+        }
+        return array;
+    }
+
+    private Array createArray_3D(int depth, int height, int width, int start) {
+        final Array array = Array.factory(DataType.INT, new int[]{depth, height, width});
+        Index index = array.getIndex();
+        int value = start;
+        for (int z = 0; z < depth; z++) {
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    index.set(z, y, x);
+                    array.setInt(index, value);
+                    ++value;
+                }
+            }
+        }
+        return array;
     }
 
     private SatelliteFieldsConfiguration createConfig() {
