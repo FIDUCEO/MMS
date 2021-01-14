@@ -119,29 +119,29 @@ public class SatelliteFieldsTest {
 
     @Test
     public void testMergeData_2D_left() {
-        final Array left = Array.factory(DataType.INT, new int[]{3, 1});
-        Index index = left.getIndex();
+        final Array right = Array.factory(DataType.INT, new int[]{3, 1});
+        Index index = right.getIndex();
         index.set(0, 0);
-        left.setInt(index, 1);
+        right.setInt(index, 1);
         index.set(1, 0);
-        left.setInt(index, 2);
+        right.setInt(index, 2);
         index.set(2, 0);
-        left.setInt(index, 3);
+        right.setInt(index, 3);
 
-        final Array right = Array.factory(DataType.INT, new int[]{3, 2});
-        index = right.getIndex();
+        final Array left = Array.factory(DataType.INT, new int[]{3, 2});
+        index = left.getIndex();
         index.set(0, 0);
-        right.setInt(index, 4);
+        left.setInt(index, 4);
         index.set(0, 1);
-        right.setInt(index, 5);
+        left.setInt(index, 5);
         index.set(1, 0);
-        right.setInt(index, 6);
+        left.setInt(index, 6);
         index.set(1, 1);
-        right.setInt(index, 7);
+        left.setInt(index, 7);
         index.set(2, 0);
-        right.setInt(index, 8);
+        left.setInt(index, 8);
         index.set(2, 1);
-        right.setInt(index, 9);
+        left.setInt(index, 9);
 
         final Variable variable = mock(Variable.class);
         when(variable.getRank()).thenReturn(3);
@@ -155,11 +155,11 @@ public class SatelliteFieldsTest {
 
         index = merged.getIndex();
         index.set(0, 0);
-        assertEquals(1, merged.getInt(index));
-        index.set(0, 1);
         assertEquals(4, merged.getInt(index));
-        index.set(0, 2);
+        index.set(0, 1);
         assertEquals(5, merged.getInt(index));
+        index.set(0, 2);
+        assertEquals(1, merged.getInt(index));
 
         verify(variable, times(1)).getRank();
         verify(variable, times(1)).getDataType();

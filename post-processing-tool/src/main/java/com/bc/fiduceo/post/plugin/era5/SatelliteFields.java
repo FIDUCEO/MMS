@@ -25,33 +25,41 @@ class SatelliteFields {
     private Map<String, TemplateVariable> variables;
 
     static Array readSubset(int numLayers, Rectangle era5RasterPosition, Variable variable) throws IOException, InvalidRangeException {
-        Array subset = null;
+        Array subset;
+
         final int maxRequestedX = era5RasterPosition.x + era5RasterPosition.width;
         if (era5RasterPosition.x < 0 || maxRequestedX >= RASTER_WIDTH) {
-            int xMin = 0;
-            int xMax;
-            int leftWidth;
-            int rightWidth;
-            if (era5RasterPosition.x < 0) {
-                xMax = RASTER_WIDTH + era5RasterPosition.x; // notabene: rasterposition is negative tb 2021-01-13
-                leftWidth = era5RasterPosition.width + era5RasterPosition.x;
-                rightWidth = -era5RasterPosition.x;
-            } else {
-                xMax = era5RasterPosition.x;
-                rightWidth = RASTER_WIDTH - era5RasterPosition.x;
-                leftWidth = era5RasterPosition.width - rightWidth;
-            }
-            final Rectangle leftEraPos = new Rectangle(xMin, era5RasterPosition.y, leftWidth, era5RasterPosition.height);
-            final Array leftSubset = readVariableData(numLayers, leftEraPos, variable);
-
-            final Rectangle rightEraPos = new Rectangle(xMax, era5RasterPosition.y, rightWidth, era5RasterPosition.height);
-            final Array rightSubset = readVariableData(numLayers, rightEraPos, variable);
-
-            subset = mergeData(leftSubset, rightSubset, numLayers, era5RasterPosition, variable);
+            subset = readVariableDataOverlapped(numLayers, era5RasterPosition, variable);
         } else {
             subset = readVariableData(numLayers, era5RasterPosition, variable);
         }
+
         return NetCDFUtils.scaleIfNecessary(variable, subset);
+    }
+
+    private static Array readVariableDataOverlapped(int numLayers, Rectangle era5RasterPosition, Variable variable) throws IOException, InvalidRangeException {
+        Array subset;
+        int xMin = 0;
+        int xMax;
+        int leftWidth;
+        int rightWidth;
+        if (era5RasterPosition.x < 0) {
+            xMax = RASTER_WIDTH + era5RasterPosition.x; // notabene: rasterposition is negative tb 2021-01-13
+            leftWidth = era5RasterPosition.width + era5RasterPosition.x;
+            rightWidth = -era5RasterPosition.x;
+        } else {
+            xMax = era5RasterPosition.x;
+            rightWidth = RASTER_WIDTH - era5RasterPosition.x;
+            leftWidth = era5RasterPosition.width - rightWidth;
+        }
+        final Rectangle leftEraPos = new Rectangle(xMin, era5RasterPosition.y, leftWidth, era5RasterPosition.height);
+        final Array leftSubset = readVariableData(numLayers, leftEraPos, variable);
+
+        final Rectangle rightEraPos = new Rectangle(xMax, era5RasterPosition.y, rightWidth, era5RasterPosition.height);
+        final Array rightSubset = readVariableData(numLayers, rightEraPos, variable);
+
+        subset = mergeData(leftSubset, rightSubset, numLayers, era5RasterPosition, variable);
+        return subset;
     }
 
     static Array mergeData(Array leftSubset, Array rightSubset, int numLayers, Rectangle era5RasterPosition, Variable variable) {
@@ -61,53 +69,40 @@ class SatelliteFields {
             mergedArray = Array.factory(variable.getDataType(), new int[]{numLayers, era5RasterPosition.height, era5RasterPosition.width});
         } else {
             mergedArray = Array.factory(variable.getDataType(), new int[]{era5RasterPosition.height, era5RasterPosition.width});
-            final Index targetIndex = mergedArray.getIndex();
             if (era5RasterPosition.x < 0) {
-                Index srcIndex = leftSubset.getIndex();
-                int srcX = 0;
-                for (int x = 0; x < -era5RasterPosition.x; x++) {
-                    for (int y = 0; y < era5RasterPosition.height; y++) {
-                        targetIndex.set(y, x);
-                        srcIndex.set(y, srcX);
-                        mergedArray.setObject(targetIndex, leftSubset.getObject(srcIndex));
-                    }
-                    ++srcX;
-                }
-                srcIndex = rightSubset.getIndex();
-                srcX = 0;
-                for (int x = -era5RasterPosition.x; x < era5RasterPosition.width; x++) {
-                    for (int y = 0; y < era5RasterPosition.height; y++) {
-                        targetIndex.set(y, x);
-                        srcIndex.set(y, srcX);
-                        mergedArray.setObject(targetIndex, rightSubset.getObject(srcIndex));
-                    }
-                    ++srcX;
-                }
+                final int xMax = era5RasterPosition.width  + era5RasterPosition.x;
+                mergeArrays(leftSubset, rightSubset, era5RasterPosition, mergedArray, xMax);
             } else {
-                Index srcIndex = rightSubset.getIndex();
-                int srcX = 0;
-                for (int x = 0; x < RASTER_WIDTH - era5RasterPosition.x; x++) {
-                    for (int y = 0; y < era5RasterPosition.height; y++) {
-                        targetIndex.set(y, x);
-                        srcIndex.set(y, srcX);
-                        mergedArray.setObject(targetIndex, rightSubset.getObject(srcIndex));
-                    }
-                    ++srcX;
-                }
-                srcIndex = leftSubset.getIndex();
-                srcX = 0;
-                for (int x = RASTER_WIDTH - era5RasterPosition.x; x < era5RasterPosition.width; x++) {
-                    for (int y = 0; y < era5RasterPosition.height; y++) {
-                        targetIndex.set(y, x);
-                        srcIndex.set(y, srcX);
-                        mergedArray.setObject(targetIndex, leftSubset.getObject(srcIndex));
-                    }
-                    ++srcX;
-                }
+                final int xMax = RASTER_WIDTH - era5RasterPosition.x;
+                mergeArrays(rightSubset, leftSubset, era5RasterPosition, mergedArray, xMax);
             }
         }
 
         return mergedArray;
+    }
+
+    private static void mergeArrays(Array leftSubset, Array rightSubset, Rectangle era5RasterPosition, Array mergedArray, int xMax) {
+        final Index targetIndex = mergedArray.getIndex();
+        Index srcIndex = leftSubset.getIndex();
+        int srcX = 0;
+        for (int x = 0; x < xMax; x++) {
+            for (int y = 0; y < era5RasterPosition.height; y++) {
+                targetIndex.set(y, x);
+                srcIndex.set(y, srcX);
+                mergedArray.setObject(targetIndex, leftSubset.getObject(srcIndex));
+            }
+            ++srcX;
+        }
+        srcIndex = rightSubset.getIndex();
+        srcX = 0;
+        for (int x = xMax; x < era5RasterPosition.width; x++) {
+            for (int y = 0; y < era5RasterPosition.height; y++) {
+                targetIndex.set(y, x);
+                srcIndex.set(y, srcX);
+                mergedArray.setObject(targetIndex, rightSubset.getObject(srcIndex));
+            }
+            ++srcX;
+        }
     }
 
     private static Array readVariableData(int numLayers, Rectangle era5RasterPosition, Variable variable) throws IOException, InvalidRangeException {
@@ -125,7 +120,9 @@ class SatelliteFields {
             throw new IOException("variable rank invalid: " + variable.getShortName());
         }
 
-        subset = subset.reduce();
+        // remove the time dimension of length 1 tb 2021-01-14
+        subset = subset.reduce(0);
+
         return subset;
     }
 
