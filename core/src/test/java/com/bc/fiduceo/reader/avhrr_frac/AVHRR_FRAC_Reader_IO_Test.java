@@ -13,6 +13,7 @@ import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.time.TimeLocator;
 import com.bc.fiduceo.util.TempFileUtils;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.Array;
@@ -186,8 +187,11 @@ public class AVHRR_FRAC_Reader_IO_Test {
     }
 
     @Test
+    @Ignore
     public void testReadAcquisitionInfo_MC() throws IOException {
         final File file = getAvhrrFRAC_MC_File();
+
+        // @todo 1 tb/tb continue here
 
         try {
             reader.open(file);
