@@ -30,6 +30,7 @@ import ucar.nc2.*;
 import ucar.nc2.iosp.netcdf3.N3iosp;
 import ucar.unidata.io.RandomAccessFile;
 
+import javax.xml.crypto.Data;
 import java.io.IOException;
 
 public class NetCDFUtils {
@@ -465,5 +466,15 @@ public class NetCDFUtils {
         }
         final int[] shape = new int[]{data.length, linelength};
         return Array.factory(DataType.DOUBLE, shape, flatData);
+    }
+
+    public static Array create(DataType dataType, int[] shape, Number fillValue) {
+        final Array array = Array.factory(dataType, shape);
+        final int size = (int) array.getSize();
+        for (int i = 0; i < size; i++) {
+            array.setObject(i, fillValue);
+        }
+
+        return array;
     }
 }

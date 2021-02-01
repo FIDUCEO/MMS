@@ -119,7 +119,7 @@ public class AVHRR_FRAC_Reader extends SNAP_Reader {
         final DataType targetDataType = NetCDFUtils.getNetcdfDataType(dataNode.getDataType());
         final int[] shape = getShape(interval);
         final Array readArray = Array.factory(targetDataType, shape);
-        final Array targetArray = Array.factory(targetDataType, shape);
+        final Array targetArray = NetCDFUtils.create(targetDataType, shape, noDataValue);
 
         final int width = interval.getX();
         final int height = interval.getY();
@@ -138,12 +138,11 @@ public class AVHRR_FRAC_Reader extends SNAP_Reader {
             final int currentY = yOffset + y;
             for (int x = 0; x < height; x++) {
                 final int currentX = xOffset + x;
-                index.set(y, x);
+
                 if (currentX >= 0 && currentX < sceneRasterWidth && currentY >= 0 && currentY < sceneRasterHeight) {
+                    index.set(y, x);
                     targetArray.setObject(index, readArray.getObject(readIndex));
                     ++readIndex;
-                } else {
-                    targetArray.setObject(index, noDataValue);
                 }
             }
         }

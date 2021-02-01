@@ -225,7 +225,7 @@ public class SlstrReader extends SNAP_Reader {
         final int height = mappedInterval.getY();
         final int[] shape = getShape(mappedInterval);
         final Array readArray = Array.factory(targetDataType, shape);
-        final Array targetArray = Array.factory(targetDataType, shape);
+        final Array targetArray = NetCDFUtils.create(targetDataType, shape, noDataValue);
 
         final int mappedX = (int) (transform.mapCoordinate_X(centerX) + 0.5);
         final int mappedY = (int) (transform.mapCoordinate_Y(centerY) + 0.5);
@@ -241,12 +241,11 @@ public class SlstrReader extends SNAP_Reader {
             final int currentY = yOffset + y;
             for (int x = 0; x < height; x++) {
                 final int currentX = xOffset + x;
-                index.set(y, x);
+
                 if (currentX >= 0 && currentX < rasterSize.getNx() && currentY >= 0 && currentY < rasterSize.getNy()) {
+                    index.set(y, x);
                     targetArray.setObject(index, readArray.getObject(readIndex));
                     ++readIndex;
-                } else {
-                    targetArray.setObject(index, noDataValue);
                 }
             }
         }
