@@ -3,6 +3,7 @@ package com.bc.fiduceo.post.plugin.era5;
 class Configuration {
 
     private String nwpAuxDir;
+    private String era5Collection;
 
     private SatelliteFieldsConfiguration satelliteFields;
     private MatchupFieldsConfiguration matchupFields;
@@ -15,6 +16,14 @@ class Configuration {
         this.nwpAuxDir = nwpAuxDir;
     }
 
+    String getEra5Collection() {
+        return era5Collection;
+    }
+
+    void setEra5Collection(String era5Collection) {
+        this.era5Collection = era5Collection;
+    }
+
     SatelliteFieldsConfiguration getSatelliteFields() {
         return satelliteFields;
     }
@@ -23,11 +32,11 @@ class Configuration {
         this.satelliteFields = satelliteFields;
     }
 
-    public MatchupFieldsConfiguration getMatchupFields() {
+    MatchupFieldsConfiguration getMatchupFields() {
         return matchupFields;
     }
 
-    public void setMatchupFields(MatchupFieldsConfiguration matchupFields) {
+    void setMatchupFields(MatchupFieldsConfiguration matchupFields) {
         this.matchupFields = matchupFields;
     }
 }

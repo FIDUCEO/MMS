@@ -1,11 +1,15 @@
 package com.bc.fiduceo.post.plugin.era5;
 
+import com.bc.fiduceo.util.TimeUtils;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Calendar;
 
 import static junit.framework.TestCase.assertEquals;
+import static org.junit.Assert.fail;
 
 public class Era5ArchiveTest {
 
@@ -33,8 +37,6 @@ public class Era5ArchiveTest {
 
         expected = assemblePath("archive", "era5", "fc_sfc", "2008", "06", "02", "ecmwf-era5_oper_fc_sfc_2008060206004.mslhf.nc");
         assertEquals(expected, era5Archive.get("fc_sfc_mslhf", 1212400800));
-
-
     }
 
     @Test
@@ -52,12 +54,55 @@ public class Era5ArchiveTest {
         assertEquals("msl", Era5Archive.mapVariable("msl"));
     }
 
+    @Test
+    public void testGetTimeString_an(){
+        final Calendar utcCalendar = TimeUtils.getUTCCalendar();
+        utcCalendar.setTimeInMillis(1212500800000L);
+
+        final String o3Time = Era5Archive.getTimeString("an_ml_o3", utcCalendar);
+        assertEquals("200806031300", o3Time);
+
+        final String mslTime = Era5Archive.getTimeString("an_sfc_msl", utcCalendar);
+        assertEquals("200806031300", mslTime);
+    }
+
+    @Test
+    public void testGetTimeString_fc(){
+        final Calendar utcCalendar = TimeUtils.getUTCCalendar();
+        utcCalendar.setTimeInMillis(1212600800000L);
+        utcCalendar.set(Calendar.HOUR_OF_DAY, 3);
+
+        String metssTime = Era5Archive.getTimeString("fc_sfc_metss", utcCalendar);
+        assertEquals("2008060418009", metssTime);
+
+        utcCalendar.setTimeInMillis(1212600800000L);
+        utcCalendar.set(Calendar.HOUR_OF_DAY, 11);
+        metssTime = Era5Archive.getTimeString("fc_sfc_metss", utcCalendar);
+        assertEquals("2008060406005", metssTime);
+
+        utcCalendar.setTimeInMillis(1212600800000L);
+        utcCalendar.set(Calendar.HOUR_OF_DAY, 21);
+        metssTime = Era5Archive.getTimeString("fc_sfc_metss", utcCalendar);
+        assertEquals("2008060418003", metssTime);
+    }
+
+    @Test
+    public void testGetTimeString_invalidCollection(){
+        final Calendar utcCalendar = TimeUtils.getUTCCalendar();
+
+        try {
+            Era5Archive.getTimeString("heffalump", utcCalendar);
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException expected) {
+        }
+    }
+
     private String assemblePath(String... elements) {
-        String path = "";
+        StringBuilder path = new StringBuilder();
 
         for (String element : elements) {
-            path += element;
-            path += SEP;
+            path.append(element);
+            path.append(SEP);
         }
 
         // strip last separator tb 2020-11-23

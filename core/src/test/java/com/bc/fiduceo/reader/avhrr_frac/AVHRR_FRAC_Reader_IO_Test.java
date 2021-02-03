@@ -13,6 +13,7 @@ import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.time.TimeLocator;
 import com.bc.fiduceo.util.TempFileUtils;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.Array;
@@ -124,8 +125,6 @@ public class AVHRR_FRAC_Reader_IO_Test {
             assertTrue(boundingGeometry instanceof Polygon);
             final Polygon polygon = (Polygon) boundingGeometry;
 
-            System.out.println(GeometryUtil.toPointListWkt(polygon));
-
             final Point[] coordinates = polygon.getCoordinates();
             assertEquals(75, coordinates.length);
             assertEquals(59.658199310302734, coordinates[0].getLon(), 1e-8);
@@ -182,6 +181,51 @@ public class AVHRR_FRAC_Reader_IO_Test {
             coordinates = polygon.getCoordinates();
             Date time = timeAxes[0].getTime(coordinates[0]);
             TestUtil.assertCorrectUTCDate(2014, 11, 9, 17, 46, 40, time);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    @Ignore
+    public void testReadAcquisitionInfo_MC() throws IOException {
+        final File file = getAvhrrFRAC_MC_File();
+
+        // @todo 1 tb/tb continue here
+
+        try {
+            reader.open(file);
+
+            final AcquisitionInfo acquisitionInfo = reader.read();
+            assertNotNull(acquisitionInfo);
+
+            final Date sensingStart = acquisitionInfo.getSensingStart();
+            TestUtil.assertCorrectUTCDate(2019, 9, 11, 2, 20, 46, sensingStart);
+
+            final Date sensingStop = acquisitionInfo.getSensingStop();
+            TestUtil.assertCorrectUTCDate(2019, 9, 11, 3, 19, 28, sensingStop);
+
+            final NodeType nodeType = acquisitionInfo.getNodeType();
+            assertEquals(NodeType.UNDEFINED, nodeType);
+
+            final Geometry boundingGeometry = acquisitionInfo.getBoundingGeometry();
+            assertNotNull(boundingGeometry);
+            assertTrue(boundingGeometry instanceof Polygon);
+            final Polygon polygon = (Polygon) boundingGeometry;
+
+            final Point[] coordinates = polygon.getCoordinates();
+            assertEquals(75, coordinates.length);
+            assertEquals(59.658199310302734, coordinates[0].getLon(), 1e-8);
+            assertEquals(-61.54189682006836, coordinates[0].getLat(), 1e-8);
+
+            assertEquals(99.13909912109376, coordinates[28].getLon(), 1e-8);
+            assertEquals(80.86370086669922, coordinates[28].getLat(), 1e-8);
+
+            final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
+            assertEquals(1, timeAxes.length);
+
+            Date time = timeAxes[0].getTime(coordinates[0]);
+            TestUtil.assertCorrectUTCDate(2019, 9, 11, 2, 20, 46, time);
         } finally {
             reader.close();
         }
@@ -780,6 +824,11 @@ public class AVHRR_FRAC_Reader_IO_Test {
 
     private File getAvhrrFRAC_MA_GZ_File() throws IOException {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-frac-ma", "v1", "2014", "11", "09", "NSS.FRAC.M1.D14313.S1746.E1837.B1112525.MM.gz"}, false);
+        return TestUtil.getTestDataFileAsserted(testFilePath);
+    }
+
+    private File getAvhrrFRAC_MC_File() throws IOException {
+        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-frac-mc", "v1", "2019", "09", "18", "NSS.FRAC.M3.D19261.S1708.E1849.B0448586.SV"}, false);
         return TestUtil.getTestDataFileAsserted(testFilePath);
     }
 }

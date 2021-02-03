@@ -36,9 +36,7 @@ import ucar.nc2.Variable;
 import java.io.File;
 import java.io.IOException;
 
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 @RunWith(IOTestRunner.class)
 public class PostProcessingToolIntegrationTest_Era5 {
@@ -77,35 +75,80 @@ public class PostProcessingToolIntegrationTest_Era5 {
         assertTrue(targetFile.isFile());
 
         try (NetcdfFile mmd = NetcdfFiles.open(targetFile.getAbsolutePath())) {
+            NCTestUtils.assertGlobalAttribute(mmd, "era5-collection", "ERA-5");
+
             Variable variable = NCTestUtils.getVariable("amsre\\.Geostationary_Reflection_Latitude", mmd, false);
             NCTestUtils.assert3DValueDouble(0, 0, 0, 4105, variable);
             NCTestUtils.assert3DValueDouble(1, 0, 0, 4087, variable);
 
             NCTestUtils.assertDimension(FiduceoConstants.MATCHUP_COUNT, 7, mmd);
+
+            // satellite fields
             NCTestUtils.assertDimension("left", 5, mmd);
             NCTestUtils.assertDimension("right", 7, mmd);
             NCTestUtils.assertDimension("up", 23, mmd);
 
-           // @todo 1 tb/tb add assertions
-//
             variable = NCTestUtils.getVariable("nwp_q", mmd);
             NCTestUtils.assertAttribute(variable, "units", "kg kg**-1");
-//            NCTestUtils.assert3DValueDouble(2, 0, 0, 183.0, variable);
-//            NCTestUtils.assert3DValueDouble(3, 0, 0, 177.0, variable);
+            NCTestUtils.assert4DVariable(variable.getFullName(), 2, 0, 0, 0, 2.067875129796448E-6, mmd);
+            NCTestUtils.assert4DVariable(variable.getFullName(), 2, 0, 10, 0, 4.002843979833415E-6, mmd);
+            NCTestUtils.assert4DVariable(variable.getFullName(), 2, 0, 20, 0, 3.6158501188765513E-6, mmd);
 
             variable = NCTestUtils.getVariable("nwp_lnsp", mmd);
             NCTestUtils.assertAttribute(variable, "long_name", "Logarithm of surface pressure");
+            NCTestUtils.assert3DValueDouble(3, 1, 1, 11.514025688171387, variable);
+            NCTestUtils.assert3DValueDouble(3, 2, 1, 11.513952255249023, variable);
+            NCTestUtils.assert3DValueDouble(3, 3, 1, 11.513876914978027, variable);
 
             variable = NCTestUtils.getVariable("nwp_v10", mmd);
             assertNull(variable.findAttribute("standard_name"));
+            NCTestUtils.assert3DValueDouble(4, 2, 2, 3.7464919090270996, variable);
+            NCTestUtils.assert3DValueDouble(4, 3, 2, 3.842674493789673, variable);
+            NCTestUtils.assert3DValueDouble(4, 4, 2, 3.5886740684509277, variable);
 
             variable = NCTestUtils.getVariable("nwp_sst", mmd);
             NCTestUtils.assertAttribute(variable, "_FillValue", "9.969209968386869E36");
+            NCTestUtils.assert3DValueDouble(0, 3, 3, 271.46014404296875, variable);
+            NCTestUtils.assert3DValueDouble(0, 4, 3, 271.46014404296875, variable);
+            NCTestUtils.assert3DValueDouble(0, 5, 3, 271.46014404296875, variable);
 
             variable = NCTestUtils.getVariable("era5-time", mmd);
             NCTestUtils.assertAttribute(variable, "units", "seconds since 1970-01-01");
             NCTestUtils.assert1DValueLong(2, 1212400800, variable);
             NCTestUtils.assert1DValueLong(6, 1212145200, variable);
+
+            // matchup fields
+            NCTestUtils.assertDimension("the_time", 54, mmd);
+
+            variable = NCTestUtils.getVariable("era5-mu-time", mmd);
+            NCTestUtils.assertAttribute(variable, "units", "seconds since 1970-01-01");
+            NCTestUtils.assert2DValueInt(1, 1, 959796000, variable);
+            NCTestUtils.assert2DValueInt(2, 2, 959803200, variable);
+            NCTestUtils.assert2DValueInt(3, 2, 959806800, variable);
+
+            variable = NCTestUtils.getVariable("nwp_mu_u10", mmd);
+            NCTestUtils.assertAttribute(variable, "units", "m s**-1");
+            NCTestUtils.assert2DValueFloat(4, 3, -2.598637819290161f, variable);
+            NCTestUtils.assert2DValueFloat(5, 3, -2.281101942062378f, variable);
+            NCTestUtils.assert2DValueFloat(6, 3, -2.125869035720825f, variable);
+
+            variable = NCTestUtils.getVariable("nwp_mu_sst", mmd);
+            NCTestUtils.assertAttribute(variable, "long_name", "Sea surface temperature");
+            NCTestUtils.assert2DValueFloat(7, 4, 271.46014404296875f, variable);
+            NCTestUtils.assert2DValueFloat(8, 4, 271.4603576660156f, variable);
+            NCTestUtils.assert2DValueFloat(9, 4, 271.4601745605469f, variable);
+
+            variable = NCTestUtils.getVariable("nwp_mu_mslhf", mmd);
+            assertNull(variable.findAttribute("standard_name"));
+            NCTestUtils.assert2DValueFloat(10, 5, -26.741840362548828f, variable);
+            NCTestUtils.assert2DValueFloat(11, 5, -21.49241065979004f, variable);
+            NCTestUtils.assert2DValueFloat(12, 5, -17.586181640625f, variable);
+
+            variable = NCTestUtils.getVariable("nwp_mu_msshf", mmd);
+            NCTestUtils.assertAttribute(variable, "_FillValue", "9.969209968386869E36");
+            NCTestUtils.assert2DValueFloat(13, 6, 1.9936094284057617f, variable);
+            NCTestUtils.assert2DValueFloat(14, 6, 2.673461437225342f, variable);
+            NCTestUtils.assert2DValueFloat(15, 6, 3.422379732131958f, variable);
         }
     }
 
@@ -122,7 +165,7 @@ public class PostProcessingToolIntegrationTest_Era5 {
                 "        <era5>\n" +
                 "            <nwp-aux-dir>\n" +
                 era5Dir.getAbsolutePath() +
-                "            </nwp-aux-dir>\n"+
+                "            </nwp-aux-dir>\n" +
                 "            <satellite-fields>" +
                 "                <x_dim name='left' length='5' />" +
                 "                <y_dim name='right' length='7' />" +
@@ -133,6 +176,13 @@ public class PostProcessingToolIntegrationTest_Era5 {
                 "                <latitude_variable>amsre.latitude</latitude_variable>" +
                 "            </satellite-fields>" +
                 "            <matchup-fields>" +
+                "                <time_steps_past>41</time_steps_past>" +
+                "                <time_steps_future>12</time_steps_future>" +
+                "                <time_dim_name>the_time</time_dim_name>" +
+                "                <era5_time_variable>era5-mu-time</era5_time_variable>" +
+                "                <time_variable>drifter-sst.insitu.time</time_variable>" +
+                "                <longitude_variable>drifter-sst.insitu.lon</longitude_variable>" +
+                "                <latitude_variable>drifter-sst.insitu.lat</latitude_variable>" +
                 "            </matchup-fields>" +
                 "        </era5>\n" +
                 "    </post-processings>\n" +

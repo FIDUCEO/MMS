@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo;
 
+import com.bc.fiduceo.reader.netcdf.NetCDFReader;
 import com.bc.fiduceo.util.NetCDFUtils;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
@@ -67,7 +68,7 @@ public class NCTestUtils {
         assertEquals(expected, data.getDouble(0), 1e-8);
     }
 
-    public static void assertVariablePresentAnd1DValueLong(String variableName, final DataType dataType, String dimensions, int x, long expected, NetcdfFile netcdfFile) throws IOException, InvalidRangeException {
+    public static void assertVariablePresentAnd1DValueLong(String variableName, final DataType dataType, String dimensions, int x, long expected, NetcdfFile netcdfFile) throws IOException {
         final Variable variable = assertVariablePresent(variableName, dataType, dimensions, netcdfFile);
         assert1DValueLong(x, expected, variable);
     }
@@ -156,6 +157,18 @@ public class NCTestUtils {
         }
     }
 
+    public static void assertGlobalAttribute(NetcdfFile reader, String attributeName, String expected) {
+        final Attribute attribute = reader.findGlobalAttribute(attributeName);
+        assertNotNull(attribute);
+
+        final DataType dataType = attribute.getDataType();
+        if (dataType == DataType.STRING) {
+            assertEquals(expected, attribute.getStringValue());
+        } else if (dataType == DataType.FLOAT) {
+            assertEquals(Float.parseFloat(expected), attribute.getNumericValue().floatValue(), 1e-8);
+        }
+    }
+
     public static Variable getVariable(String variableName, NetcdfFile netcdfFile, boolean escapeName) {
         final String escapedName;
         if (escapeName) {
@@ -164,6 +177,18 @@ public class NCTestUtils {
             escapedName = variableName;
         }
         return netcdfFile.findVariable(escapedName);
+    }
+
+    public static void assert2DValueInt(int x, int y, int expected, Variable variable) throws IOException, InvalidRangeException {
+        assertNotNull("NetCDF Variable '" + variable.getShortName() + "' expected", variable);
+        final Array data = variable.read(new int[]{y, x}, new int[]{1, 1});
+        assertEquals(expected, data.getInt(0));
+    }
+
+    public static void assert2DValueFloat(int x, int y, float expected, Variable variable) throws IOException, InvalidRangeException {
+        assertNotNull("NetCDF Variable '" + variable.getShortName() + "' expected", variable);
+        final Array data = variable.read(new int[]{y, x}, new int[]{1, 1});
+        assertEquals(expected, data.getFloat(0), 1e-8);
     }
 
     public static void assert3DValueDouble(int x, int y, int z, double expected, Variable variable) throws IOException, InvalidRangeException {

@@ -3,7 +3,7 @@ package com.bc.fiduceo.post.plugin.era5;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class MatchupFieldsConfigurationTest {
 
@@ -27,6 +27,9 @@ public class MatchupFieldsConfigurationTest {
         assertEquals("nwp_mu_msnlwrf", config.get_fc_msnlwrf_name());
         assertEquals("nwp_mu_msnswrf", config.get_fc_msnswrf_name());
         assertEquals("nwp_mu_msshf", config.get_fc_msshf_name());
+
+        assertEquals(-1, config.get_time_steps_past());
+        assertEquals(-1, config.get_time_steps_future());
     }
 
     @Test
@@ -87,5 +90,179 @@ public class MatchupFieldsConfigurationTest {
     public void testSetGet_fc_msshf() {
         config.set_fc_msshf_name("heffalump");
         assertEquals("heffalump", config.get_fc_msshf_name());
+    }
+
+    @Test
+    public void testSetGetTimeStepsPast() {
+        config.set_time_steps_past(12);
+        assertEquals(12, config.get_time_steps_past());
+    }
+
+    @Test
+    public void testSetGetTimeStepsFuture() {
+        config.set_time_steps_future(13);
+        assertEquals(13, config.get_time_steps_future());
+    }
+
+    @Test
+    public void testSetGetTimeDimName() {
+        config.set_time_dim_name("Rolex");
+        assertEquals("Rolex", config.get_time_dim_name());
+    }
+
+    @Test
+    public void testSetGetTimeVariableName() {
+        config.set_time_variable_name("clocktock");
+        assertEquals("clocktock", config.get_time_variable_name());
+    }
+
+    @Test
+    public void testSetGetLongitudeVariableName() {
+        config.set_longitude_variable_name("longo");
+        assertEquals("longo", config.get_longitude_variable_name());
+    }
+
+    @Test
+    public void testSetGetLatitudeVariableName() {
+        config.set_latitude_variable_name("latti");
+        assertEquals("latti", config.get_latitude_variable_name());
+    }
+
+    @Test
+    public void testSetGet_nwp_time_variable_name() {
+        config.set_nwp_time_variable_name("the_time");
+        assertEquals("the_time", config.get_nwp_time_variable_name());
+    }
+
+    @Test
+    public void testVerify() {
+        config.set_time_steps_past(13);
+        config.set_time_steps_future(14);
+        config.set_time_dim_name("ticktock");
+        config.set_time_variable_name("yamas");
+        config.set_longitude_variable_name("Lore");
+        config.set_latitude_variable_name("Lama");
+        config.set_nwp_time_variable_name("sachupang");
+
+        assertTrue(config.verify());
+    }
+
+    @Test
+    public void testVerify_missingTimeStepsPast() {
+        // config.set_time_steps_past(13);
+        config.set_time_steps_future(14);
+        config.set_time_dim_name("ticktock");
+        config.set_time_variable_name("yamas");
+        config.set_longitude_variable_name("Lore");
+        config.set_latitude_variable_name("Lama");
+        config.set_nwp_time_variable_name("sachupang");
+
+        try {
+            assertTrue(config.verify());
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException expected) {
+        }
+    }
+
+    @Test
+    public void testVerify_missingTimeStepsFuture() {
+        config.set_time_steps_past(13);
+        // config.set_time_steps_future(14);
+        config.set_time_dim_name("ticktock");
+        config.set_time_variable_name("yamas");
+        config.set_longitude_variable_name("Lore");
+        config.set_latitude_variable_name("Lama");
+        config.set_nwp_time_variable_name("sachupang");
+
+        try {
+            assertTrue(config.verify());
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException expected) {
+        }
+    }
+
+    @Test
+    public void testVerify_missingTimeDimName() {
+        config.set_time_steps_past(13);
+        config.set_time_steps_future(14);
+//         config.set_time_dim_name("ticktock");
+        config.set_time_variable_name("yamas");
+        config.set_longitude_variable_name("Lore");
+        config.set_latitude_variable_name("Lama");
+        config.set_nwp_time_variable_name("sachupang");
+
+        try {
+            assertTrue(config.verify());
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException expected) {
+        }
+    }
+
+    @Test
+    public void testVerify_missingTimeVariableName() {
+        config.set_time_steps_past(13);
+        config.set_time_steps_future(14);
+        config.set_time_dim_name("ticktock");
+//        config.set_time_variable_name("yamas");
+        config.set_longitude_variable_name("Lore");
+        config.set_latitude_variable_name("Lama");
+        config.set_nwp_time_variable_name("sachupang");
+
+        try {
+            assertTrue(config.verify());
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException expected) {
+        }
+    }
+
+    @Test
+    public void testVerify_missingLongitudeVariableName() {
+        config.set_time_steps_past(13);
+        config.set_time_steps_future(14);
+        config.set_time_dim_name("ticktock");
+        config.set_time_variable_name("yamas");
+//        config.set_longitude_variable_name("Lore");
+        config.set_latitude_variable_name("Lama");
+        config.set_nwp_time_variable_name("sachupang");
+
+        try {
+            assertTrue(config.verify());
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException expected) {
+        }
+    }
+
+    @Test
+    public void testVerify_missingLatitudeVariableName() {
+        config.set_time_steps_past(13);
+        config.set_time_steps_future(14);
+        config.set_time_dim_name("ticktock");
+        config.set_time_variable_name("yamas");
+        config.set_longitude_variable_name("Lore");
+//        config.set_latitude_variable_name("Lama");
+        config.set_nwp_time_variable_name("sachupang");
+
+        try {
+            assertTrue(config.verify());
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException expected) {
+        }
+    }
+
+    @Test
+    public void testVerify_missingNwpTimeVariableName() {
+        config.set_time_steps_past(13);
+        config.set_time_steps_future(14);
+        config.set_time_dim_name("ticktock");
+        config.set_time_variable_name("yamas");
+        config.set_longitude_variable_name("Lore");
+        config.set_latitude_variable_name("Lama");
+//        config.set_nwp_time_variable_name("sachupang");
+
+        try {
+            assertTrue(config.verify());
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException expected) {
+        }
     }
 }

@@ -1,6 +1,5 @@
 package com.bc.fiduceo.post.plugin.era5;
 
-import com.bc.fiduceo.core.GeoRect;
 import org.junit.Test;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
@@ -12,59 +11,17 @@ import static org.junit.Assert.assertNotNull;
 
 public class Era5PostProcessingTest {
 
-    @Test
-    public void testGetGeoRegion() {
-        final Array lonArray = Array.factory(DataType.FLOAT, new int[]{2, 3}, new float[]{127.4f, 127.5f, 127.32f, 127.41f, 127.88f, 127.58f});
-        final Array latArray = Array.factory(DataType.FLOAT, new int[]{2, 3}, new float[]{-11.3f, -11.65f, -11.13f, -11.17f, -11.23f, -11.308f});
-
-        final GeoRect geoRect = Era5PostProcessing.getGeoRegion(lonArray, latArray);
-        assertEquals(127.32f, geoRect.getLonMin(), 1e-8);
-        assertEquals(127.88f, geoRect.getLonMax(), 1e-8);
-        assertEquals(-11.65f, geoRect.getLatMin(), 1e-8);
-        assertEquals(-11.13f, geoRect.getLatMax(), 1e-8);
-    }
-
-    @Test
-    public void testGetEra5RasterPosition() {
-        GeoRect geoRect = new GeoRect(8.34f, 8.56f, -56.85f, -56.34f);
-
-        Rectangle rasterPosition = Era5PostProcessing.getEra5RasterPosition(geoRect);
-        assertEquals(753, rasterPosition.x);
-        assertEquals(3, rasterPosition.width);
-        assertEquals(585, rasterPosition.y);
-        assertEquals(4, rasterPosition.height);
-
-        geoRect = new GeoRect(-16.602997f, -16.339996f, 63.629f, 63.729f);
-
-        rasterPosition = Era5PostProcessing.getEra5RasterPosition(geoRect);
-        assertEquals(653, rasterPosition.x);
-        assertEquals(3, rasterPosition.width);
-        assertEquals(105, rasterPosition.y);
-        assertEquals(2, rasterPosition.height);
-    }
-
-    @Test
-    public void testGetEra5RasterPosition_point() {
-        GeoRect geoRect = new GeoRect(-17.233136f, -17.233136f, 63.677588f, 63.677588f);
-
-        Rectangle rasterPosition = Era5PostProcessing.getEra5RasterPosition(geoRect);
-        assertEquals(651, rasterPosition.x);
-        assertEquals(2, rasterPosition.width);
-        assertEquals(105, rasterPosition.y);
-        assertEquals(2, rasterPosition.height);
-    }
-
     // @todo 1 tb/tb check anti-meridian data 2020-11-18
 
     @Test
     public void testGetInterpolationContext() {
-        final float[] longitudes = new float[] {
+        final float[] longitudes = new float[]{
                 -151.1874f, -151.2369f, -151.2863f,
                 -151.1929f, -151.2424f, -151.2918f
         };
         final Array lonArray = Array.factory(DataType.FLOAT, new int[]{2, 3}, longitudes);
 
-        final float[] latitudes = new float[] {
+        final float[] latitudes = new float[]{
                 28.0077f, 27.9995f, 27.9912f,
                 28.0379f, 28.0297f, 28.0214f
         };
@@ -72,5 +29,108 @@ public class Era5PostProcessingTest {
 
         final InterpolationContext context = Era5PostProcessing.getInterpolationContext(lonArray, latArray);
         assertNotNull(context);
+
+        BilinearInterpolator interpolator = context.get(0, 0);
+        assertEquals(115, interpolator.getXMin());
+        assertEquals(247, interpolator.getYMin());
+
+        interpolator = context.get(2, 1);
+        assertEquals(114, interpolator.getXMin());
+        assertEquals(247, interpolator.getYMin());
+
+        final Rectangle era5Region = context.getEra5Region();
+        assertEquals(114, era5Region.x);
+        assertEquals(247, era5Region.y);
+        assertEquals(3, era5Region.width);
+        assertEquals(3, era5Region.height);
+    }
+
+    @Test
+    public void testGetInterpolationContext_singlePixel() {
+        final float[] longitudes = new float[]{-151.1874f};
+        final Array lonArray = Array.factory(DataType.FLOAT, new int[]{1}, longitudes).reduce();
+
+        final float[] latitudes = new float[]{28.0077f};
+        final Array latArray = Array.factory(DataType.FLOAT, new int[]{1}, latitudes).reduce();
+
+        final InterpolationContext context = Era5PostProcessing.getInterpolationContext(lonArray, latArray);
+        assertNotNull(context);
+
+        BilinearInterpolator interpolator = context.get(0, 0);
+        assertEquals(115, interpolator.getXMin());
+        assertEquals(247, interpolator.getYMin());
+
+        final Rectangle era5Region = context.getEra5Region();
+        assertEquals(115, era5Region.x);
+        assertEquals(247, era5Region.y);
+        assertEquals(2, era5Region.width);
+        assertEquals(2, era5Region.height);
+    }
+
+    @Test
+    public void testgetEra5Collection_fromConfig() {
+        final Configuration configuration = new Configuration();
+        configuration.setNWPAuxDir("/yamas/strange/path");
+        configuration.setEra5Collection("Hamasuki");
+
+        final String era5Collection = Era5PostProcessing.getEra5Collection(configuration);
+        assertEquals("Hamasuki", era5Collection);
+    }
+
+    @Test
+    public void testgetEra5Collection_fromPath_unknown() {
+        final Configuration configuration = new Configuration();
+        configuration.setNWPAuxDir("/yamas/strange/path");
+
+        final String era5Collection = Era5PostProcessing.getEra5Collection(configuration);
+        assertEquals("UNKNOWN", era5Collection);
+    }
+
+    @Test
+    public void testgetEra5Collection_fromPath() {
+        final Configuration configuration = new Configuration();
+
+        configuration.setNWPAuxDir("/data/era5");
+        assertEquals("ERA-5", Era5PostProcessing.getEra5Collection(configuration));
+
+        configuration.setNWPAuxDir("/data/era-5");
+        assertEquals("ERA-5", Era5PostProcessing.getEra5Collection(configuration));
+
+        configuration.setNWPAuxDir("/data/ERA51");
+        assertEquals("ERA-51", Era5PostProcessing.getEra5Collection(configuration));
+
+        configuration.setNWPAuxDir("/data/era-51");
+        assertEquals("ERA-51", Era5PostProcessing.getEra5Collection(configuration));
+
+        configuration.setNWPAuxDir("/data/era5t");
+        assertEquals("ERA-5T", Era5PostProcessing.getEra5Collection(configuration));
+
+        configuration.setNWPAuxDir("/data/ERA-5T");
+        assertEquals("ERA-5T", Era5PostProcessing.getEra5Collection(configuration));
+    }
+
+    @Test
+    public void testGetLonMin() {
+        assertEquals(0, Era5PostProcessing.getEra5LonMin(-179.99f));
+        assertEquals(0, Era5PostProcessing.getEra5LonMin(-179.84f));
+        assertEquals(1, Era5PostProcessing.getEra5LonMin(-179.67f));
+        assertEquals(405, Era5PostProcessing.getEra5LonMin(-78.54f));
+        assertEquals(624, Era5PostProcessing.getEra5LonMin(-23.8f));
+        assertEquals(718, Era5PostProcessing.getEra5LonMin(-0.26f));
+        assertEquals(719, Era5PostProcessing.getEra5LonMin(0.f));
+        assertEquals(893, Era5PostProcessing.getEra5LonMin(43.32f));
+        assertEquals(1438, Era5PostProcessing.getEra5LonMin(179.58f));
+        assertEquals(1438, Era5PostProcessing.getEra5LonMin(179.72f));
+        assertEquals(1439, Era5PostProcessing.getEra5LonMin(179.98f));
+        assertEquals(1439, Era5PostProcessing.getEra5LonMin(179.99f));
+    }
+
+    @Test
+    public void testGetLatMin() {
+        assertEquals(0, Era5PostProcessing.getEra5LatMin(89.95f));
+        assertEquals(88, Era5PostProcessing.getEra5LatMin(67.87f));
+        assertEquals(359, Era5PostProcessing.getEra5LatMin(0.f));
+        assertEquals(448, Era5PostProcessing.getEra5LatMin(-22.19f));
+        assertEquals(719, Era5PostProcessing.getEra5LatMin(-89.95f));
     }
 }

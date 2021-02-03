@@ -1,5 +1,5 @@
 ### Updates from version 1.5.2 to 1.5.3
-* updated to use SNAP version 8.0.0
+* updated to use SNAP version 8.0.2
 * added random string to SLSTR uncompressed temp directory
 * updated workflow handling to new PMonitor version
 * updated random seed strategy: keeps on iterating after IOException

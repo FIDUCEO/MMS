@@ -730,6 +730,34 @@ public class NetCDFUtilsTest {
         assertEquals(11.0, doubleArray.getDouble(4), 1e-8);
         assertEquals(14.0, doubleArray.getDouble(7), 1e-8);
     }
+
+    @Test
+    public void testCreateWithFillValue_int() {
+        final Array intArray = NetCDFUtils.create(DataType.INT, new int[] {2, 3}, -11);
+        final int[] shape = intArray.getShape();
+        assertEquals(2, shape.length);
+        assertEquals(2, shape[0]);
+        assertEquals(3, shape[1]);
+
+        assertEquals(DataType.INT, intArray.getDataType());
+
+        assertEquals(-11, intArray.getInt(0));
+        assertEquals(-11, intArray.getInt(1));
+    }
+
+    @Test
+    public void testCreateWithFillValue_float() {
+        final Array intArray = NetCDFUtils.create(DataType.FLOAT, new int[] {3, 2}, Float.NaN);
+        final int[] shape = intArray.getShape();
+        assertEquals(2, shape.length);
+        assertEquals(3, shape[0]);
+        assertEquals(2, shape[1]);
+
+        assertEquals(DataType.FLOAT, intArray.getDataType());
+
+        assertEquals(Float.NaN, intArray.getFloat(2), 1e-8);
+        assertEquals(Float.NaN, intArray.getFloat(3), 1e-8);
+    }
 }
 
 

@@ -1,6 +1,7 @@
 package com.bc.fiduceo.post.plugin.era5;
 
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.post.PostProcessing;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.junit.Before;
@@ -52,6 +53,7 @@ public class Era5PostProcessingPluginTest {
     public void testCreateConfiguration_satelliteFields() throws JDOMException, IOException {
         final String XML = "<era5>" +
                 "    <nwp-aux-dir>/where/the/data/is</nwp-aux-dir>" +
+                "    <era5-collection>The-One</era5-collection>" +
                 "    <satellite-fields>" +
                 "        <x_dim name='left' length='5' />" +
                 "        <y_dim name='right' length='7' />" +
@@ -79,6 +81,8 @@ public class Era5PostProcessingPluginTest {
         final Element rootElement = TestUtil.createDomElement(XML);
 
         final Configuration configuration = Era5PostProcessingPlugin.createConfiguration(rootElement);
+        assertEquals("The-One", configuration.getEra5Collection());
+
         final SatelliteFieldsConfiguration satConfig = configuration.getSatelliteFields();
         assertNotNull(satConfig);
 
@@ -124,6 +128,14 @@ public class Era5PostProcessingPluginTest {
                 "        <fc_sfc_msnlwrf>longWave</fc_sfc_msnlwrf>" +
                 "        <fc_sfc_msnswrf>shortWave</fc_sfc_msnswrf>" +
                 "        <fc_sfc_msshf>heat_flux</fc_sfc_msshf>" +
+                "" +
+                "        <time_steps_past>14</time_steps_past>" +
+                "        <time_steps_future>15</time_steps_future>" +
+                "        <time_dim_name>sapperlot</time_dim_name>" +
+                "        <time_variable>hurry_up</time_variable>" +
+                "        <longitude_variable>lon_man</longitude_variable>" +
+                "        <latitude_variable>lat_chi</latitude_variable>" +
+                "        <era5_time_variable>watch_me</era5_time_variable>" +
                 "    </matchup-fields>" +
                 "</era5>";
         final Element rootElement = TestUtil.createDomElement(XML);
@@ -142,6 +154,28 @@ public class Era5PostProcessingPluginTest {
         assertEquals("longWave", matchupConfig.get_fc_msnlwrf_name());
         assertEquals("shortWave", matchupConfig.get_fc_msnswrf_name());
         assertEquals("heat_flux", matchupConfig.get_fc_msshf_name());
+
+        assertEquals(14, matchupConfig.get_time_steps_past());
+        assertEquals(15, matchupConfig.get_time_steps_future());
+        assertEquals("sapperlot", matchupConfig.get_time_dim_name());
+        assertEquals("hurry_up", matchupConfig.get_time_variable_name());
+        assertEquals("lon_man", matchupConfig.get_longitude_variable_name());
+        assertEquals("lat_chi", matchupConfig.get_latitude_variable_name());
+        assertEquals("watch_me", matchupConfig.get_nwp_time_variable_name());
+    }
+
+    @Test
+    public void testCreatePostProcessing() throws JDOMException, IOException {
+        final String XML = "<era5>" +
+                "    <nwp-aux-dir>/where/the/data/is</nwp-aux-dir>" +
+                "    <matchup-fields>" +
+                "    </matchup-fields>" +
+                "</era5>";
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        final PostProcessing postProcessing = plugin.createPostProcessing(rootElement);
+        assertNotNull(postProcessing);
+        assertTrue(postProcessing instanceof Era5PostProcessing);
     }
 }
 
