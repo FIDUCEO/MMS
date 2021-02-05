@@ -66,8 +66,8 @@ class MatchupFields {
             // - get variable
             // - get data array
             final int numMatches = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, reader);
-            final int[] nwpShape = new int[]{1};
-            final int[] nwpOffset = new int[]{0};
+            final int[] nwpShape = new int[]{1, 1, 1};
+            final int[] nwpOffset = new int[]{0, 0, 0};
             final Index timeIndex = targetTimeArray.getIndex();
             final Set<String> variableKeys = variables.keySet();
             final HashMap<String, Array> targetArrays = allocateTargetData(writer, variables);
@@ -80,8 +80,8 @@ class MatchupFields {
                 for (int m = 0; m < numMatches; m++) {
                     nwpOffset[0] = m;
 
-                    final Array lonLayer = lonArray.section(nwpOffset, nwpShape).reduce();
-                    final Array latLayer = latArray.section(nwpOffset, nwpShape).reduce();
+                    final Array lonLayer = lonArray.section(nwpOffset, nwpShape);
+                    final Array latLayer = latArray.section(nwpOffset, nwpShape);
 
                     final InterpolationContext interpolationContext = Era5PostProcessing.getInterpolationContext(lonLayer, latLayer);
                     final Rectangle layerRegion = interpolationContext.getEra5Region();
@@ -94,6 +94,7 @@ class MatchupFields {
                         final int timeStamp = targetTimeArray.getInt(timeIndex);
                         final Variable variable = variableCache.get(variableKey, timeStamp);
 
+                        // read and get rid of fake z-dimension
                         Array subset = variable.read(offset, shape).reduce();
                         subset = NetCDFUtils.scaleIfNecessary(variable, subset);
                         final Index subsetIndex = subset.getIndex();

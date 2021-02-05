@@ -113,7 +113,7 @@ class VariableUtils {
             final MAMath.ScaleOffset scaleOffset = new MAMath.ScaleOffset(scaleFactor, addOffset);
             rawData = MAMath.convert2Unpacked(rawData, scaleOffset);
         }
-        return rawData.reduce();
+        return rawData;
     }
 
     static HashMap<String, Array> allocateTargetData(NetcdfFileWriter writer, Map<String, TemplateVariable> variables) {
