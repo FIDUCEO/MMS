@@ -206,6 +206,7 @@ class SatelliteFields {
             final int numMatches = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, reader);
             final int[] nwpShape = getNwpShape(geoDimension, lonArray.getShape());
             final int[] nwpOffset = getNwpOffset(lonArray.getShape(), nwpShape);
+            final int[] nwpStride = {1, 1, 1};
             final HashMap<String, Array> targetArrays = allocateTargetData(writer, variables);
 
             // iterate over matchups
@@ -214,10 +215,11 @@ class SatelliteFields {
             final Index timeIndex = era5TimeArray.getIndex();
             for (int m = 0; m < numMatches; m++) {
                 nwpOffset[0] = m;
-                nwpShape[0] = 1; // we read matchups layer by layer
+                nwpShape[0] = 1;
 
-                final Array lonLayer = lonArray.section(nwpOffset, nwpShape).reduce();
-                final Array latLayer = latArray.section(nwpOffset, nwpShape).reduce();
+                // get a subset of one matchup layer and convert to 2D dataset
+                final Array lonLayer = lonArray.sectionNoReduce(nwpOffset, nwpShape, nwpStride).reduce(0);
+                final Array latLayer = latArray.sectionNoReduce(nwpOffset, nwpShape, nwpStride).reduce(0);
 
                 final int[] shape = lonLayer.getShape();
                 final int width = shape[1];
