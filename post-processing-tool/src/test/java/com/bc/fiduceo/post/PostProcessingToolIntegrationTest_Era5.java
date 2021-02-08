@@ -61,10 +61,10 @@ public class PostProcessingToolIntegrationTest_Era5 {
     }
 
     @Test
-    public void testAddEra5Variables() throws IOException, InvalidRangeException {
-        final File inputDir = getInputDirectory();
+    public void testAddEra5Variables_mmd15() throws IOException, InvalidRangeException {
+        final File inputDir = getInputDirectory_mmd15();
 
-        writeConfiguration();
+        writeConfiguration_mmd15();
 
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-start", "2008-149", "-end", "2008-155",
                 "-i", inputDir.getAbsolutePath(), "-j", "post-processing-config.xml"};
@@ -152,7 +152,55 @@ public class PostProcessingToolIntegrationTest_Era5 {
         }
     }
 
-    private void writeConfiguration() throws IOException {
+    @Test
+    public void testAddEra5Variables_coo1() throws IOException, InvalidRangeException {
+        final File inputDir = getInputDirectory_coo1();
+
+        writeConfiguration_coo1();
+
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-start", "2008-149", "-end", "2008-155",
+                "-i", inputDir.getAbsolutePath(), "-j", "post-processing-config.xml"};
+
+        PostProcessingToolMain.main(args);
+
+        final File targetFile = new File(testDirectory, "coo_1_slstr-s3a-nt_avhrr-frac-ma_2008-149_2008-155.nc");
+        assertTrue(targetFile.isFile());
+
+        try (NetcdfFile mmd = NetcdfFiles.open(targetFile.getAbsolutePath())) {
+            NCTestUtils.assertGlobalAttribute(mmd, "era5-collection", "ERA-5");
+
+            Variable variable = NCTestUtils.getVariable("avhrr-frac-ma_delta_azimuth", mmd, false);
+            NCTestUtils.assert3DValueDouble(0, 0, 0, 11.972550392150879, variable);
+            NCTestUtils.assert3DValueDouble(1, 0, 0, 11.975187301635742, variable);
+
+            NCTestUtils.assertDimension(FiduceoConstants.MATCHUP_COUNT, 1, mmd);
+
+            // satellite fields
+            NCTestUtils.assertDimension("slstr-s3a-nt_nwp_x", 1, mmd);
+            NCTestUtils.assertDimension("slstr-s3a-nt_nwp_y", 1, mmd);
+            NCTestUtils.assertDimension("slstr-s3a-nt_nwp_z", 137, mmd);
+
+            variable = NCTestUtils.getVariable("nwp_lnsp", mmd);
+            NCTestUtils.assertAttribute(variable, "units", "~");
+            NCTestUtils.assert3DVariable(variable.getFullName(), 0, 0, 0, 11.523458480834961, mmd);
+
+            variable = NCTestUtils.getVariable("nwp_o3", mmd);
+            NCTestUtils.assertAttribute(variable, "units", "kg kg**-1");
+            NCTestUtils.assert4DVariable(variable.getFullName(), 0, 0, 0, 0, 1.87434608278636E-7, mmd);
+            NCTestUtils.assert4DVariable(variable.getFullName(), 0, 0, 10, 0, 3.5533055324776797E-6, mmd);
+            NCTestUtils.assert4DVariable(variable.getFullName(), 0, 0, 20, 0, 1.0266540812153835E-5, mmd);
+
+            variable = NCTestUtils.getVariable("nwp_u10", mmd);
+            assertNull(variable.findAttribute("standard_name"));
+            NCTestUtils.assert3DValueDouble(0, 0, 0, -6.019900798797607, variable);
+
+            variable = NCTestUtils.getVariable("nwp_skt", mmd);
+            NCTestUtils.assertAttribute(variable, "long_name", "Skin temperature");
+            NCTestUtils.assert3DValueDouble(0, 0, 0, 302.07879638671875, variable);
+        }
+    }
+
+    private void writeConfiguration_mmd15() throws IOException {
         final File testDataDirectory = TestUtil.getTestDataDirectory();
         final File era5Dir = new File(testDataDirectory, "era-5/v1");
         final String postProcessingConfig = "<post-processing-config>\n" +
@@ -195,8 +243,47 @@ public class PostProcessingToolIntegrationTest_Era5 {
         TestUtil.writeStringTo(postProcessingConfigFile, postProcessingConfig);
     }
 
-    private File getInputDirectory() throws IOException {
+    private void writeConfiguration_coo1() throws IOException {
+        final File testDataDirectory = TestUtil.getTestDataDirectory();
+        final File era5Dir = new File(testDataDirectory, "era-5/v1");
+        final String postProcessingConfig = "<post-processing-config>\n" +
+                "    <create-new-files>\n" +
+                "        <output-directory>\n" +
+                testDirectory.getAbsolutePath() +
+                "        </output-directory>\n" +
+                "    </create-new-files>\n" +
+                "    <post-processings>\n" +
+                "        <era5>\n" +
+                "            <nwp-aux-dir>\n" +
+                era5Dir.getAbsolutePath() +
+                "            </nwp-aux-dir>\n" +
+                "            <satellite-fields>" +
+                "                <x_dim name='slstr-s3a-nt_nwp_x' length='1' />" +
+                "                <y_dim name='slstr-s3a-nt_nwp_y' length='1' />" +
+                "                <z_dim name='slstr-s3a-nt_nwp_z' />" +
+                "                <era5_time_variable>slstr-s3a-nt_nwp_time</era5_time_variable>" +
+                "                <time_variable>slstr-s3a-nt_acquisition_time</time_variable>" +
+                "                <longitude_variable>slstr-s3a-nt_longitude_tx</longitude_variable>" +
+                "                <latitude_variable>slstr-s3a-nt_latitude_tx</latitude_variable>" +
+                "            </satellite-fields>" +
+                "        </era5>\n" +
+                "    </post-processings>\n" +
+                "</post-processing-config>";
+
+        final File postProcessingConfigFile = new File(configDir, "post-processing-config.xml");
+        if (!postProcessingConfigFile.createNewFile()) {
+            fail("unable to create test file");
+        }
+        TestUtil.writeStringTo(postProcessingConfigFile, postProcessingConfig);
+    }
+
+    private File getInputDirectory_mmd15() throws IOException {
         final File testDataDirectory = TestUtil.getTestDataDirectory();
         return new File(testDataDirectory, "post-processing/mmd15sst");
+    }
+
+    private File getInputDirectory_coo1() throws IOException {
+        final File testDataDirectory = TestUtil.getTestDataDirectory();
+        return new File(testDataDirectory, "post-processing/mmd_coo1");
     }
 }

@@ -29,7 +29,7 @@ class VariableUtils {
     static Array readTimeArray(String timeVariableName, NetcdfFile reader) throws IOException, InvalidRangeException {
         final Variable timeVariable = NetCDFUtils.getVariable(reader, timeVariableName);
 
-        final Array timeArray;
+        Array timeArray;
         final int rank = timeVariable.getRank();
 
         // @todo 2 tb/tb this block might be of general interest, extract and test 2020-11-17
@@ -40,16 +40,19 @@ class VariableUtils {
             final int shapeOffset = shape[1] / 2;
             final int[] offset = {0, shapeOffset};
             timeArray = timeVariable.read(offset, new int[]{shape[0], 1});
+            timeArray = timeArray.reduce(1);    // ensure we have a vector
         } else if (rank == 3) {
             final int[] shape = timeVariable.getShape();
             final int yOffset = shape[1] / 2;
             final int xOffset = shape[2] / 2;
             final int[] offset = {0, yOffset, xOffset};
             timeArray = timeVariable.read(offset, new int[]{shape[0], 1, 1});
+            timeArray = timeArray.reduce(1).reduce(1); // ensure we have a vector.
+            // Note: the second call of reduce operates already on a 2D dataset, hence we must reduce dim(1) again
         } else {
             throw new IllegalArgumentException("Rank of time-variable not supported");
         }
-        return timeArray.reduce();
+        return timeArray;
     }
 
     static Array convertToEra5TimeStamp(Array timeArray) {

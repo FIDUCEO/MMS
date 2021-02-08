@@ -335,12 +335,7 @@ class SatelliteFields {
     void setDimensions(SatelliteFieldsConfiguration satFieldsConfig, NetcdfFileWriter writer, NetcdfFile reader) {
         final Dimension xDim = writer.addDimension(satFieldsConfig.get_x_dim_name(), satFieldsConfig.get_x_dim());
         final Dimension yDim = writer.addDimension(satFieldsConfig.get_y_dim_name(), satFieldsConfig.get_y_dim());
-
-        int z_dim = satFieldsConfig.get_z_dim();
-        if (z_dim < 1 || z_dim > 137) {
-            z_dim = 137; // the we take all levels tb 2020-11-16
-        }
-        final Dimension zDim = writer.addDimension(satFieldsConfig.get_z_dim_name(), z_dim);
+        final Dimension zDim = writer.addDimension(satFieldsConfig.get_z_dim_name(), satFieldsConfig.get_z_dim());
 
         final Dimension matchupDim = reader.findDimension(FiduceoConstants.MATCHUP_COUNT);
 
