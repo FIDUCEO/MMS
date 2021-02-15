@@ -531,6 +531,27 @@ public class AVHRR_FRAC_Reader_IO_Test {
     }
 
     @Test
+    public void testReadAcquisitionTime_MC_borderPixel() throws IOException {
+        final File file = getAvhrrFRAC_MC_File();
+
+        try {
+            reader.open(file);
+
+            final Interval interval = new Interval(5, 5);
+            final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(1, 18654, interval);
+            assertNotNull(acquisitionTime);
+
+            NCTestUtils.assertValueAt(-2147483647, 0, 0, acquisitionTime);
+            NCTestUtils.assertValueAt(1568829593, 1, 1, acquisitionTime);
+            NCTestUtils.assertValueAt(1568829593, 2, 2, acquisitionTime);
+            NCTestUtils.assertValueAt(1568829593, 3, 3, acquisitionTime);
+            NCTestUtils.assertValueAt(1568829593, 4, 4, acquisitionTime);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
     public void testReadScaled_MA() throws IOException {
         final File file = getAvhrrFRAC_MA_File();
 
@@ -646,6 +667,44 @@ public class AVHRR_FRAC_Reader_IO_Test {
             array = reader.readScaled(25, 245, interval, "latitude");
             NCTestUtils.assertValueAt(-63.75167465209961, 3, 1, array);
             NCTestUtils.assertValueAt(-63.77696228027344, 4, 1, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadScaled_MC() throws IOException {
+        final File file = getAvhrrFRAC_MC_File();
+
+        try {
+            reader.open(file);
+
+            final Interval interval = new Interval(5, 5);
+            Array array = reader.readScaled(17, 237, interval, "radiance_2");
+            NCTestUtils.assertValueAt(33.49089050292969, 1, 1, array);
+            NCTestUtils.assertValueAt(34.32273864746094, 2, 1, array);
+
+            array = reader.readScaled(18, 238, interval, "radiance_4");
+            NCTestUtils.assertValueAt(30.32760238647461, 3, 2, array);
+            NCTestUtils.assertValueAt(30.53158950805664, 4, 2, array);
+            NCTestUtils.assertValueAt(28.494470596313477, 0, 2, array);
+
+            array = reader.readScaled(19, 239, interval, "reflec_1");
+            NCTestUtils.assertValueAt(7.737750053405762, 1, 3, array);
+            NCTestUtils.assertValueAt(7.791999816894531, 2, 3, array);
+            NCTestUtils.assertValueAt(7.683499813079834, 3, 3, array);
+
+            array = reader.readScaled(20, 240, interval, "reflec_3a");
+            NCTestUtils.assertValueAt(0.0, 4, 4, array);
+            NCTestUtils.assertValueAt(0.0, 0, 4, array);
+            NCTestUtils.assertValueAt(0.0, 1, 4, array);
+            NCTestUtils.assertValueAt(0.0, 2, 4, array);
+
+            array = reader.readScaled(21, 241, interval, "temp_4");
+            NCTestUtils.assertValueAt(231.36044311523438, 3, 0, array);
+            NCTestUtils.assertValueAt(230.80943298339844, 4, 0, array);
+            NCTestUtils.assertValueAt(231.90684509277344, 0, 0, array);
+            NCTestUtils.assertValueAt(232.71800231933594, 1, 0, array);
         } finally {
             reader.close();
         }
