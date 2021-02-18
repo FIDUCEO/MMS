@@ -227,9 +227,9 @@ public abstract class SNAP_Reader implements Reader {
 
         final Index index = targetArray.getIndex();
         int readIndex = 0;
-        for (int y = 0; y < width; y++) {
+        for (int y = 0; y < height; y++) {
             final int currentY = yOffset + y;
-            for (int x = 0; x < height; x++) {
+            for (int x = 0; x < width; x++) {
                 final int currentX = xOffset + x;
                 index.set(y, x);
                 if (currentX >= 0 && currentX < sceneRasterWidth && currentY >= 0 && currentY < sceneRasterHeight) {
