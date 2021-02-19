@@ -37,7 +37,6 @@ import org.junit.runner.RunWith;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
-import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 
 import java.awt.geom.Point2D;
@@ -595,7 +594,7 @@ public class ATSR_L1B_Reader_IO_Test {
     }
 
     @Test
-    public void testReadRaw_AATSR() throws IOException, InvalidRangeException {
+    public void testReadRaw_AATSR() throws IOException {
         final File file = getAatsrFile();
 
         try {
@@ -645,7 +644,7 @@ public class ATSR_L1B_Reader_IO_Test {
     }
 
     @Test
-    public void testReadRaw_AATSR_corner_pixels() throws IOException, InvalidRangeException {
+    public void testReadRaw_AATSR_corner_pixels() throws IOException {
         final File file = getAatsrFile();
 
         try {

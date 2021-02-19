@@ -1,14 +1,19 @@
 package com.bc.fiduceo.matchup;
 
+import com.bc.fiduceo.FiduceoConstants;
+import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.db.DbAndIOTestRunner;
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.apache.commons.cli.ParseException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import ucar.ma2.InvalidRangeException;
+import ucar.nc2.NetcdfFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,11 +21,14 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 @RunWith(DbAndIOTestRunner.class)
 public class MatchupToolIntegrationTest_border_overlap_bug extends AbstractUsecaseIntegrationTest {
 
     @Test
-    public void testMatchupWithBorderOverlap() throws IOException, SQLException, ParseException {
+    public void testMatchupWithBorderOverlap() throws IOException, SQLException, ParseException, InvalidRangeException {
         insert_AATSR();
         insert_ARGO_SST();
 
@@ -33,8 +41,19 @@ public class MatchupToolIntegrationTest_border_overlap_bug extends AbstractUseca
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "2012-046", "-end", "2013-256"};
         MatchupToolMain.main(args);
 
-        System.out.println("args = " + args);
+        final File mmdFile = getMmdFilePath(useCaseConfig, "2012-046", "2013-256");
+        assertTrue(mmdFile.isFile());
 
+        try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
+            final int matchupCount = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, mmd);
+            assertEquals(1, matchupCount);
+
+            NCTestUtils.assert3DVariable("aatsr-en_lon_corr_fward", 0, 0, 0, 9.969209968386869E36, mmd);
+            NCTestUtils.assert3DVariable("aatsr-en_lon_corr_fward", 9, 1, 0, 9.969209968386869E36, mmd);
+            NCTestUtils.assert3DVariable("aatsr-en_lon_corr_fward", 10, 2, 0, -0.21979323029518127, mmd);
+            NCTestUtils.assert3DVariable("aatsr-en_lon_corr_fward", 11, 3, 0, -0.1797853708267212, mmd);
+            NCTestUtils.assert3DVariable("aatsr-en_lon_corr_fward", 12, 4, 0, -0.1397777795791626, mmd);
+        }
     }
 
     private MatchupToolTestUseCaseConfigBuilder createUseCaseConfigBuilder() {

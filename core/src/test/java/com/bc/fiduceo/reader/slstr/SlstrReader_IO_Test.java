@@ -385,11 +385,11 @@ public class SlstrReader_IO_Test {
 
             final Interval interval = new Interval(5, 5);
             Array array = reader.readRaw(1453, 10, interval, "bayes_io");
-            NCTestUtils.assertValueAt(-1, 0, 1, array);
-            NCTestUtils.assertValueAt(-1, 1, 1, array);
-            NCTestUtils.assertValueAt(-1, 2, 1, array);
-            NCTestUtils.assertValueAt(-1, 3, 1, array);
-            NCTestUtils.assertValueAt(-1, 4, 1, array);
+            NCTestUtils.assertValueAt(0, 0, 1, array);
+            NCTestUtils.assertValueAt(0, 1, 1, array);
+            NCTestUtils.assertValueAt(0, 2, 1, array);
+            NCTestUtils.assertValueAt(0, 3, 1, array);
+            NCTestUtils.assertValueAt(0, 4, 1, array);
 
             array = reader.readRaw(1447, 10, interval, "bayes_io");
             NCTestUtils.assertValueAt(0, 0, 1, array);

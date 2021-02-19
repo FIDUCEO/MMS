@@ -235,25 +235,25 @@ public class SlstrReader extends SNAP_Reader {
 
         readRawProductData(dataNode, readArray, width, height, xOffset, yOffset);
 
-        final Index index = targetArray.getIndex();
-        int readIndex = 0;
-        for (int y = 0; y < width; y++) {
-            final int currentY = yOffset + y;
-            for (int x = 0; x < height; x++) {
-                final int currentX = xOffset + x;
-
-                if (currentX >= 0 && currentX < rasterSize.getNx() && currentY >= 0 && currentY < rasterSize.getNy()) {
-                    index.set(y, x);
-                    targetArray.setObject(index, readArray.getObject(readIndex));
-                    ++readIndex;
-                }
-            }
-        }
+//        final Index index = targetArray.getIndex();
+//        int readIndex = 0;
+//        for (int y = 0; y < width; y++) {
+//            final int currentY = yOffset + y;
+//            for (int x = 0; x < height; x++) {
+//                final int currentX = xOffset + x;
+//
+//                if (currentX >= 0 && currentX < rasterSize.getNx() && currentY >= 0 && currentY < rasterSize.getNy()) {
+//                    index.set(y, x);
+//                    targetArray.setObject(index, readArray.getObject(readIndex));
+//                    ++readIndex;
+//                }
+//            }
+//        }
 
         if (variableNames.isFlagVariable(variableName)) {
-            return transform.processFlags(targetArray, (int) noDataValue);
+            return transform.processFlags(readArray, (int) noDataValue);
         } else {
-            return transform.process(targetArray, noDataValue);
+            return transform.process(readArray, noDataValue);
         }
     }
 
