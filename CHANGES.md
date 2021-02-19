@@ -6,6 +6,7 @@
 * update MxD021km reader - split vector based attributes to channel layer
 * added support for AVHRR FRAC MetOp-C L1b
 * added post-processing to add ERA-5 NWP data
+* fixed issues with SNAP readers and non-quadratic extraction window 
 
 ### Updates from version 1.5.1 to 1.5.2
 * updated to use SNAP version 8.0-SNAPSHOT
