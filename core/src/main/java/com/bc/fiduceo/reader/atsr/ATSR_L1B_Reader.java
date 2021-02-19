@@ -25,9 +25,9 @@ import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
-import com.bc.fiduceo.reader.time.TimeLocator;
 import com.bc.fiduceo.reader.snap.SNAP_Reader;
 import com.bc.fiduceo.reader.snap.SNAP_TimeLocator;
+import com.bc.fiduceo.reader.time.TimeLocator;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.datamodel.PixelPos;
@@ -37,7 +37,6 @@ import org.esa.snap.dataio.envisat.EnvisatConstants;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
-import ucar.ma2.Index;
 
 import java.io.File;
 import java.io.IOException;
@@ -110,17 +109,11 @@ class ATSR_L1B_Reader extends SNAP_Reader {
             return readScaled(centerX, centerY, interval, variableName);
         }
 
-        final int sceneRasterWidth = product.getSceneRasterWidth();
-        final int sceneRasterHeight = product.getSceneRasterHeight();
-
-
         final RasterDataNode dataNode = getRasterDataNode(variableName);
 
-        final double noDataValue = getNoDataValue(dataNode);
         final DataType targetDataType = NetCDFUtils.getNetcdfDataType(dataNode.getDataType());
         final int[] shape = getShape(interval);
         final Array readArray = Array.factory(targetDataType, shape);
-        final Array targetArray = NetCDFUtils.create(targetDataType, shape, noDataValue);
 
         final int width = interval.getX();
         final int height = interval.getY();
@@ -130,22 +123,7 @@ class ATSR_L1B_Reader extends SNAP_Reader {
 
         readRawProductData(dataNode, readArray, width, height, xOffset, yOffset);
 
-        final Index index = targetArray.getIndex();
-        int readIndex = 0;
-        for (int y = 0; y < width; y++) {
-            final int currentY = yOffset + y;
-            for (int x = 0; x < height; x++) {
-                final int currentX = xOffset + x;
-
-                if (currentX >= 0 && currentX < sceneRasterWidth && currentY >= 0 && currentY < sceneRasterHeight) {
-                    index.set(y, x);
-                    targetArray.setObject(index, readArray.getObject(readIndex));
-                    ++readIndex;
-                }
-            }
-        }
-
-        return targetArray;
+        return readArray;
     }
 
     @Override

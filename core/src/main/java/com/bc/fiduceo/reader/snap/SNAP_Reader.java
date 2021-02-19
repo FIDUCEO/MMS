@@ -227,9 +227,9 @@ public abstract class SNAP_Reader implements Reader {
 
         final Index index = targetArray.getIndex();
         int readIndex = 0;
-        for (int y = 0; y < width; y++) {
+        for (int y = 0; y < height; y++) {
             final int currentY = yOffset + y;
-            for (int x = 0; x < height; x++) {
+            for (int x = 0; x < width; x++) {
                 final int currentX = xOffset + x;
                 index.set(y, x);
                 if (currentX >= 0 && currentX < sceneRasterWidth && currentY >= 0 && currentY < sceneRasterHeight) {
@@ -246,7 +246,9 @@ public abstract class SNAP_Reader implements Reader {
         final DataType dataType = readArray.getDataType();
 
         final Rectangle subsetRectangle = new Rectangle(xOffset, yOffset, width, height);
-        final Rectangle productRectangle = new Rectangle(0, 0, dataNode.getRasterWidth(), dataNode.getRasterHeight());
+        final int sceneRasterWidth = dataNode.getRasterWidth();
+        final int sceneRasterHeight = dataNode.getRasterHeight();
+        final Rectangle productRectangle = new Rectangle(0, 0, sceneRasterWidth, sceneRasterHeight);
         final Rectangle intersection = productRectangle.intersection(subsetRectangle);
 
         if (intersection.isEmpty()) {
@@ -255,10 +257,27 @@ public abstract class SNAP_Reader implements Reader {
 
         final int rasterSize = intersection.width * intersection.height;
         final ProductData productData = createProductData(dataType, rasterSize);
+        final double noDataValue = getNoDataValue(dataNode);
 
         dataNode.readRasterData(intersection.x, intersection.y, intersection.width, intersection.height, productData);
-        for (int i = 0; i < rasterSize; i++) {
-            readArray.setObject(i, productData.getElemDoubleAt(i));
+//        for (int i = 0; i < rasterSize; i++) {
+//            readArray.setObject(i, productData.getElemDoubleAt(i));
+//        }
+        int readIndex = 0;
+        final Index index = readArray.getIndex();
+        for (int y = 0; y < height; y++) {
+            final int currentY = yOffset + y;
+            for (int x = 0; x < width; x++) {
+                final int currentX = xOffset + x;
+                index.set(y, x);
+                if (currentX >= 0 && currentX < sceneRasterWidth && currentY >= 0 && currentY < sceneRasterHeight) {
+                    readArray.setObject(index, productData.getElemDoubleAt(readIndex));
+                    ++readIndex;
+                }else {
+                    readArray.setObject(index, noDataValue);
+                }
+
+            }
         }
     }
 

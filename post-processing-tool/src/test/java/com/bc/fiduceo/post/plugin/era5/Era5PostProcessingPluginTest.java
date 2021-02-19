@@ -114,6 +114,27 @@ public class Era5PostProcessingPluginTest {
     }
 
     @Test
+    public void testCreateConfiguration_satelliteFields_zDimNotSet() throws JDOMException, IOException {
+        final String XML = "<era5>" +
+                "    <nwp-aux-dir>/where/the/data/is</nwp-aux-dir>" +
+                "    <era5-collection>The-One</era5-collection>" +
+                "    <satellite-fields>" +
+                "        <x_dim name='left' length='5' />" +
+                "        <y_dim name='right' length='7' />" +
+                "        <z_dim name='up'  />" +
+                "        <era5_time_variable>era5-time</era5_time_variable>" +
+                "        <longitude_variable>along_way</longitude_variable>" +
+                "        <latitude_variable>alattemacchiato</latitude_variable>" +
+                "        <time_variable>sensor_clock</time_variable>" +
+                "    </satellite-fields>" +
+                "</era5>";
+        final Element rootElement = TestUtil.createDomElement(XML);
+
+        final Configuration configuration = Era5PostProcessingPlugin.createConfiguration(rootElement);
+        assertEquals(137, configuration.getSatelliteFields().get_z_dim());
+    }
+
+    @Test
     public void testCreateConfiguration_matchupFields() throws JDOMException, IOException {
         final String XML = "<era5>" +
                 "    <nwp-aux-dir>/where/the/data/is</nwp-aux-dir>" +

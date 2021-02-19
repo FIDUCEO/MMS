@@ -110,7 +110,7 @@ class PostProcessingTool {
 
     void runPostProcessing() throws Exception {
         final Path inputDirectory = context.getMmdInputDirectory();
-        final Pattern pattern = Pattern.compile("mmd\\d{1,2}.*_.*_.*_\\d{4}-\\d{3}_\\d{4}-\\d{3}.nc");
+        final Pattern pattern = getFileNamePattern();
 
         try (Stream<Path> pathStream = Files.walk(inputDirectory)) {
             final Stream<Path> regularFiles = pathStream.filter(path -> Files.isRegularFile(path));
@@ -130,6 +130,11 @@ class PostProcessingTool {
             throw new RuntimeException("Value of cmd-line parameter '" + optionName + "' is missing.");
         }
         return dateString;
+    }
+
+
+    static Pattern getFileNamePattern() {
+        return Pattern.compile("\\w*\\d{1,2}.*_.*_.*_\\d{4}-\\d{3}_\\d{4}-\\d{3}.nc");
     }
 
     // package access for testing only se 2016-11-28

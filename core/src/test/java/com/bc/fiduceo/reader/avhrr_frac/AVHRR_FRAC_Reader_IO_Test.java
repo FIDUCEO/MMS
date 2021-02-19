@@ -13,7 +13,6 @@ import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.time.TimeLocator;
 import com.bc.fiduceo.util.TempFileUtils;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.Array;
@@ -187,11 +186,8 @@ public class AVHRR_FRAC_Reader_IO_Test {
     }
 
     @Test
-    @Ignore
     public void testReadAcquisitionInfo_MC() throws IOException {
         final File file = getAvhrrFRAC_MC_File();
-
-        // @todo 1 tb/tb continue here
 
         try {
             reader.open(file);
@@ -200,32 +196,56 @@ public class AVHRR_FRAC_Reader_IO_Test {
             assertNotNull(acquisitionInfo);
 
             final Date sensingStart = acquisitionInfo.getSensingStart();
-            TestUtil.assertCorrectUTCDate(2019, 9, 11, 2, 20, 46, sensingStart);
+            TestUtil.assertCorrectUTCDate(2019, 9, 18, 17, 8, 2, sensingStart);
 
             final Date sensingStop = acquisitionInfo.getSensingStop();
-            TestUtil.assertCorrectUTCDate(2019, 9, 11, 3, 19, 28, sensingStop);
+            TestUtil.assertCorrectUTCDate(2019, 9, 18, 18, 49, 39, sensingStop);
 
             final NodeType nodeType = acquisitionInfo.getNodeType();
             assertEquals(NodeType.UNDEFINED, nodeType);
 
             final Geometry boundingGeometry = acquisitionInfo.getBoundingGeometry();
             assertNotNull(boundingGeometry);
-            assertTrue(boundingGeometry instanceof Polygon);
-            final Polygon polygon = (Polygon) boundingGeometry;
+            assertTrue(boundingGeometry instanceof MultiPolygon);
+            final MultiPolygon multiPolygon = (MultiPolygon) boundingGeometry;
 
-            final Point[] coordinates = polygon.getCoordinates();
-            assertEquals(75, coordinates.length);
-            assertEquals(59.658199310302734, coordinates[0].getLon(), 1e-8);
-            assertEquals(-61.54189682006836, coordinates[0].getLat(), 1e-8);
+            final List<Polygon> polygons = multiPolygon.getPolygons();
+            assertEquals(2, polygons.size());
 
-            assertEquals(99.13909912109376, coordinates[28].getLon(), 1e-8);
-            assertEquals(80.86370086669922, coordinates[28].getLat(), 1e-8);
+            Polygon polygon = polygons.get(0);
+            Point[] coordinates = polygon.getCoordinates();
+            assertEquals(67, coordinates.length);
+            assertEquals(-32.34819793701172, coordinates[0].getLon(), 1e-8);
+            assertEquals(68.38959503173828, coordinates[0].getLat(), 1e-8);
+
+            assertEquals(118.37899780273439, coordinates[35].getLon(), 1e-8);
+            assertEquals(-66.94749450683594, coordinates[35].getLat(), 1e-8);
+
+            assertEquals(9.459699630737305, coordinates[58].getLon(), 1e-8);
+            assertEquals(82.74839782714844, coordinates[58].getLat(), 1e-8);
+
+            polygon = polygons.get(1);
+            coordinates = polygon.getCoordinates();
+            assertEquals(67, coordinates.length);
+            assertEquals(-96.81669616699219, coordinates[0].getLon(), 1e-8);
+            assertEquals(-82.56119537353516, coordinates[0].getLat(), 1e-8);
+
+            assertEquals(93.87649536132814, coordinates[33].getLon(), 1e-8);
+            assertEquals(82.41559600830078, coordinates[33].getLat(), 1e-8);
+
+            assertEquals(-179.3227996826172, coordinates[61].getLon(), 1e-8);
+            assertEquals(-79.1001968383789, coordinates[61].getLat(), 1e-8);
 
             final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
-            assertEquals(1, timeAxes.length);
+            assertEquals(2, timeAxes.length);
 
-            Date time = timeAxes[0].getTime(coordinates[0]);
-            TestUtil.assertCorrectUTCDate(2019, 9, 11, 2, 20, 46, time);
+            polygon = polygons.get(0);
+            Date time = timeAxes[0].getTime(polygon.getCoordinates()[0]);
+            TestUtil.assertCorrectUTCDate(2019, 9, 18, 17, 8, 2, time);
+
+            polygon = polygons.get(1);
+            time = timeAxes[1].getTime(polygon.getCoordinates()[0]);
+            TestUtil.assertCorrectUTCDate(2019, 9, 18, 17, 58, 53, time);
         } finally {
             reader.close();
         }
@@ -266,6 +286,26 @@ public class AVHRR_FRAC_Reader_IO_Test {
             assertEquals(1568168615430L, timeLocator.getTimeFor(171, 1016));
             assertEquals(1568168782358L, timeLocator.getTimeFor(172, 2017));
             assertEquals(1568171968000L, timeLocator.getTimeFor(173, 21120));
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetTimeLocator_MC() throws IOException {
+        final File file = getAvhrrFRAC_MC_File();
+
+        try {
+            reader.open(file);
+            final TimeLocator timeLocator = reader.getTimeLocator();
+            assertNotNull(timeLocator);
+
+            assertEquals(1568826482000L, timeLocator.getTimeFor(170, 0));
+            assertEquals(1568826482167L, timeLocator.getTimeFor(169, 1));
+            assertEquals(1568826484668L, timeLocator.getTimeFor(170, 16));
+            assertEquals(1568826651602L, timeLocator.getTimeFor(171, 1017));
+            assertEquals(1568826818536L, timeLocator.getTimeFor(172, 2018));
+            assertEquals(1568830004285L, timeLocator.getTimeFor(173, 21121));
         } finally {
             reader.close();
         }
@@ -332,6 +372,36 @@ public class AVHRR_FRAC_Reader_IO_Test {
     }
 
     @Test
+    public void testGetVariables_MC() throws IOException {
+        final File file = getAvhrrFRAC_MC_File();
+
+        try {
+            reader.open(file);
+
+            final List<Variable> variables = reader.getVariables();
+            assertEquals(19, variables.size());
+
+            Variable variable = variables.get(2);
+            assertEquals("radiance_3a", variable.getShortName());
+            assertEquals(DataType.FLOAT, variable.getDataType());
+
+            variable = variables.get(6);
+            assertEquals("reflec_1", variable.getShortName());
+            assertEquals(DataType.FLOAT, variable.getDataType());
+
+            variable = variables.get(10);
+            assertEquals("temp_4", variable.getShortName());
+            assertEquals(DataType.FLOAT, variable.getDataType());
+
+            variable = variables.get(18);
+            assertEquals("longitude", variable.getShortName());
+            assertEquals(DataType.FLOAT, variable.getDataType());
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
     public void testGetProductSize_MA() throws IOException {
         final File file = getAvhrrFRAC_MA_File();
 
@@ -356,6 +426,21 @@ public class AVHRR_FRAC_Reader_IO_Test {
             final Dimension productSize = reader.getProductSize();
             assertEquals(2001, productSize.getNx());
             assertEquals(21121, productSize.getNy());
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetProductSize_MC() throws IOException {
+        final File file = getAvhrrFRAC_MC_File();
+
+        try {
+            reader.open(file);
+
+            final Dimension productSize = reader.getProductSize();
+            assertEquals(2001, productSize.getNx());
+            assertEquals(36561, productSize.getNy());
         } finally {
             reader.close();
         }
@@ -440,6 +525,27 @@ public class AVHRR_FRAC_Reader_IO_Test {
             NCTestUtils.assertValueAt(1568171968, 2, 2, acquisitionTime);
             NCTestUtils.assertValueAt(-2147483647, 3, 3, acquisitionTime);
             NCTestUtils.assertValueAt(-2147483647, 4, 4, acquisitionTime);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadAcquisitionTime_MC_borderPixel() throws IOException {
+        final File file = getAvhrrFRAC_MC_File();
+
+        try {
+            reader.open(file);
+
+            final Interval interval = new Interval(5, 5);
+            final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(1, 18654, interval);
+            assertNotNull(acquisitionTime);
+
+            NCTestUtils.assertValueAt(-2147483647, 0, 0, acquisitionTime);
+            NCTestUtils.assertValueAt(1568829593, 1, 1, acquisitionTime);
+            NCTestUtils.assertValueAt(1568829593, 2, 2, acquisitionTime);
+            NCTestUtils.assertValueAt(1568829593, 3, 3, acquisitionTime);
+            NCTestUtils.assertValueAt(1568829593, 4, 4, acquisitionTime);
         } finally {
             reader.close();
         }
@@ -561,6 +667,44 @@ public class AVHRR_FRAC_Reader_IO_Test {
             array = reader.readScaled(25, 245, interval, "latitude");
             NCTestUtils.assertValueAt(-63.75167465209961, 3, 1, array);
             NCTestUtils.assertValueAt(-63.77696228027344, 4, 1, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadScaled_MC() throws IOException {
+        final File file = getAvhrrFRAC_MC_File();
+
+        try {
+            reader.open(file);
+
+            final Interval interval = new Interval(5, 5);
+            Array array = reader.readScaled(17, 237, interval, "radiance_2");
+            NCTestUtils.assertValueAt(33.49089050292969, 1, 1, array);
+            NCTestUtils.assertValueAt(34.32273864746094, 2, 1, array);
+
+            array = reader.readScaled(18, 238, interval, "radiance_4");
+            NCTestUtils.assertValueAt(30.32760238647461, 3, 2, array);
+            NCTestUtils.assertValueAt(30.53158950805664, 4, 2, array);
+            NCTestUtils.assertValueAt(28.494470596313477, 0, 2, array);
+
+            array = reader.readScaled(19, 239, interval, "reflec_1");
+            NCTestUtils.assertValueAt(7.737750053405762, 1, 3, array);
+            NCTestUtils.assertValueAt(7.791999816894531, 2, 3, array);
+            NCTestUtils.assertValueAt(7.683499813079834, 3, 3, array);
+
+            array = reader.readScaled(20, 240, interval, "reflec_3a");
+            NCTestUtils.assertValueAt(0.0, 4, 4, array);
+            NCTestUtils.assertValueAt(0.0, 0, 4, array);
+            NCTestUtils.assertValueAt(0.0, 1, 4, array);
+            NCTestUtils.assertValueAt(0.0, 2, 4, array);
+
+            array = reader.readScaled(21, 241, interval, "temp_4");
+            NCTestUtils.assertValueAt(231.36044311523438, 3, 0, array);
+            NCTestUtils.assertValueAt(230.80943298339844, 4, 0, array);
+            NCTestUtils.assertValueAt(231.90684509277344, 0, 0, array);
+            NCTestUtils.assertValueAt(232.71800231933594, 1, 0, array);
         } finally {
             reader.close();
         }

@@ -16,12 +16,10 @@ import org.esa.snap.core.datamodel.VirtualBand;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
-import ucar.ma2.Index;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
-import java.util.StringTokenizer;
 
 import static ucar.ma2.DataType.INT;
 
@@ -97,7 +95,7 @@ public class AVHRR_FRAC_Reader extends SNAP_Reader {
 
         final int[] ymd = new int[3];
         ymd[0] = year;
-        ymd[1] = calendar.get(Calendar.MONTH) +1;
+        ymd[1] = calendar.get(Calendar.MONTH) + 1;
         ymd[2] = calendar.get(Calendar.DAY_OF_MONTH);
         return ymd;
     }
@@ -115,11 +113,9 @@ public class AVHRR_FRAC_Reader extends SNAP_Reader {
             return readScaled(centerX, centerY, interval, variableName);
         }
 
-        final double noDataValue = getNoDataValue(dataNode);
         final DataType targetDataType = NetCDFUtils.getNetcdfDataType(dataNode.getDataType());
         final int[] shape = getShape(interval);
         final Array readArray = Array.factory(targetDataType, shape);
-        final Array targetArray = NetCDFUtils.create(targetDataType, shape, noDataValue);
 
         final int width = interval.getX();
         final int height = interval.getY();
@@ -129,25 +125,7 @@ public class AVHRR_FRAC_Reader extends SNAP_Reader {
 
         readRawProductData(dataNode, readArray, width, height, xOffset, yOffset);
 
-        final int sceneRasterWidth = product.getSceneRasterWidth();
-        final int sceneRasterHeight = product.getSceneRasterHeight();
-
-        final Index index = targetArray.getIndex();
-        int readIndex = 0;
-        for (int y = 0; y < width; y++) {
-            final int currentY = yOffset + y;
-            for (int x = 0; x < height; x++) {
-                final int currentX = xOffset + x;
-
-                if (currentX >= 0 && currentX < sceneRasterWidth && currentY >= 0 && currentY < sceneRasterHeight) {
-                    index.set(y, x);
-                    targetArray.setObject(index, readArray.getObject(readIndex));
-                    ++readIndex;
-                }
-            }
-        }
-
-        return targetArray;
+        return readArray;
     }
 
     @Override

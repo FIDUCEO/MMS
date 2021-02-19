@@ -206,6 +206,7 @@ class SatelliteFields {
             final int numMatches = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, reader);
             final int[] nwpShape = getNwpShape(geoDimension, lonArray.getShape());
             final int[] nwpOffset = getNwpOffset(lonArray.getShape(), nwpShape);
+            final int[] nwpStride = {1, 1, 1};
             final HashMap<String, Array> targetArrays = allocateTargetData(writer, variables);
 
             // iterate over matchups
@@ -214,10 +215,11 @@ class SatelliteFields {
             final Index timeIndex = era5TimeArray.getIndex();
             for (int m = 0; m < numMatches; m++) {
                 nwpOffset[0] = m;
-                nwpShape[0] = 1; // we read matchups layer by layer
+                nwpShape[0] = 1;
 
-                final Array lonLayer = lonArray.section(nwpOffset, nwpShape).reduce();
-                final Array latLayer = latArray.section(nwpOffset, nwpShape).reduce();
+                // get a subset of one matchup layer and convert to 2D dataset
+                final Array lonLayer = lonArray.sectionNoReduce(nwpOffset, nwpShape, nwpStride).reduce(0);
+                final Array latLayer = latArray.sectionNoReduce(nwpOffset, nwpShape, nwpStride).reduce(0);
 
                 final int[] shape = lonLayer.getShape();
                 final int width = shape[1];
@@ -333,12 +335,7 @@ class SatelliteFields {
     void setDimensions(SatelliteFieldsConfiguration satFieldsConfig, NetcdfFileWriter writer, NetcdfFile reader) {
         final Dimension xDim = writer.addDimension(satFieldsConfig.get_x_dim_name(), satFieldsConfig.get_x_dim());
         final Dimension yDim = writer.addDimension(satFieldsConfig.get_y_dim_name(), satFieldsConfig.get_y_dim());
-
-        int z_dim = satFieldsConfig.get_z_dim();
-        if (z_dim < 1 || z_dim > 137) {
-            z_dim = 137; // the we take all levels tb 2020-11-16
-        }
-        final Dimension zDim = writer.addDimension(satFieldsConfig.get_z_dim_name(), z_dim);
+        final Dimension zDim = writer.addDimension(satFieldsConfig.get_z_dim_name(), satFieldsConfig.get_z_dim());
 
         final Dimension matchupDim = reader.findDimension(FiduceoConstants.MATCHUP_COUNT);
 

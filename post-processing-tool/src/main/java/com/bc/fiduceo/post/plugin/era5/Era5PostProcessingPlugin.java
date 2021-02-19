@@ -57,6 +57,9 @@ public class Era5PostProcessingPlugin implements PostProcessingPlugin {
                 final Attribute lengthElement = zDimElement.getAttribute("length");
                 if (lengthElement != null) {
                     satelliteFieldsConfiguration.set_z_dim(Integer.parseInt(lengthElement.getValue()));
+                } else {
+                    // then we take all levels tb 2020-11-16
+                    satelliteFieldsConfiguration.set_z_dim(137);
                 }
             }
 
