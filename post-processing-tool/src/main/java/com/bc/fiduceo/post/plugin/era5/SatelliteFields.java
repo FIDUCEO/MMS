@@ -27,7 +27,8 @@ class SatelliteFields {
     static Array readSubset(int numLayers, Rectangle era5RasterPosition, Variable variable) throws IOException, InvalidRangeException {
         Array subset;
 
-        final int maxRequestedX = era5RasterPosition.x + era5RasterPosition.width;
+        System.out.println("region: " + era5RasterPosition.x + " " + era5RasterPosition.y + " " + era5RasterPosition.width + " " + era5RasterPosition.height);
+        final int maxRequestedX = era5RasterPosition.x + era5RasterPosition.width - 1;
         if (era5RasterPosition.x < 0 || maxRequestedX >= RASTER_WIDTH) {
             subset = readVariableDataOverlapped(numLayers, era5RasterPosition, variable);
         } else {
