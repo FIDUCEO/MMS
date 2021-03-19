@@ -1,6 +1,7 @@
 package com.bc.fiduceo.post.plugin.era5;
 
 import com.bc.fiduceo.FiduceoConstants;
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.junit.Test;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
@@ -42,6 +43,22 @@ public class SatelliteFieldsTest {
         assertEquals("K", template.getUnits());
         assertEquals("Skin temperature", template.getLongName());
         assertEquals("Skate", template.getName());
+        assertFalse(template.is3d());
+    }
+
+    @Test
+    public void testGetVariables_namesEscaped() {
+        final SatelliteFields satelliteFields = new SatelliteFields();
+        final SatelliteFieldsConfiguration config = new SatelliteFieldsConfiguration();
+        config.set_an_msl_name("ms.ill.var");
+
+        final Map<String, TemplateVariable> variables = satelliteFields.getVariables(config);
+
+        TemplateVariable template = variables.get("an_sfc_msl");
+        assertEquals("air_pressure_at_mean_sea_level", template.getStandardName());
+        assertEquals("Pa", template.getUnits());
+        assertEquals("Mean sea level pressure", template.getLongName());
+        assertEquals("ms\\.ill\\.var", template.getName());
         assertFalse(template.is3d());
     }
 
@@ -111,6 +128,40 @@ public class SatelliteFieldsTest {
 
         dimension = dimensions.get(3);
         assertEquals("x_dim", dimension.getShortName());
+        assertEquals(12, dimension.getLength());
+
+        verify(writer, times(3)).addDimension(anyString(), anyInt());
+        verifyNoMoreInteractions(writer);
+    }
+
+    @Test
+    public void testSetGetDimensions_2D_nameToEscape() {
+        final NetcdfFile ncFile = mock(NetcdfFile.class);
+        when(ncFile.findDimension(FiduceoConstants.MATCHUP_COUNT)).thenReturn(new Dimension(FiduceoConstants.MATCHUP_COUNT, 10));
+
+        final SatelliteFields satelliteFields = new SatelliteFields();
+        final SatelliteFieldsConfiguration config = createConfig();
+        config.set_x_dim_name("x.dim.ension");
+        config.set_y_dim_name("y.dim.ension");
+
+        final NetcdfFileWriter writer = mock(NetcdfFileWriter.class);
+        String escapedName = NetCDFUtils.escapeVariableName(config.get_x_dim_name());
+        when(writer.addDimension(escapedName, config.get_x_dim())).
+                thenReturn(new Dimension(escapedName, config.get_x_dim()));
+        escapedName = NetCDFUtils.escapeVariableName(config.get_y_dim_name());
+        when(writer.addDimension(escapedName, config.get_y_dim())).thenReturn(new Dimension(escapedName, config.get_y_dim()));
+
+        satelliteFields.setDimensions(config, writer, ncFile);
+
+        final List<Dimension> dimensions = satelliteFields.getDimensions(new TemplateVariable("what", "ever", "we", "write", false));
+        assertEquals(3, dimensions.size());
+
+        Dimension dimension = dimensions.get(1);
+        assertEquals("y\\.dim\\.ension", dimension.getShortName());
+        assertEquals(14, dimension.getLength());
+
+        dimension = dimensions.get(2);
+        assertEquals("x\\.dim\\.ension", dimension.getShortName());
         assertEquals(12, dimension.getLength());
 
         verify(writer, times(3)).addDimension(anyString(), anyInt());

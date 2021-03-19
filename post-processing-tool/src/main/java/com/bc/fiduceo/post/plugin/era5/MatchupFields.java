@@ -16,11 +16,33 @@ import java.util.List;
 
 import static com.bc.fiduceo.post.plugin.era5.VariableUtils.*;
 
-class MatchupFields {
+class MatchupFields extends FieldsProcessor{
 
     private static final int SECS_PER_HOUR = 3600;
 
     private Map<String, TemplateVariable> variables;
+
+    private static Array createTimeArray(NetcdfFile reader, MatchupFieldsConfiguration matchupConfig, int numTimeSteps, Variable nwpTimeVariable) throws IOException, InvalidRangeException {
+        final Array timeArray = VariableUtils.readTimeArray(matchupConfig.get_time_variable_name(), reader);
+        final Array era5TimeArray = convertToEra5TimeStamp(timeArray);
+        final int numMatchups = era5TimeArray.getShape()[0];
+
+        final Array targetTimeArray = Array.factory(DataType.INT, nwpTimeVariable.getShape());
+        final Index targetIndex = targetTimeArray.getIndex();
+
+        final int offset = -matchupConfig.get_time_steps_past();
+        final Index index = era5TimeArray.getIndex();
+        for (int i = 0; i < numMatchups; i++) {
+            index.set(i);
+            final int timeStamp = era5TimeArray.getInt(index);
+            for (int k = 0; k < numTimeSteps; k++) {
+                final int timeStep = timeStamp + (offset + k) * SECS_PER_HOUR;
+                targetIndex.set(i, k);
+                targetTimeArray.setInt(targetIndex, timeStep);
+            }
+        }
+        return targetTimeArray;
+    }
 
     void prepare(MatchupFieldsConfiguration matchupFieldsConfig, NetcdfFile reader, NetcdfFileWriter writer) {
         matchupFieldsConfig.verify();
@@ -127,28 +149,6 @@ class MatchupFields {
         }
     }
 
-    private static Array createTimeArray(NetcdfFile reader, MatchupFieldsConfiguration matchupConfig, int numTimeSteps, Variable nwpTimeVariable) throws IOException, InvalidRangeException {
-        final Array timeArray = VariableUtils.readTimeArray(matchupConfig.get_time_variable_name(), reader);
-        final Array era5TimeArray = convertToEra5TimeStamp(timeArray);
-        final int numMatchups = era5TimeArray.getShape()[0];
-
-        final Array targetTimeArray = Array.factory(DataType.INT, nwpTimeVariable.getShape());
-        final Index targetIndex = targetTimeArray.getIndex();
-
-        final int offset = - matchupConfig.get_time_steps_past();
-        final Index index = era5TimeArray.getIndex();
-        for (int i = 0; i < numMatchups; i++) {
-            index.set(i);
-            final int timeStamp = era5TimeArray.getInt(index);
-            for (int k = 0; k < numTimeSteps; k++) {
-                final int timeStep = timeStamp + (offset + k) * SECS_PER_HOUR;
-                targetIndex.set(i, k);
-                targetTimeArray.setInt(targetIndex, timeStep);
-            }
-        }
-        return targetTimeArray;
-    }
-
     private void addTimeVariable(MatchupFieldsConfiguration matchupFieldsConfig, List<Dimension> dimensions, NetcdfFileWriter writer) {
         final String timeVariableName = matchupFieldsConfig.get_nwp_time_variable_name();
         final String escapedName = NetCDFUtils.escapeVariableName(timeVariableName);
@@ -168,7 +168,7 @@ class MatchupFields {
         final int time_steps_past = matchupFieldsConfig.get_time_steps_past();
         final int time_steps_future = matchupFieldsConfig.get_time_steps_future();
         final int time_dim_length = time_steps_past + time_steps_future + 1;
-        final String time_dim_name = matchupFieldsConfig.get_time_dim_name();
+        final String time_dim_name = NetCDFUtils.escapeVariableName(matchupFieldsConfig.get_time_dim_name());
 
         final Dimension timeDimension = writer.addDimension(time_dim_name, time_dim_length);
         dimensions.add(timeDimension);
@@ -180,16 +180,16 @@ class MatchupFields {
     Map<String, TemplateVariable> getVariables(MatchupFieldsConfiguration configuration) {
         final HashMap<String, TemplateVariable> variablesMap = new HashMap<>();
 
-        variablesMap.put("an_sfc_u10", new TemplateVariable(configuration.get_an_u10_name(), "m s**-1", "10 metre U wind component", null, false));
-        variablesMap.put("an_sfc_v10", new TemplateVariable(configuration.get_an_v10_name(), "m s**-1", "10 metre V wind component", null, false));
-        variablesMap.put("an_sfc_siconc", new TemplateVariable(configuration.get_an_siconc_name(), "(0 - 1)", "Sea ice area fraction", "sea_ice_area_fraction", false));
-        variablesMap.put("an_sfc_sst", new TemplateVariable(configuration.get_an_sst_name(), "K", "Sea surface temperature", null, false));
-        variablesMap.put("fc_sfc_metss", new TemplateVariable(configuration.get_fc_metss_name(), "N m**-2", "Mean eastward turbulent surface stress", null, false));
-        variablesMap.put("fc_sfc_mntss", new TemplateVariable(configuration.get_fc_mntss_name(), "N m**-2", "Mean northward turbulent surface stress", null, false));
-        variablesMap.put("fc_sfc_mslhf", new TemplateVariable(configuration.get_fc_mslhf_name(), "W m**-2", "Mean surface latent heat flux", null, false));
-        variablesMap.put("fc_sfc_msnlwrf", new TemplateVariable(configuration.get_fc_msnlwrf_name(), "W m**-2", "Mean surface net long-wave radiation flux", null, false));
-        variablesMap.put("fc_sfc_msnswrf", new TemplateVariable(configuration.get_fc_msnswrf_name(), "W m**-2", "Mean surface net short-wave radiation flux", null, false));
-        variablesMap.put("fc_sfc_msshf", new TemplateVariable(configuration.get_fc_msshf_name(), "W m**-2", "Mean surface sensible heat flux", null, false));
+        variablesMap.put("an_sfc_u10", createTemplate(configuration.get_an_u10_name(), "m s**-1", "10 metre U wind component", null, false));
+        variablesMap.put("an_sfc_v10", createTemplate(configuration.get_an_v10_name(), "m s**-1", "10 metre V wind component", null, false));
+        variablesMap.put("an_sfc_siconc", createTemplate(configuration.get_an_siconc_name(), "(0 - 1)", "Sea ice area fraction", "sea_ice_area_fraction", false));
+        variablesMap.put("an_sfc_sst", createTemplate(configuration.get_an_sst_name(), "K", "Sea surface temperature", null, false));
+        variablesMap.put("fc_sfc_metss", createTemplate(configuration.get_fc_metss_name(), "N m**-2", "Mean eastward turbulent surface stress", null, false));
+        variablesMap.put("fc_sfc_mntss", createTemplate(configuration.get_fc_mntss_name(), "N m**-2", "Mean northward turbulent surface stress", null, false));
+        variablesMap.put("fc_sfc_mslhf", createTemplate(configuration.get_fc_mslhf_name(), "W m**-2", "Mean surface latent heat flux", null, false));
+        variablesMap.put("fc_sfc_msnlwrf", createTemplate(configuration.get_fc_msnlwrf_name(), "W m**-2", "Mean surface net long-wave radiation flux", null, false));
+        variablesMap.put("fc_sfc_msnswrf", createTemplate(configuration.get_fc_msnswrf_name(), "W m**-2", "Mean surface net short-wave radiation flux", null, false));
+        variablesMap.put("fc_sfc_msshf", createTemplate(configuration.get_fc_msshf_name(), "W m**-2", "Mean surface sensible heat flux", null, false));
 
         return variablesMap;
     }

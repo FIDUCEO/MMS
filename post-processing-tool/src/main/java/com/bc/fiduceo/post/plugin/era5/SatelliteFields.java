@@ -16,7 +16,7 @@ import java.util.List;
 
 import static com.bc.fiduceo.post.plugin.era5.VariableUtils.*;
 
-class SatelliteFields {
+class SatelliteFields extends FieldsProcessor {
 
     private static final int RASTER_WIDTH = 1440;
 
@@ -27,7 +27,6 @@ class SatelliteFields {
     static Array readSubset(int numLayers, Rectangle era5RasterPosition, Variable variable) throws IOException, InvalidRangeException {
         Array subset;
 
-        System.out.println("region: " + era5RasterPosition.x + " " + era5RasterPosition.y + " " + era5RasterPosition.width + " " + era5RasterPosition.height);
         final int maxRequestedX = era5RasterPosition.x + era5RasterPosition.width - 1;
         if (era5RasterPosition.x < 0 || maxRequestedX >= RASTER_WIDTH) {
             subset = readVariableDataOverlapped(numLayers, era5RasterPosition, variable);
@@ -334,9 +333,14 @@ class SatelliteFields {
 
     // package access for testing purpose only tb 2020-12-02
     void setDimensions(SatelliteFieldsConfiguration satFieldsConfig, NetcdfFileWriter writer, NetcdfFile reader) {
-        final Dimension xDim = writer.addDimension(satFieldsConfig.get_x_dim_name(), satFieldsConfig.get_x_dim());
-        final Dimension yDim = writer.addDimension(satFieldsConfig.get_y_dim_name(), satFieldsConfig.get_y_dim());
-        final Dimension zDim = writer.addDimension(satFieldsConfig.get_z_dim_name(), satFieldsConfig.get_z_dim());
+        final String x_dim_name = NetCDFUtils.escapeVariableName(satFieldsConfig.get_x_dim_name());
+        final Dimension xDim = writer.addDimension(x_dim_name, satFieldsConfig.get_x_dim());
+
+        final String y_dim_name = NetCDFUtils.escapeVariableName(satFieldsConfig.get_y_dim_name());
+        final Dimension yDim = writer.addDimension(y_dim_name, satFieldsConfig.get_y_dim());
+
+        final String z_dim_name = NetCDFUtils.escapeVariableName(satFieldsConfig.get_z_dim_name());
+        final Dimension zDim = writer.addDimension(z_dim_name, satFieldsConfig.get_z_dim());
 
         final Dimension matchupDim = reader.findDimension(FiduceoConstants.MATCHUP_COUNT);
 
@@ -355,19 +359,20 @@ class SatelliteFields {
     Map<String, TemplateVariable> getVariables(SatelliteFieldsConfiguration configuration) {
         final HashMap<String, TemplateVariable> variablesMap = new HashMap<>();
 
-        variablesMap.put("an_ml_q", new TemplateVariable(configuration.get_an_q_name(), "kg kg**-1", "Specific humidity", "specific_humidity", true));
-        variablesMap.put("an_ml_t", new TemplateVariable(configuration.get_an_t_name(), "K", "Temperature", "air_temperature", true));
-        variablesMap.put("an_ml_o3", new TemplateVariable(configuration.get_an_o3_name(), "kg kg**-1", "Ozone mass mixing ratio", null, true));
-        variablesMap.put("an_ml_lnsp", new TemplateVariable(configuration.get_an_lnsp_name(), "~", "Logarithm of surface pressure", null, false));
-        variablesMap.put("an_sfc_t2m", new TemplateVariable(configuration.get_an_t2m_name(), "K", "2 metre temperature", null, false));
-        variablesMap.put("an_sfc_u10", new TemplateVariable(configuration.get_an_u10_name(), "m s**-1", "10 metre U wind component", null, false));
-        variablesMap.put("an_sfc_v10", new TemplateVariable(configuration.get_an_v10_name(), "m s**-1", "10 metre V wind component", null, false));
-        variablesMap.put("an_sfc_siconc", new TemplateVariable(configuration.get_an_siconc_name(), "(0 - 1)", "Sea ice area fraction", "sea_ice_area_fraction", false));
-        variablesMap.put("an_sfc_msl", new TemplateVariable(configuration.get_an_msl_name(), "Pa", "Mean sea level pressure", "air_pressure_at_mean_sea_level", false));
-        variablesMap.put("an_sfc_skt", new TemplateVariable(configuration.get_an_skt_name(), "K", "Skin temperature", null, false));
-        variablesMap.put("an_sfc_sst", new TemplateVariable(configuration.get_an_sst_name(), "K", "Sea surface temperature", null, false));
-        variablesMap.put("an_sfc_tcc", new TemplateVariable(configuration.get_an_tcc_name(), "(0 - 1)", "Total cloud cover", "cloud_area_fraction", false));
-        variablesMap.put("an_sfc_tcwv", new TemplateVariable(configuration.get_an_tcwv_name(), "kg m**-2", "Total column water vapour", "lwe_thickness_of_atmosphere_mass_content_of_water_vapor", false));
+        variablesMap.put("an_ml_q", createTemplate(configuration.get_an_q_name(), "kg kg**-1", "Specific humidity", "specific_humidity", true));
+        variablesMap.put("an_ml_t", createTemplate(configuration.get_an_t_name(), "K", "Temperature", "air_temperature", true));
+        variablesMap.put("an_ml_o3", createTemplate(configuration.get_an_o3_name(), "kg kg**-1", "Ozone mass mixing ratio", null, true));
+        variablesMap.put("an_ml_lnsp", createTemplate(configuration.get_an_lnsp_name(), "~", "Logarithm of surface pressure", null, false));
+        variablesMap.put("an_sfc_t2m", createTemplate(configuration.get_an_t2m_name(), "K", "2 metre temperature", null, false));
+        variablesMap.put("an_sfc_u10", createTemplate(configuration.get_an_u10_name(), "m s**-1", "10 metre U wind component", null, false));
+        variablesMap.put("an_sfc_v10", createTemplate(configuration.get_an_v10_name(), "m s**-1", "10 metre V wind component", null, false));
+        variablesMap.put("an_sfc_siconc", createTemplate(configuration.get_an_siconc_name(), "(0 - 1)", "Sea ice area fraction", "sea_ice_area_fraction", false));
+        variablesMap.put("an_sfc_msl", createTemplate(configuration.get_an_msl_name(), "Pa", "Mean sea level pressure", "air_pressure_at_mean_sea_level", false));
+        variablesMap.put("an_sfc_skt", createTemplate(configuration.get_an_skt_name(), "K", "Skin temperature", null, false));
+        variablesMap.put("an_sfc_sst", createTemplate(configuration.get_an_sst_name(), "K", "Sea surface temperature", null, false));
+        variablesMap.put("an_sfc_tcc", createTemplate(configuration.get_an_tcc_name(), "(0 - 1)", "Total cloud cover", "cloud_area_fraction", false));
+        variablesMap.put("an_sfc_tcwv", createTemplate(configuration.get_an_tcwv_name(), "kg m**-2", "Total column water vapour", "lwe_thickness_of_atmosphere_mass_content_of_water_vapor", false));
+
         return variablesMap;
     }
 }
