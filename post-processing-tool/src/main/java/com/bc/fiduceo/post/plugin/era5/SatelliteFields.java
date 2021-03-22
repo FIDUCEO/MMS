@@ -333,14 +333,9 @@ class SatelliteFields extends FieldsProcessor {
 
     // package access for testing purpose only tb 2020-12-02
     void setDimensions(SatelliteFieldsConfiguration satFieldsConfig, NetcdfFileWriter writer, NetcdfFile reader) {
-        final String x_dim_name = NetCDFUtils.escapeVariableName(satFieldsConfig.get_x_dim_name());
-        final Dimension xDim = writer.addDimension(x_dim_name, satFieldsConfig.get_x_dim());
-
-        final String y_dim_name = NetCDFUtils.escapeVariableName(satFieldsConfig.get_y_dim_name());
-        final Dimension yDim = writer.addDimension(y_dim_name, satFieldsConfig.get_y_dim());
-
-        final String z_dim_name = NetCDFUtils.escapeVariableName(satFieldsConfig.get_z_dim_name());
-        final Dimension zDim = writer.addDimension(z_dim_name, satFieldsConfig.get_z_dim());
+        final Dimension xDim = writer.addDimension(satFieldsConfig.get_x_dim_name(), satFieldsConfig.get_x_dim());
+        final Dimension yDim = writer.addDimension(satFieldsConfig.get_y_dim_name(), satFieldsConfig.get_y_dim());
+        final Dimension zDim = writer.addDimension(satFieldsConfig.get_z_dim_name(), satFieldsConfig.get_z_dim());
 
         final Dimension matchupDim = reader.findDimension(FiduceoConstants.MATCHUP_COUNT);
 

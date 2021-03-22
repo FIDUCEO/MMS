@@ -98,7 +98,7 @@ public class Era5PostProcessingPluginTest {
         assertEquals("skinTemp", satConfig.get_an_skt_name());
         assertEquals("ozeanTemp", satConfig.get_an_sst_name());
         assertEquals("cloudy", satConfig.get_an_tcc_name());
-        assertEquals("steam!", satConfig.get_an_tcwv_name());
+        assertEquals("steam\\!", satConfig.get_an_tcwv_name());
 
         assertEquals(5, satConfig.get_x_dim());
         assertEquals("left", satConfig.get_x_dim_name());

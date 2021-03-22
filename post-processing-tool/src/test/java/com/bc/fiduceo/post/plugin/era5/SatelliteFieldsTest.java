@@ -47,22 +47,6 @@ public class SatelliteFieldsTest {
     }
 
     @Test
-    public void testGetVariables_namesEscaped() {
-        final SatelliteFields satelliteFields = new SatelliteFields();
-        final SatelliteFieldsConfiguration config = new SatelliteFieldsConfiguration();
-        config.set_an_msl_name("ms.ill.var");
-
-        final Map<String, TemplateVariable> variables = satelliteFields.getVariables(config);
-
-        TemplateVariable template = variables.get("an_sfc_msl");
-        assertEquals("air_pressure_at_mean_sea_level", template.getStandardName());
-        assertEquals("Pa", template.getUnits());
-        assertEquals("Mean sea level pressure", template.getLongName());
-        assertEquals("ms\\.ill\\.var", template.getName());
-        assertFalse(template.is3d());
-    }
-
-    @Test
     public void testSetGetDimensions_2D() {
         final NetcdfFile ncFile = mock(NetcdfFile.class);
         when(ncFile.findDimension(FiduceoConstants.MATCHUP_COUNT)).thenReturn(new Dimension(FiduceoConstants.MATCHUP_COUNT, 10));
@@ -145,11 +129,8 @@ public class SatelliteFieldsTest {
         config.set_y_dim_name("y.dim.ension");
 
         final NetcdfFileWriter writer = mock(NetcdfFileWriter.class);
-        String escapedName = NetCDFUtils.escapeVariableName(config.get_x_dim_name());
-        when(writer.addDimension(escapedName, config.get_x_dim())).
-                thenReturn(new Dimension(escapedName, config.get_x_dim()));
-        escapedName = NetCDFUtils.escapeVariableName(config.get_y_dim_name());
-        when(writer.addDimension(escapedName, config.get_y_dim())).thenReturn(new Dimension(escapedName, config.get_y_dim()));
+        when(writer.addDimension(config.get_x_dim_name(), config.get_x_dim())).thenReturn(new Dimension(config.get_x_dim_name(), config.get_x_dim()));
+        when(writer.addDimension(config.get_y_dim_name(), config.get_y_dim())).thenReturn(new Dimension(config.get_y_dim_name(), config.get_y_dim()));
 
         satelliteFields.setDimensions(config, writer, ncFile);
 

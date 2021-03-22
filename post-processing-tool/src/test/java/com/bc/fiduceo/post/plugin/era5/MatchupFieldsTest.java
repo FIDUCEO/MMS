@@ -48,21 +48,6 @@ public class MatchupFieldsTest {
     }
 
     @Test
-    public void testGetVariables_escapedName() {
-        config.set_fc_metss_name("mett.ess.ess");
-
-        final Map<String, TemplateVariable> variables = matchupFields.getVariables(config);
-        assertEquals(10, variables.size());
-
-        TemplateVariable template = variables.get("fc_sfc_metss");
-        assertNull(template.getStandardName());
-        assertEquals("N m**-2", template.getUnits());
-        assertEquals("Mean eastward turbulent surface stress", template.getLongName());
-        assertEquals("mett\\.ess\\.ess", template.getName());
-        assertFalse(template.is3d());
-    }
-
-    @Test
     public void testSetGetDimensions() {
         config.set_time_dim_name("tihime");
         config.set_time_steps_future(12);
@@ -87,27 +72,5 @@ public class MatchupFieldsTest {
         verify(writer, times(1)).addDimension("tihime", timeDimLenght);
         verify(ncFile, times(1)).findDimension(FiduceoConstants.MATCHUP_COUNT);
         verifyNoMoreInteractions(writer, ncFile);
-    }
-
-    @Test
-    public void testSetGetDimensions_esacpedName() {
-        config.set_time_dim_name("ti.hi.me");
-        config.set_time_steps_future(12);
-        config.set_time_steps_past(29);
-        final int timeDimLenght = 12 + 29 + 1;
-
-        final NetcdfFileWriter writer = mock(NetcdfFileWriter.class);
-        final String time_dim_name = NetCDFUtils.escapeVariableName(config.get_time_dim_name());
-        when(writer.addDimension(time_dim_name, timeDimLenght)).thenReturn(new Dimension(time_dim_name, timeDimLenght));
-
-        final NetcdfFile ncFile = mock(NetcdfFile.class);
-        when(ncFile.findDimension(FiduceoConstants.MATCHUP_COUNT)).thenReturn(new Dimension(FiduceoConstants.MATCHUP_COUNT, 11));
-
-        final List<Dimension> dimensions = matchupFields.getDimensions(config, writer, ncFile);
-        assertEquals(2, dimensions.size());
-
-        Dimension dimension = dimensions.get(1);
-        assertEquals("ti\\.hi\\.me", dimension.getShortName());
-        assertEquals(42, dimension.getLength());
     }
 }

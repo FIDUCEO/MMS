@@ -27,7 +27,7 @@ class VariableUtils {
     }
 
     static Array readTimeArray(String timeVariableName, NetcdfFile reader) throws IOException, InvalidRangeException {
-        final Variable timeVariable = NetCDFUtils.getVariable(reader, timeVariableName);
+        final Variable timeVariable = NetCDFUtils.getVariable(reader, timeVariableName, false);
 
         Array timeArray;
         final int rank = timeVariable.getRank();
@@ -101,7 +101,7 @@ class VariableUtils {
     }
 
     static Array readGeolocationVariable(com.bc.fiduceo.core.Dimension dimension, NetcdfFile reader, String lonVarName) throws IOException, InvalidRangeException {
-        final Variable geoVariable = NetCDFUtils.getVariable(reader, lonVarName);
+        final Variable geoVariable = NetCDFUtils.getVariable(reader, lonVarName, false);
 
         final int[] shape = geoVariable.getShape();
 
