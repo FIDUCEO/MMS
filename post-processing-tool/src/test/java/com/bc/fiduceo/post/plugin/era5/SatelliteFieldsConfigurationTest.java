@@ -289,7 +289,7 @@ public class SatelliteFieldsConfigurationTest {
     @Test
     public void testVerify_nwp_time_variable_name() {
         prepareConfig();
-        config.set_nwp_time_variable_name(null);
+        config.set_nwp_time_variable_name("");
 
         try {
             config.verify();
@@ -338,6 +338,9 @@ public class SatelliteFieldsConfigurationTest {
     public void testSetGet_nwp_time_variable_name() {
         config.set_nwp_time_variable_name("tickTock");
         assertEquals("tickTock", config.get_nwp_time_variable_name());
+
+        config.set_nwp_time_variable_name("tick.Tock");
+        assertEquals("tick\\.Tock", config.get_nwp_time_variable_name());
     }
 
     @Test

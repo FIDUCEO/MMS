@@ -208,7 +208,7 @@ class SatelliteFieldsConfiguration {
     }
 
     void set_nwp_time_variable_name(String nwp_time_variable_name) {
-        this.nwp_time_variable_name = nwp_time_variable_name;
+        this.nwp_time_variable_name = NetCDFUtils.escapeVariableName(nwp_time_variable_name);
     }
 
     String get_time_variable_name() {
