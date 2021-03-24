@@ -1,7 +1,6 @@
 package com.bc.fiduceo.post.plugin.era5;
 
 import com.bc.fiduceo.FiduceoConstants;
-import com.bc.fiduceo.util.NetCDFUtils;
 import org.junit.Test;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
@@ -138,11 +137,11 @@ public class SatelliteFieldsTest {
         assertEquals(3, dimensions.size());
 
         Dimension dimension = dimensions.get(1);
-        assertEquals("y\\.dim\\.ension", dimension.getShortName());
+        assertEquals("y.dim.ension", dimension.getShortName());
         assertEquals(14, dimension.getLength());
 
         dimension = dimensions.get(2);
-        assertEquals("x\\.dim\\.ension", dimension.getShortName());
+        assertEquals("x.dim.ension", dimension.getShortName());
         assertEquals(12, dimension.getLength());
 
         verify(writer, times(3)).addDimension(anyString(), anyInt());

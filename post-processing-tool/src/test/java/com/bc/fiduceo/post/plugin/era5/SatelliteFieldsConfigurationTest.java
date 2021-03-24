@@ -48,117 +48,78 @@ public class SatelliteFieldsConfigurationTest {
     public void testSetGet_an_q() {
         config.set_an_q_name("anku");
         assertEquals("anku", config.get_an_q_name());
-
-        config.set_an_q_name(".an.ku");
-        assertEquals("\\.an\\.ku", config.get_an_q_name());
     }
 
     @Test
     public void testSetGet_an_t() {
         config.set_an_t_name("tee");
         assertEquals("tee", config.get_an_t_name());
-
-        config.set_an_t_name("t.ee");
-        assertEquals("t\\.ee", config.get_an_t_name());
     }
 
     @Test
     public void testSetGet_an_o3() {
         config.set_an_o3_name("ozzi");
         assertEquals("ozzi", config.get_an_o3_name());
-
-        config.set_an_o3_name("oz.zi");
-        assertEquals("oz\\.zi", config.get_an_o3_name());
     }
 
     @Test
     public void testSetGet_an_lnsp() {
         config.set_an_lnsp_name("pratt");
         assertEquals("pratt", config.get_an_lnsp_name());
-
-        config.set_an_lnsp_name("prat.t");
-        assertEquals("prat\\.t", config.get_an_lnsp_name());
     }
 
     @Test
     public void testSetGet_an_t2m() {
         config.set_an_t2m_name("tempi");
         assertEquals("tempi", config.get_an_t2m_name());
-
-        config.set_an_t2m_name("te.mpi");
-        assertEquals("te\\.mpi", config.get_an_t2m_name());
     }
 
     @Test
     public void testSetGet_an_u10() {
         config.set_an_u10_name("windu");
         assertEquals("windu", config.get_an_u10_name());
-
-        config.set_an_u10_name("wind.u");
-        assertEquals("wind\\.u", config.get_an_u10_name());
     }
 
     @Test
     public void testSetGet_an_v10() {
         config.set_an_v10_name("Vicky");
         assertEquals("Vicky", config.get_an_v10_name());
-
-        config.set_an_v10_name("Vick.y");
-        assertEquals("Vick\\.y", config.get_an_v10_name());
     }
 
     @Test
     public void testSetGet_an_siconc() {
         config.set_an_siconc_name("sieglinde");
         assertEquals("sieglinde", config.get_an_siconc_name());
-
-        config.set_an_siconc_name("sieg.linde");
-        assertEquals("sieg\\.linde", config.get_an_siconc_name());
     }
 
     @Test
     public void testSetGet_an_mslc() {
         config.set_an_msl_name("meanSurf");
         assertEquals("meanSurf", config.get_an_msl_name());
-
-        config.set_an_msl_name("mean.Surf");
-        assertEquals("mean\\.Surf", config.get_an_msl_name());
     }
 
     @Test
     public void testSetGet_an_skt() {
         config.set_an_skt_name("scinny");
         assertEquals("scinny", config.get_an_skt_name());
-
-        config.set_an_skt_name("sc.inny");
-        assertEquals("sc\\.inny", config.get_an_skt_name());
     }
 
     @Test
     public void testSetGet_an_sst() {
         config.set_an_sst_name("seaTemp");
         assertEquals("seaTemp", config.get_an_sst_name());
-
-        config.set_an_sst_name("sea.Temp");
-        assertEquals("sea\\.Temp", config.get_an_sst_name());
     }
 
     @Test
     public void testSetGet_an_tcc() {
         config.set_an_tcc_name("cloudCover");
         assertEquals("cloudCover", config.get_an_tcc_name());
-
-        config.set_an_tcc_name("cloud.Cover");
-        assertEquals("cloud\\.Cover", config.get_an_tcc_name());
     }
 
     @Test
     public void testSetGet_an_tcwv() {
         config.set_an_tcwv_name("steamy");
         assertEquals("steamy", config.get_an_tcwv_name());
-
-        config.set_an_tcwv_name("stea.my");
-        assertEquals("stea\\.my", config.get_an_tcwv_name());
     }
 
     @Test
@@ -183,27 +144,18 @@ public class SatelliteFieldsConfigurationTest {
     public void testSetGet_x_dim_name() {
         config.set_x_dim_name("watussi");
         assertEquals("watussi", config.get_x_dim_name());
-
-        config.set_x_dim_name("watus.si");
-        assertEquals("watus\\.si", config.get_x_dim_name());
     }
 
     @Test
     public void testSetGet_y_dim_name() {
         config.set_y_dim_name("yacanda");
         assertEquals("yacanda", config.get_y_dim_name());
-
-        config.set_y_dim_name("yaca.nda");
-        assertEquals("yaca\\.nda", config.get_y_dim_name());
     }
 
     @Test
     public void testSetGet_z_dim_name() {
         config.set_z_dim_name("zauberfee");
         assertEquals("zauberfee", config.get_z_dim_name());
-
-        config.set_z_dim_name("zau.berfee");
-        assertEquals("zau\\.berfee", config.get_z_dim_name());
     }
 
     @Test
@@ -338,17 +290,11 @@ public class SatelliteFieldsConfigurationTest {
     public void testSetGet_nwp_time_variable_name() {
         config.set_nwp_time_variable_name("tickTock");
         assertEquals("tickTock", config.get_nwp_time_variable_name());
-
-        config.set_nwp_time_variable_name("tick.Tock");
-        assertEquals("tick\\.Tock", config.get_nwp_time_variable_name());
     }
 
     @Test
     public void testSetGet_time_variable_name() {
         config.set_time_variable_name("twomins");
         assertEquals("twomins", config.get_time_variable_name());
-
-        config.set_time_variable_name("two.mins");
-        assertEquals("two\\.mins", config.get_time_variable_name());
     }
 }

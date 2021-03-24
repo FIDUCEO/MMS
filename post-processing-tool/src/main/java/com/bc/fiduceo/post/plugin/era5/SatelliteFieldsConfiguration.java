@@ -56,7 +56,7 @@ class SatelliteFieldsConfiguration {
     }
 
     void set_an_q_name(String an_q_name) {
-        this.an_q_name = NetCDFUtils.escapeVariableName(an_q_name);
+        this.an_q_name = an_q_name;
     }
 
     String get_an_t_name() {
@@ -64,7 +64,7 @@ class SatelliteFieldsConfiguration {
     }
 
     void set_an_t_name(String an_t_name) {
-        this.an_t_name = NetCDFUtils.escapeVariableName(an_t_name);
+        this.an_t_name = an_t_name;
     }
 
     String get_an_o3_name() {
@@ -72,7 +72,7 @@ class SatelliteFieldsConfiguration {
     }
 
     void set_an_o3_name(String an_o3_name) {
-        this.an_o3_name = NetCDFUtils.escapeVariableName(an_o3_name);
+        this.an_o3_name = an_o3_name;
     }
 
     String get_an_lnsp_name() {
@@ -80,7 +80,7 @@ class SatelliteFieldsConfiguration {
     }
 
     void set_an_lnsp_name(String an_lnsp_name) {
-        this.an_lnsp_name = NetCDFUtils.escapeVariableName(an_lnsp_name);
+        this.an_lnsp_name = an_lnsp_name;
     }
 
     String get_an_t2m_name() {
@@ -88,7 +88,7 @@ class SatelliteFieldsConfiguration {
     }
 
     void set_an_t2m_name(String an_t2m_name) {
-        this.an_t2m_name = NetCDFUtils.escapeVariableName(an_t2m_name);
+        this.an_t2m_name = an_t2m_name;
     }
 
     String get_an_siconc_name() {
@@ -96,7 +96,7 @@ class SatelliteFieldsConfiguration {
     }
 
     void set_an_siconc_name(String an_siconc_name) {
-        this.an_siconc_name = NetCDFUtils.escapeVariableName(an_siconc_name);
+        this.an_siconc_name = an_siconc_name;
     }
 
     String get_an_u10_name() {
@@ -104,7 +104,7 @@ class SatelliteFieldsConfiguration {
     }
 
     void set_an_u10_name(String an_u10_name) {
-        this.an_u10_name = NetCDFUtils.escapeVariableName(an_u10_name);
+        this.an_u10_name = an_u10_name;
     }
 
     String get_an_v10_name() {
@@ -112,7 +112,7 @@ class SatelliteFieldsConfiguration {
     }
 
     void set_an_v10_name(String an_v10_name) {
-        this.an_v10_name = NetCDFUtils.escapeVariableName(an_v10_name);
+        this.an_v10_name = an_v10_name;
     }
 
     String get_an_msl_name() {
@@ -120,7 +120,7 @@ class SatelliteFieldsConfiguration {
     }
 
     void set_an_msl_name(String an_msl_name) {
-        this.an_msl_name = NetCDFUtils.escapeVariableName(an_msl_name);
+        this.an_msl_name = an_msl_name;
     }
 
     String get_an_skt_name() {
@@ -128,7 +128,7 @@ class SatelliteFieldsConfiguration {
     }
 
     void set_an_skt_name(String an_skt_name) {
-        this.an_skt_name = NetCDFUtils.escapeVariableName(an_skt_name);
+        this.an_skt_name = an_skt_name;
     }
 
     String get_an_sst_name() {
@@ -136,7 +136,7 @@ class SatelliteFieldsConfiguration {
     }
 
     void set_an_sst_name(String an_sst_name) {
-        this.an_sst_name = NetCDFUtils.escapeVariableName(an_sst_name);
+        this.an_sst_name = an_sst_name;
     }
 
     String get_an_tcc_name() {
@@ -144,7 +144,7 @@ class SatelliteFieldsConfiguration {
     }
 
     void set_an_tcc_name(String an_tcc_name) {
-        this.an_tcc_name = NetCDFUtils.escapeVariableName(an_tcc_name);
+        this.an_tcc_name = an_tcc_name;
     }
 
     String get_an_tcwv_name() {
@@ -152,7 +152,7 @@ class SatelliteFieldsConfiguration {
     }
 
     void set_an_tcwv_name(String an_tcwv_name) {
-        this.an_tcwv_name = NetCDFUtils.escapeVariableName(an_tcwv_name);
+        this.an_tcwv_name = an_tcwv_name;
     }
 
     int get_x_dim() {
@@ -184,7 +184,7 @@ class SatelliteFieldsConfiguration {
     }
 
     void set_x_dim_name(String x_dim_name) {
-        this.x_dim_name = NetCDFUtils.escapeVariableName(x_dim_name);
+        this.x_dim_name = x_dim_name;
     }
 
     String get_y_dim_name() {
@@ -192,7 +192,7 @@ class SatelliteFieldsConfiguration {
     }
 
     void set_y_dim_name(String y_dim_name) {
-        this.y_dim_name = NetCDFUtils.escapeVariableName(y_dim_name);
+        this.y_dim_name = y_dim_name;
     }
 
     String get_z_dim_name() {
@@ -200,7 +200,7 @@ class SatelliteFieldsConfiguration {
     }
 
     void set_z_dim_name(String z_dim_name) {
-        this.z_dim_name = NetCDFUtils.escapeVariableName(z_dim_name);
+        this.z_dim_name = z_dim_name;
     }
 
     String get_nwp_time_variable_name() {
@@ -208,7 +208,7 @@ class SatelliteFieldsConfiguration {
     }
 
     void set_nwp_time_variable_name(String nwp_time_variable_name) {
-        this.nwp_time_variable_name = NetCDFUtils.escapeVariableName(nwp_time_variable_name);
+        this.nwp_time_variable_name =nwp_time_variable_name;
     }
 
     String get_time_variable_name() {
@@ -216,7 +216,7 @@ class SatelliteFieldsConfiguration {
     }
     
     void set_time_variable_name(String time_variable_name) {
-        this.time_variable_name = NetCDFUtils.escapeVariableName(time_variable_name);
+        this.time_variable_name = time_variable_name;
     }
 
     String get_longitude_variable_name() {
@@ -224,7 +224,7 @@ class SatelliteFieldsConfiguration {
     }
 
     void set_longitude_variable_name(String longitude_variable_name) {
-        this.longitude_variable_name = NetCDFUtils.escapeVariableName(longitude_variable_name);
+        this.longitude_variable_name = longitude_variable_name;
     }
 
     String get_latitude_variable_name() {
@@ -232,7 +232,7 @@ class SatelliteFieldsConfiguration {
     }
 
     void set_latitude_variable_name(String latitude_variable_name) {
-        this.latitude_variable_name = NetCDFUtils.escapeVariableName(latitude_variable_name);
+        this.latitude_variable_name = latitude_variable_name;
     }
 
 

@@ -141,7 +141,7 @@ class MatchupFields extends FieldsProcessor{
                 }
 
                 final TemplateVariable templateVariable = variables.get(variableKey);
-                final Variable targetVariable = writer.findVariable(templateVariable.getName());
+                final Variable targetVariable = writer.findVariable(NetCDFUtils.escapeVariableName(templateVariable.getName()));
                 writer.write(targetVariable, targetArray);
             }
         } finally {
@@ -151,8 +151,8 @@ class MatchupFields extends FieldsProcessor{
 
     private void addTimeVariable(MatchupFieldsConfiguration matchupFieldsConfig, List<Dimension> dimensions, NetcdfFileWriter writer) {
         final String timeVariableName = matchupFieldsConfig.get_nwp_time_variable_name();
-        final String escapedName = NetCDFUtils.escapeVariableName(timeVariableName);
-        final Variable variable = writer.addVariable(escapedName, DataType.INT, dimensions);
+//        final String escapedName = NetCDFUtils.escapeVariableName(timeVariableName);
+        final Variable variable = writer.addVariable(timeVariableName, DataType.INT, dimensions);
         variable.addAttribute(new Attribute("description", "Timestamp of ERA-5 data"));
         variable.addAttribute(new Attribute("units", "seconds since 1970-01-01"));
         variable.addAttribute(new Attribute("_FillValue", NetCDFUtils.getDefaultFillValue(DataType.INT, false)));

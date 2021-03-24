@@ -191,7 +191,8 @@ class SatelliteFields extends FieldsProcessor {
             // + write to MMD
             final Array timeArray = VariableUtils.readTimeArray(satFieldsConfig.get_time_variable_name(), reader);
             final Array era5TimeArray = convertToEra5TimeStamp(timeArray);
-            writer.write(satFieldsConfig.get_nwp_time_variable_name(), era5TimeArray);
+            final Variable targetTimeVariable = NetCDFUtils.getVariable(writer, satFieldsConfig.get_nwp_time_variable_name());
+            writer.write(targetTimeVariable, era5TimeArray);
 
             // open longitude and latitude input variables
             // + read completely or specified x/y subset
@@ -302,7 +303,7 @@ class SatelliteFields extends FieldsProcessor {
                     }
 
                     final TemplateVariable templateVariable = variables.get(variableKey);
-                    final Variable targetVariable = writer.findVariable(templateVariable.getName());
+                    final Variable targetVariable = writer.findVariable(NetCDFUtils.escapeVariableName(templateVariable.getName()));
                     writer.write(targetVariable, targetArray);
                 }
             }
@@ -313,8 +314,7 @@ class SatelliteFields extends FieldsProcessor {
 
     private void addTimeVariable(SatelliteFieldsConfiguration satFieldsConfig, NetcdfFileWriter writer) {
         final String nwp_time_variable_name = satFieldsConfig.get_nwp_time_variable_name();
-        final String escapedName = NetCDFUtils.escapeVariableName(nwp_time_variable_name);
-        final Variable variable = writer.addVariable(escapedName, DataType.INT, FiduceoConstants.MATCHUP_COUNT);
+        final Variable variable = writer.addVariable(nwp_time_variable_name, DataType.INT, FiduceoConstants.MATCHUP_COUNT);
         variable.addAttribute(new Attribute("description", "Timestamp of ERA-5 data"));
         variable.addAttribute(new Attribute("units", "seconds since 1970-01-01"));
         variable.addAttribute(new Attribute("_FillValue", NetCDFUtils.getDefaultFillValue(DataType.INT, false)));

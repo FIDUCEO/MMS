@@ -1,6 +1,5 @@
 package com.bc.fiduceo.post.plugin.era5;
 
-import com.bc.fiduceo.util.NetCDFUtils;
 import org.esa.snap.core.util.StringUtils;
 
 class MatchupFieldsConfiguration {
@@ -50,7 +49,7 @@ class MatchupFieldsConfiguration {
     }
 
     void set_an_u10_name(String an_u10_name) {
-        this.an_u10_name = NetCDFUtils.escapeVariableName(an_u10_name);
+        this.an_u10_name = an_u10_name;
     }
 
     String get_an_v10_name() {
@@ -58,7 +57,7 @@ class MatchupFieldsConfiguration {
     }
 
     void set_an_v10_name(String an_v10_name) {
-        this.an_v10_name = NetCDFUtils.escapeVariableName(an_v10_name);
+        this.an_v10_name = an_v10_name;
     }
 
     String get_an_siconc_name() {
@@ -66,7 +65,7 @@ class MatchupFieldsConfiguration {
     }
 
     void set_an_siconc_name(String an_siconc_name) {
-        this.an_siconc_name = NetCDFUtils.escapeVariableName(an_siconc_name);
+        this.an_siconc_name = an_siconc_name;
     }
 
     String get_an_sst_name() {
@@ -74,7 +73,7 @@ class MatchupFieldsConfiguration {
     }
 
     void set_an_sst_name(String an_sst_name) {
-        this.an_sst_name = NetCDFUtils.escapeVariableName(an_sst_name);
+        this.an_sst_name = an_sst_name;
     }
 
     String get_fc_metss_name() {
@@ -82,7 +81,7 @@ class MatchupFieldsConfiguration {
     }
 
     void set_fc_metss_name(String fc_metss_name) {
-        this.fc_metss_name = NetCDFUtils.escapeVariableName(fc_metss_name);
+        this.fc_metss_name = fc_metss_name;
     }
 
     String get_fc_mntss_name() {
@@ -90,7 +89,7 @@ class MatchupFieldsConfiguration {
     }
 
     void set_fc_mntss_name(String fc_mntss_name) {
-        this.fc_mntss_name = NetCDFUtils.escapeVariableName(fc_mntss_name);
+        this.fc_mntss_name = fc_mntss_name;
     }
 
     String get_fc_mslhf_name() {
@@ -98,7 +97,7 @@ class MatchupFieldsConfiguration {
     }
 
     void set_fc_mslhf_name(String fc_mslhf_name) {
-        this.fc_mslhf_name = NetCDFUtils.escapeVariableName(fc_mslhf_name);
+        this.fc_mslhf_name = fc_mslhf_name;
     }
 
     String get_fc_msnlwrf_name() {
@@ -106,7 +105,7 @@ class MatchupFieldsConfiguration {
     }
 
     void set_fc_msnlwrf_name(String fc_msnlwrf_name) {
-        this.fc_msnlwrf_name = NetCDFUtils.escapeVariableName(fc_msnlwrf_name);
+        this.fc_msnlwrf_name = fc_msnlwrf_name;
     }
 
     String get_fc_msnswrf_name() {
@@ -114,7 +113,7 @@ class MatchupFieldsConfiguration {
     }
 
     void set_fc_msnswrf_name(String fc_msnswrf_name) {
-        this.fc_msnswrf_name = NetCDFUtils.escapeVariableName(fc_msnswrf_name);
+        this.fc_msnswrf_name = fc_msnswrf_name;
     }
 
     String get_fc_msshf_name() {
@@ -122,7 +121,7 @@ class MatchupFieldsConfiguration {
     }
 
     void set_fc_msshf_name(String fc_msshf_name) {
-        this.fc_msshf_name = NetCDFUtils.escapeVariableName(fc_msshf_name);
+        this.fc_msshf_name = fc_msshf_name;
     }
 
     int get_time_steps_past() {
@@ -146,7 +145,7 @@ class MatchupFieldsConfiguration {
     }
 
     void set_time_dim_name(String time_dim_name) {
-        this.time_dim_name = NetCDFUtils.escapeVariableName(time_dim_name);
+        this.time_dim_name = time_dim_name;
     }
 
     String get_time_variable_name() {
@@ -154,7 +153,7 @@ class MatchupFieldsConfiguration {
     }
 
     void set_time_variable_name(String time_variable_name) {
-        this.time_variable_name = NetCDFUtils.escapeVariableName(time_variable_name);
+        this.time_variable_name = time_variable_name;
     }
 
     String get_longitude_variable_name() {
@@ -162,7 +161,7 @@ class MatchupFieldsConfiguration {
     }
 
     void set_longitude_variable_name(String longitude_variable_name) {
-        this.longitude_variable_name = NetCDFUtils.escapeVariableName(longitude_variable_name);
+        this.longitude_variable_name = longitude_variable_name;
     }
 
     String get_latitude_variable_name() {
@@ -170,7 +169,7 @@ class MatchupFieldsConfiguration {
     }
 
     void set_latitude_variable_name(String latitude_variable_name) {
-        this.latitude_variable_name = NetCDFUtils.escapeVariableName(latitude_variable_name);
+        this.latitude_variable_name = latitude_variable_name;
     }
 
     String get_nwp_time_variable_name() {
@@ -178,7 +177,7 @@ class MatchupFieldsConfiguration {
     }
 
     void set_nwp_time_variable_name(String nwp_time_variable_name) {
-        this.nwp_time_variable_name = NetCDFUtils.escapeVariableName(nwp_time_variable_name);
+        this.nwp_time_variable_name = nwp_time_variable_name;
     }
 
     boolean verify() {

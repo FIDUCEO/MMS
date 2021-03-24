@@ -425,6 +425,12 @@ public class NetCDFUtilsTest {
     }
 
     @Test
+    public void testEscapeVariableName() {
+        assertEquals("hansematz", NetCDFUtils.escapeVariableName("hansematz"));
+        assertEquals("hans\\.ematz", NetCDFUtils.escapeVariableName("hans.ematz"));
+    }
+
+    @Test
     public void testGetAttributeInt_attributeValue() {
         final Attribute attribute = mock(Attribute.class);
         final Variable variable = mock(Variable.class);
