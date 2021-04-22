@@ -24,20 +24,20 @@ class SatelliteFields extends FieldsProcessor {
     private List<Dimension> dimension3d;
     private Map<String, TemplateVariable> variables;
 
-    static Array readSubset(int numLayers, Rectangle era5RasterPosition, Variable variable) throws IOException, InvalidRangeException {
+    static Array readSubset(int numLayers, Rectangle era5RasterPosition, VariableCache.CacheEntry cacheEntry) throws IOException, InvalidRangeException {
         Array subset;
 
         final int maxRequestedX = era5RasterPosition.x + era5RasterPosition.width - 1;
         if (era5RasterPosition.x < 0 || maxRequestedX >= RASTER_WIDTH) {
-            subset = readVariableDataOverlapped(numLayers, era5RasterPosition, variable);
+            subset = readVariableDataOverlapped(numLayers, era5RasterPosition, cacheEntry.array);
         } else {
-            subset = readVariableData(numLayers, era5RasterPosition, variable);
+            subset = readVariableData(numLayers, era5RasterPosition, cacheEntry.array);
         }
 
-        return NetCDFUtils.scaleIfNecessary(variable, subset);
+        return NetCDFUtils.scaleIfNecessary(cacheEntry.variable, subset);
     }
 
-    private static Array readVariableDataOverlapped(int numLayers, Rectangle era5RasterPosition, Variable variable) throws IOException, InvalidRangeException {
+    private static Array readVariableDataOverlapped(int numLayers, Rectangle era5RasterPosition, Array array) throws IOException, InvalidRangeException {
         Array subset;
         int xMin = 0;
         int xMax;
@@ -53,20 +53,20 @@ class SatelliteFields extends FieldsProcessor {
             leftWidth = era5RasterPosition.width - rightWidth;
         }
         final Rectangle leftEraPos = new Rectangle(xMin, era5RasterPosition.y, leftWidth, era5RasterPosition.height);
-        final Array leftSubset = readVariableData(numLayers, leftEraPos, variable);
+        final Array leftSubset = readVariableData(numLayers, leftEraPos, array);
 
         final Rectangle rightEraPos = new Rectangle(xMax, era5RasterPosition.y, rightWidth, era5RasterPosition.height);
-        final Array rightSubset = readVariableData(numLayers, rightEraPos, variable);
+        final Array rightSubset = readVariableData(numLayers, rightEraPos, array);
 
-        subset = mergeData(leftSubset, rightSubset, numLayers, era5RasterPosition, variable);
+        subset = mergeData(leftSubset, rightSubset, numLayers, era5RasterPosition, array);
         return subset;
     }
 
-    static Array mergeData(Array leftSubset, Array rightSubset, int numLayers, Rectangle era5RasterPosition, Variable variable) {
-        final int rank = variable.getRank();
+    static Array mergeData(Array leftSubset, Array rightSubset, int numLayers, Rectangle era5RasterPosition, Array array) {
+        final int rank = array.getRank();
         final Array mergedArray;
         if (rank == 4) {
-            mergedArray = Array.factory(variable.getDataType(), new int[]{numLayers, era5RasterPosition.height, era5RasterPosition.width});
+            mergedArray = Array.factory(array.getDataType(), new int[]{numLayers, era5RasterPosition.height, era5RasterPosition.width});
             if (era5RasterPosition.x < 0) {
                 final int xMax = era5RasterPosition.width + era5RasterPosition.x;
                 mergeArrays_3D(leftSubset, rightSubset, era5RasterPosition, mergedArray, xMax);
@@ -75,7 +75,7 @@ class SatelliteFields extends FieldsProcessor {
                 mergeArrays_3D(rightSubset, leftSubset, era5RasterPosition, mergedArray, xMax);
             }
         } else {
-            mergedArray = Array.factory(variable.getDataType(), new int[]{era5RasterPosition.height, era5RasterPosition.width});
+            mergedArray = Array.factory(array.getDataType(), new int[]{era5RasterPosition.height, era5RasterPosition.width});
             if (era5RasterPosition.x < 0) {
                 final int xMax = era5RasterPosition.width + era5RasterPosition.x;
                 mergeArrays(leftSubset, rightSubset, era5RasterPosition, mergedArray, xMax);
@@ -141,23 +141,22 @@ class SatelliteFields extends FieldsProcessor {
         }
     }
 
-    private static Array readVariableData(int numLayers, Rectangle era5RasterPosition, Variable variable) throws IOException, InvalidRangeException {
-        final int rank = variable.getRank();
+    private static Array readVariableData(int numLayers, Rectangle era5RasterPosition, Array array) throws IOException, InvalidRangeException {
+        final int rank = array.getRank();
         Array subset;
-        if (rank == 3) {
+        if (rank == 2) {
+            final int[] origin = new int[]{era5RasterPosition.y, era5RasterPosition.x};
+            final int[] shape = new int[]{era5RasterPosition.height, era5RasterPosition.width};
+            final int[] stride = new int[]{1, 1};
+            subset = array.sectionNoReduce(origin, shape, stride);
+        } else if (rank == 3) {
             final int[] origin = new int[]{0, era5RasterPosition.y, era5RasterPosition.x};
-            final int[] shape = new int[]{1, era5RasterPosition.height, era5RasterPosition.width};
-            subset = variable.read(origin, shape);
-        } else if (rank == 4) {
-            final int[] origin = new int[]{0, 0, era5RasterPosition.y, era5RasterPosition.x};
-            final int[] shape = new int[]{1, numLayers, era5RasterPosition.height, era5RasterPosition.width};
-            subset = variable.read(origin, shape);
+            final int[] shape = new int[]{numLayers, era5RasterPosition.height, era5RasterPosition.width};
+            final int[] stride = new int[]{1, 1, 1};
+            subset = array.sectionNoReduce(origin, shape, stride);
         } else {
-            throw new IOException("variable rank invalid: " + variable.getShortName());
+            throw new IOException("variable rank invalid");
         }
-
-        // remove the time dimension of length 1 tb 2021-01-14
-        subset = subset.reduce(0);
 
         return subset;
     }
@@ -182,7 +181,7 @@ class SatelliteFields extends FieldsProcessor {
         final SatelliteFieldsConfiguration satFieldsConfig = config.getSatelliteFields();
         final int numLayers = satFieldsConfig.get_z_dim();
         final Era5Archive era5Archive = new Era5Archive(config.getNWPAuxDir());
-        final VariableCache variableCache = new VariableCache(era5Archive, 52); // 4 * 13 variables tb 2020-11-25
+        final VariableCache variableCache = new VariableCache(era5Archive, 156); // 4 * 13 variables tb 2020-11-25
 
         try {
             // open input time variable
@@ -240,8 +239,8 @@ class SatelliteFields extends FieldsProcessor {
                 //     - store to target raster
                 final Set<String> variableKeys = variables.keySet();
                 for (final String variableKey : variableKeys) {
-                    final Variable variable = variableCache.get(variableKey, era5Time);
-                    final Array subset = readSubset(numLayers, layerRegion, variable);
+                    VariableCache.CacheEntry cacheEntry = variableCache.get(variableKey, era5Time);
+                    final Array subset = readSubset(numLayers, layerRegion, cacheEntry);
                     final Index subsetIndex = subset.getIndex();
 
                     final Array targetArray = targetArrays.get(variableKey);

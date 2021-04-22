@@ -1,6 +1,7 @@
 package com.bc.fiduceo.post.plugin.era5;
 
 import com.bc.fiduceo.FiduceoConstants;
+import org.checkerframework.checker.units.qual.A;
 import org.junit.Test;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
@@ -153,11 +154,11 @@ public class SatelliteFieldsTest {
         final Array right = createArray(3, 1, 1);
         final Array left = createArray(3, 2, 4);
 
-        final Variable variable = mock(Variable.class);
-        when(variable.getRank()).thenReturn(3);
-        when(variable.getDataType()).thenReturn(DataType.INT);
+        Array array = mock(Array.class);
+        when(array.getRank()).thenReturn(3);
+        when(array.getDataType()).thenReturn(DataType.INT);
 
-        final Array merged = SatelliteFields.mergeData(left, right, 1, new Rectangle(-1, 100, 3, 3), variable);
+        final Array merged = SatelliteFields.mergeData(left, right, 1, new Rectangle(-1, 100, 3, 3), array);
         final int[] shape = merged.getShape();
         assertEquals(2, shape.length);
         assertEquals(3, shape[0]);
@@ -171,9 +172,9 @@ public class SatelliteFieldsTest {
         index.set(0, 2);
         assertEquals(1, merged.getInt(index));
 
-        verify(variable, times(1)).getRank();
-        verify(variable, times(1)).getDataType();
-        verifyNoMoreInteractions(variable);
+        verify(array, times(1)).getRank();
+        verify(array, times(1)).getDataType();
+        verifyNoMoreInteractions(array);
     }
 
     @Test
@@ -181,11 +182,11 @@ public class SatelliteFieldsTest {
         final Array left = createArray(3, 1, 6);
         final Array right = createArray(3, 2, 0);
 
-        final Variable variable = mock(Variable.class);
-        when(variable.getRank()).thenReturn(3);
-        when(variable.getDataType()).thenReturn(DataType.INT);
+        Array array = mock(Array.class);
+        when(array.getRank()).thenReturn(3);
+        when(array.getDataType()).thenReturn(DataType.INT);
 
-        final Array merged = SatelliteFields.mergeData(left, right, 1, new Rectangle(1438, 100, 3, 3), variable);
+        final Array merged = SatelliteFields.mergeData(left, right, 1, new Rectangle(1438, 100, 3, 3), array);
         final int[] shape = merged.getShape();
         assertEquals(2, shape.length);
         assertEquals(3, shape[0]);
@@ -199,9 +200,9 @@ public class SatelliteFieldsTest {
         index.set(0, 2);
         assertEquals(6, merged.getInt(index));
 
-        verify(variable, times(1)).getRank();
-        verify(variable, times(1)).getDataType();
-        verifyNoMoreInteractions(variable);
+        verify(array, times(1)).getRank();
+        verify(array, times(1)).getDataType();
+        verifyNoMoreInteractions(array);
     }
 
     @Test
@@ -209,11 +210,11 @@ public class SatelliteFieldsTest {
         final Array right = createArray_3D(5, 3, 1, 1);
         final Array left = createArray_3D(5, 3, 2, 100);
 
-        final Variable variable = mock(Variable.class);
-        when(variable.getRank()).thenReturn(4);
-        when(variable.getDataType()).thenReturn(DataType.INT);
+        Array array = mock(Array.class);
+        when(array.getRank()).thenReturn(4);
+        when(array.getDataType()).thenReturn(DataType.INT);
 
-        final Array merged = SatelliteFields.mergeData(left, right, 5, new Rectangle(-1, 100, 3, 3), variable);
+        final Array merged = SatelliteFields.mergeData(left, right, 5, new Rectangle(-1, 100, 3, 3), array);
         final int[] shape = merged.getShape();
         assertEquals(3, shape.length);
         assertEquals(5, shape[0]);
@@ -235,9 +236,9 @@ public class SatelliteFieldsTest {
         index.set(1, 0, 2);
         assertEquals(4, merged.getInt(index));
 
-        verify(variable, times(1)).getRank();
-        verify(variable, times(1)).getDataType();
-        verifyNoMoreInteractions(variable);
+        verify(array, times(1)).getRank();
+        verify(array, times(1)).getDataType();
+        verifyNoMoreInteractions(array);
     }
 
     @Test
@@ -245,11 +246,11 @@ public class SatelliteFieldsTest {
         final Array left = createArray_3D(6, 3, 1, 0);
         final Array right = createArray_3D(6, 3, 2, 100);
 
-        final Variable variable = mock(Variable.class);
-        when(variable.getRank()).thenReturn(4);
-        when(variable.getDataType()).thenReturn(DataType.INT);
+        Array array = mock(Array.class);
+        when(array.getRank()).thenReturn(4);
+        when(array.getDataType()).thenReturn(DataType.INT);
 
-        final Array merged = SatelliteFields.mergeData(left, right, 6, new Rectangle(1438, 100, 3, 3), variable);
+        final Array merged = SatelliteFields.mergeData(left, right, 6, new Rectangle(1438, 100, 3, 3), array);
         final int[] shape = merged.getShape();
         assertEquals(3, shape.length);
         assertEquals(6, shape[0]);
@@ -271,9 +272,9 @@ public class SatelliteFieldsTest {
         index.set(2, 0, 2);
         assertEquals(6, merged.getInt(index));
 
-        verify(variable, times(1)).getRank();
-        verify(variable, times(1)).getDataType();
-        verifyNoMoreInteractions(variable);
+        verify(array, times(1)).getRank();
+        verify(array, times(1)).getDataType();
+        verifyNoMoreInteractions(array);
     }
 
     private Array createArray(int height, int width, int start) {

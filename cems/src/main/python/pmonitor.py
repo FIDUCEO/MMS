@@ -590,7 +590,7 @@ class PMonitor(object):
         inquiry = {}
         # retrieve status with polling script
         if external_ids:
-            print('retrieving status with ' + self._polling + ' ' + ' '.join(external_ids))
+            # print('retrieving status with ' + self._polling + ' ' + ' '.join(external_ids))
             process = subprocess.Popen(self._polling + ' ' + ' '.join(external_ids),
                                        shell=True, bufsize=1, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             for l in process.stdout:
