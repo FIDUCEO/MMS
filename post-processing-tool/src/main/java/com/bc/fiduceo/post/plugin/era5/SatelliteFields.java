@@ -181,7 +181,7 @@ class SatelliteFields extends FieldsProcessor {
         final SatelliteFieldsConfiguration satFieldsConfig = config.getSatelliteFields();
         final int numLayers = satFieldsConfig.get_z_dim();
         final Era5Archive era5Archive = new Era5Archive(config.getNWPAuxDir());
-        final VariableCache variableCache = new VariableCache(era5Archive, 156); // 4 * 13 variables tb 2020-11-25
+        final VariableCache variableCache = new VariableCache(era5Archive, 52); // 4 * 13 variables tb 2020-11-25
 
         try {
             // open input time variable
