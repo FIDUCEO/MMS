@@ -139,9 +139,12 @@ class MatchupFields extends FieldsProcessor{
                         targetArray.setFloat(targetIndex, (float) interpolated);
                     }
                 }
+            }
 
+            for (final String variableKey : variableKeys) {
                 final TemplateVariable templateVariable = variables.get(variableKey);
                 final Variable targetVariable = writer.findVariable(NetCDFUtils.escapeVariableName(templateVariable.getName()));
+                final Array targetArray = targetArrays.get(variableKey);
                 writer.write(targetVariable, targetArray);
             }
         } finally {

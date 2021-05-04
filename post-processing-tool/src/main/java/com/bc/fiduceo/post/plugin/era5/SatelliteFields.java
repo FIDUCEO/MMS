@@ -300,12 +300,17 @@ class SatelliteFields extends FieldsProcessor {
                     } else {
                         throw new IllegalStateException("Unexpected variable rank: " + rank + "  " + variableKey);
                     }
-
-                    final TemplateVariable templateVariable = variables.get(variableKey);
-                    final Variable targetVariable = writer.findVariable(NetCDFUtils.escapeVariableName(templateVariable.getName()));
-                    writer.write(targetVariable, targetArray);
                 }
             }
+
+            final Set<String> variableKeys = variables.keySet();
+            for (final String variableKey : variableKeys) {
+                final TemplateVariable templateVariable = variables.get(variableKey);
+                final Array targetArray = targetArrays.get(variableKey);
+                final Variable targetVariable = writer.findVariable(NetCDFUtils.escapeVariableName(templateVariable.getName()));
+                writer.write(targetVariable, targetArray);
+            }
+
         } finally {
             variableCache.close();
         }
