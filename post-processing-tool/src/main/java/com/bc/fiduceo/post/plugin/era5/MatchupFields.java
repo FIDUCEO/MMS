@@ -6,17 +6,17 @@ import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.Index;
 import ucar.ma2.InvalidRangeException;
-import ucar.nc2.*;
 import ucar.nc2.Dimension;
+import ucar.nc2.*;
 
 import java.awt.*;
 import java.io.IOException;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 
 import static com.bc.fiduceo.post.plugin.era5.VariableUtils.*;
 
-class MatchupFields extends FieldsProcessor{
+class MatchupFields extends FieldsProcessor {
 
     private static final int SECS_PER_HOUR = 3600;
 
@@ -113,6 +113,8 @@ class MatchupFields extends FieldsProcessor{
                     // iterate over time stamps
                     for (int t = 0; t < numTimeSteps; t++) {
                         timeIndex.set(m, t);
+                        targetIndex.set(m, t);
+
                         final int timeStamp = targetTimeArray.getInt(timeIndex);
                         VariableCache.CacheEntry cacheEntry = variableCache.get(variableKey, timeStamp);
 
@@ -121,6 +123,10 @@ class MatchupFields extends FieldsProcessor{
                         subset = NetCDFUtils.scaleIfNecessary(cacheEntry.variable, subset);
                         final Index subsetIndex = subset.getIndex();
                         final BilinearInterpolator bilinearInterpolator = interpolationContext.get(0, 0);
+                        if (bilinearInterpolator == null) {
+                            targetArray.setFloat(targetIndex, TemplateVariable.getFillValue());
+                            continue;
+                        }
 
                         subsetIndex.set(0, 0);
                         final float c00 = subset.getFloat(subsetIndex);
@@ -135,7 +141,6 @@ class MatchupFields extends FieldsProcessor{
                         final float c11 = subset.getFloat(subsetIndex);
                         final double interpolated = bilinearInterpolator.interpolate(c00, c10, c01, c11);
 
-                        targetIndex.set(m, t);
                         targetArray.setFloat(targetIndex, (float) interpolated);
                     }
                 }

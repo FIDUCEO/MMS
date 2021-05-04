@@ -17,12 +17,7 @@ class InterpolationContext {
 
     BilinearInterpolator get(int x, int y) {
         checkBoundaries(x, y);
-
-        final BilinearInterpolator interpolator = interpolators[y][x];
-        if (interpolator == null) {
-            throw new IllegalArgumentException("Interpolator not set at " + x + ", " + y);
-        }
-        return interpolator;
+        return interpolators[y][x];
     }
 
     public void set(int x, int y, BilinearInterpolator interpolator) {

@@ -225,7 +225,6 @@ class SatelliteFields extends FieldsProcessor {
                 final int width = shape[1];
                 final int height = shape[0];
 
-                //final Rectangle era5RasterPosition = Era5PostProcessing.getEra5RasterPosition(geoRegion);
                 final InterpolationContext interpolationContext = Era5PostProcessing.getInterpolationContext(lonLayer, latLayer);
                 final Rectangle layerRegion = interpolationContext.getEra5Region();
 
@@ -250,7 +249,14 @@ class SatelliteFields extends FieldsProcessor {
                     if (rank == 2) {
                         for (int y = 0; y < height; y++) {
                             for (int x = 0; x < width; x++) {
+                                targetIndex.set(m, y, x);
+
                                 final BilinearInterpolator interpolator = interpolationContext.get(x, y);
+                                if (interpolator == null) {
+                                    targetArray.setFloat(targetIndex, TemplateVariable.getFillValue());
+                                    continue;
+                                }
+
                                 final int offsetX = interpolator.getXMin() - layerRegion.x;
                                 final int offsetY = interpolator.getYMin() - layerRegion.y;
 
@@ -267,7 +273,7 @@ class SatelliteFields extends FieldsProcessor {
                                 final float c11 = subset.getFloat(subsetIndex);
 
                                 final double interpolate = interpolator.interpolate(c00, c01, c10, c11);
-                                targetIndex.set(m, y, x);
+
                                 targetArray.setFloat(targetIndex, (float) interpolate);
                             }
                         }
@@ -275,7 +281,14 @@ class SatelliteFields extends FieldsProcessor {
                         for (int z = 0; z < numLayers; z++) {
                             for (int y = 0; y < height; y++) {
                                 for (int x = 0; x < width; x++) {
+                                    targetIndex.set(m, z, y, x);
+
                                     final BilinearInterpolator interpolator = interpolationContext.get(x, y);
+                                    if (interpolator == null) {
+                                        targetArray.setFloat(targetIndex, TemplateVariable.getFillValue());
+                                        continue;
+                                    }
+
                                     final int offsetX = interpolator.getXMin() - layerRegion.x;
                                     final int offsetY = interpolator.getYMin() - layerRegion.y;
 
@@ -292,7 +305,7 @@ class SatelliteFields extends FieldsProcessor {
                                     final float c11 = subset.getFloat(subsetIndex);
 
                                     final double interpolate = interpolator.interpolate(c00, c01, c10, c11);
-                                    targetIndex.set(m, z, y, x);
+
                                     targetArray.setFloat(targetIndex, (float) interpolate);
                                 }
                             }

@@ -71,6 +71,10 @@ class Era5PostProcessing extends PostProcessing {
 
                 final float lon = lonArray.getFloat(lonIdx);
                 final float lat = latArray.getFloat(latIdx);
+                if (!(isValidLon(lon) && isValidLat(lat))) {
+                    // we cannot interpolate here tb 2021-05-04
+                    continue;
+                }
 
                 // + detect four era5 corner-points for interpolation
                 // + calculate longitude delta -> a
@@ -92,14 +96,7 @@ class Era5PostProcessing extends PostProcessing {
                     yMax = era5_Y_min;
                 }
 
-                final double era5LonMin = era5_X_min * 0.25 - 180.0;
-                final double era5LatMin = 90.0 - era5_Y_min * 0.25;
-
-                // we have a quarter degree raster and need to normalize the distance tb 2020-11-20
-                final double lonDelta = (lon - era5LonMin) * 4.0;
-                final double latDelta = (era5LatMin - lat) * 4.0;
-
-                final BilinearInterpolator interpolator = new BilinearInterpolator(lonDelta, latDelta, era5_X_min, era5_Y_min);
+                final BilinearInterpolator interpolator = createInterpolator(lon, lat, era5_X_min, era5_Y_min);
                 context.set(x, y, interpolator);
             }
 
@@ -108,6 +105,17 @@ class Era5PostProcessing extends PostProcessing {
             context.setEra5Region(era5Rect);
         }
         return context;
+    }
+
+    static BilinearInterpolator createInterpolator(float lon, float lat, int era5_X_min, int era5_Y_min) {
+        final double era5LonMin = era5_X_min * 0.25 - 180.0;
+        final double era5LatMin = 90.0 - era5_Y_min * 0.25;
+
+        // we have a quarter degree raster and need to normalize the distance tb 2020-11-20
+        final double lonDelta = (lon - era5LonMin) * 4.0;
+        final double latDelta = (era5LatMin - lat) * 4.0;
+
+        return new BilinearInterpolator(lonDelta, latDelta, era5_X_min, era5_Y_min);
     }
 
     private static InterpolationContext createInterpolationContext_1D(Array lonArray, Array latArray) {
@@ -119,20 +127,21 @@ class Era5PostProcessing extends PostProcessing {
         final int era5_X_min = getEra5LonMin(lon);
         final int era5_Y_min = getEra5LatMin(lat);
 
-        final double era5LonMin = era5_X_min * 0.25 - 180.0;
-        final double era5LatMin = 90.0 - era5_Y_min * 0.25;
-
-        // we have a quarter degree raster and need to normalize the distance tb 2020-11-20
-        final double lonDelta = (lon - era5LonMin) * 4.0;
-        final double latDelta = (era5LatMin - lat) * 4.0;
-
-        final BilinearInterpolator interpolator = new BilinearInterpolator(lonDelta, latDelta, era5_X_min, era5_Y_min);
+        final BilinearInterpolator interpolator = createInterpolator(lon, lat, era5_X_min, era5_Y_min);
         context.set(0, 0, interpolator);
 
         final Rectangle era5Rect = new Rectangle(era5_X_min, era5_Y_min, 2, 2);
         context.setEra5Region(era5Rect);
 
         return context;
+    }
+
+    static boolean isValidLon(float lon) {
+        return lon >= -180.f && lon <= 180.f ;
+    }
+
+    static boolean isValidLat(float lat) {
+        return lat >= -90.f && lat <= 90.f ;
     }
 
     @Override
