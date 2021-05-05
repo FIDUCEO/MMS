@@ -20,7 +20,6 @@
 
 package com.bc.fiduceo;
 
-import com.bc.fiduceo.reader.netcdf.NetCDFReader;
 import com.bc.fiduceo.util.NetCDFUtils;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
@@ -32,8 +31,7 @@ import ucar.nc2.Variable;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 public class NCTestUtils {
 
@@ -154,6 +152,32 @@ public class NCTestUtils {
             assertEquals(expected, attribute.getStringValue());
         } else if (dataType == DataType.FLOAT) {
             assertEquals(Float.parseFloat(expected), attribute.getNumericValue().floatValue(), 1e-8);
+        } else if (dataType == DataType.SHORT) {
+            if (attribute.isArray()) {
+                final String[] segments = expected.split(",");
+                final Array values = attribute.getValues();
+                int i = 0;
+                for (final String segment : segments) {
+                    assertEquals(Short.parseShort(segment), values.getShort(i));
+                    ++i;
+                }
+            } else {
+                assertEquals(Short.parseShort(expected), attribute.getNumericValue());
+            }
+        } else if (dataType == DataType.BYTE) {
+            if (attribute.isArray()) {
+                final String[] segments = expected.split(",");
+                final Array values = attribute.getValues();
+                int i = 0;
+                for (final String segment : segments) {
+                    assertEquals(Byte.parseByte(segment), values.getByte(i));
+                    ++i;
+                }
+            } else {
+                assertEquals(Byte.parseByte(expected), attribute.getNumericValue());
+            }
+        } else {
+            fail("unsupported");
         }
     }
 
