@@ -496,7 +496,7 @@ class MxD021KM_Reader extends NetCDFReader {
             if (dataType.isString()) {
                 final String stringValue = attribute.getStringValue();
                 final String[] tokens = StringUtils.split(stringValue, new char[]{','}, true);
-                if (tokens.length == numChannels && !attributeName.contains("valid_range")) {
+                if (tokens.length == numChannels) {
                     final Attribute newAttribute = new Attribute(attributeName, tokens[index]);
                     toAdd.add(newAttribute);
                 } else {
@@ -504,7 +504,7 @@ class MxD021KM_Reader extends NetCDFReader {
                 }
             } else if (dataType.isNumeric()) {
                 final int length = attribute.getLength();
-                if (length == numChannels) {
+                if (length == numChannels && !attributeName.contains("valid_range")) {
                     final Number numericValue = attribute.getNumericValue(index);
                     final Attribute newAttribute = new Attribute(attributeName, numericValue);
                     toAdd.add(newAttribute);
