@@ -35,10 +35,15 @@ class MatchupFields extends FieldsProcessor {
         for (int i = 0; i < numMatchups; i++) {
             index.set(i);
             final int timeStamp = era5TimeArray.getInt(index);
+            final boolean isTimeFill = VariableUtils.isTimeFill(timeStamp);
             for (int k = 0; k < numTimeSteps; k++) {
-                final int timeStep = timeStamp + (offset + k) * SECS_PER_HOUR;
                 targetIndex.set(i, k);
-                targetTimeArray.setInt(targetIndex, timeStep);
+                if (isTimeFill) {
+                    targetTimeArray.setInt(targetIndex, TIME_FILL);
+                } else {
+                    final int timeStep = timeStamp + (offset + k) * SECS_PER_HOUR;
+                    targetTimeArray.setInt(targetIndex, timeStep);
+                }
             }
         }
         return targetTimeArray;
@@ -116,6 +121,11 @@ class MatchupFields extends FieldsProcessor {
                         targetIndex.set(m, t);
 
                         final int timeStamp = targetTimeArray.getInt(timeIndex);
+                        if (VariableUtils.isTimeFill(timeStamp)) {
+                            targetArray.setFloat(targetIndex, TemplateVariable.getFillValue());
+                            continue;
+                        }
+
                         VariableCache.CacheEntry cacheEntry = variableCache.get(variableKey, timeStamp);
 
                         // read and get rid of fake z-dimension

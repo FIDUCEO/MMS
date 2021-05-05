@@ -6,7 +6,7 @@ import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
 import ucar.nc2.Variable;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class VariableUtilsTest {
@@ -59,6 +59,20 @@ public class VariableUtilsTest {
     }
 
     @Test
+    public void testConvertToEra5TimeStamp_withFillValue() {
+        final Array acquisitionTime = Array.factory(DataType.INT, new int[]{6}, new int[]{1490542129, 1490545559, VariableUtils.TIME_FILL, 1490543482, 1490542437, 1490542946});
+
+        final Array converted = VariableUtils.convertToEra5TimeStamp(acquisitionTime);
+        assertEquals(6, converted.getSize());
+        assertEquals(1490540400, converted.getInt(0));
+        assertEquals(1490544000, converted.getInt(1));
+        assertEquals(VariableUtils.TIME_FILL, converted.getInt(2));
+        assertEquals(1490544000, converted.getInt(3));
+        assertEquals(1490544000, converted.getInt(4));
+        assertEquals(1490544000, converted.getInt(5));
+    }
+
+    @Test
     public void testGetNwpShape() {
         final com.bc.fiduceo.core.Dimension dimension = new com.bc.fiduceo.core.Dimension("whatever", 3, 5);
 
@@ -94,5 +108,14 @@ public class VariableUtilsTest {
         assertEquals(0, nwpOffset[0]);
         assertEquals(1, nwpOffset[1]);
         assertEquals(1, nwpOffset[2]);
+    }
+
+    @Test
+    public void testIsTimeFill() {
+        assertTrue(VariableUtils.isTimeFill(VariableUtils.TIME_FILL));
+
+        assertFalse(VariableUtils.isTimeFill(12));
+        assertFalse(VariableUtils.isTimeFill(0));
+        assertFalse(VariableUtils.isTimeFill(-125));
     }
 }

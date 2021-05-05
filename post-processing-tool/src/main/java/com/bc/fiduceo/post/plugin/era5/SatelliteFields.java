@@ -230,6 +230,7 @@ class SatelliteFields extends FieldsProcessor {
 
                 timeIndex.set(m);
                 final int era5Time = era5TimeArray.getInt(timeIndex);
+                final boolean isTimeFill = VariableUtils.isTimeFill(era5Time);
 
                 //   iterate over variables
                 //     + assemble variable file name
@@ -250,6 +251,10 @@ class SatelliteFields extends FieldsProcessor {
                         for (int y = 0; y < height; y++) {
                             for (int x = 0; x < width; x++) {
                                 targetIndex.set(m, y, x);
+                                if (isTimeFill) {
+                                    targetArray.setFloat(targetIndex, TemplateVariable.getFillValue());
+                                    continue;
+                                }
 
                                 final BilinearInterpolator interpolator = interpolationContext.get(x, y);
                                 if (interpolator == null) {
@@ -282,6 +287,11 @@ class SatelliteFields extends FieldsProcessor {
                             for (int y = 0; y < height; y++) {
                                 for (int x = 0; x < width; x++) {
                                     targetIndex.set(m, z, y, x);
+
+                                    if (isTimeFill) {
+                                        targetArray.setFloat(targetIndex, TemplateVariable.getFillValue());
+                                        continue;
+                                    }
 
                                     final BilinearInterpolator interpolator = interpolationContext.get(x, y);
                                     if (interpolator == null) {
