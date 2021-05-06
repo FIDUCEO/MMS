@@ -6,8 +6,7 @@ import ucar.ma2.DataType;
 
 import java.awt.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 public class Era5PostProcessingTest {
 
@@ -68,7 +67,7 @@ public class Era5PostProcessingTest {
     }
 
     @Test
-    public void testgetEra5Collection_fromConfig() {
+    public void testGetEra5Collection_fromConfig() {
         final Configuration configuration = new Configuration();
         configuration.setNWPAuxDir("/yamas/strange/path");
         configuration.setEra5Collection("Hamasuki");
@@ -78,7 +77,7 @@ public class Era5PostProcessingTest {
     }
 
     @Test
-    public void testgetEra5Collection_fromPath_unknown() {
+    public void testGetEra5Collection_fromPath_unknown() {
         final Configuration configuration = new Configuration();
         configuration.setNWPAuxDir("/yamas/strange/path");
 
@@ -87,7 +86,7 @@ public class Era5PostProcessingTest {
     }
 
     @Test
-    public void testgetEra5Collection_fromPath() {
+    public void testGetEra5Collection_fromPath() {
         final Configuration configuration = new Configuration();
 
         configuration.setNWPAuxDir("/data/era5");
@@ -132,5 +131,25 @@ public class Era5PostProcessingTest {
         assertEquals(359, Era5PostProcessing.getEra5LatMin(0.f));
         assertEquals(448, Era5PostProcessing.getEra5LatMin(-22.19f));
         assertEquals(719, Era5PostProcessing.getEra5LatMin(-89.95f));
+    }
+
+    @Test
+    public void testIsValidLon() {
+        assertTrue(Era5PostProcessing.isValidLon(12.8f));
+        assertTrue(Era5PostProcessing.isValidLon(-176.3f));
+
+        assertFalse(Era5PostProcessing.isValidLon(1087f));
+        assertFalse(Era5PostProcessing.isValidLon(9.96921E36f));
+        assertFalse(Era5PostProcessing.isValidLon(Float.NaN));
+    }
+
+    @Test
+    public void testIsValidLat() {
+        assertTrue(Era5PostProcessing.isValidLat(33.9f));
+        assertTrue(Era5PostProcessing.isValidLat(-76.3f));
+
+        assertFalse(Era5PostProcessing.isValidLat(-92.6f));
+        assertFalse(Era5PostProcessing.isValidLat(9.96921E36f));
+        assertFalse(Era5PostProcessing.isValidLat(Float.NaN));
     }
 }

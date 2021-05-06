@@ -205,6 +205,7 @@ public class MxD021KM_Reader_IO_Test {
         assertEquals("EV_1KM_RefSB_ch10", variable.getShortName());
         assertEquals(DataType.USHORT, variable.getDataType());
         NCTestUtils.assertAttribute(variable, "radiance_scales", "0.0036217605");
+        NCTestUtils.assertAttribute(variable, "valid_range", "0,32767");
 
         variable = variables.get(34);
         assertEquals("EV_1KM_RefSB_Uncert_Indexes_ch11", variable.getShortName());
@@ -235,10 +236,12 @@ public class MxD021KM_Reader_IO_Test {
         assertEquals("EV_250_Aggr1km_RefSB_ch01", variable.getShortName());
         assertEquals(DataType.USHORT, variable.getDataType());
         NCTestUtils.assertAttribute(variable, "corrected_counts_scales", "0.1249733");
+        NCTestUtils.assertAttribute(variable, "valid_range", "0,32767");
 
         variable = variables.get(83);
         assertEquals("EV_250_Aggr1km_RefSB_Samples_Used_ch02", variable.getShortName());
         assertEquals(DataType.BYTE, variable.getDataType());
+        NCTestUtils.assertAttribute(variable, "valid_range", "0,28");
 
         variable = variables.get(88);
         assertEquals("EV_500_Aggr1km_RefSB_ch07", variable.getShortName());
@@ -291,11 +294,13 @@ public class MxD021KM_Reader_IO_Test {
         assertEquals("EV_1KM_RefSB_ch11", variable.getShortName());
         assertEquals(DataType.USHORT, variable.getDataType());
         NCTestUtils.assertAttribute(variable, "band_names", "11");
+        NCTestUtils.assertAttribute(variable, "valid_range", "0,32767");
 
         variable = variables.get(35);
         assertEquals("EV_1KM_RefSB_Uncert_Indexes_ch12", variable.getShortName());
         assertEquals(DataType.UBYTE, variable.getDataType());
         NCTestUtils.assertAttribute(variable, "specified_uncertainty", "1.5");
+        NCTestUtils.assertAttribute(variable, "valid_range", "0,15");
 
         variable = variables.get(49);
         assertEquals("EV_1KM_Emissive_ch23", variable.getShortName());
@@ -321,6 +326,7 @@ public class MxD021KM_Reader_IO_Test {
         assertEquals("EV_250_Aggr1km_RefSB_ch02", variable.getShortName());
         assertEquals(DataType.USHORT, variable.getDataType());
         NCTestUtils.assertAttribute(variable, "reflectance_scales", "2.8540927814901806E-5");
+        NCTestUtils.assertAttribute(variable, "valid_range", "0,32767");
 
         variable = variables.get(84);
         assertEquals("EV_500_Aggr1km_RefSB_ch03", variable.getShortName());
@@ -335,6 +341,7 @@ public class MxD021KM_Reader_IO_Test {
         variable = variables.get(94);
         assertEquals("EV_500_Aggr1km_RefSB_Samples_Used_ch03", variable.getShortName());
         assertEquals(DataType.BYTE, variable.getDataType());
+        NCTestUtils.assertAttribute(variable, "valid_range", "0,6");
 
         variable = variables.get(99);
         assertEquals("EV_Band26", variable.getShortName());

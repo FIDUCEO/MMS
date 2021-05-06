@@ -176,9 +176,9 @@ public class PostProcessingToolIntegrationTest_Era5 {
             NCTestUtils.assertDimension(FiduceoConstants.MATCHUP_COUNT, 1, mmd);
 
             // satellite fields
-            NCTestUtils.assertDimension("slstr-s3a-nt_nwp_x", 1, mmd);
-            NCTestUtils.assertDimension("slstr-s3a-nt_nwp_y", 1, mmd);
-            NCTestUtils.assertDimension("slstr-s3a-nt_nwp_z", 137, mmd);
+            NCTestUtils.assertDimension("slstr.s3a.nt_nwp_x", 1, mmd);
+            NCTestUtils.assertDimension("slstr.s3a.nt_nwp_y", 1, mmd);
+            NCTestUtils.assertDimension("slstr.s3a.nt_nwp_z", 137, mmd);
 
             variable = NCTestUtils.getVariable("nwp_lnsp", mmd);
             NCTestUtils.assertAttribute(variable, "units", "~");
@@ -197,6 +197,10 @@ public class PostProcessingToolIntegrationTest_Era5 {
             variable = NCTestUtils.getVariable("nwp_skt", mmd);
             NCTestUtils.assertAttribute(variable, "long_name", "Skin temperature");
             NCTestUtils.assert3DValueDouble(0, 0, 0, 302.07879638671875, variable);
+
+            variable = NCTestUtils.getVariable("slstr.s3a.blowVert", mmd);
+            NCTestUtils.assertAttribute(variable, "long_name", "10 metre V wind component");
+            NCTestUtils.assert3DValueDouble(0, 0, 0, 0.32230889797210693, variable);
         }
     }
 
@@ -258,13 +262,15 @@ public class PostProcessingToolIntegrationTest_Era5 {
                 era5Dir.getAbsolutePath() +
                 "            </nwp-aux-dir>\n" +
                 "            <satellite-fields>" +
-                "                <x_dim name='slstr-s3a-nt_nwp_x' length='1' />" +
-                "                <y_dim name='slstr-s3a-nt_nwp_y' length='1' />" +
-                "                <z_dim name='slstr-s3a-nt_nwp_z' />" +
-                "                <era5_time_variable>slstr-s3a-nt_nwp_time</era5_time_variable>" +
+                "                <x_dim name='slstr.s3a.nt_nwp_x' length='1' />" +
+                "                <y_dim name='slstr.s3a.nt_nwp_y' length='1' />" +
+                "                <z_dim name='slstr.s3a.nt_nwp_z' />" +
+                "                <era5_time_variable>slstr.s3ant_nwp_time</era5_time_variable>" +
                 "                <time_variable>slstr-s3a-nt_acquisition_time</time_variable>" +
                 "                <longitude_variable>slstr-s3a-nt_longitude_tx</longitude_variable>" +
                 "                <latitude_variable>slstr-s3a-nt_latitude_tx</latitude_variable>" +
+                "" +
+                "                <an_sfc_v10>slstr.s3a.blowVert</an_sfc_v10>" +
                 "            </satellite-fields>" +
                 "        </era5>\n" +
                 "    </post-processings>\n" +

@@ -449,7 +449,7 @@ class MxD021KM_Reader extends NetCDFReader {
                 }
 
                 if (mxD03Reader == null) {
-                    throw new IOException("associated MxD03 file not found in: " + productPath.toString());
+                    throw new IOException("associated MxD03 file not found in: " + productPath);
                 }
             }
         }
@@ -492,20 +492,21 @@ class MxD021KM_Reader extends NetCDFReader {
             toRemove.add(attribute);
 
             final DataType dataType = attribute.getDataType();
+            final String attributeName = attribute.getShortName();
             if (dataType.isString()) {
                 final String stringValue = attribute.getStringValue();
                 final String[] tokens = StringUtils.split(stringValue, new char[]{','}, true);
                 if (tokens.length == numChannels) {
-                    final Attribute newAttribute = new Attribute(attribute.getShortName(), tokens[index]);
+                    final Attribute newAttribute = new Attribute(attributeName, tokens[index]);
                     toAdd.add(newAttribute);
                 } else {
                     toAdd.add(attribute);
                 }
             } else if (dataType.isNumeric()) {
                 final int length = attribute.getLength();
-                if (length == numChannels) {
+                if (length == numChannels && !attributeName.contains("valid_range")) {
                     final Number numericValue = attribute.getNumericValue(index);
-                    final Attribute newAttribute = new Attribute(attribute.getShortName(), numericValue);
+                    final Attribute newAttribute = new Attribute(attributeName, numericValue);
                     toAdd.add(newAttribute);
                 } else {
                     toAdd.add(attribute);

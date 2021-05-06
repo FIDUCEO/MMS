@@ -1,5 +1,6 @@
 package com.bc.fiduceo.post.plugin.era5;
 
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.esa.snap.core.util.StringUtils;
 
 class SatelliteFieldsConfiguration {
@@ -202,14 +203,18 @@ class SatelliteFieldsConfiguration {
         this.z_dim_name = z_dim_name;
     }
 
-    void set_nwp_time_variable_name(String nwp_time_variable_name) {
-        this.nwp_time_variable_name = nwp_time_variable_name;
-    }
-
     String get_nwp_time_variable_name() {
         return nwp_time_variable_name;
     }
 
+    void set_nwp_time_variable_name(String nwp_time_variable_name) {
+        this.nwp_time_variable_name =nwp_time_variable_name;
+    }
+
+    String get_time_variable_name() {
+        return time_variable_name;
+    }
+    
     void set_time_variable_name(String time_variable_name) {
         this.time_variable_name = time_variable_name;
     }
@@ -230,10 +235,6 @@ class SatelliteFieldsConfiguration {
         this.latitude_variable_name = latitude_variable_name;
     }
 
-
-    String get_time_variable_name() {
-        return time_variable_name;
-    }
 
     void verify() {
         if (x_dim < 1 || y_dim < 1) {

@@ -15,6 +15,8 @@ import java.util.*;
 
 class VariableUtils {
 
+    static int TIME_FILL = NetCDFUtils.getDefaultFillValue(DataType.INT, false).intValue();
+
     // package access for testing purpose only tb 2020-12-02
     static void addAttributes(TemplateVariable template, Variable variable) {
         variable.addAttribute(new Attribute("units", template.getUnits()));
@@ -23,11 +25,12 @@ class VariableUtils {
         if (StringUtils.isNotNullAndNotEmpty(standardName)) {
             variable.addAttribute(new Attribute("standard_name", standardName));
         }
-        variable.addAttribute(new Attribute("_FillValue", template.getFillValue()));
+        variable.addAttribute(new Attribute("_FillValue", TemplateVariable.getFillValue()));
     }
 
     static Array readTimeArray(String timeVariableName, NetcdfFile reader) throws IOException, InvalidRangeException {
-        final Variable timeVariable = NetCDFUtils.getVariable(reader, timeVariableName);
+        final Variable timeVariable = NetCDFUtils.getVariable(reader, timeVariableName, true);
+        final Number fillValue = NetCDFUtils.getFillValue(timeVariable);
 
         Array timeArray;
         final int rank = timeVariable.getRank();
@@ -52,6 +55,16 @@ class VariableUtils {
         } else {
             throw new IllegalArgumentException("Rank of time-variable not supported");
         }
+
+        // ensure that we have the internal time fill value so we do not need to distinguish later
+        final IndexIterator indexIterator = timeArray.getIndexIterator();
+        while (indexIterator.hasNext()) {
+            final double time = indexIterator.getDoubleNext();
+            if (Math.abs(time - fillValue.doubleValue()) < 1e-8) {
+                indexIterator.setIntNext(TIME_FILL);
+            }
+        }
+
         return timeArray;
     }
 
@@ -61,10 +74,18 @@ class VariableUtils {
         final IndexIterator indexIterator = timeArray.getIndexIterator();
         while (indexIterator.hasNext() && era5Iterator.hasNext()) {
             final int satelliteTime = indexIterator.getIntNext();
-            final int era5Time = toEra5TimeStamp(satelliteTime);
-            era5Iterator.setIntNext(era5Time);
+            if (isTimeFill(satelliteTime)) {
+                era5Iterator.setIntNext(TIME_FILL);
+            } else {
+                final int era5Time = toEra5TimeStamp(satelliteTime);
+                era5Iterator.setIntNext(era5Time);
+            }
         }
         return era5TimeArray;
+    }
+
+    static boolean isTimeFill(int timeValue) {
+        return timeValue == TIME_FILL;
     }
 
     static int toEra5TimeStamp(int utc1970Seconds) {
@@ -101,7 +122,7 @@ class VariableUtils {
     }
 
     static Array readGeolocationVariable(com.bc.fiduceo.core.Dimension dimension, NetcdfFile reader, String lonVarName) throws IOException, InvalidRangeException {
-        final Variable geoVariable = NetCDFUtils.getVariable(reader, lonVarName);
+        final Variable geoVariable = NetCDFUtils.getVariable(reader, lonVarName, true);
 
         final int[] shape = geoVariable.getShape();
 

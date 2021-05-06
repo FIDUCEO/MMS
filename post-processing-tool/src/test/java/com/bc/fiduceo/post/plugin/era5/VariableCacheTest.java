@@ -7,6 +7,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import ucar.ma2.Array;
+import ucar.ma2.DataType;
 import ucar.nc2.Variable;
 
 import java.io.File;
@@ -38,47 +40,59 @@ public class VariableCacheTest {
 
     @Test
     public void testGet() throws IOException {
-        Variable variable = variableCache.get("an_ml_lnsp", 1212145200);
-        assertEquals("time latitude longitude", variable.getDimensionsString());
-        assertEquals("Logarithm of surface pressure", NetCDFUtils.getAttributeString(variable, "long_name", null));
+        VariableCache.CacheEntry cacheEntry = variableCache.get("an_ml_lnsp", 1212145200);
+        assertEquals("time latitude longitude", cacheEntry.variable.getDimensionsString());
+        assertEquals("Logarithm of surface pressure", NetCDFUtils.getAttributeString(cacheEntry.variable, "long_name", null));
 
-        variable = variableCache.get("an_ml_q", 1212145200);
-        assertEquals("time level latitude longitude", variable.getDimensionsString());
-        assertEquals(3.786489628510026E-7, NetCDFUtils.getAttributeFloat(variable, "scale_factor", Float.NaN), 1e-8);
+        int[] shape = cacheEntry.array.getShape();
+        assertEquals(2, shape.length);
+        assertEquals(DataType.SHORT,  cacheEntry.array.getDataType());
+
+        cacheEntry = variableCache.get("an_ml_q", 1212145200);
+        assertEquals("time level latitude longitude", cacheEntry.variable.getDimensionsString());
+        assertEquals(3.786489628510026E-7, NetCDFUtils.getAttributeFloat(cacheEntry.variable, "scale_factor", Float.NaN), 1e-8);
+
+        shape = cacheEntry.array.getShape();
+        assertEquals(3, shape.length);
+        assertEquals(DataType.SHORT,  cacheEntry.array.getDataType());
     }
 
     @Test
     public void testCallGetTwice() throws IOException {
-        Variable variable_1 = variableCache.get("an_ml_o3", 1212400800);
+        final VariableCache.CacheEntry cacheEntry_1 = variableCache.get("an_ml_o3", 1212400800);
 
-        Variable variable_2 = variableCache.get("an_ml_o3", 1212400800);
-        assertSame(variable_1, variable_2);
+        final VariableCache.CacheEntry cacheEntry_2 = variableCache.get("an_ml_o3", 1212400800);
+        assertSame(cacheEntry_1, cacheEntry_2);
     }
 
     @Test
     public void testCallGetTwice_closeInbetween() throws IOException {
-        Variable variable_1 = variableCache.get("an_sfc_t2m", 1212145200);
+        VariableCache.CacheEntry cacheEntry_1 = variableCache.get("an_sfc_t2m", 1212145200);
 
         variableCache.close();
 
-        Variable variable_2 = variableCache.get("an_sfc_t2m", 1212145200);
-        assertNotSame(variable_1, variable_2);
+        VariableCache.CacheEntry cacheEntry_2 = variableCache.get("an_sfc_t2m", 1212145200);
+        assertNotSame(cacheEntry_1, cacheEntry_2);
     }
 
     @Test
     public void testGet_removeFunctionalityOnFullCache() throws IOException, InterruptedException {
-        final Variable varU10 = variableCache.get("an_sfc_u10", 1212400800);
+        VariableCache.CacheEntry cached_u10 = variableCache.get("an_sfc_u10", 1212400800);
         sleep(50);
+
         variableCache.get("an_sfc_v10", 1212400800);
         sleep(50);
+
         variableCache.get("an_sfc_siconc", 1212400800);
         sleep(50);
+
         // now the cache is full tb 2020-11-25
         variableCache.get("an_sfc_msl", 1212400800);
         sleep(50);
-        // now the first u10 variable is removed from cache and opening it again must result in a new object tb 2020-11-25
-        final Variable varU10New = variableCache.get("an_sfc_u10", 1212400800);
 
-        assertNotSame(varU10, varU10New);
+        // now the first u10 variable is removed from cache and opening it again must result in a new object tb 2020-11-25
+        VariableCache.CacheEntry cached_u10_new = variableCache.get("an_sfc_u10", 1212400800);
+
+        assertNotSame(cached_u10, cached_u10_new);
     }
 }

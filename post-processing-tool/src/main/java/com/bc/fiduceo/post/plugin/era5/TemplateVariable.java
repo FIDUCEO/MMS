@@ -20,7 +20,7 @@ class TemplateVariable {
         this.is3d = is3d;
     }
 
-    float getFillValue() {
+    static float getFillValue() {
         return FILL_VALUE;
     }
 

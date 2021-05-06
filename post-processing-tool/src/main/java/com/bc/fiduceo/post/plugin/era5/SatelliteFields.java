@@ -16,7 +16,7 @@ import java.util.List;
 
 import static com.bc.fiduceo.post.plugin.era5.VariableUtils.*;
 
-class SatelliteFields {
+class SatelliteFields extends FieldsProcessor {
 
     private static final int RASTER_WIDTH = 1440;
 
@@ -24,20 +24,20 @@ class SatelliteFields {
     private List<Dimension> dimension3d;
     private Map<String, TemplateVariable> variables;
 
-    static Array readSubset(int numLayers, Rectangle era5RasterPosition, Variable variable) throws IOException, InvalidRangeException {
+    static Array readSubset(int numLayers, Rectangle era5RasterPosition, VariableCache.CacheEntry cacheEntry) throws IOException, InvalidRangeException {
         Array subset;
 
-        final int maxRequestedX = era5RasterPosition.x + era5RasterPosition.width;
+        final int maxRequestedX = era5RasterPosition.x + era5RasterPosition.width - 1;
         if (era5RasterPosition.x < 0 || maxRequestedX >= RASTER_WIDTH) {
-            subset = readVariableDataOverlapped(numLayers, era5RasterPosition, variable);
+            subset = readVariableDataOverlapped(numLayers, era5RasterPosition, cacheEntry.array);
         } else {
-            subset = readVariableData(numLayers, era5RasterPosition, variable);
+            subset = readVariableData(numLayers, era5RasterPosition, cacheEntry.array);
         }
 
-        return NetCDFUtils.scaleIfNecessary(variable, subset);
+        return NetCDFUtils.scaleIfNecessary(cacheEntry.variable, subset);
     }
 
-    private static Array readVariableDataOverlapped(int numLayers, Rectangle era5RasterPosition, Variable variable) throws IOException, InvalidRangeException {
+    private static Array readVariableDataOverlapped(int numLayers, Rectangle era5RasterPosition, Array array) throws IOException, InvalidRangeException {
         Array subset;
         int xMin = 0;
         int xMax;
@@ -53,20 +53,20 @@ class SatelliteFields {
             leftWidth = era5RasterPosition.width - rightWidth;
         }
         final Rectangle leftEraPos = new Rectangle(xMin, era5RasterPosition.y, leftWidth, era5RasterPosition.height);
-        final Array leftSubset = readVariableData(numLayers, leftEraPos, variable);
+        final Array leftSubset = readVariableData(numLayers, leftEraPos, array);
 
         final Rectangle rightEraPos = new Rectangle(xMax, era5RasterPosition.y, rightWidth, era5RasterPosition.height);
-        final Array rightSubset = readVariableData(numLayers, rightEraPos, variable);
+        final Array rightSubset = readVariableData(numLayers, rightEraPos, array);
 
-        subset = mergeData(leftSubset, rightSubset, numLayers, era5RasterPosition, variable);
+        subset = mergeData(leftSubset, rightSubset, numLayers, era5RasterPosition, array);
         return subset;
     }
 
-    static Array mergeData(Array leftSubset, Array rightSubset, int numLayers, Rectangle era5RasterPosition, Variable variable) {
-        final int rank = variable.getRank();
+    static Array mergeData(Array leftSubset, Array rightSubset, int numLayers, Rectangle era5RasterPosition, Array array) {
+        final int rank = array.getRank();
         final Array mergedArray;
         if (rank == 4) {
-            mergedArray = Array.factory(variable.getDataType(), new int[]{numLayers, era5RasterPosition.height, era5RasterPosition.width});
+            mergedArray = Array.factory(array.getDataType(), new int[]{numLayers, era5RasterPosition.height, era5RasterPosition.width});
             if (era5RasterPosition.x < 0) {
                 final int xMax = era5RasterPosition.width + era5RasterPosition.x;
                 mergeArrays_3D(leftSubset, rightSubset, era5RasterPosition, mergedArray, xMax);
@@ -75,7 +75,7 @@ class SatelliteFields {
                 mergeArrays_3D(rightSubset, leftSubset, era5RasterPosition, mergedArray, xMax);
             }
         } else {
-            mergedArray = Array.factory(variable.getDataType(), new int[]{era5RasterPosition.height, era5RasterPosition.width});
+            mergedArray = Array.factory(array.getDataType(), new int[]{era5RasterPosition.height, era5RasterPosition.width});
             if (era5RasterPosition.x < 0) {
                 final int xMax = era5RasterPosition.width + era5RasterPosition.x;
                 mergeArrays(leftSubset, rightSubset, era5RasterPosition, mergedArray, xMax);
@@ -141,23 +141,22 @@ class SatelliteFields {
         }
     }
 
-    private static Array readVariableData(int numLayers, Rectangle era5RasterPosition, Variable variable) throws IOException, InvalidRangeException {
-        final int rank = variable.getRank();
+    private static Array readVariableData(int numLayers, Rectangle era5RasterPosition, Array array) throws IOException, InvalidRangeException {
+        final int rank = array.getRank();
         Array subset;
-        if (rank == 3) {
+        if (rank == 2) {
+            final int[] origin = new int[]{era5RasterPosition.y, era5RasterPosition.x};
+            final int[] shape = new int[]{era5RasterPosition.height, era5RasterPosition.width};
+            final int[] stride = new int[]{1, 1};
+            subset = array.sectionNoReduce(origin, shape, stride);
+        } else if (rank == 3) {
             final int[] origin = new int[]{0, era5RasterPosition.y, era5RasterPosition.x};
-            final int[] shape = new int[]{1, era5RasterPosition.height, era5RasterPosition.width};
-            subset = variable.read(origin, shape);
-        } else if (rank == 4) {
-            final int[] origin = new int[]{0, 0, era5RasterPosition.y, era5RasterPosition.x};
-            final int[] shape = new int[]{1, numLayers, era5RasterPosition.height, era5RasterPosition.width};
-            subset = variable.read(origin, shape);
+            final int[] shape = new int[]{numLayers, era5RasterPosition.height, era5RasterPosition.width};
+            final int[] stride = new int[]{1, 1, 1};
+            subset = array.sectionNoReduce(origin, shape, stride);
         } else {
-            throw new IOException("variable rank invalid: " + variable.getShortName());
+            throw new IOException("variable rank invalid");
         }
-
-        // remove the time dimension of length 1 tb 2021-01-14
-        subset = subset.reduce(0);
 
         return subset;
     }
@@ -191,7 +190,8 @@ class SatelliteFields {
             // + write to MMD
             final Array timeArray = VariableUtils.readTimeArray(satFieldsConfig.get_time_variable_name(), reader);
             final Array era5TimeArray = convertToEra5TimeStamp(timeArray);
-            writer.write(satFieldsConfig.get_nwp_time_variable_name(), era5TimeArray);
+            final Variable targetTimeVariable = NetCDFUtils.getVariable(writer, satFieldsConfig.get_nwp_time_variable_name());
+            writer.write(targetTimeVariable, era5TimeArray);
 
             // open longitude and latitude input variables
             // + read completely or specified x/y subset
@@ -225,12 +225,12 @@ class SatelliteFields {
                 final int width = shape[1];
                 final int height = shape[0];
 
-                //final Rectangle era5RasterPosition = Era5PostProcessing.getEra5RasterPosition(geoRegion);
                 final InterpolationContext interpolationContext = Era5PostProcessing.getInterpolationContext(lonLayer, latLayer);
                 final Rectangle layerRegion = interpolationContext.getEra5Region();
 
                 timeIndex.set(m);
                 final int era5Time = era5TimeArray.getInt(timeIndex);
+                final boolean isTimeFill = VariableUtils.isTimeFill(era5Time);
 
                 //   iterate over variables
                 //     + assemble variable file name
@@ -239,8 +239,8 @@ class SatelliteFields {
                 //     - store to target raster
                 final Set<String> variableKeys = variables.keySet();
                 for (final String variableKey : variableKeys) {
-                    final Variable variable = variableCache.get(variableKey, era5Time);
-                    final Array subset = readSubset(numLayers, layerRegion, variable);
+                    VariableCache.CacheEntry cacheEntry = variableCache.get(variableKey, era5Time);
+                    final Array subset = readSubset(numLayers, layerRegion, cacheEntry);
                     final Index subsetIndex = subset.getIndex();
 
                     final Array targetArray = targetArrays.get(variableKey);
@@ -250,7 +250,18 @@ class SatelliteFields {
                     if (rank == 2) {
                         for (int y = 0; y < height; y++) {
                             for (int x = 0; x < width; x++) {
+                                targetIndex.set(m, y, x);
+                                if (isTimeFill) {
+                                    targetArray.setFloat(targetIndex, TemplateVariable.getFillValue());
+                                    continue;
+                                }
+
                                 final BilinearInterpolator interpolator = interpolationContext.get(x, y);
+                                if (interpolator == null) {
+                                    targetArray.setFloat(targetIndex, TemplateVariable.getFillValue());
+                                    continue;
+                                }
+
                                 final int offsetX = interpolator.getXMin() - layerRegion.x;
                                 final int offsetY = interpolator.getYMin() - layerRegion.y;
 
@@ -267,7 +278,7 @@ class SatelliteFields {
                                 final float c11 = subset.getFloat(subsetIndex);
 
                                 final double interpolate = interpolator.interpolate(c00, c01, c10, c11);
-                                targetIndex.set(m, y, x);
+
                                 targetArray.setFloat(targetIndex, (float) interpolate);
                             }
                         }
@@ -275,7 +286,19 @@ class SatelliteFields {
                         for (int z = 0; z < numLayers; z++) {
                             for (int y = 0; y < height; y++) {
                                 for (int x = 0; x < width; x++) {
+                                    targetIndex.set(m, z, y, x);
+
+                                    if (isTimeFill) {
+                                        targetArray.setFloat(targetIndex, TemplateVariable.getFillValue());
+                                        continue;
+                                    }
+
                                     final BilinearInterpolator interpolator = interpolationContext.get(x, y);
+                                    if (interpolator == null) {
+                                        targetArray.setFloat(targetIndex, TemplateVariable.getFillValue());
+                                        continue;
+                                    }
+
                                     final int offsetX = interpolator.getXMin() - layerRegion.x;
                                     final int offsetY = interpolator.getYMin() - layerRegion.y;
 
@@ -292,7 +315,7 @@ class SatelliteFields {
                                     final float c11 = subset.getFloat(subsetIndex);
 
                                     final double interpolate = interpolator.interpolate(c00, c01, c10, c11);
-                                    targetIndex.set(m, z, y, x);
+
                                     targetArray.setFloat(targetIndex, (float) interpolate);
                                 }
                             }
@@ -300,12 +323,17 @@ class SatelliteFields {
                     } else {
                         throw new IllegalStateException("Unexpected variable rank: " + rank + "  " + variableKey);
                     }
-
-                    final TemplateVariable templateVariable = variables.get(variableKey);
-                    final Variable targetVariable = writer.findVariable(templateVariable.getName());
-                    writer.write(targetVariable, targetArray);
                 }
             }
+
+            final Set<String> variableKeys = variables.keySet();
+            for (final String variableKey : variableKeys) {
+                final TemplateVariable templateVariable = variables.get(variableKey);
+                final Array targetArray = targetArrays.get(variableKey);
+                final Variable targetVariable = writer.findVariable(NetCDFUtils.escapeVariableName(templateVariable.getName()));
+                writer.write(targetVariable, targetArray);
+            }
+
         } finally {
             variableCache.close();
         }
@@ -313,8 +341,7 @@ class SatelliteFields {
 
     private void addTimeVariable(SatelliteFieldsConfiguration satFieldsConfig, NetcdfFileWriter writer) {
         final String nwp_time_variable_name = satFieldsConfig.get_nwp_time_variable_name();
-        final String escapedName = NetCDFUtils.escapeVariableName(nwp_time_variable_name);
-        final Variable variable = writer.addVariable(escapedName, DataType.INT, FiduceoConstants.MATCHUP_COUNT);
+        final Variable variable = writer.addVariable(nwp_time_variable_name, DataType.INT, FiduceoConstants.MATCHUP_COUNT);
         variable.addAttribute(new Attribute("description", "Timestamp of ERA-5 data"));
         variable.addAttribute(new Attribute("units", "seconds since 1970-01-01"));
         variable.addAttribute(new Attribute("_FillValue", NetCDFUtils.getDefaultFillValue(DataType.INT, false)));
@@ -354,19 +381,20 @@ class SatelliteFields {
     Map<String, TemplateVariable> getVariables(SatelliteFieldsConfiguration configuration) {
         final HashMap<String, TemplateVariable> variablesMap = new HashMap<>();
 
-        variablesMap.put("an_ml_q", new TemplateVariable(configuration.get_an_q_name(), "kg kg**-1", "Specific humidity", "specific_humidity", true));
-        variablesMap.put("an_ml_t", new TemplateVariable(configuration.get_an_t_name(), "K", "Temperature", "air_temperature", true));
-        variablesMap.put("an_ml_o3", new TemplateVariable(configuration.get_an_o3_name(), "kg kg**-1", "Ozone mass mixing ratio", null, true));
-        variablesMap.put("an_ml_lnsp", new TemplateVariable(configuration.get_an_lnsp_name(), "~", "Logarithm of surface pressure", null, false));
-        variablesMap.put("an_sfc_t2m", new TemplateVariable(configuration.get_an_t2m_name(), "K", "2 metre temperature", null, false));
-        variablesMap.put("an_sfc_u10", new TemplateVariable(configuration.get_an_u10_name(), "m s**-1", "10 metre U wind component", null, false));
-        variablesMap.put("an_sfc_v10", new TemplateVariable(configuration.get_an_v10_name(), "m s**-1", "10 metre V wind component", null, false));
-        variablesMap.put("an_sfc_siconc", new TemplateVariable(configuration.get_an_siconc_name(), "(0 - 1)", "Sea ice area fraction", "sea_ice_area_fraction", false));
-        variablesMap.put("an_sfc_msl", new TemplateVariable(configuration.get_an_msl_name(), "Pa", "Mean sea level pressure", "air_pressure_at_mean_sea_level", false));
-        variablesMap.put("an_sfc_skt", new TemplateVariable(configuration.get_an_skt_name(), "K", "Skin temperature", null, false));
-        variablesMap.put("an_sfc_sst", new TemplateVariable(configuration.get_an_sst_name(), "K", "Sea surface temperature", null, false));
-        variablesMap.put("an_sfc_tcc", new TemplateVariable(configuration.get_an_tcc_name(), "(0 - 1)", "Total cloud cover", "cloud_area_fraction", false));
-        variablesMap.put("an_sfc_tcwv", new TemplateVariable(configuration.get_an_tcwv_name(), "kg m**-2", "Total column water vapour", "lwe_thickness_of_atmosphere_mass_content_of_water_vapor", false));
+        variablesMap.put("an_ml_q", createTemplate(configuration.get_an_q_name(), "kg kg**-1", "Specific humidity", "specific_humidity", true));
+        variablesMap.put("an_ml_t", createTemplate(configuration.get_an_t_name(), "K", "Temperature", "air_temperature", true));
+        variablesMap.put("an_ml_o3", createTemplate(configuration.get_an_o3_name(), "kg kg**-1", "Ozone mass mixing ratio", null, true));
+        variablesMap.put("an_ml_lnsp", createTemplate(configuration.get_an_lnsp_name(), "~", "Logarithm of surface pressure", null, false));
+        variablesMap.put("an_sfc_t2m", createTemplate(configuration.get_an_t2m_name(), "K", "2 metre temperature", null, false));
+        variablesMap.put("an_sfc_u10", createTemplate(configuration.get_an_u10_name(), "m s**-1", "10 metre U wind component", null, false));
+        variablesMap.put("an_sfc_v10", createTemplate(configuration.get_an_v10_name(), "m s**-1", "10 metre V wind component", null, false));
+        variablesMap.put("an_sfc_siconc", createTemplate(configuration.get_an_siconc_name(), "(0 - 1)", "Sea ice area fraction", "sea_ice_area_fraction", false));
+        variablesMap.put("an_sfc_msl", createTemplate(configuration.get_an_msl_name(), "Pa", "Mean sea level pressure", "air_pressure_at_mean_sea_level", false));
+        variablesMap.put("an_sfc_skt", createTemplate(configuration.get_an_skt_name(), "K", "Skin temperature", null, false));
+        variablesMap.put("an_sfc_sst", createTemplate(configuration.get_an_sst_name(), "K", "Sea surface temperature", null, false));
+        variablesMap.put("an_sfc_tcc", createTemplate(configuration.get_an_tcc_name(), "(0 - 1)", "Total cloud cover", "cloud_area_fraction", false));
+        variablesMap.put("an_sfc_tcwv", createTemplate(configuration.get_an_tcwv_name(), "kg m**-2", "Total column water vapour", "lwe_thickness_of_atmosphere_mass_content_of_water_vapor", false));
+
         return variablesMap;
     }
 }

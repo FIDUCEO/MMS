@@ -4,9 +4,7 @@ import org.junit.Test;
 
 import java.awt.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class InterpolationContextTest {
 
@@ -14,11 +12,7 @@ public class InterpolationContextTest {
     public void testConstructEmpty() {
         final InterpolationContext context = new InterpolationContext(3, 5);
 
-        try {
-            context.get(1, 2);
-            fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException expected) {
-        }
+        assertNull(context.get(1, 2));
     }
 
     @Test

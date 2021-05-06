@@ -42,7 +42,6 @@ public class SatelliteFieldsConfigurationTest {
         assertNull(config.get_time_variable_name());
         assertNull(config.get_longitude_variable_name());
         assertNull(config.get_latitude_variable_name());
-
     }
 
     @Test
@@ -194,7 +193,7 @@ public class SatelliteFieldsConfigurationTest {
     @Test
     public void testVerify_x_dim_name() {
         prepareConfig();
-        config.set_x_dim_name(null);
+        config.set_x_dim_name("");
 
         try {
             config.verify();
@@ -218,7 +217,7 @@ public class SatelliteFieldsConfigurationTest {
     @Test
     public void testVerify_y_dim_name() {
         prepareConfig();
-        config.set_y_dim_name(null);
+        config.set_y_dim_name("");
 
         try {
             config.verify();
@@ -230,7 +229,7 @@ public class SatelliteFieldsConfigurationTest {
     @Test
     public void testVerify_z_dim_name() {
         prepareConfig();
-        config.set_z_dim_name(null);
+        config.set_z_dim_name("");
 
         try {
             config.verify();
@@ -242,7 +241,7 @@ public class SatelliteFieldsConfigurationTest {
     @Test
     public void testVerify_nwp_time_variable_name() {
         prepareConfig();
-        config.set_nwp_time_variable_name(null);
+        config.set_nwp_time_variable_name("");
 
         try {
             config.verify();
@@ -254,7 +253,7 @@ public class SatelliteFieldsConfigurationTest {
     @Test
     public void testVerify_time_variable_name() {
         prepareConfig();
-        config.set_time_variable_name(null);
+        config.set_time_variable_name("");
 
         try {
             config.verify();
@@ -266,7 +265,7 @@ public class SatelliteFieldsConfigurationTest {
     @Test
     public void testVerify_lon_variable_name() {
         prepareConfig();
-        config.set_longitude_variable_name(null);
+        config.set_longitude_variable_name("");
 
         try {
             config.verify();
@@ -278,7 +277,7 @@ public class SatelliteFieldsConfigurationTest {
     @Test
     public void testVerify_lat_variable_name() {
         prepareConfig();
-        config.set_latitude_variable_name(null);
+        config.set_latitude_variable_name("");
 
         try {
             config.verify();
