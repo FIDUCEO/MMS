@@ -70,10 +70,10 @@ public class Era5PostProcessingTest {
     public void testGetEra5Collection_fromConfig() {
         final Configuration configuration = new Configuration();
         configuration.setNWPAuxDir("/yamas/strange/path");
-        configuration.setEra5Collection("Hamasuki");
+        configuration.setEra5Collection("era_5t");
 
-        final String era5Collection = Era5PostProcessing.getEra5Collection(configuration);
-        assertEquals("Hamasuki", era5Collection);
+        final Era5Collection era5Collection = Era5PostProcessing.getEra5Collection(configuration);
+        assertEquals(Era5Collection.ERA_5T, era5Collection);
     }
 
     @Test
@@ -81,8 +81,11 @@ public class Era5PostProcessingTest {
         final Configuration configuration = new Configuration();
         configuration.setNWPAuxDir("/yamas/strange/path");
 
-        final String era5Collection = Era5PostProcessing.getEra5Collection(configuration);
-        assertEquals("UNKNOWN", era5Collection);
+        try {
+            Era5PostProcessing.getEra5Collection(configuration);
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException expected) {
+        }
     }
 
     @Test
@@ -90,22 +93,22 @@ public class Era5PostProcessingTest {
         final Configuration configuration = new Configuration();
 
         configuration.setNWPAuxDir("/data/era5");
-        assertEquals("ERA-5", Era5PostProcessing.getEra5Collection(configuration));
+        assertEquals(Era5Collection.ERA_5, Era5PostProcessing.getEra5Collection(configuration));
 
         configuration.setNWPAuxDir("/data/era-5");
-        assertEquals("ERA-5", Era5PostProcessing.getEra5Collection(configuration));
+        assertEquals(Era5Collection.ERA_5, Era5PostProcessing.getEra5Collection(configuration));
 
         configuration.setNWPAuxDir("/data/ERA51");
-        assertEquals("ERA-51", Era5PostProcessing.getEra5Collection(configuration));
+        assertEquals(Era5Collection.ERA_51, Era5PostProcessing.getEra5Collection(configuration));
 
         configuration.setNWPAuxDir("/data/era-51");
-        assertEquals("ERA-51", Era5PostProcessing.getEra5Collection(configuration));
+        assertEquals(Era5Collection.ERA_51, Era5PostProcessing.getEra5Collection(configuration));
 
         configuration.setNWPAuxDir("/data/era5t");
-        assertEquals("ERA-5T", Era5PostProcessing.getEra5Collection(configuration));
+        assertEquals(Era5Collection.ERA_5T, Era5PostProcessing.getEra5Collection(configuration));
 
         configuration.setNWPAuxDir("/data/ERA-5T");
-        assertEquals("ERA-5T", Era5PostProcessing.getEra5Collection(configuration));
+        assertEquals(Era5Collection.ERA_5T, Era5PostProcessing.getEra5Collection(configuration));
     }
 
     @Test

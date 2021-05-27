@@ -21,6 +21,7 @@ class MatchupFields extends FieldsProcessor {
     private static final int SECS_PER_HOUR = 3600;
 
     private Map<String, TemplateVariable> variables;
+    private Era5Collection collection;
 
     private static Array createTimeArray(NetcdfFile reader, MatchupFieldsConfiguration matchupConfig, int numTimeSteps, Variable nwpTimeVariable) throws IOException, InvalidRangeException {
         final Array timeArray = VariableUtils.readTimeArray(matchupConfig.get_time_variable_name(), reader);
@@ -49,8 +50,10 @@ class MatchupFields extends FieldsProcessor {
         return targetTimeArray;
     }
 
-    void prepare(MatchupFieldsConfiguration matchupFieldsConfig, NetcdfFile reader, NetcdfFileWriter writer) {
+    void prepare(MatchupFieldsConfiguration matchupFieldsConfig, NetcdfFile reader, NetcdfFileWriter writer, Era5Collection collection) {
         matchupFieldsConfig.verify();
+
+        this.collection = collection;
 
         final List<Dimension> dimensions = getDimensions(matchupFieldsConfig, writer, reader);
 
@@ -65,7 +68,7 @@ class MatchupFields extends FieldsProcessor {
     }
 
     void compute(Configuration config, NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
-        final Era5Archive era5Archive = new Era5Archive(config.getNWPAuxDir());
+        final Era5Archive era5Archive = new Era5Archive(config.getNWPAuxDir(), collection);
         final MatchupFieldsConfiguration matchupConfig = config.getMatchupFields();
 
         // allocate cache large enough to hold the time-series for one Era-5 variable

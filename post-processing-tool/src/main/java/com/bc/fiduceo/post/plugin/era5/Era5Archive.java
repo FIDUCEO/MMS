@@ -9,17 +9,29 @@ import java.util.Calendar;
 class Era5Archive {
 
     private static final DecimalFormat twoDigitsFormat = new DecimalFormat("00");
-    private static final DecimalFormat fourDigitsFormat = new DecimalFormat("0000");
-    private static final String FILE_NAME_BEGIN = "ecmwf-era5_oper_";
 
     private final String rootPath;
+    private final Era5Collection collection;
 
-    Era5Archive(String rootPath) {
+    Era5Archive(String rootPath, Era5Collection collection) {
         this.rootPath = rootPath;
+        this.collection = collection;
     }
 
-    static String getFileName(String collection, String variable, String timeString) {
-        return FILE_NAME_BEGIN + collection + "_" + timeString + "." + variable + ".nc";
+    String getFileName(String collection, String variable, String timeString) {
+        return getFileNameBegin() + collection + "_" + timeString + "." + variable + ".nc";
+    }
+
+    private String getFileNameBegin() {
+        if (collection == Era5Collection.ERA_5) {
+            return "ecmwf-era5_oper_";
+        } else if(collection == Era5Collection.ERA_5T) {
+            return "ecmwf-era5t_oper_";
+        } else if (collection == Era5Collection.ERA_51) {
+            return "ecmwf-era51_oper_";
+        }
+
+        throw new IllegalStateException("Unsupported RA5 collection");
     }
 
     static String mapVariable(String variable) {
@@ -77,7 +89,7 @@ class Era5Archive {
         final int cutPoint = variableType.lastIndexOf("_");
         final String collection = variableType.substring(0, cutPoint);
 
-        String variable = variableType.substring(cutPoint + 1, variableType.length());
+        String variable = variableType.substring(cutPoint + 1);
         variable = mapVariable(variable);
 
         adjustCalendarForForecast(utcCalendar, collection);

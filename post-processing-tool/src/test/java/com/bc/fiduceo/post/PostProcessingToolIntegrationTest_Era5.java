@@ -75,7 +75,7 @@ public class PostProcessingToolIntegrationTest_Era5 {
         assertTrue(targetFile.isFile());
 
         try (NetcdfFile mmd = NetcdfFiles.open(targetFile.getAbsolutePath())) {
-            NCTestUtils.assertGlobalAttribute(mmd, "era5-collection", "ERA-5");
+            NCTestUtils.assertGlobalAttribute(mmd, "era5-collection", "ERA_5");
 
             Variable variable = NCTestUtils.getVariable("amsre\\.Geostationary_Reflection_Latitude", mmd, false);
             NCTestUtils.assert3DValueDouble(0, 0, 0, 4105, variable);
@@ -167,7 +167,7 @@ public class PostProcessingToolIntegrationTest_Era5 {
         assertTrue(targetFile.isFile());
 
         try (NetcdfFile mmd = NetcdfFiles.open(targetFile.getAbsolutePath())) {
-            NCTestUtils.assertGlobalAttribute(mmd, "era5-collection", "ERA-5");
+            NCTestUtils.assertGlobalAttribute(mmd, "era5-collection", "ERA_5");
 
             Variable variable = NCTestUtils.getVariable("avhrr-frac-ma_delta_azimuth", mmd, false);
             NCTestUtils.assert3DValueDouble(0, 0, 0, 11.972550392150879, variable);

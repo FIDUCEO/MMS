@@ -23,6 +23,7 @@ class SatelliteFields extends FieldsProcessor {
     private List<Dimension> dimension2d;
     private List<Dimension> dimension3d;
     private Map<String, TemplateVariable> variables;
+    private Era5Collection collection;
 
     static Array readSubset(int numLayers, Rectangle era5RasterPosition, VariableCache.CacheEntry cacheEntry) throws IOException, InvalidRangeException {
         Array subset;
@@ -161,9 +162,11 @@ class SatelliteFields extends FieldsProcessor {
         return subset;
     }
 
-    void prepare(SatelliteFieldsConfiguration satFieldsConfig, NetcdfFile reader, NetcdfFileWriter writer) {
+    void prepare(SatelliteFieldsConfiguration satFieldsConfig, NetcdfFile reader, NetcdfFileWriter writer, Era5Collection collection) {
         satFieldsConfig.verify();
         setDimensions(satFieldsConfig, writer, reader);
+
+        this.collection = collection;
 
         variables = getVariables(satFieldsConfig);
         final Collection<TemplateVariable> values = variables.values();
@@ -180,7 +183,7 @@ class SatelliteFields extends FieldsProcessor {
     void compute(Configuration config, NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
         final SatelliteFieldsConfiguration satFieldsConfig = config.getSatelliteFields();
         final int numLayers = satFieldsConfig.get_z_dim();
-        final Era5Archive era5Archive = new Era5Archive(config.getNWPAuxDir());
+        final Era5Archive era5Archive = new Era5Archive(config.getNWPAuxDir(), collection);
         final VariableCache variableCache = new VariableCache(era5Archive, 52); // 4 * 13 variables tb 2020-11-25
 
         try {
