@@ -16,8 +16,8 @@ public class Era5ArchiveTest {
     private static final String SEP = File.separator;
 
     @Test
-    public void testConstructAndGet() throws IOException {
-        final Era5Archive era5Archive = new Era5Archive("archive" + SEP + "era5");
+    public void testConstructAndGet() {
+        final Era5Archive era5Archive = new Era5Archive("archive" + SEP + "era5", Era5Collection.ERA_5);
 
         // Friday, 30. May 2008 11:00:00
         // 1212145200
@@ -40,8 +40,21 @@ public class Era5ArchiveTest {
     }
 
     @Test
-    public void testGetFileName() {
-        assertEquals("ecmwf-era5_oper_an_ml_201108231900.q.nc", Era5Archive.getFileName("an_ml", "q", "201108231900"));
+    public void testGetFileName_era5() {
+        final Era5Archive archive = new Era5Archive("whatever", Era5Collection.ERA_5);
+        assertEquals("ecmwf-era5_oper_an_ml_201108231900.q.nc", archive.getFileName("an_ml", "q", "201108231900"));
+    }
+
+    @Test
+    public void testGetFileName_era5t() {
+        final Era5Archive archive = new Era5Archive("whatever", Era5Collection.ERA_5T);
+        assertEquals("ecmwf-era5t_oper_an_ml_201108232000.q.nc", archive.getFileName("an_ml", "q", "201108232000"));
+    }
+
+    @Test
+    public void testGetFileName_era51() {
+        final Era5Archive archive = new Era5Archive("whatever", Era5Collection.ERA_51);
+        assertEquals("ecmwf-era51_oper_an_fc_201108232000.q.nc", archive.getFileName("an_fc", "q", "201108232000"));
     }
 
     @Test

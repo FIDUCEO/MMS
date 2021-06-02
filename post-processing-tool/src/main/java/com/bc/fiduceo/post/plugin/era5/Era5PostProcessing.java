@@ -137,11 +137,11 @@ class Era5PostProcessing extends PostProcessing {
     }
 
     static boolean isValidLon(float lon) {
-        return lon >= -180.f && lon <= 180.f ;
+        return lon >= -180.f && lon <= 180.f;
     }
 
     static boolean isValidLat(float lat) {
-        return lat >= -90.f && lat <= 90.f ;
+        return lat >= -90.f && lat <= 90.f;
     }
 
     @Override
@@ -151,45 +151,40 @@ class Era5PostProcessing extends PostProcessing {
             throw new RuntimeException("Expected dimension not present in file: " + FiduceoConstants.MATCHUP_COUNT);
         }
 
-        prepare(writer);
+        final  Era5Collection collection = getEra5Collection(configuration);
+        writer.addGlobalAttribute("era5-collection", collection.toString());
 
         final SatelliteFieldsConfiguration satFieldsConfig = configuration.getSatelliteFields();
         if (satFieldsConfig != null) {
             satelliteFields = new SatelliteFields();
-            satelliteFields.prepare(satFieldsConfig, reader, writer);
+            satelliteFields.prepare(satFieldsConfig, reader, writer, collection);
         }
 
         final MatchupFieldsConfiguration matchupFieldsConfig = configuration.getMatchupFields();
         if (matchupFieldsConfig != null) {
             matchupFields = new MatchupFields();
-            matchupFields.prepare(matchupFieldsConfig, reader, writer);
+            matchupFields.prepare(matchupFieldsConfig, reader, writer, collection);
         }
     }
 
-    private void prepare(NetcdfFileWriter writer) {
-        String collection = getEra5Collection(configuration);
-        writer.addGlobalAttribute("era5-collection", collection);
-    }
-
     // package access for testing only tb 2021-01-12
-    static String getEra5Collection(Configuration configuration) {
+    static Era5Collection getEra5Collection(Configuration configuration) {
         String collection = configuration.getEra5Collection();
         if (StringUtils.isNotNullAndNotEmpty(collection)) {
-            return collection;
+            return Era5Collection.fromString(collection);
         }
 
         // we need to find the collection in the path-name
         final String nwpAuxDir = configuration.getNWPAuxDir();
         final String upperCaseAuxDir = nwpAuxDir.toUpperCase();
-        collection = "UNKNOWN";
         if (upperCaseAuxDir.contains("ERA5T") || upperCaseAuxDir.contains("ERA-5T")) {
-            collection = "ERA-5T";
+            return Era5Collection.ERA_5T;
         } else if (upperCaseAuxDir.contains("ERA51") || upperCaseAuxDir.contains("ERA-51")) {
-            collection = "ERA-51";
+            return Era5Collection.ERA_51;
         } else if (upperCaseAuxDir.contains("ERA5") || upperCaseAuxDir.contains("ERA-5")) {
-            collection = "ERA-5";
+            return Era5Collection.ERA_5;
         }
-        return collection;
+        throw new IllegalArgumentException("Unable to detect ERA5 collection from datapath. Please configure explicitly.");
     }
 
     @Override
