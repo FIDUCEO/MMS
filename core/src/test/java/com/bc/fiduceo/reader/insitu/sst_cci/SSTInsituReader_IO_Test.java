@@ -591,7 +591,6 @@ public class SSTInsituReader_IO_Test {
     private void openFile(String dataType, String fileName, String version) throws IOException {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"insitu", dataType, version, fileName}, false);
         final File insituDataFile = TestUtil.getTestDataFileAsserted(testFilePath);
-        assertTrue(insituDataFile.isFile());
 
         insituReader.open(insituDataFile);
     }
