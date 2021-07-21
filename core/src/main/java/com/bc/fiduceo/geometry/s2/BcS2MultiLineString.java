@@ -29,7 +29,7 @@ import java.util.List;
 
 class BcS2MultiLineString implements MultiLineString {
 
-    private List<S2Polyline> s2PolylineList;
+    private final List<S2Polyline> s2PolylineList;
 
 
     BcS2MultiLineString(List<S2Polyline> s2Polylines) {

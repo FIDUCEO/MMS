@@ -38,9 +38,10 @@ import static org.junit.Assert.assertNotNull;
 
 public class ArchiveTest {
 
+    private final static String processingVersion = "1.0";
+    private final static String sensorType = "amsub";
+
     private Archive archive;
-    private String processingVersion = "1.0";
-    private String sensorType = "amsub";
     private Path root;
     private String separator;
 

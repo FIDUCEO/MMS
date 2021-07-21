@@ -32,8 +32,8 @@ public class ConditionEngineContext {
     private Date endDate;
     private Dimension primarySize;
     private Dimension primaryExtractSize;
-    private Map<String, Dimension> secondarySize = new HashMap<>();
-    private Map<String, Dimension> secondaryExtractSize = new HashMap<>();
+    private final Map<String, Dimension> secondarySize = new HashMap<>();
+    private final Map<String, Dimension> secondaryExtractSize = new HashMap<>();
 
     public Date getStartDate() {
         return startDate;

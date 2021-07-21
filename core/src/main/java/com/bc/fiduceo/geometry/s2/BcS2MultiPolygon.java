@@ -32,7 +32,7 @@ import java.util.List;
  * @author muhammad.bc
  */
 class BcS2MultiPolygon implements MultiPolygon {
-    private List<Polygon> polygonList;
+    private final List<Polygon> polygonList;
 
     BcS2MultiPolygon(List<Polygon> polygonList) {
         this.polygonList = polygonList;
@@ -90,7 +90,7 @@ class BcS2MultiPolygon implements MultiPolygon {
             pointList.addAll(polygonPointList);
 
         }
-        return pointList.toArray(new Point[pointList.size()]);
+        return pointList.toArray(new Point[0]);
     }
 
     @Override

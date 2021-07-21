@@ -221,18 +221,7 @@ public class CALIOP_L2_VFM_Reader extends NetCDFReader {
         final Number fillValue = getFillValue(variableName);
         final Array taiSeconds = readRaw(x, y, interval, variableName).reshapeNoCopy(new int[]{interval.getY(), interval.getX()});
         final int targetFillValue = NetCDFUtils.getDefaultFillValue(int.class).intValue();
-        final Array utcSecondsSince1970 = Array.factory(DataType.INT, taiSeconds.getShape());
-        for (int i = 0; i < taiSeconds.getSize(); i++) {
-            double val = taiSeconds.getDouble(i);
-            final int targetVal;
-            if (fillValue.equals(val)) {
-                targetVal = targetFillValue;
-            } else {
-                targetVal = (int) Math.round(TimeUtils.tai1993ToUtcInstantSeconds(val));
-            }
-            utcSecondsSince1970.setInt(i, targetVal);
-        }
-        return (ArrayInt.D2) utcSecondsSince1970;
+        return TimeUtils.tai1993ToUtc(taiSeconds, fillValue, targetFillValue);
     }
 
     @Override

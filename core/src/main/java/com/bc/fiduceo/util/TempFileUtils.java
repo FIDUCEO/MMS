@@ -39,8 +39,8 @@ public class TempFileUtils {
         this(System.getProperty("java.io.tmpdir"));
     }
 
-    public TempFileUtils(String testDir) {
-        tempDir = new File(testDir);
+    public TempFileUtils(String tempDir) {
+        this.tempDir = new File(tempDir);
         validateTempDir();
         tempFileList = new ArrayList<>();
         keepAfterCleanup = false;

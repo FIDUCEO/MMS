@@ -42,7 +42,7 @@ public class Archive {
     private final HashMap<String, String[]> pathMaps;
     private final String[] defaultPath;
 
-    private Path rootPath;
+    private final Path rootPath;
 
     public Archive(ArchiveConfig config) {
         rootPath = config.getRootPath();
@@ -117,7 +117,7 @@ public class Archive {
             final Path productsDir = createValidProductPath(processingVersion, sensorType, year, month, day);
 
             if (Files.exists(productsDir)) {
-                log.info("The product directory: " + productsDir.toString());
+                log.info("The product directory: " + productsDir);
                 final Iterator<Path> iterator = Files.list(productsDir).iterator();
                 while (iterator.hasNext()) {
                     final Path next = iterator.next();
@@ -129,7 +129,7 @@ public class Archive {
                     pathArrayList.add(next);
                 }
             } else {
-                log.warning("The directory doest not exist: " + productsDir.toString());
+                log.warning("The directory doest not exist: " + productsDir);
             }
             utcCalendar.add(Calendar.DAY_OF_MONTH, 1);
         }

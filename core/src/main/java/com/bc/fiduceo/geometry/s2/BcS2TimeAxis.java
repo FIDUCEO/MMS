@@ -32,7 +32,7 @@ import java.util.List;
 class BcS2TimeAxis implements TimeAxis {
 
     private final S2Polyline polyline;
-    private LineString originalGeometry;
+    private final LineString originalGeometry;
     private final double invLength;
     private final Date startTime;
     private final long timeInterval;
