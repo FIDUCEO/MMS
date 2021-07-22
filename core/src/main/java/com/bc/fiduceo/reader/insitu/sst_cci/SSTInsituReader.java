@@ -25,8 +25,9 @@ import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
-import com.bc.fiduceo.reader.time.TimeLocator;
+import com.bc.fiduceo.reader.insitu.UniqueIdVariable;
 import com.bc.fiduceo.reader.netcdf.NetCDFReader;
+import com.bc.fiduceo.reader.time.TimeLocator;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.Array;
@@ -51,7 +52,6 @@ public class SSTInsituReader extends NetCDFReader {
     private final Map<String, Number> fillValueMap = new HashMap<>();
     private final Map<String, Array> arrayMap = new HashMap<>();
 
-    private String insituType;
     private List<Variable> variables;
 
     @Override
@@ -67,9 +67,6 @@ public class SSTInsituReader extends NetCDFReader {
         }
 
         addIdVariableAndData();
-
-        // @todo extract method, parse from filename if not present tb 2017-05-29
-        insituType = netcdfFile.findGlobalAttribute("dataset").getStringValue();
     }
 
     @Override
@@ -79,7 +76,6 @@ public class SSTInsituReader extends NetCDFReader {
             netcdfFile = null;
         }
         variables = null;
-        insituType = null;
 
         arrayMap.clear();
         fillValueMap.clear();
@@ -188,13 +184,6 @@ public class SSTInsituReader extends NetCDFReader {
     }
 
     /**
-     * @return the insitu type as a String
-     */
-    String getInsituType() {
-        return insituType;
-    }
-
-    /**
      * Returns the time in seconds since 1978-01-01
      *
      * @param y the y index
@@ -228,7 +217,7 @@ public class SSTInsituReader extends NetCDFReader {
     }
 
     private void addIdVariableAndData() {
-        final UniqueIdVariable uniqueIdVariable = new UniqueIdVariable();
+        final UniqueIdVariable uniqueIdVariable = new UniqueIdVariable("insitu.id");
         variables.add(uniqueIdVariable);
 
         final Number fillValue = fillValueMap.get("insitu.mohc_id");
