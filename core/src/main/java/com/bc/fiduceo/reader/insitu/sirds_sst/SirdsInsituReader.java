@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import static com.bc.fiduceo.util.TimeUtils.millisSince1978;
+import static com.bc.fiduceo.reader.insitu.InsituUtils.getResultArray;
 
 public class SirdsInsituReader extends NetCDFReader {
 
@@ -123,20 +123,7 @@ public class SirdsInsituReader extends NetCDFReader {
             fillValue = getFillValue(variableName);
         }
 
-        final int windowWidth = interval.getX();
-        final int windowHeight = interval.getY();
-        final int windowCenterX = windowWidth / 2;
-        final int windowCenterY = windowHeight / 2;
-
-        final int[] shape = {windowWidth, windowHeight};
-        final Array windowArray = Array.factory(sourceArray.getDataType(), shape);
-        for (int y = 0; y < windowHeight; y++) {
-            for (int x = 0; x < windowWidth; x++) {
-                windowArray.setObject(windowWidth * y + x, fillValue);
-            }
-        }
-        windowArray.setObject(windowWidth * windowCenterY + windowCenterX, sourceArray.getObject(centerY));
-        return windowArray;
+        return getResultArray(centerY, interval, sourceArray, fillValue);
     }
 
     @Override

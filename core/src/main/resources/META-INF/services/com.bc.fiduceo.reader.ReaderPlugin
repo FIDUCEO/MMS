@@ -20,3 +20,4 @@ com.bc.fiduceo.reader.fiduceo_fcdr.HIRS_FCDR_ReaderPlugin
 com.bc.fiduceo.reader.slstr.SlstrReaderPlugin
 com.bc.fiduceo.reader.slstr.SlstrNRReaderPlugin
 com.bc.fiduceo.reader.slstr.SlstrNTReaderPlugin
+com.bc.fiduceo.reader.insitu.sirds_sst.SirdsInsituReaderPlugin
