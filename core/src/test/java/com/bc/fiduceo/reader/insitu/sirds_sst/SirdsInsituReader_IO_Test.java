@@ -3,19 +3,25 @@ package com.bc.fiduceo.reader.insitu.sirds_sst;
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
+import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.time.TimeLocator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.Array;
+import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
 import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -219,6 +225,110 @@ public class SirdsInsituReader_IO_Test {
         assertEquals(DataType.LONG, idArray.getDataType());
 
         NCTestUtils.assertValueAt(2002040001657855L, 0, 0, idArray);
+    }
+
+    @Test
+    public void testReadAcquisitionTime_drifter() throws Exception {
+        openFile("SSTCCI2_refdata_drifter_201304.nc");
+        final ArrayInt.D2 array = insituReader.readAcquisitionTime(0, 9, new Interval(3, 3));
+
+        assertNotNull(array);
+        assertArrayEquals(new int[]{3, 3}, array.getShape());
+        assertEquals(DataType.INT, array.getDataType());
+
+        NCTestUtils.assertValueAt(-2147483647, 0, 0, array);
+        NCTestUtils.assertValueAt(-2147483647, 1, 0, array);
+        NCTestUtils.assertValueAt(-2147483647, 2, 0, array);
+        NCTestUtils.assertValueAt(-2147483647, 0, 1, array);
+        NCTestUtils.assertValueAt(1364774400, 1, 1, array);
+        NCTestUtils.assertValueAt(-2147483647, 2, 1, array);
+        NCTestUtils.assertValueAt(-2147483647, 0, 2, array);
+        NCTestUtils.assertValueAt(-2147483647, 1, 2, array);
+        NCTestUtils.assertValueAt(-2147483647, 2, 2, array);
+    }
+
+    @Test
+    public void testReadAcquisitionTime_mooring() throws Exception {
+        openFile("SSTCCI2_refdata_mooring_201602.nc");
+        final ArrayInt.D2 array = insituReader.readAcquisitionTime(0, 10, new Interval(1, 1));
+
+        assertNotNull(array);
+        assertArrayEquals(new int[]{1, 1}, array.getShape());
+        assertEquals(DataType.INT, array.getDataType());
+
+        NCTestUtils.assertValueAt(1454284800, 0, 0, array);
+    }
+
+    @Test
+    public void testGetProductSize_xbt() throws Exception {
+        openFile("SSTCCI2_refdata_xbt_200204.nc");
+        final Dimension productSize = insituReader.getProductSize();
+
+        assertNotNull(productSize);
+        assertEquals("product_size", productSize.getName());
+        assertEquals(1, productSize.getNx());
+        assertEquals(1339, productSize.getNy());
+    }
+
+    @Test
+    public void testGetProductSize_drifter() throws Exception {
+        openFile("SSTCCI2_refdata_drifter_201304.nc");
+        final Dimension productSize = insituReader.getProductSize();
+
+        assertNotNull(productSize);
+        assertEquals("product_size", productSize.getName());
+        assertEquals(1, productSize.getNx());
+        assertEquals(671404, productSize.getNy());
+    }
+
+    @Test
+    public void testGetTimeLocator_mooring() throws Exception {
+        openFile("SSTCCI2_refdata_mooring_201602.nc");
+        final TimeLocator timeLocator = insituReader.getTimeLocator();
+
+        assertNotNull(timeLocator);
+        assertEquals(1454284800000L, timeLocator.getTimeFor(0, 11));
+        assertEquals(1454284800000L, timeLocator.getTimeFor(1, 12));
+        assertEquals(1454284800000L, timeLocator.getTimeFor(2, 13));
+    }
+
+    @Test
+    public void testGetTimeLocator_xbt() throws Exception {
+        openFile("SSTCCI2_refdata_xbt_200204.nc");
+        final TimeLocator timeLocator = insituReader.getTimeLocator();
+
+        assertNotNull(timeLocator);
+        assertEquals(1017639360000L, timeLocator.getTimeFor(3, 14));
+        assertEquals(1017641772000L, timeLocator.getTimeFor(4, 15));
+        assertEquals(1017644292000L, timeLocator.getTimeFor(5, 16));
+    }
+
+    @Test
+    public void testGetPixelLocator() throws Exception {
+        openFile("SSTCCI2_refdata_drifter_201304.nc");
+
+        try {
+            insituReader.getPixelLocator();
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+    }
+
+    @Test
+    public void testGetSubScenePixelLocator() throws Exception {
+        openFile("SSTCCI2_refdata_mooring_201602.nc");
+        final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
+        final Polygon polygon = geometryFactory.createPolygon(Arrays.asList(
+                geometryFactory.createPoint(4, 5),
+                geometryFactory.createPoint(5, 6),
+                geometryFactory.createPoint(6, 5)
+        ));
+
+        try {
+            insituReader.getSubScenePixelLocator(polygon);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
     }
 
     private void openFile(String fileName) throws IOException {

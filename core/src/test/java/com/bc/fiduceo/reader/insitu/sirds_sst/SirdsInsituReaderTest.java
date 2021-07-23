@@ -64,4 +64,19 @@ public class SirdsInsituReaderTest {
     public void testGetLatitudeVariableName() {
         assertEquals("LATITUDE", insituReader.getLatitudeVariableName());
     }
+
+    @Test
+    public void testExtractYearMonthDayFromFilename() {
+        int[] ymd = insituReader.extractYearMonthDayFromFilename("SSTCCI2_refdata_drifter_201304.nc");
+        assertEquals(3, ymd.length);
+        assertEquals(2013, ymd[0]);
+        assertEquals(4, ymd[1]);
+        assertEquals(1, ymd[2]);
+
+        ymd = insituReader.extractYearMonthDayFromFilename("SSTCCI2_refdata_mooring_201602.nc");
+        assertEquals(3, ymd.length);
+        assertEquals(2016, ymd[0]);
+        assertEquals(2, ymd[1]);
+        assertEquals(1, ymd[2]);
+    }
 }

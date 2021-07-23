@@ -9,6 +9,7 @@ import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.insitu.UniqueIdVariable;
 import com.bc.fiduceo.reader.netcdf.NetCDFReader;
 import com.bc.fiduceo.reader.time.TimeLocator;
+import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
@@ -21,6 +22,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import static com.bc.fiduceo.util.TimeUtils.millisSince1978;
+
 public class SirdsInsituReader extends NetCDFReader {
 
     private static final String REGEX = "SSTCCI2_refdata_[a-z]+(_[a-z]+)?_\\d{6}.nc";
@@ -28,6 +31,7 @@ public class SirdsInsituReader extends NetCDFReader {
 
     private int[] timeMinMax;
     private Array uniqueIdData;
+    private Array sensingTimes;
 
     @Override
     public AcquisitionInfo read() throws IOException {
@@ -66,6 +70,7 @@ public class SirdsInsituReader extends NetCDFReader {
                 timeStamps[i] = (int) (calendar.getTime().getTime() / 1000);
             }
 
+            sensingTimes = Array.factory(DataType.INT, new int[]{1}, timeStamps);
             timeMinMax = extractMinMax(timeStamps);
         }
     }
@@ -87,12 +92,22 @@ public class SirdsInsituReader extends NetCDFReader {
 
     @Override
     public TimeLocator getTimeLocator() throws IOException {
-        throw new RuntimeException("not implemented");
+        ensureSensingTimesAvailable();
+        return (x, y) -> sensingTimes.getLong(y) * 1000L;
     }
 
     @Override
     public int[] extractYearMonthDayFromFilename(String fileName) {
-        throw new RuntimeException("not implemented");
+        final int lastIndex = fileName.lastIndexOf("_") + 1;
+        final String yearString = fileName.substring(lastIndex, lastIndex + 4);
+        final String monthString = fileName.substring(lastIndex + 5, lastIndex + 6);
+
+        final int[] ymd = new int[3];
+        ymd[0] = Integer.parseInt(yearString);
+        ymd[1] = Integer.parseInt(monthString);
+        ymd[2] = 1;
+
+        return ymd;
     }
 
     @Override
@@ -130,8 +145,25 @@ public class SirdsInsituReader extends NetCDFReader {
     }
 
     @Override
-    public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException {
-        throw new RuntimeException("not implemented");
+    public ArrayInt.D2 readAcquisitionTime(int centerX, int centerY, Interval interval) throws IOException, InvalidRangeException {
+        ensureSensingTimesAvailable();
+
+        final int windowWidth = interval.getX();
+        final int windowHeight = interval.getY();
+        final int windowCenterX = windowWidth / 2;
+        final int windowCenterY = windowHeight / 2;
+
+        final int fillValue = NetCDFUtils.getDefaultFillValue(int.class).intValue();
+
+        final int[] shape = {windowWidth, windowHeight};
+        final ArrayInt.D2 windowArray = (ArrayInt.D2) Array.factory(DataType.INT, shape);
+        for (int y = 0; y < windowHeight; y++) {
+            for (int x = 0; x < windowWidth; x++) {
+                windowArray.setObject(windowWidth * y + x, fillValue);
+            }
+        }
+        windowArray.setObject(windowWidth * windowCenterY + windowCenterX, sensingTimes.getInt(centerY));
+        return windowArray;
     }
 
     @Override
@@ -161,7 +193,9 @@ public class SirdsInsituReader extends NetCDFReader {
 
     @Override
     public Dimension getProductSize() throws IOException {
-        throw new RuntimeException("not implemented");
+        final Array day = arrayCache.get("DAY");    // take a small dataset here tb 2021-07-32
+        int[] shape = day.getShape();
+        return new Dimension("product_size", 1, shape[0]);
     }
 
     @Override
@@ -193,6 +227,7 @@ public class SirdsInsituReader extends NetCDFReader {
     @Override
     public void close() throws IOException {
         timeMinMax = null;
+        sensingTimes = null;
         uniqueIdData = null;
         super.close();
     }
