@@ -1,5 +1,6 @@
 package com.bc.fiduceo.reader.insitu.sirds_sst;
 
+import com.bc.fiduceo.reader.insitu.sst_cci.SSTInsituReader;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -10,45 +11,42 @@ import static org.junit.Assert.*;
 
 public class SirdsInsituReaderTest {
 
-    private SirdsInsituReader insituReader;
-
-    @Before
-    public void setUp() {
-        insituReader = new SirdsInsituReader();
-    }
-
     @Test
-    public void testGetRegEx() {
-        final String expected = "SSTCCI2_refdata_[a-z]+(_[a-z]+)?_\\d{6}.nc";
+    public void testGetRegEx_mooring() {
+        final SirdsInsituReader insituReader = new SirdsInsituReader("mooring-sirds");
+        final String expected = "SSTCCI2_refdata_mooring_\\d{6}.nc";
 
         assertEquals(expected, insituReader.getRegEx());
         final Pattern pattern = java.util.regex.Pattern.compile(expected);
 
-        Matcher matcher = pattern.matcher("SSTCCI2_refdata_argosurf_202005.nc");
+        Matcher matcher = pattern.matcher("SSTCCI2_refdata_mooring_202005.nc");
         assertTrue(matcher.matches());
 
         matcher = pattern.matcher("SSTCCI2_refdata_bottle_198904.nc");
-        assertTrue(matcher.matches());
-
-        matcher = pattern.matcher("SSTCCI2_refdata_drifter_198802.nc");
-        assertTrue(matcher.matches());
-
-        matcher = pattern.matcher("SSTCCI2_refdata_drifter_cmems_201801.nc");
-        assertTrue(matcher.matches());
-
-        matcher = pattern.matcher("SSTCCI2_refdata_argosurf_201712.nc");
-        assertTrue(matcher.matches());
+        assertFalse(matcher.matches());
 
         matcher = pattern.matcher("insitu_5_WMOID_5901880_20100514_20100627.nc");
         assertFalse(matcher.matches());
 
-        matcher = pattern.matcher("insitu_9_WMOID_14456569_19980913_19981123.nc");
+        matcher = pattern.matcher("NSS.HIRX.TN.D79287.S1623.E1807.B0516566.GC.nc");
+        assertFalse(matcher.matches());
+    }
+
+    @Test
+    public void testGetRegEx_argosurf() {
+        final SirdsInsituReader insituReader = new SirdsInsituReader("argosurf-sirds");
+        final String expected = "SSTCCI2_refdata_argo_surf_\\d{6}.nc";
+
+        assertEquals(expected, insituReader.getRegEx());
+        final Pattern pattern = java.util.regex.Pattern.compile(expected);
+
+        Matcher matcher = pattern.matcher("SSTCCI2_refdata_argo_surf_202005.nc");
+        assertTrue(matcher.matches());
+
+        matcher = pattern.matcher("SSTCCI2_refdata_bottle_198904.nc");
         assertFalse(matcher.matches());
 
-        matcher = pattern.matcher("insitu_10_WMOID_9733500_19840123_19840404.nc");
-        assertFalse(matcher.matches());
-
-        matcher = pattern.matcher("AMSR_E_L2A_BrightnessTemperatures_V12_200502170536_D.hdf");
+        matcher = pattern.matcher("insitu_5_WMOID_5901880_20100514_20100627.nc");
         assertFalse(matcher.matches());
 
         matcher = pattern.matcher("NSS.HIRX.TN.D79287.S1623.E1807.B0516566.GC.nc");
@@ -57,16 +55,22 @@ public class SirdsInsituReaderTest {
 
     @Test
     public void testGetLongitudeVariableName() {
+        final SirdsInsituReader insituReader = new SirdsInsituReader("whatever");
+
         assertEquals("LONGITUDE", insituReader.getLongitudeVariableName());
     }
 
     @Test
     public void testGetLatitudeVariableName() {
+        final SirdsInsituReader insituReader = new SirdsInsituReader("whatever");
+
         assertEquals("LATITUDE", insituReader.getLatitudeVariableName());
     }
 
     @Test
     public void testExtractYearMonthDayFromFilename() {
+        final SirdsInsituReader insituReader = new SirdsInsituReader("whatever");
+
         int[] ymd = insituReader.extractYearMonthDayFromFilename("SSTCCI2_refdata_drifter_201304.nc");
         assertEquals(3, ymd.length);
         assertEquals(2013, ymd[0]);
@@ -78,5 +82,13 @@ public class SirdsInsituReaderTest {
         assertEquals(2016, ymd[0]);
         assertEquals(2, ymd[1]);
         assertEquals(1, ymd[2]);
+    }
+
+    @Test
+    public void testToRegExPart() {
+        assertEquals("argo", SirdsInsituReader.toRegExPart("argo-sirds"));
+        assertEquals("argo_surf", SirdsInsituReader.toRegExPart("argosurf-sirds"));
+        assertEquals("drifter", SirdsInsituReader.toRegExPart("drifter-sirds"));
+        assertEquals("drifter_cmems", SirdsInsituReader.toRegExPart("driftercmems-sirds"));
     }
 }

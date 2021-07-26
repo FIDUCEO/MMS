@@ -33,16 +33,19 @@ public class SirdsInsituReader_IO_Test {
 
     @Before
     public void setUp() throws Exception {
-        insituReader = new SirdsInsituReader();
+        insituReader = null;
     }
 
     @After
     public void tearDown() throws Exception {
-        insituReader.close();
+        if (insituReader != null) {
+            insituReader.close();
+        }
     }
 
     @Test
     public void testReadAcquisitionInfo_drifter() throws Exception {
+        insituReader = new SirdsInsituReader("drifter");
         openFile("SSTCCI2_refdata_drifter_201304.nc");
 
         final AcquisitionInfo info = insituReader.read();
@@ -58,6 +61,7 @@ public class SirdsInsituReader_IO_Test {
 
     @Test
     public void testReadAcquisitionInfo_mooring() throws Exception {
+        insituReader = new SirdsInsituReader("mooring");
         openFile("SSTCCI2_refdata_mooring_201602.nc");
 
         final AcquisitionInfo info = insituReader.read();
@@ -73,6 +77,7 @@ public class SirdsInsituReader_IO_Test {
 
     @Test
     public void testReadAcquisitionInfo_xbt() throws Exception {
+        insituReader = new SirdsInsituReader("xbt");
         openFile("SSTCCI2_refdata_xbt_200204.nc");
 
         final AcquisitionInfo info = insituReader.read();
@@ -88,6 +93,7 @@ public class SirdsInsituReader_IO_Test {
 
     @Test
     public void testGetVariables_drifter() throws Exception {
+        insituReader = new SirdsInsituReader("drifter");
         openFile("SSTCCI2_refdata_drifter_201304.nc");
         final List<Variable> variables = insituReader.getVariables();
 
@@ -106,6 +112,7 @@ public class SirdsInsituReader_IO_Test {
 
     @Test
     public void testReadRaw_drifter() throws Exception {
+        insituReader = new SirdsInsituReader("drifter");
         openFile("SSTCCI2_refdata_drifter_201304.nc");
         final Array array = insituReader.readRaw(0, 0, new Interval(1, 1), "DEPTH");
 
@@ -117,6 +124,7 @@ public class SirdsInsituReader_IO_Test {
 
     @Test
     public void testReadRaw_mooring() throws Exception {
+        insituReader = new SirdsInsituReader("mooring");
         openFile("SSTCCI2_refdata_mooring_201602.nc");
         final Array array = insituReader.readRaw(0, 1, new Interval(1, 1), "DEPTH_CORR");
 
@@ -128,6 +136,7 @@ public class SirdsInsituReader_IO_Test {
 
     @Test
     public void testReadRaw_xbt() throws Exception {
+        insituReader = new SirdsInsituReader("xbt");
         openFile("SSTCCI2_refdata_xbt_200204.nc");
         final Array array = insituReader.readRaw(0, 2, new Interval(1, 1), "LATITUDE");
 
@@ -139,6 +148,7 @@ public class SirdsInsituReader_IO_Test {
 
     @Test
     public void testReadRaw_drifter_3x3() throws Exception {
+        insituReader = new SirdsInsituReader("drifter");
         openFile("SSTCCI2_refdata_drifter_201304.nc");
         final Array array = insituReader.readRaw(0, 3, new Interval(3, 3), "LONGITUDE");
 
@@ -158,6 +168,7 @@ public class SirdsInsituReader_IO_Test {
 
     @Test
     public void testReadRaw_mooring_3x3() throws Exception {
+        insituReader = new SirdsInsituReader("mooring");
         openFile("SSTCCI2_refdata_mooring_201602.nc");
         final Array array = insituReader.readRaw(0, 4, new Interval(3, 3), "SST");
 
@@ -177,6 +188,7 @@ public class SirdsInsituReader_IO_Test {
 
     @Test
     public void testReadScaled_xbt() throws Exception {
+        insituReader = new SirdsInsituReader("xbt");
         openFile("SSTCCI2_refdata_xbt_200204.nc");
         final Array array = insituReader.readScaled(0, 5, new Interval(1, 1), "SST_COMB_UNC");
 
@@ -188,6 +200,7 @@ public class SirdsInsituReader_IO_Test {
 
     @Test
     public void testReadScaled_drifter_3x3() throws Exception {
+        insituReader = new SirdsInsituReader("drifter");
         openFile("SSTCCI2_refdata_drifter_201304.nc");
         final Array array = insituReader.readScaled(0, 6, new Interval(3, 3), "SST_RAND_UNC");
 
@@ -207,6 +220,7 @@ public class SirdsInsituReader_IO_Test {
 
     @Test
     public void testReadRaw_mooring_uniqueId() throws Exception {
+        insituReader = new SirdsInsituReader("mooring");
         openFile("SSTCCI2_refdata_mooring_201602.nc");
         final Array idArray = insituReader.readRaw(0, 7, new Interval(1, 1), "unique_id");
 
@@ -218,6 +232,7 @@ public class SirdsInsituReader_IO_Test {
 
     @Test
     public void testReadRaw_xbt_uniqueId() throws Exception {
+        insituReader = new SirdsInsituReader("xbt");
         openFile("SSTCCI2_refdata_xbt_200204.nc");
         final Array idArray = insituReader.readRaw(0, 8, new Interval(1, 1), "unique_id");
 
@@ -229,6 +244,7 @@ public class SirdsInsituReader_IO_Test {
 
     @Test
     public void testReadAcquisitionTime_drifter() throws Exception {
+        insituReader = new SirdsInsituReader("drifter");
         openFile("SSTCCI2_refdata_drifter_201304.nc");
         final ArrayInt.D2 array = insituReader.readAcquisitionTime(0, 9, new Interval(3, 3));
 
@@ -249,6 +265,7 @@ public class SirdsInsituReader_IO_Test {
 
     @Test
     public void testReadAcquisitionTime_mooring() throws Exception {
+        insituReader = new SirdsInsituReader("mooring");
         openFile("SSTCCI2_refdata_mooring_201602.nc");
         final ArrayInt.D2 array = insituReader.readAcquisitionTime(0, 10, new Interval(1, 1));
 
@@ -261,6 +278,7 @@ public class SirdsInsituReader_IO_Test {
 
     @Test
     public void testGetProductSize_xbt() throws Exception {
+        insituReader = new SirdsInsituReader("xbt");
         openFile("SSTCCI2_refdata_xbt_200204.nc");
         final Dimension productSize = insituReader.getProductSize();
 
@@ -272,6 +290,7 @@ public class SirdsInsituReader_IO_Test {
 
     @Test
     public void testGetProductSize_drifter() throws Exception {
+        insituReader = new SirdsInsituReader("drifter");
         openFile("SSTCCI2_refdata_drifter_201304.nc");
         final Dimension productSize = insituReader.getProductSize();
 
@@ -283,6 +302,7 @@ public class SirdsInsituReader_IO_Test {
 
     @Test
     public void testGetTimeLocator_mooring() throws Exception {
+        insituReader = new SirdsInsituReader("mooring");
         openFile("SSTCCI2_refdata_mooring_201602.nc");
         final TimeLocator timeLocator = insituReader.getTimeLocator();
 
@@ -294,6 +314,7 @@ public class SirdsInsituReader_IO_Test {
 
     @Test
     public void testGetTimeLocator_xbt() throws Exception {
+        insituReader = new SirdsInsituReader("xbt");
         openFile("SSTCCI2_refdata_xbt_200204.nc");
         final TimeLocator timeLocator = insituReader.getTimeLocator();
 
@@ -305,6 +326,7 @@ public class SirdsInsituReader_IO_Test {
 
     @Test
     public void testGetPixelLocator() throws Exception {
+        insituReader = new SirdsInsituReader("drifter");
         openFile("SSTCCI2_refdata_drifter_201304.nc");
 
         try {
@@ -316,6 +338,7 @@ public class SirdsInsituReader_IO_Test {
 
     @Test
     public void testGetSubScenePixelLocator() throws Exception {
+        insituReader = new SirdsInsituReader("mooring");
         openFile("SSTCCI2_refdata_mooring_201602.nc");
         final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
         final Polygon polygon = geometryFactory.createPolygon(Arrays.asList(

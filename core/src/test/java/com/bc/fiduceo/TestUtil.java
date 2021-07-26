@@ -20,13 +20,8 @@
 
 package com.bc.fiduceo;
 
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
-import static org.junit.Assert.*;
-
 import com.bc.fiduceo.archive.Archive;
 import com.bc.fiduceo.archive.ArchiveConfig;
-import com.bc.fiduceo.geometry.Point;
-import com.vividsolutions.jts.geom.Coordinate;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.util.io.FileUtils;
@@ -39,17 +34,15 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Properties;
 import java.util.regex.Pattern;
+
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import static org.junit.Assert.*;
 
 public class TestUtil {
 
@@ -136,32 +129,35 @@ public class TestUtil {
 
     public static void writeSystemConfig(File configDir, File archiveRoot) throws IOException {
         final String systemConfigXML = "<system-config>" +
-                                       "    <geometry-library name = \"S2\" />" +
-                                       "    <archive>" +
-                                       "        <root-path>" +
-                                       "            " + archiveRoot.getAbsolutePath() +
-                                       "        </root-path>" +
-                                       "        <rule sensors = \"drifter-sst, ship-sst, gtmba-sst, radiometer-sst, argo-sst, xbt-sst, mbt-sst, ctd-sst, animal-sst, bottle-sst\">" +
-                                       "            insitu/SENSOR/VERSION" +
-                                       "        </rule>" +
-                                       "        <rule sensors=\"ocean-rain-sst\">\n" +
-                                       "            insitu/SENSOR/VERSION\n" +
-                                       "        </rule>" +
-                                       "        <rule sensors=\"gruan-uleic\">\n" +
-                                       "            insitu/SENSOR/VERSION\n" +
-                                       "        </rule>" +
-                                       "        <rule sensors = \"iasi-ma, iasi-mb\">" +
-                                       "            SENSOR/VERSION/YEAR/MONTH" +
-                                       "        </rule>" +
-                                       "        <rule sensors = \"mod06-te, myd06-aq, airs-aq\">" +
-                                       "            SENSOR/VERSION/YEAR/DAY_OF_YEAR" +
-                                       "        </rule>" +
-                                       "    </archive>" +
-                                       "    <temp-directory>" +
-                                       "            " + TestUtil.getTestDir().getAbsolutePath() +
-                                       "    </temp-directory>" +
-                                       "    <reader-cache-size>12</reader-cache-size>" +
-                                       "</system-config>";
+                "    <geometry-library name = \"S2\" />" +
+                "    <archive>" +
+                "        <root-path>" +
+                "            " + archiveRoot.getAbsolutePath() +
+                "        </root-path>" +
+                "        <rule sensors = \"drifter-sst, ship-sst, gtmba-sst, radiometer-sst, argo-sst, xbt-sst, mbt-sst, ctd-sst, animal-sst, bottle-sst\">" +
+                "            insitu/SENSOR/VERSION" +
+                "        </rule>" +
+                "        <rule sensors = \"animal-sirds, argo-sirds, argo_surf-sirds, bottle-sirds, ctd-sirds, drifter-sirds, drifter_cmems-sirds, gtmba-sirds, mbt-sirds, mooring-sirds, ship-sirds, xbt-sirds\">" +
+                "            insitu/sirds/VERSION" +
+                "        </rule>" +
+                "        <rule sensors=\"ocean-rain-sst\">\n" +
+                "            insitu/SENSOR/VERSION\n" +
+                "        </rule>" +
+                "        <rule sensors=\"gruan-uleic\">\n" +
+                "            insitu/SENSOR/VERSION\n" +
+                "        </rule>" +
+                "        <rule sensors = \"iasi-ma, iasi-mb\">" +
+                "            SENSOR/VERSION/YEAR/MONTH" +
+                "        </rule>" +
+                "        <rule sensors = \"mod06-te, myd06-aq, airs-aq\">" +
+                "            SENSOR/VERSION/YEAR/DAY_OF_YEAR" +
+                "        </rule>" +
+                "    </archive>" +
+                "    <temp-directory>" +
+                "            " + TestUtil.getTestDir().getAbsolutePath() +
+                "    </temp-directory>" +
+                "    <reader-cache-size>12</reader-cache-size>" +
+                "</system-config>";
 
 
         final File systemConfigFile = new File(configDir, "system-config.xml");
@@ -174,21 +170,21 @@ public class TestUtil {
 
     public static void writeMmdWriterConfig(File configDir) throws IOException {
         final String config = "<mmd-writer-config>" +
-                              "    <overwrite>false</overwrite>" +
-                              "    <cache-size>2048</cache-size>" +
-                              "    <netcdf-format>N4</netcdf-format>" +
-                              "</mmd-writer-config>";
+                "    <overwrite>false</overwrite>" +
+                "    <cache-size>2048</cache-size>" +
+                "    <netcdf-format>N4</netcdf-format>" +
+                "</mmd-writer-config>";
 
         writeMmdWriterConfigFile(configDir, config);
     }
 
     public static void writeMmdWriterConfig(File configDir, String additionalTags) throws IOException {
         final String config = "<mmd-writer-config>" +
-                              "    <overwrite>false</overwrite>" +
-                              "    <cache-size>2048</cache-size>" +
-                              "    <netcdf-format>N4</netcdf-format>" +
-                              additionalTags +
-                              "</mmd-writer-config>";
+                "    <overwrite>false</overwrite>" +
+                "    <cache-size>2048</cache-size>" +
+                "    <netcdf-format>N4</netcdf-format>" +
+                additionalTags +
+                "</mmd-writer-config>";
 
         writeMmdWriterConfigFile(configDir, config);
     }

@@ -7,18 +7,18 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class SirdsInsituReaderPluginTest {
+public class SirdsGtmbaInsituReaderPluginTest {
 
-    private SirdsInsituReaderPlugin plugin;
+    private SirdsGtmbaInsituReaderPlugin plugin;
 
     @Before
-    public void setUp() throws Exception {
-        plugin = new SirdsInsituReaderPlugin();
+    public void setUp() {
+        plugin = new SirdsGtmbaInsituReaderPlugin();
     }
 
     @Test
     public void testGetSupportedSensorKeys() throws Exception {
-        final String[] expected = {"animal-sirds", "argo-sirds", "argo_surf-sirds", "bottle-sirds", "ctd-sirds", "drifter-sirds", "drifter_cmems-sirds", "gtmba-sirds", "mbt-sirds", "mooring-sirds", "ship-sirds", "xbt-sirds"};
+        final String[] expected = {"gtmba-sirds"};
 
         final String[] sensorKeys = plugin.getSupportedSensorKeys();
         assertArrayEquals(expected, sensorKeys);
@@ -29,6 +29,7 @@ public class SirdsInsituReaderPluginTest {
         final Reader reader = plugin.createReader(null);
         assertNotNull(reader);
         assertTrue(reader instanceof SirdsInsituReader);
+        assertEquals("gtmba-sirds", ((SirdsInsituReader) reader).getSensorKey());
     }
 
     @Test

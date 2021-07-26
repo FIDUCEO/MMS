@@ -26,12 +26,18 @@ import static com.bc.fiduceo.reader.insitu.InsituUtils.getResultArray;
 
 public class SirdsInsituReader extends NetCDFReader {
 
-    private static final String REGEX = "SSTCCI2_refdata_[a-z]+(_[a-z]+)?_\\d{6}.nc";
+    private static final String REGEX_1 = "SSTCCI2_refdata_";
+    private static final String REGEX_2 = "_\\d{6}.nc";
     private static final String UNIQUE_ID = "unique_id";
 
+    private final String sensorKey;
     private int[] timeMinMax;
     private Array uniqueIdData;
     private Array sensingTimes;
+
+    public SirdsInsituReader(String sensorKey) {
+        this.sensorKey = sensorKey;
+    }
 
     @Override
     public AcquisitionInfo read() throws IOException {
@@ -77,7 +83,7 @@ public class SirdsInsituReader extends NetCDFReader {
 
     @Override
     public String getRegEx() {
-        return REGEX;
+        return REGEX_1 + toRegExPart(sensorKey) + REGEX_2;
     }
 
     @Override
@@ -217,6 +223,25 @@ public class SirdsInsituReader extends NetCDFReader {
         sensingTimes = null;
         uniqueIdData = null;
         super.close();
+    }
+
+    // for use in tests only tb 2021-07-26
+    String getSensorKey() {
+        return sensorKey;
+    }
+
+    // package access for testing only tb 2021-07-26
+    static String toRegExPart(String sensorKey) {
+        int splitIdx = sensorKey.lastIndexOf("-");
+
+        final String sensor = sensorKey.substring(0, splitIdx);
+        if (sensor.equals("argosurf")) {
+            return "argo_surf";
+        } else if (sensor.equals("driftercmems")) {
+            return "drifter_cmems";
+        } else {
+            return sensor;
+        }
     }
 
     private void ensureUniqueIdData() throws IOException {

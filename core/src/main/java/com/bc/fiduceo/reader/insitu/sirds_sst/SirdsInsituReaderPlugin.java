@@ -5,13 +5,17 @@ import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.ReaderPlugin;
 
-public class SirdsInsituReaderPlugin implements ReaderPlugin {
+class SirdsInsituReaderPlugin implements ReaderPlugin  {
 
-    private final String[] SUPPORTED_KEYS = {"animal-sirds", "argo-sirds", "argo_surf-sirds", "bottle-sirds", "ctd-sirds", "drifter-sirds", "drifter_cmems-sirds", "gtmba-sirds", "mbt-sirds", "mooring-sirds", "ship-sirds", "xbt-sirds"};
+    final String[] SUPPORTED_KEYS;
+
+    SirdsInsituReaderPlugin(String supported_keys) {
+        SUPPORTED_KEYS = new String[]{supported_keys};
+    }
 
     @Override
     public Reader createReader(ReaderContext readerContext) {
-        return new SirdsInsituReader();
+        return new SirdsInsituReader(SUPPORTED_KEYS[0]);
     }
 
     @Override

@@ -778,37 +778,36 @@ public class IngestionToolIntegrationTest {
         }
     }
 
-    // @todo 1 tb/tb implement this test 2021-07-23
-//    @Test
-//    public void testIngest_insitu_Sirds_mooring() throws SQLException, IOException, ParseException {
-//        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "mooring-sirds", "-start", "2016-032", "-end", "2016-061", "-v", "v1.0"};
-//
-//        try {
-//            IngestionToolMain.main(args);
-//
-//            final List<SatelliteObservation> satelliteObservations = storage.get();
-//            assertEquals(1, satelliteObservations.size());
-//
-//            final SatelliteObservation observation = getSatelliteObservation("insitu_0_WMOID_42531_19960904_19960909.nc", satelliteObservations);
-//            TestUtil.assertCorrectUTCDate(1996, 9, 4, 22, 0, 0, 0, observation.getStartTime());
-//            TestUtil.assertCorrectUTCDate(1996, 9, 9, 13, 19, 47, 0, observation.getStopTime());
-//
-//            assertEquals("drifter-sst", observation.getSensor().getName());
-//
-//            final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"insitu", "drifter-sst", "v04.0", "insitu_0_WMOID_42531_19960904_19960909.nc"}, true);
-//            final String expectedPath = TestUtil.getTestDataDirectory().getAbsolutePath() + testFilePath;
-//            assertEquals(expectedPath, observation.getDataFilePath().toString());
-//
-//            assertEquals(NodeType.UNDEFINED, observation.getNodeType());
-//            assertEquals("v04.0", observation.getVersion());
-//
-//            assertNull(observation.getGeoBounds());
-//            assertNull(observation.getTimeAxes());
-//        } finally {
-//            storage.clear();
-//            storage.close();
-//        }
-//    }
+    @Test
+    public void testIngest_insitu_Sirds_mooring() throws SQLException, IOException, ParseException {
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "mooring-sirds", "-start", "2016-032", "-end", "2016-061", "-v", "v1.0"};
+
+        try {
+            IngestionToolMain.main(args);
+
+            final List<SatelliteObservation> satelliteObservations = storage.get();
+            assertEquals(1, satelliteObservations.size());
+
+            final SatelliteObservation observation = getSatelliteObservation("SSTCCI2_refdata_mooring_201602.nc", satelliteObservations);
+            TestUtil.assertCorrectUTCDate(2016, 2, 1, 0, 0, 0, 0, observation.getStartTime());
+            TestUtil.assertCorrectUTCDate(2016, 2, 29, 23, 58, 11, 0, observation.getStopTime());
+
+            assertEquals("mooring-sirds", observation.getSensor().getName());
+
+            final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"insitu", "sirds", "v1.0", "SSTCCI2_refdata_mooring_201602.nc"}, true);
+            final String expectedPath = TestUtil.getTestDataDirectory().getAbsolutePath() + testFilePath;
+            assertEquals(expectedPath, observation.getDataFilePath().toString());
+
+            assertEquals(NodeType.UNDEFINED, observation.getNodeType());
+            assertEquals("v1.0", observation.getVersion());
+
+            assertNull(observation.getGeoBounds());
+            assertNull(observation.getTimeAxes());
+        } finally {
+            storage.clear();
+            storage.close();
+        }
+    }
 
     @Test
     public void testIngest_IASI_MA() throws SQLException, IOException, ParseException {
