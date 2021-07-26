@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 import static com.bc.fiduceo.reader.insitu.InsituUtils.getResultArray;
 
@@ -29,6 +30,7 @@ public class SirdsInsituReader extends NetCDFReader {
     private static final String REGEX_1 = "SSTCCI2_refdata_";
     private static final String REGEX_2 = "_\\d{6}.nc";
     private static final String UNIQUE_ID = "unique_id";
+    private static final String PLAT_ID = "plat_id";
 
     private final String sensorKey;
     private int[] timeMinMax;
@@ -120,13 +122,27 @@ public class SirdsInsituReader extends NetCDFReader {
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
         final Array sourceArray;
         final Number fillValue;
+
         if (variableName.equals(UNIQUE_ID)) {
             ensureUniqueIdData();
             sourceArray = uniqueIdData;
             fillValue = UniqueIdVariable.FILL_VALUE;
+        } else if (variableName.equals(PLAT_ID)) {
+            final int windowHeight = interval.getY();
+            final int windowCenterY = windowHeight / 2;
+
+            sourceArray = arrayCache.get(toFileName(PLAT_ID));
+            final int[] shape = sourceArray.getShape();
+            final int[] offsets = new int[]{windowCenterY, 0};
+
+            final Array section = sourceArray.section(offsets, new int[]{1, shape[1]});
+            final char[] platIdVector = (char[]) section.copyTo1DJavaArray();
+
+            return NetCDFUtils.create(platIdVector);
         } else {
-            sourceArray = arrayCache.get(variableName);
-            fillValue = getFillValue(variableName);
+            final String fileVariableName = toFileName(variableName);
+            sourceArray = arrayCache.get(fileVariableName);
+            fillValue = getFillValue(fileVariableName);
         }
 
         return getResultArray(centerY, interval, sourceArray, fillValue);
@@ -170,11 +186,12 @@ public class SirdsInsituReader extends NetCDFReader {
                     "MINUTE".equals(variableName) ||
                     "MONTH".equals(variableName) ||
                     "OB_ID".equals(variableName) ||
-                    "PLAT_ID".equals(variableName) ||
                     "SECOND".equals(variableName) ||
                     "YEAR".equals(variableName)) {
                 continue;
             } else {
+                final String mmsName = toMMSName(variableName);
+                variable.setShortName(mmsName);
                 listVariables.add(variable);
             }
         }
@@ -193,12 +210,12 @@ public class SirdsInsituReader extends NetCDFReader {
 
     @Override
     public String getLongitudeVariableName() {
-        return "LONGITUDE";
+        return "longitude";
     }
 
     @Override
     public String getLatitudeVariableName() {
-        return "LATITUDE";
+        return "latitude";
     }
 
     // package access for testing only tb 2021-07-21
@@ -242,6 +259,16 @@ public class SirdsInsituReader extends NetCDFReader {
         } else {
             return sensor;
         }
+    }
+
+    // package access for testing only tb 2021-07-26
+    static String toFileName(String variableName) {
+        return variableName.toUpperCase(Locale.ROOT);
+    }
+
+    // package access for testing only tb 2021-07-26
+    static String toMMSName(String variableName) {
+        return variableName.toLowerCase(Locale.ROOT);
     }
 
     private void ensureUniqueIdData() throws IOException {

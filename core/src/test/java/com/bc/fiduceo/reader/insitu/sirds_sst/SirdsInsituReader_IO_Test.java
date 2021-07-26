@@ -98,23 +98,24 @@ public class SirdsInsituReader_IO_Test {
         final List<Variable> variables = insituReader.getVariables();
 
         assertNotNull(variables);
-        assertEquals(18, variables.size());
-        assertEquals("SUBCOL1", variables.get(1).getShortName());
-        assertEquals("PROF_ID", variables.get(3).getShortName());
-        assertEquals("LATITUDE", variables.get(5).getShortName());
-        assertEquals("DEPTH_CORR", variables.get(7).getShortName());
-        assertEquals("SST_TYPE_CORR", variables.get(9).getShortName());
-        assertEquals("SST_PLAT_CORR", variables.get(11).getShortName());
-        assertEquals("SST_RAND_UNC", variables.get(13).getShortName());
-        assertEquals("QC1", variables.get(15).getShortName());
-        assertEquals("unique_id", variables.get(17).getShortName());
+        assertEquals(19, variables.size());
+        assertEquals("subcol1", variables.get(1).getShortName());
+        assertEquals("prof_id", variables.get(3).getShortName());
+        assertEquals("longitude", variables.get(5).getShortName());
+        assertEquals("depth", variables.get(7).getShortName());
+        assertEquals("sst", variables.get(9).getShortName());
+        assertEquals("sst_type_corr_unc", variables.get(11).getShortName());
+        assertEquals("sst_plat_corr_unc", variables.get(13).getShortName());
+        assertEquals("sst_comb_unc", variables.get(15).getShortName());
+        assertEquals("qc2", variables.get(17).getShortName());
+        assertEquals("unique_id", variables.get(18).getShortName());
     }
 
     @Test
     public void testReadRaw_drifter() throws Exception {
         insituReader = new SirdsInsituReader("drifter");
         openFile("SSTCCI2_refdata_drifter_201304.nc");
-        final Array array = insituReader.readRaw(0, 0, new Interval(1, 1), "DEPTH");
+        final Array array = insituReader.readRaw(0, 0, new Interval(1, 1), "depth");
 
         assertNotNull(array);
         assertArrayEquals(new int[]{1, 1}, array.getShape());
@@ -126,7 +127,7 @@ public class SirdsInsituReader_IO_Test {
     public void testReadRaw_mooring() throws Exception {
         insituReader = new SirdsInsituReader("mooring");
         openFile("SSTCCI2_refdata_mooring_201602.nc");
-        final Array array = insituReader.readRaw(0, 1, new Interval(1, 1), "DEPTH_CORR");
+        final Array array = insituReader.readRaw(0, 1, new Interval(1, 1), "depth_corr");
 
         assertNotNull(array);
         assertArrayEquals(new int[]{1, 1}, array.getShape());
@@ -138,7 +139,7 @@ public class SirdsInsituReader_IO_Test {
     public void testReadRaw_xbt() throws Exception {
         insituReader = new SirdsInsituReader("xbt");
         openFile("SSTCCI2_refdata_xbt_200204.nc");
-        final Array array = insituReader.readRaw(0, 2, new Interval(1, 1), "LATITUDE");
+        final Array array = insituReader.readRaw(0, 2, new Interval(1, 1), "latitude");
 
         assertNotNull(array);
         assertArrayEquals(new int[]{1, 1}, array.getShape());
@@ -150,7 +151,7 @@ public class SirdsInsituReader_IO_Test {
     public void testReadRaw_drifter_3x3() throws Exception {
         insituReader = new SirdsInsituReader("drifter");
         openFile("SSTCCI2_refdata_drifter_201304.nc");
-        final Array array = insituReader.readRaw(0, 3, new Interval(3, 3), "LONGITUDE");
+        final Array array = insituReader.readRaw(0, 3, new Interval(3, 3), "longitude");
 
         assertNotNull(array);
         assertArrayEquals(new int[]{3, 3}, array.getShape());
@@ -167,10 +168,23 @@ public class SirdsInsituReader_IO_Test {
     }
 
     @Test
+    public void testReadRaw_drifter_3x3_plat_id() throws Exception {
+        insituReader = new SirdsInsituReader("drifter");
+        openFile("SSTCCI2_refdata_drifter_201304.nc");
+        final Array array = insituReader.readRaw(0, 4, new Interval(3, 3), "plat_id");
+
+        final int[] shape = array.getShape();
+        assertEquals(9, shape[0]);
+        final char[] dataVector = (char[]) array.get1DJavaArray(DataType.CHAR);
+
+        assertEquals("63552    ", new String(dataVector));
+    }
+
+    @Test
     public void testReadRaw_mooring_3x3() throws Exception {
         insituReader = new SirdsInsituReader("mooring");
         openFile("SSTCCI2_refdata_mooring_201602.nc");
-        final Array array = insituReader.readRaw(0, 4, new Interval(3, 3), "SST");
+        final Array array = insituReader.readRaw(0, 4, new Interval(3, 3), "sst");
 
         assertNotNull(array);
         assertArrayEquals(new int[]{3, 3}, array.getShape());
@@ -190,7 +204,7 @@ public class SirdsInsituReader_IO_Test {
     public void testReadScaled_xbt() throws Exception {
         insituReader = new SirdsInsituReader("xbt");
         openFile("SSTCCI2_refdata_xbt_200204.nc");
-        final Array array = insituReader.readScaled(0, 5, new Interval(1, 1), "SST_COMB_UNC");
+        final Array array = insituReader.readScaled(0, 5, new Interval(1, 1), "sst_comb_unc");
 
         assertNotNull(array);
         assertArrayEquals(new int[]{1, 1}, array.getShape());
@@ -202,7 +216,7 @@ public class SirdsInsituReader_IO_Test {
     public void testReadScaled_drifter_3x3() throws Exception {
         insituReader = new SirdsInsituReader("drifter");
         openFile("SSTCCI2_refdata_drifter_201304.nc");
-        final Array array = insituReader.readScaled(0, 6, new Interval(3, 3), "SST_RAND_UNC");
+        final Array array = insituReader.readScaled(0, 6, new Interval(3, 3), "sst_rand_unc");
 
         assertNotNull(array);
         assertArrayEquals(new int[]{3, 3}, array.getShape());

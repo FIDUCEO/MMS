@@ -1,7 +1,5 @@
 package com.bc.fiduceo.reader.insitu.sirds_sst;
 
-import com.bc.fiduceo.reader.insitu.sst_cci.SSTInsituReader;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.regex.Matcher;
@@ -57,14 +55,14 @@ public class SirdsInsituReaderTest {
     public void testGetLongitudeVariableName() {
         final SirdsInsituReader insituReader = new SirdsInsituReader("whatever");
 
-        assertEquals("LONGITUDE", insituReader.getLongitudeVariableName());
+        assertEquals("longitude", insituReader.getLongitudeVariableName());
     }
 
     @Test
     public void testGetLatitudeVariableName() {
         final SirdsInsituReader insituReader = new SirdsInsituReader("whatever");
 
-        assertEquals("LATITUDE", insituReader.getLatitudeVariableName());
+        assertEquals("latitude", insituReader.getLatitudeVariableName());
     }
 
     @Test
@@ -90,5 +88,19 @@ public class SirdsInsituReaderTest {
         assertEquals("argo_surf", SirdsInsituReader.toRegExPart("argosurf-sirds"));
         assertEquals("drifter", SirdsInsituReader.toRegExPart("drifter-sirds"));
         assertEquals("drifter_cmems", SirdsInsituReader.toRegExPart("driftercmems-sirds"));
+    }
+
+    @Test
+    public void testToFileName() {
+        assertEquals("DEPTH", SirdsInsituReader.toFileName("depth"));
+        assertEquals("DEPTH_CORR", SirdsInsituReader.toFileName("depth_corr"));
+        assertEquals("QC1", SirdsInsituReader.toFileName("qc1"));
+    }
+
+    @Test
+    public void testToMMSName() {
+        assertEquals("latitude", SirdsInsituReader.toMMSName("LATITUDE"));
+        assertEquals("ob_id", SirdsInsituReader.toMMSName("OB_ID"));
+        assertEquals("qc2", SirdsInsituReader.toMMSName("QC2"));
     }
 }
