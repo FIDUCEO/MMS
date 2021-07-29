@@ -66,8 +66,8 @@
             <artifactId>postgresql</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.postgis</groupId>
-            <artifactId>postgis</artifactId>
+            <groupId>net.postgis</groupId>
+            <artifactId>postgis-jdbc</artifactId>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>

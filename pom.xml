@@ -81,12 +81,12 @@
             <dependency>
                 <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>
-                <version>9.4-1206-jdbc42</version>
+                <version>42.2.23</version>
             </dependency>
             <dependency>
-                <groupId>org.postgis</groupId>
-                <artifactId>postgis</artifactId>
-                <version>1.5.2</version>
+                <groupId>net.postgis</groupId>
+                <artifactId>postgis-jdbc</artifactId>
+                <version>2.5.1</version>
             </dependency>
 
             <dependency>
@@ -196,13 +196,21 @@
     </build>
 
     <repositories>
+<!--        <repository>-->
+<!--            <snapshots>-->
+<!--                <enabled>false</enabled>-->
+<!--            </snapshots>-->
+<!--            <id>bintray-jnegre-maven</id>-->
+<!--            <name>bintray</name>-->
+<!--            <url>http://dl.bintray.com/jnegre/maven</url>-->
+<!--        </repository>-->
         <repository>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
-            <id>bintray-jnegre-maven</id>
-            <name>bintray</name>
-            <url>http://dl.bintray.com/jnegre/maven</url>
+            <id>maven-central</id>
+            <name>Maven central repository</name>
+            <url>https://repo1.maven.org/maven2/</url>
         </repository>
         <repository>
             <id>snap-repo-public</id>
