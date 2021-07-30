@@ -1,5 +1,8 @@
 ### Updates from version 1.5.3 to 1.5.4
 * updated to use SNAP version 8.0.5 / S3TBX version 8.0.3
+* update Postgres/PostGIS drivers
+* corrected bug in Postgres connection where segmented geometries were read incorrectly sometimes
+* added support for SIRDS SST insitu data
 
 ### Updates from version 1.5.2 to 1.5.3
 * updated to use SNAP version 8.0.3

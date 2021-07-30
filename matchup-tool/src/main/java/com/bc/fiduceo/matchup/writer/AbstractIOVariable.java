@@ -21,6 +21,7 @@
 package com.bc.fiduceo.matchup.writer;
 
 import ucar.nc2.Attribute;
+import ucar.nc2.Dimension;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -88,5 +89,15 @@ public abstract class AbstractIOVariable implements IOVariable {
 
     public void setTargetVariableName(String name) {
         this.targetVariableName = name;
+    }
+
+    @Override
+    public boolean hasCustomDimension() {
+        return false;
+    }
+
+    @Override
+    public Dimension getCustomDimension() {
+        return null;
     }
 }

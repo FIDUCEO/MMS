@@ -8,6 +8,7 @@ import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.insitu.UniqueIdVariable;
 import com.bc.fiduceo.reader.netcdf.NetCDFReader;
+import com.bc.fiduceo.reader.netcdf.StringVariable;
 import com.bc.fiduceo.reader.time.TimeLocator;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
@@ -128,12 +129,9 @@ public class SirdsInsituReader extends NetCDFReader {
             sourceArray = uniqueIdData;
             fillValue = UniqueIdVariable.FILL_VALUE;
         } else if (variableName.equals(PLAT_ID)) {
-            final int windowHeight = interval.getY();
-            final int windowCenterY = windowHeight / 2;
-
             sourceArray = arrayCache.get(toFileName(PLAT_ID));
             final int[] shape = sourceArray.getShape();
-            final int[] offsets = new int[]{windowCenterY, 0};
+            final int[] offsets = new int[]{centerY, 0};
 
             final Array section = sourceArray.section(offsets, new int[]{1, shape[1]});
             final char[] platIdVector = (char[]) section.copyTo1DJavaArray();
@@ -189,6 +187,20 @@ public class SirdsInsituReader extends NetCDFReader {
                     "SECOND".equals(variableName) ||
                     "YEAR".equals(variableName)) {
                 continue;
+            } else if ("PLAT_ID".equals(variableName)) {
+                final String mmsName = toMMSName(variableName);
+                final List<ucar.nc2.Dimension> dimensions = variable.getDimensions();
+                int stringLength = 9;
+                for (final ucar.nc2.Dimension dim : dimensions) {
+                    if (dim.getShortName().equals("STRINGID")) {
+                        stringLength = dim.getLength();
+                        break;
+                    }
+                }
+
+                final StringVariable stringVariable = new StringVariable(variable, stringLength);
+                stringVariable.setShortName(mmsName);
+                listVariables.add(stringVariable);
             } else {
                 final String mmsName = toMMSName(variableName);
                 variable.setShortName(mmsName);

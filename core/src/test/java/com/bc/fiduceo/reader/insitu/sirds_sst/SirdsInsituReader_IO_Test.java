@@ -177,7 +177,7 @@ public class SirdsInsituReader_IO_Test {
         assertEquals(9, shape[0]);
         final char[] dataVector = (char[]) array.get1DJavaArray(DataType.CHAR);
 
-        assertEquals("63552    ", new String(dataVector));
+        assertEquals("63554    ", new String(dataVector));
     }
 
     @Test
