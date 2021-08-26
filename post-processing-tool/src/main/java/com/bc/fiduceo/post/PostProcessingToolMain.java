@@ -22,6 +22,7 @@ package com.bc.fiduceo.post;
 
 
 import com.bc.fiduceo.log.FiduceoLogger;
+import com.bc.fiduceo.tool.ShutdownHook;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.ParseException;
@@ -47,6 +48,7 @@ public class PostProcessingToolMain {
 
         try {
             final PostProcessingContext context = PostProcessingTool.initializeContext(commandLine);
+            Runtime.getRuntime().addShutdownHook(new ShutdownHook(context));
             final PostProcessingTool tool = new PostProcessingTool(context);
             tool.runPostProcessing();
         } catch (Throwable e) {
