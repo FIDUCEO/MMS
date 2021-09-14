@@ -150,7 +150,6 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
                 }
                 logger.info("Num matchups: " + numObservations);
 
-
                 final List<SampleSet> sampleSets = set.getSampleSets();
                 for (SampleSet sampleSet : sampleSets) {
                     writeMmdValues(sampleSet.getPrimary(), zIndex, primaryVariables, primaryInterval);
@@ -172,6 +171,9 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
             logger.info("Successfully wrote mmd-file to '" + mmdFile.toAbsolutePath().toString() + "'");
             logger.info("Writing time: '" + stopWatch.getTimeDiffString());
 
+        } catch (Exception e) {
+            logger.severe(e.getMessage());
+            throw e;
         } finally {
             readerCache.close();
             close();
@@ -279,10 +281,15 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
 
         createGlobalAttributes();
         createUseCaseAttributes(netcdfFileWriter, useCaseConfig);
+
         final List<Dimension> dimensions = useCaseConfig.getDimensions();
         createDimensions(dimensions, numMatchups);
 
         for (final IOVariable ioVariable : ioVariables) {
+            if (ioVariable.hasCustomDimension()) {
+                ucar.nc2.Dimension dimension = ioVariable.getCustomDimension();
+                netcdfFileWriter.addDimension(null, dimension.getShortName(), dimension.getLength());
+            }
             final Variable variable = netcdfFileWriter.addVariable(null,
                     ioVariable.getTargetVariableName(),
                     DataType.getType(ioVariable.getDataType()),

@@ -186,63 +186,68 @@ public class PostGISDriver extends AbstractDriver {
 
     @Override
     public List<SatelliteObservation> get(QueryParameter parameter) throws SQLException {
-        final Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
-        final String sql = createSql(parameter);
+        final Statement statement = connection.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+        String sql = createSql(parameter);
         final ResultSet resultSet = statement.executeQuery(sql);
-        resultSet.last();
-        final int numValues = resultSet.getRow();
-        resultSet.beforeFirst();
 
-        final List<SatelliteObservation> resultList = new ArrayList<>(numValues);
+        final List<SatelliteObservation> resultList = new ArrayList<>();
+        final List<TimeAxis> timeAxesList = new ArrayList<>();
+        int currentId = -1;
+        SatelliteObservation currentObservation = null;
         while (resultSet.next()) {
-            final SatelliteObservation observation = new SatelliteObservation();
-
             final int observationId = resultSet.getInt("id");
+            if (observationId != currentId) {
+                if (currentObservation != null) {
+                    currentObservation.setTimeAxes(timeAxesList.toArray(new TimeAxis[0]));
+                    resultList.add(currentObservation);
+                    timeAxesList.clear();
+                }
 
-            final Timestamp startDate = resultSet.getTimestamp("StartDate");
-            observation.setStartTime(TimeUtils.toDate(startDate));
+                currentId = observationId;
+                currentObservation = new SatelliteObservation();
 
-            final Timestamp stopDate = resultSet.getTimestamp("StopDate");
-            observation.setStopTime(TimeUtils.toDate(stopDate));
+                final Timestamp startDate = resultSet.getTimestamp("StartDate");
+                currentObservation.setStartTime(TimeUtils.toDate(startDate));
 
-            final int nodeTypeId = resultSet.getInt("NodeType");
-            observation.setNodeType(NodeType.fromId(nodeTypeId));
+                final Timestamp stopDate = resultSet.getTimestamp("StopDate");
+                currentObservation.setStopTime(TimeUtils.toDate(stopDate));
 
-            final PGgeometry geoBounds = (PGgeometry) resultSet.getObject("GeoBounds");
-            if (geoBounds != null) {
-                final Geometry geometry = geometryFactory.fromStorageFormat(geoBounds.getValue().getBytes());
-                observation.setGeoBounds(geometry);
-            }
+                final int nodeTypeId = resultSet.getInt("NodeType");
+                currentObservation.setNodeType(NodeType.fromId(nodeTypeId));
 
-            final int sensorId = resultSet.getInt("SensorId");
-            final Sensor sensor = getSensor(sensorId);
-            observation.setSensor(sensor);
+                final PGgeometry geoBounds = (PGgeometry) resultSet.getObject("GeoBounds");
+                if (geoBounds != null) {
+                    final Geometry geometry = geometryFactory.fromStorageFormat(geoBounds.getValue().getBytes());
+                    currentObservation.setGeoBounds(geometry);
+                }
 
-            final String version = resultSet.getString("Version");
-            observation.setVersion(version);
+                final int sensorId = resultSet.getInt("SensorId");
+                final Sensor sensor = getSensor(sensorId);
+                currentObservation.setSensor(sensor);
 
-            final String dataFile = resultSet.getString("DataFile");
-            observation.setDataFilePath(dataFile);
+                final String version = resultSet.getString("Version");
+                currentObservation.setVersion(version);
 
-            final List<TimeAxis> timeAxesList = new ArrayList<>();
-            while (observationId == resultSet.getInt("id")) {
+                final String dataFile = resultSet.getString("DataFile");
+                currentObservation.setDataFilePath(dataFile);
+
                 final TimeAxis timeAxis = getTimeAxis(resultSet);
                 if (timeAxis != null) {
                     timeAxesList.add(timeAxis);
                 }
-
-                if (!resultSet.next()) {
-                    break;
+            } else {
+                // update current observation with TimeAxis
+                final TimeAxis timeAxis = getTimeAxis(resultSet);
+                if (timeAxis != null) {
+                    timeAxesList.add(timeAxis);
                 }
             }
-            resultSet.previous();   // need to rewind one result because the while loop runs one result too far tb 2016-11-29
+        }
 
-            //@todo 2 tb/tb writ test for this condition
-            if (!timeAxesList.isEmpty()) {
-                observation.setTimeAxes(timeAxesList.toArray(new TimeAxis[timeAxesList.size()]));
-            }
-
-            resultList.add(observation);
+        if (currentObservation != null) {
+            currentObservation.setTimeAxes(timeAxesList.toArray(new TimeAxis[0]));
+            resultList.add(currentObservation);
+            timeAxesList.clear();
         }
 
         return resultList;

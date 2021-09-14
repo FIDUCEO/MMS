@@ -61,7 +61,7 @@ class VariableUtils {
         while (indexIterator.hasNext()) {
             final double time = indexIterator.getDoubleNext();
             if (Math.abs(time - fillValue.doubleValue()) < 1e-8) {
-                indexIterator.setIntNext(TIME_FILL);
+                indexIterator.setIntCurrent(TIME_FILL);
             }
         }
 

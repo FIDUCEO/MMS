@@ -25,8 +25,9 @@ import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
-import com.bc.fiduceo.reader.time.TimeLocator;
+import com.bc.fiduceo.reader.insitu.UniqueIdVariable;
 import com.bc.fiduceo.reader.netcdf.NetCDFReader;
+import com.bc.fiduceo.reader.time.TimeLocator;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.Array;
@@ -42,6 +43,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.bc.fiduceo.reader.insitu.InsituUtils.getResultArray;
 import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
 import static com.bc.fiduceo.util.TimeUtils.millisSince1978;
 import static com.bc.fiduceo.util.TimeUtils.secondsSince1978;
@@ -51,7 +53,6 @@ public class SSTInsituReader extends NetCDFReader {
     private final Map<String, Number> fillValueMap = new HashMap<>();
     private final Map<String, Array> arrayMap = new HashMap<>();
 
-    private String insituType;
     private List<Variable> variables;
 
     @Override
@@ -67,22 +68,16 @@ public class SSTInsituReader extends NetCDFReader {
         }
 
         addIdVariableAndData();
-
-        // @todo extract method, parse from filename if not present tb 2017-05-29
-        insituType = netcdfFile.findGlobalAttribute("dataset").getStringValue();
     }
 
     @Override
     public void close() throws IOException {
-        if (netcdfFile != null) {
-            netcdfFile.close();
-            netcdfFile = null;
-        }
         variables = null;
-        insituType = null;
 
         arrayMap.clear();
         fillValueMap.clear();
+
+        super.close();
     }
 
     @Override
@@ -140,20 +135,7 @@ public class SSTInsituReader extends NetCDFReader {
         final Array sourceArray = arrayMap.get(variableName);
         final Number fillValue = fillValueMap.get(variableName);
 
-        final int windowWidth = interval.getX();
-        final int windowHeight = interval.getY();
-        final int windowCenterX = windowWidth / 2;
-        final int windowCenterY = windowHeight / 2;
-
-        final int[] shape = {windowWidth, windowHeight};
-        final Array windowArray = Array.factory(sourceArray.getDataType(), shape);
-        for (int y = 0; y < windowHeight; y++) {
-            for (int x = 0; x < windowWidth; x++) {
-                windowArray.setObject(windowWidth * y + x, fillValue);
-            }
-        }
-        windowArray.setObject(windowWidth * windowCenterY + windowCenterX, sourceArray.getObject(centerY));
-        return windowArray;
+        return getResultArray(centerY, interval, sourceArray, fillValue);
     }
 
     public Array getSourceArray(String variableName) {
@@ -185,13 +167,6 @@ public class SSTInsituReader extends NetCDFReader {
     @Override
     public Dimension getProductSize() {
         return new Dimension("product_size", 1, getNumObservations());
-    }
-
-    /**
-     * @return the insitu type as a String
-     */
-    String getInsituType() {
-        return insituType;
     }
 
     /**
@@ -228,7 +203,7 @@ public class SSTInsituReader extends NetCDFReader {
     }
 
     private void addIdVariableAndData() {
-        final UniqueIdVariable uniqueIdVariable = new UniqueIdVariable();
+        final UniqueIdVariable uniqueIdVariable = new UniqueIdVariable("insitu.id");
         variables.add(uniqueIdVariable);
 
         final Number fillValue = fillValueMap.get("insitu.mohc_id");

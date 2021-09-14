@@ -32,12 +32,7 @@ import ucar.nc2.Variable;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class IOVariablesList {
 
@@ -121,23 +116,26 @@ public class IOVariablesList {
                 if (excludes.contains(shortName)) {
                     continue;
                 }
-                final boolean writeScaled = variablesConfiguration.isWriteScaled(sensorName, shortName);
 
-                final WindowReadingIOVariable ioVariable = new WindowReadingIOVariable(readerContainer, writeScaled);
-                ioVariable.setSourceVariableName(shortName);
-                final String targetVariableName;
-                if (renamings.containsKey(shortName)) {
-                    targetVariableName = targetSensorName + separator + renamings.get(shortName);
+                ReaderIOVariable ioVariable;
+                if (variable.getDataType() == DataType.STRING) {
+                    ucar.nc2.Dimension stringLength = variable.getDimension(0);
+                    ioVariable = new StringWritingIOVariable(readerContainer, stringLength.getLength());
                 } else {
-                    targetVariableName = targetSensorName + separator + shortName;
+                    final boolean writeScaled = variablesConfiguration.isWriteScaled(sensorName, shortName);
+
+                    ioVariable = new WindowReadingIOVariable(readerContainer, writeScaled);
+                    if (writeScaled) {
+                        ioVariable.setDataType(DataType.DOUBLE.toString());
+                    } else {
+                        ioVariable.setDataType(variable.getDataType().toString());
+                    }
                 }
+                ioVariable.setSourceVariableName(shortName);
+
+                final String targetVariableName = targetSensorName + separator + renamings.getOrDefault(shortName, shortName);
                 ioVariable.setTargetVariableName(targetVariableName);
 
-                if (writeScaled) {
-                    ioVariable.setDataType(DataType.DOUBLE.toString());
-                }else {
-                    ioVariable.setDataType(variable.getDataType().toString());
-                }
                 ioVariable.setDimensionNames(dimensionNames);
                 ioVariable.setAttributes(getAttributeClones(variable, sensorName, variablesConfiguration));
 
@@ -161,7 +159,6 @@ public class IOVariablesList {
      * If there are no associated {@link IOVariable}s, an empty list will be returned.
      *
      * @param sensorName the name of the sensor
-     *
      * @return a list of {@link IOVariable}
      */
     public List<IOVariable> getVariablesFor(String sensorName) {

@@ -27,6 +27,7 @@ import com.bc.fiduceo.reader.amsu_mhs.ForReaderFactoryTest_AMSUB_MHS_L1C_Reader;
 import com.bc.fiduceo.reader.avhrr_gac.AVHRR_GAC_Reader;
 import com.bc.fiduceo.reader.hirs.ForReaderFactoryTest_HIRS_L1C_Reader;
 import com.bc.fiduceo.reader.iasi.IASI_Reader;
+import com.bc.fiduceo.reader.insitu.sirds_sst.SirdsInsituReader;
 import com.bc.fiduceo.reader.insitu.sst_cci.SSTInsituReader;
 import com.bc.fiduceo.reader.modis.MxD06_Reader;
 import org.junit.Before;
@@ -92,6 +93,14 @@ public class ReaderFactoryTest {
 
         assertNotNull(reader);
         assertTrue(reader instanceof SSTInsituReader);
+    }
+
+    @Test
+    public void testGetSirdsInsituReader() {
+        final Reader reader = readerFactory.getReader("bottle-sirds");
+
+        assertNotNull(reader);
+        assertTrue(reader instanceof SirdsInsituReader);
     }
 
     @Test
@@ -178,7 +187,7 @@ public class ReaderFactoryTest {
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Test
-    public void testGet_throwsWehnNotCreated() {
+    public void testGet_throwsWhenNotCreated() {
         ReaderFactory.clear();
 
         try {
@@ -186,7 +195,5 @@ public class ReaderFactoryTest {
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
         }
-
-
     }
 }

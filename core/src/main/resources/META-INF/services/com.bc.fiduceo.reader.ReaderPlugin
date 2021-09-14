@@ -20,3 +20,15 @@ com.bc.fiduceo.reader.fiduceo_fcdr.HIRS_FCDR_ReaderPlugin
 com.bc.fiduceo.reader.slstr.SlstrReaderPlugin
 com.bc.fiduceo.reader.slstr.SlstrNRReaderPlugin
 com.bc.fiduceo.reader.slstr.SlstrNTReaderPlugin
+com.bc.fiduceo.reader.insitu.sirds_sst.SirdsAnimalInsituReaderPlugin
+com.bc.fiduceo.reader.insitu.sirds_sst.SirdsArgoInsituReaderPlugin
+com.bc.fiduceo.reader.insitu.sirds_sst.SirdsArgosurfInsituReaderPlugin
+com.bc.fiduceo.reader.insitu.sirds_sst.SirdsBottleInsituReaderPlugin
+com.bc.fiduceo.reader.insitu.sirds_sst.SirdsCtdInsituReaderPlugin
+com.bc.fiduceo.reader.insitu.sirds_sst.SirdsDrifterCmemsInsituReaderPlugin
+com.bc.fiduceo.reader.insitu.sirds_sst.SirdsDrifterInsituReaderPlugin
+com.bc.fiduceo.reader.insitu.sirds_sst.SirdsGtmbaInsituReaderPlugin
+com.bc.fiduceo.reader.insitu.sirds_sst.SirdsMbtInsituReaderPlugin
+com.bc.fiduceo.reader.insitu.sirds_sst.SirdsMooringInsituReaderPlugin
+com.bc.fiduceo.reader.insitu.sirds_sst.SirdsShipInsituReaderPlugin
+com.bc.fiduceo.reader.insitu.sirds_sst.SirdsXbtInsituReaderPlugin

@@ -231,24 +231,6 @@ public class SSTInsituReader_IO_Test {
     }
 
     @Test
-    public void testInsituType_drifter_v33() throws Exception {
-        openFile("drifter-sst", "insitu_0_WMOID_51993_20040402_20060207.nc", "v03.3");
-        assertEquals("drifter", insituReader.getInsituType());
-    }
-
-    @Test
-    public void testInsituType_drifter_v40() throws Exception {
-        openFile("drifter-sst", "insitu_0_WMOID_42531_19960904_19960909.nc", "v04.0");
-        assertEquals("drifter", insituReader.getInsituType());
-    }
-
-    @Test
-    public void testInsituType_ship_v33() throws Exception {
-        openFile("ship-sst", "insitu_2_WMOID_DBBH_19780118_20151025.nc", "v03.3");
-        assertEquals("ship", insituReader.getInsituType());
-    }
-
-    @Test
     public void testGetTime_drifter_v33() throws Exception {
         openFile("drifter-sst", "insitu_0_WMOID_51993_20040402_20060207.nc", "v03.3");
         final int numObservations = insituReader.getNumObservations();
@@ -591,7 +573,6 @@ public class SSTInsituReader_IO_Test {
     private void openFile(String dataType, String fileName, String version) throws IOException {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"insitu", dataType, version, fileName}, false);
         final File insituDataFile = TestUtil.getTestDataFileAsserted(testFilePath);
-        assertTrue(insituDataFile.isFile());
 
         insituReader.open(insituDataFile);
     }

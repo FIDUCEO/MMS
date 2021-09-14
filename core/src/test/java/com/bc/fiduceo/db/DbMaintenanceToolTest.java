@@ -52,7 +52,7 @@ public class DbMaintenanceToolTest {
 
         tool.printUsageTo(stream);
 
-        assertEquals("db-maintenance-tool version 1.5.3" + ls +
+        assertEquals("db-maintenance-tool version 1.5.4" + ls +
                 ls +
                 "usage: db-maintenance-tool <options>" + ls +
                 "Valid options are:" + ls +

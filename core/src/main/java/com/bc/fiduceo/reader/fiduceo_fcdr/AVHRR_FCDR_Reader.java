@@ -25,7 +25,7 @@ public class AVHRR_FCDR_Reader extends FCDR_Reader {
 
     // these variables do not have dimensionality that can be handled by the core MMS engine. They need to be
     // transferred using a post-processing step tb 2019-01-08
-    private static String[] VARIABLE_NAMES_TO_REMOVE = {"SRF_wavelengths",
+    private static final String[] VARIABLE_NAMES_TO_REMOVE = {"SRF_wavelengths",
             "SRF_weights",
             "channel",
             "channel_correlation_matrix_common",

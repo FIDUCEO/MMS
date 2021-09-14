@@ -32,6 +32,7 @@ import com.bc.fiduceo.matchup.strategy.AbstractMatchupStrategy;
 import com.bc.fiduceo.matchup.strategy.MatchupStrategyFactory;
 import com.bc.fiduceo.matchup.writer.*;
 import com.bc.fiduceo.reader.ReaderFactory;
+import com.bc.fiduceo.tool.ShutdownHook;
 import com.bc.fiduceo.tool.ToolContext;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TempFileUtils;
@@ -297,6 +298,9 @@ class MatchupTool {
 
     void run(CommandLine commandLine) throws IOException, SQLException, InvalidRangeException {
         final ToolContext context = initialize(commandLine);
+
+        Runtime.getRuntime().addShutdownHook(new ShutdownHook(context));
+
         final MmdWriterConfig mmdWriterConfig = loadWriterConfig(commandLine);
 
         try {
@@ -340,7 +344,7 @@ class MatchupTool {
         final ValidationResult validationResult = useCaseConfig.checkValid();
         if (!validationResult.isValid()) {
             final StringBuilder builder = createErrorMessage(validationResult);
-            throw new IllegalArgumentException("Use case configuration errors: " + builder.toString());
+            throw new IllegalArgumentException("Use case configuration errors: " + builder);
         }
         context.setUseCaseConfig(useCaseConfig);
 

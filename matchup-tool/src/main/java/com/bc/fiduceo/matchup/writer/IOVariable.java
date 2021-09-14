@@ -23,6 +23,7 @@ package com.bc.fiduceo.matchup.writer;
 import com.bc.fiduceo.core.Interval;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
+import ucar.nc2.Dimension;
 
 import java.io.IOException;
 import java.util.List;
@@ -54,4 +55,8 @@ public interface IOVariable {
     String getTargetVariableName();
 
     void setTargetVariableName(String name);
+
+    boolean hasCustomDimension();
+
+    Dimension getCustomDimension();
 }

@@ -21,24 +21,28 @@
 package com.bc.fiduceo.reader.insitu.sst_cci;
 
 import com.bc.fiduceo.util.NetCDFUtils;
+import org.junit.Before;
 import org.junit.Test;
 import ucar.ma2.Array;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class SSTInsituReaderTest {
+
+    private SSTInsituReader insituReader;
+
+    @Before
+    public void setUp() {
+        insituReader = new SSTInsituReader();
+    }
 
     @Test
     public void testGetRegEx() {
         final String expected = "insitu_[0-9][0-9]?_WMOID_[^_]+_[12][09]\\d{2}[01]\\d[0123]\\d_[12][09]\\d{2}[01]\\d[0123]\\d.nc";
 
-        final SSTInsituReader insituReader = new SSTInsituReader();
         assertEquals(expected, insituReader.getRegEx());
         final Pattern pattern = java.util.regex.Pattern.compile(expected);
 
@@ -85,16 +89,12 @@ public class SSTInsituReaderTest {
 
     @Test
     public void testGetLongitudeVariableName() {
-        final SSTInsituReader reader = new SSTInsituReader();
-
-        assertEquals("insitu.lon", reader.getLongitudeVariableName());
+        assertEquals("insitu.lon", insituReader.getLongitudeVariableName());
     }
 
     @Test
     public void testGetLatitudeVariableName() {
-        final SSTInsituReader reader = new SSTInsituReader();
-
-        assertEquals("insitu.lat", reader.getLatitudeVariableName());
+        assertEquals("insitu.lat", insituReader.getLatitudeVariableName());
     }
 
     @Test

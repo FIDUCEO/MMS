@@ -21,6 +21,9 @@
 package com.bc.fiduceo.util;
 
 import org.esa.snap.core.datamodel.ProductData;
+import ucar.ma2.Array;
+import ucar.ma2.ArrayInt;
+import ucar.ma2.DataType;
 
 import java.sql.Timestamp;
 import java.text.ParseException;
@@ -35,7 +38,7 @@ public class TimeUtils {
     private static final double MILLIS_PER_DAY = 86400000.0;
     private static final long TAI_REFERENCE_SECONDS = 725846400L;   // 1993-01-01T00:00:00 as UTC since Epoch
 
-    private static ThreadLocal<Calendar> calendarThreadLocal = new CalendarThreadLocal();
+    private static final ThreadLocal<Calendar> calendarThreadLocal = new CalendarThreadLocal();
 
     public static final long millisSince1978;
     public static final int secondsSince1978;
@@ -178,6 +181,23 @@ public class TimeUtils {
     public static double tai1993ToUtcInstantSeconds(double taiSeconds) {
         final double taiInstant = TAI_REFERENCE_SECONDS + taiSeconds;
         return taiInstant - getTaiToUtcOffset(taiInstant);
+    }
+
+    public static ArrayInt.D2 tai1993ToUtc(Array taiSeconds, Number fillValue, int targetFillValue) {
+        final Array utcSecondsSince1970 = Array.factory(DataType.INT, taiSeconds.getShape());
+
+        for (int i = 0; i < taiSeconds.getSize(); i++) {
+            double val = taiSeconds.getDouble(i);
+            final int targetVal;
+            if (fillValue.equals(val)) {
+                targetVal = targetFillValue;
+            } else {
+                targetVal = (int) Math.round(TimeUtils.tai1993ToUtcInstantSeconds(val));
+            }
+            utcSecondsSince1970.setInt(i, targetVal);
+        }
+
+        return (ArrayInt.D2) utcSecondsSince1970;
     }
 
     public static Date getDate(int year, int dayOfYear, int millisecsInDay) {

@@ -146,12 +146,14 @@ abstract class AbstractDriver implements Driver {
 
         boolean hasWhereClause = hasWhereClause(parameter);
         if (!hasWhereClause) {
+            sql.append(" ORDER by obs.ID ");
             appendLimitAndOffset(parameter, sql);
             return sql.toString();
         }
 
         appendWhereClause(parameter, sql);
 
+        sql.append(" ORDER by obs.ID ");
         appendLimitAndOffset(parameter, sql);
         return sql.toString();
     }

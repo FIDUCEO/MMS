@@ -22,6 +22,9 @@ package com.bc.fiduceo.util;
 
 import com.bc.fiduceo.TestUtil;
 import org.junit.Test;
+import ucar.ma2.Array;
+import ucar.ma2.ArrayInt;
+import ucar.ma2.DataType;
 
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -230,5 +233,41 @@ public class TimeUtilsTest {
 
         endOfMonth = TimeUtils.getEndOfMonth(date);
         TestUtil.assertCorrectUTCDate(2010, 8, 31, 23, 59, 59, 999, endOfMonth);
+    }
+
+    @Test
+    public void testTai1993ToUtc_array() {
+        final Array taiSeconds = Array.factory(DataType.DOUBLE, new int[]{3, 2}, new double[]{5.370609313595469E8, 5.37060958026189E8,
+                5.3706098469286E8, 5.370610113595469E8,
+                5.37061038026204E8, 5.3706106469286E8
+        });
+
+        final ArrayInt.D2 unixEpoch = TimeUtils.tai1993ToUtc(taiSeconds, 0.0, 0);
+        final int[] shape = unixEpoch.getShape();
+        assertEquals(2, shape.length);
+        assertEquals(3, shape[0]);
+        assertEquals(2, shape[1]);
+
+        assertEquals(1262907297, unixEpoch.getInt(0));
+        assertEquals(1262907351, unixEpoch.getInt(2));
+        assertEquals(1262907404, unixEpoch.getInt(4));
+    }
+
+    @Test
+    public void testTai1993ToUtc_array_fillValue() {
+        final Array taiSeconds = Array.factory(DataType.DOUBLE, new int[]{3, 2}, new double[]{5.370609313595469E8, 5.37060958026189E8,
+                5.3706098469286E8, Double.NaN,
+                5.37061038026204E8, 5.3706106469286E8
+        });
+
+        final ArrayInt.D2 unixEpoch = TimeUtils.tai1993ToUtc(taiSeconds, Double.NaN, -11);
+        final int[] shape = unixEpoch.getShape();
+        assertEquals(2, shape.length);
+        assertEquals(3, shape[0]);
+        assertEquals(2, shape[1]);
+
+        assertEquals(1262907297, unixEpoch.getInt(0));
+        assertEquals(-11, unixEpoch.getInt(3));
+        assertEquals(1262907404, unixEpoch.getInt(4));
     }
 }

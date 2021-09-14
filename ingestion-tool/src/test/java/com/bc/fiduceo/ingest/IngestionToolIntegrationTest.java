@@ -48,8 +48,6 @@ import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -118,8 +116,8 @@ public class IngestionToolIntegrationTest {
             ingestionTool.run(commandLine);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
-            assertThat(expected.getClass().getTypeName(), is(equalTo("java.lang.RuntimeException")));
-            assertThat(expected.getMessage(), is(equalTo("End date before start date")));
+            assertEquals("java.lang.RuntimeException", expected.getClass().getTypeName());
+            assertEquals("End date before start date", expected.getMessage());
         }
     }
 
@@ -781,6 +779,37 @@ public class IngestionToolIntegrationTest {
     }
 
     @Test
+    public void testIngest_insitu_Sirds_mooring() throws SQLException, IOException, ParseException {
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "mooring-sirds", "-start", "2016-032", "-end", "2016-061", "-v", "v1.0"};
+
+        try {
+            IngestionToolMain.main(args);
+
+            final List<SatelliteObservation> satelliteObservations = storage.get();
+            assertEquals(1, satelliteObservations.size());
+
+            final SatelliteObservation observation = getSatelliteObservation("SSTCCI2_refdata_mooring_201602.nc", satelliteObservations);
+            TestUtil.assertCorrectUTCDate(2016, 2, 1, 0, 0, 0, 0, observation.getStartTime());
+            TestUtil.assertCorrectUTCDate(2016, 2, 29, 23, 58, 11, 0, observation.getStopTime());
+
+            assertEquals("mooring-sirds", observation.getSensor().getName());
+
+            final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"insitu", "sirds", "v1.0", "SSTCCI2_refdata_mooring_201602.nc"}, true);
+            final String expectedPath = TestUtil.getTestDataDirectory().getAbsolutePath() + testFilePath;
+            assertEquals(expectedPath, observation.getDataFilePath().toString());
+
+            assertEquals(NodeType.UNDEFINED, observation.getNodeType());
+            assertEquals("v1.0", observation.getVersion());
+
+            assertNull(observation.getGeoBounds());
+            assertNull(observation.getTimeAxes());
+        } finally {
+            storage.clear();
+            storage.close();
+        }
+    }
+
+    @Test
     public void testIngest_IASI_MA() throws SQLException, IOException, ParseException {
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "iasi-ma", "-start", "2016-001", "-end", "2016-001", "-v", "v3-6N"};
 
@@ -1095,11 +1124,11 @@ public class IngestionToolIntegrationTest {
             psO.flush();
             psE.flush();
             if (errorOutputExpected) {
-                assertThat(out.toString(), is(equalTo("")));
-                assertThat(err.toString(), is(equalTo(expected.toString())));
+                assertEquals("", out.toString());
+                assertEquals(expected.toString(), err.toString());
             } else {
-                assertThat(out.toString(), is(equalTo(expected.toString())));
-                assertThat(err.toString(), is(equalTo("")));
+                assertEquals(expected.toString(), out.toString());
+                assertEquals("", err.toString());
             }
         } finally {
             System.setErr(_err);

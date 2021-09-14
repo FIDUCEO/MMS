@@ -50,7 +50,7 @@ class BowTiePixelLocator implements PixelLocator {
     private int sceneWidth;
     private int sceneHeight;
     private int listSize;
-    private int stripHeight;
+    private final int stripHeight;
 
 
     BowTiePixelLocator(Array longitudes, Array latitudes, GeometryFactory geometryFactory, int stripHeight) throws IOException {

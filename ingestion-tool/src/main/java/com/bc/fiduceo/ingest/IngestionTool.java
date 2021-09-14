@@ -33,6 +33,7 @@ import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderFactory;
+import com.bc.fiduceo.tool.ShutdownHook;
 import com.bc.fiduceo.tool.ToolContext;
 import com.bc.fiduceo.util.TempFileUtils;
 import com.bc.fiduceo.util.TimeUtils;
@@ -75,6 +76,8 @@ class IngestionTool {
         final ToolContext context = initializeContext(commandLine, confDirPath);
 
         logger.info("Successfully initialized tool");
+
+        Runtime.getRuntime().addShutdownHook(new ShutdownHook(context));
 
         try {
             ingestMetadata(context, sensorType, processingVersion);
