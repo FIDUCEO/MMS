@@ -96,21 +96,21 @@ public class PostProcessingToolIntegrationTest_Era5 {
 
             variable = NCTestUtils.getVariable("nwp_lnsp", mmd);
             NCTestUtils.assertAttribute(variable, "long_name", "Logarithm of surface pressure");
-            NCTestUtils.assert3DValueDouble(3, 1, 1, 11.514025688171387, variable);
-            NCTestUtils.assert3DValueDouble(3, 2, 1, 11.513952255249023, variable);
-            NCTestUtils.assert3DValueDouble(3, 3, 1, 11.513876914978027, variable);
+            NCTestUtils.assert3DValueDouble(3, 1, 1, 11.53063678741455, variable);
+            NCTestUtils.assert3DValueDouble(3, 2, 1, 11.530539512634277, variable);
+            NCTestUtils.assert3DValueDouble(3, 3, 1, 11.530522346496582, variable);
 
             variable = NCTestUtils.getVariable("nwp_v10", mmd);
             assertNull(variable.findAttribute("standard_name"));
-            NCTestUtils.assert3DValueDouble(4, 2, 2, 3.7464919090270996, variable);
-            NCTestUtils.assert3DValueDouble(4, 3, 2, 3.842674493789673, variable);
-            NCTestUtils.assert3DValueDouble(4, 4, 2, 3.5886740684509277, variable);
+            NCTestUtils.assert3DValueDouble(4, 2, 2, 0.9060587882995605, variable);
+            NCTestUtils.assert3DValueDouble(4, 3, 2, 1.063584566116333, variable);
+            NCTestUtils.assert3DValueDouble(4, 4, 2, 1.2027971744537354, variable);
 
             variable = NCTestUtils.getVariable("nwp_sst", mmd);
             NCTestUtils.assertAttribute(variable, "_FillValue", "9.969209968386869E36");
-            NCTestUtils.assert3DValueDouble(0, 3, 3, 271.46014404296875, variable);
-            NCTestUtils.assert3DValueDouble(0, 4, 3, 271.46014404296875, variable);
-            NCTestUtils.assert3DValueDouble(0, 5, 3, 271.46014404296875, variable);
+            NCTestUtils.assert3DValueDouble(0, 3, 3, 275.75360107421875, variable);
+            NCTestUtils.assert3DValueDouble(0, 4, 3, 275.5603942871094, variable);
+            NCTestUtils.assert3DValueDouble(0, 5, 3, 275.3390808105469, variable);
 
             variable = NCTestUtils.getVariable("era5-time", mmd);
             NCTestUtils.assertAttribute(variable, "units", "seconds since 1970-01-01");
@@ -128,27 +128,27 @@ public class PostProcessingToolIntegrationTest_Era5 {
 
             variable = NCTestUtils.getVariable("nwp_mu_u10", mmd);
             NCTestUtils.assertAttribute(variable, "units", "m s**-1");
-            NCTestUtils.assert2DValueFloat(4, 3, -2.598637819290161f, variable);
-            NCTestUtils.assert2DValueFloat(5, 3, -2.281101942062378f, variable);
-            NCTestUtils.assert2DValueFloat(6, 3, -2.125869035720825f, variable);
+            NCTestUtils.assert2DValueFloat(4, 3, 1.5901726484298706f, variable);
+            NCTestUtils.assert2DValueFloat(5, 3, 1.4782710075378418f, variable);
+            NCTestUtils.assert2DValueFloat(6, 3, 1.315316915512085f, variable);
 
             variable = NCTestUtils.getVariable("nwp_mu_sst", mmd);
             NCTestUtils.assertAttribute(variable, "long_name", "Sea surface temperature");
-            NCTestUtils.assert2DValueFloat(7, 4, 271.46014404296875f, variable);
-            NCTestUtils.assert2DValueFloat(8, 4, 271.4603576660156f, variable);
-            NCTestUtils.assert2DValueFloat(9, 4, 271.4601745605469f, variable);
+            NCTestUtils.assert2DValueFloat(7, 4, 275.3016662597656f, variable);
+            NCTestUtils.assert2DValueFloat(8, 4, 275.30181884765625f, variable);
+            NCTestUtils.assert2DValueFloat(9, 4, 275.30181884765625f, variable);
 
             variable = NCTestUtils.getVariable("nwp_mu_mslhf", mmd);
             assertNull(variable.findAttribute("standard_name"));
-            NCTestUtils.assert2DValueFloat(10, 5, -26.741840362548828f, variable);
-            NCTestUtils.assert2DValueFloat(11, 5, -21.49241065979004f, variable);
-            NCTestUtils.assert2DValueFloat(12, 5, -17.586181640625f, variable);
+            NCTestUtils.assert2DValueFloat(10, 5, -28.066068649291992f, variable);
+            NCTestUtils.assert2DValueFloat(11, 5, -25.100168228149414f, variable);
+            NCTestUtils.assert2DValueFloat(12, 5, -23.159440994262695f, variable);
 
             variable = NCTestUtils.getVariable("nwp_mu_msshf", mmd);
             NCTestUtils.assertAttribute(variable, "_FillValue", "9.969209968386869E36");
-            NCTestUtils.assert2DValueFloat(13, 6, 1.9936094284057617f, variable);
-            NCTestUtils.assert2DValueFloat(14, 6, 2.673461437225342f, variable);
-            NCTestUtils.assert2DValueFloat(15, 6, 3.422379732131958f, variable);
+            NCTestUtils.assert2DValueFloat(13, 6, 12.113265037536621f, variable);
+            NCTestUtils.assert2DValueFloat(14, 6, 13.183022499084473f, variable);
+            NCTestUtils.assert2DValueFloat(15, 6, 13.555000305175781f, variable);
         }
     }
 
@@ -182,25 +182,25 @@ public class PostProcessingToolIntegrationTest_Era5 {
 
             variable = NCTestUtils.getVariable("nwp_lnsp", mmd);
             NCTestUtils.assertAttribute(variable, "units", "~");
-            NCTestUtils.assert3DVariable(variable.getFullName(), 0, 0, 0, 11.523458480834961, mmd);
+            NCTestUtils.assert3DVariable(variable.getFullName(), 0, 0, 0, 11.525834083557129, mmd);
 
             variable = NCTestUtils.getVariable("nwp_o3", mmd);
             NCTestUtils.assertAttribute(variable, "units", "kg kg**-1");
-            NCTestUtils.assert4DVariable(variable.getFullName(), 0, 0, 0, 0, 1.87434608278636E-7, mmd);
-            NCTestUtils.assert4DVariable(variable.getFullName(), 0, 0, 10, 0, 3.5533055324776797E-6, mmd);
-            NCTestUtils.assert4DVariable(variable.getFullName(), 0, 0, 20, 0, 1.0266540812153835E-5, mmd);
+            NCTestUtils.assert4DVariable(variable.getFullName(), 0, 0, 0, 0, 1.9407424645123683E-7, mmd);
+            NCTestUtils.assert4DVariable(variable.getFullName(), 0, 0, 10, 0, 3.718567541000084E-6, mmd);
+            NCTestUtils.assert4DVariable(variable.getFullName(), 0, 0, 20, 0, 9.952551408787258E-6, mmd);
 
             variable = NCTestUtils.getVariable("nwp_u10", mmd);
             assertNull(variable.findAttribute("standard_name"));
-            NCTestUtils.assert3DValueDouble(0, 0, 0, -6.019900798797607, variable);
+            NCTestUtils.assert3DValueDouble(0, 0, 0, -0.9531255960464478, variable);
 
             variable = NCTestUtils.getVariable("nwp_skt", mmd);
             NCTestUtils.assertAttribute(variable, "long_name", "Skin temperature");
-            NCTestUtils.assert3DValueDouble(0, 0, 0, 302.07879638671875, variable);
+            NCTestUtils.assert3DValueDouble(0, 0, 0, 301.2060852050781, variable);
 
             variable = NCTestUtils.getVariable("slstr.s3a.blowVert", mmd);
             NCTestUtils.assertAttribute(variable, "long_name", "10 metre V wind component");
-            NCTestUtils.assert3DValueDouble(0, 0, 0, 0.32230889797210693, variable);
+            NCTestUtils.assert3DValueDouble(0, 0, 0, 3.41879940032959, variable);
         }
     }
 
