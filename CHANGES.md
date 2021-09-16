@@ -1,6 +1,7 @@
 ### Updates from version 1.5.4 to 1.5.5
 * added shutdown hook for resource cleanup on hard shutdowns 
-* corrected fill value handling for time-variable
+* corrected fill value handling for time-variable in ERA-5 post processing
+* corrected ERA-5 raster position calculations
 
 ### Updates from version 1.5.3 to 1.5.4
 * updated to use SNAP version 8.0.5 / S3TBX version 8.0.3

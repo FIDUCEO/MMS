@@ -8,7 +8,7 @@
 
     <groupId>com.bc.fiduceo</groupId>
     <artifactId>google-s2</artifactId>
-    <version>1.5.4</version>
+    <version>1.5.5</version>
 
     <dependencies>
         <dependency>

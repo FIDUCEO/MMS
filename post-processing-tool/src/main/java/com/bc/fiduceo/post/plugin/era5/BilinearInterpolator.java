@@ -28,6 +28,10 @@ class BilinearInterpolator {
         return yMin;
     }
 
+    double getA() {return a;}
+
+    double getB() {return b;}
+
     private static double lerp(double c0, double c1, double t) {
         return c0 + (c1 - c0) * t;
     }

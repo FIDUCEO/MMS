@@ -37,8 +37,7 @@ class Era5PostProcessing extends PostProcessing {
     }
 
     static int getEra5LonMin(float lonMin) {
-        final double shiftedLon = lonMin - EPS;
-        final double normLonMin = shiftedLon + 180.0;
+        final double normLonMin = (lonMin + 360.0) % 360.0;
         final double scaledLonMin = Math.floor(normLonMin * 4) / 4;
         return (int) (scaledLonMin * 4);
     }
@@ -108,7 +107,10 @@ class Era5PostProcessing extends PostProcessing {
     }
 
     static BilinearInterpolator createInterpolator(float lon, float lat, int era5_X_min, int era5_Y_min) {
-        final double era5LonMin = era5_X_min * 0.25 - 180.0;
+        double era5LonMin = era5_X_min * 0.25;
+        if (era5LonMin >= 180) {
+            era5LonMin -= 360.0;
+        }
         final double era5LatMin = 90.0 - era5_Y_min * 0.25;
 
         // we have a quarter degree raster and need to normalize the distance tb 2020-11-20
