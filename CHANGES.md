@@ -2,6 +2,7 @@
 * added shutdown hook for resource cleanup on hard shutdowns 
 * corrected fill value handling for time-variable in ERA-5 post processing
 * corrected ERA-5 raster position calculations
+corrected interpolation error in ERA-5 post processing
 
 ### Updates from version 1.5.3 to 1.5.4
 * updated to use SNAP version 8.0.5 / S3TBX version 8.0.3
