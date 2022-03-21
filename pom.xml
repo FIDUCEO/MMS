@@ -27,31 +27,31 @@
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-core</artifactId>
-                <version>8.0.5</version>
+                <version>8.0.9</version>
             </dependency>
 
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-engine-utilities</artifactId>
-                <version>8.0.5</version>
+                <version>8.0.9</version>
             </dependency>
 
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-envisat-reader</artifactId>
-                <version>8.0.5</version>
+                <version>8.0.9</version>
             </dependency>
 
             <dependency>
                 <groupId>org.esa.s3tbx</groupId>
                 <artifactId>s3tbx-avhrr-reader</artifactId>
-                <version>8.0.3</version>
+                <version>8.0.6</version>
             </dependency>
 
             <dependency>
                 <groupId>org.esa.s3tbx</groupId>
                 <artifactId>s3tbx-sentinel3-reader</artifactId>
-                <version>8.0.3</version>
+                <version>8.0.6</version>
                 <!--<exclusions>-->
                     <!--<exclusion>-->
                         <!--<groupId>edu.ucar</groupId>-->
@@ -69,7 +69,7 @@
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-dbcp2</artifactId>
-                <version>2.7.0</version>
+                <version>2.9.0</version>
             </dependency>
 
             <dependency>
@@ -81,7 +81,7 @@
             <dependency>
                 <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>
-                <version>42.2.23</version>
+                <version>42.3.3</version>
             </dependency>
             <dependency>
                 <groupId>net.postgis</groupId>
@@ -98,12 +98,12 @@
             <dependency>
                 <groupId>org.mongodb</groupId>
                 <artifactId>mongo-java-driver</artifactId>
-                <version>3.11.2</version>
+                <version>3.12.10</version>
             </dependency>
             <dependency>
                 <groupId>org.mongodb</groupId>
                 <artifactId>bson</artifactId>
-                <version>3.11.2</version>
+                <version>3.12.10</version>
             </dependency>
 
             <dependency>
