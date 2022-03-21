@@ -1,6 +1,5 @@
 package com.bc.fiduceo.post.plugin.era5;
 
-import com.bc.fiduceo.util.NetCDFUtils;
 import org.esa.snap.core.util.StringUtils;
 
 class SatelliteFieldsConfiguration {
@@ -208,13 +207,13 @@ class SatelliteFieldsConfiguration {
     }
 
     void set_nwp_time_variable_name(String nwp_time_variable_name) {
-        this.nwp_time_variable_name =nwp_time_variable_name;
+        this.nwp_time_variable_name = nwp_time_variable_name;
     }
 
     String get_time_variable_name() {
         return time_variable_name;
     }
-    
+
     void set_time_variable_name(String time_variable_name) {
         this.time_variable_name = time_variable_name;
     }
