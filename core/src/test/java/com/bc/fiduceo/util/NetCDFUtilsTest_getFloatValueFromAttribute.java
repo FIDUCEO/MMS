@@ -55,7 +55,7 @@ public class NetCDFUtilsTest_getFloatValueFromAttribute {
 
         assertEquals("16.5", "" + scaleFactor);
 
-        verifyZeroInteractions(variable);
+        verifyNoInteractions(variable);
     }
 
     @Test

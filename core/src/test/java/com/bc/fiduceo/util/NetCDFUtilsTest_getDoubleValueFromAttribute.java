@@ -53,7 +53,7 @@ public class NetCDFUtilsTest_getDoubleValueFromAttribute {
 
         assertEquals("24.3", "" + scaleFactor);
 
-        verifyZeroInteractions(variable);
+        verifyNoInteractions(variable);
     }
 
     @Test

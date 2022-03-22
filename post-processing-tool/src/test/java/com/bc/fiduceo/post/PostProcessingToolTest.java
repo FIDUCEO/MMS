@@ -210,7 +210,7 @@ public class PostProcessingToolTest {
 
         final ArgumentCaptor<Attribute> attribCaptor = ArgumentCaptor.forClass(Attribute.class);
         verify(writer, times(1)).findGlobalAttribute(attName);
-        verify(writer, times(1)).addGroupAttribute(isNull(Group.class), attribCaptor.capture());
+        verify(writer, times(1)).addGroupAttribute(isNull(), attribCaptor.capture());
         assertThat(attribCaptor.getValue().getStringValue(), equalToIgnoringWhiteSpace(expected));
         verifyNoMoreInteractions(writer);
     }
@@ -242,7 +242,7 @@ public class PostProcessingToolTest {
 
         final ArgumentCaptor<Attribute> attribCaptor = ArgumentCaptor.forClass(Attribute.class);
         verify(writer, times(1)).findGlobalAttribute(attName);
-        verify(writer, times(1)).addGroupAttribute(isNull(Group.class), attribCaptor.capture());
+        verify(writer, times(1)).addGroupAttribute(isNull(), attribCaptor.capture());
         verify(writer, times(1)).deleteGroupAttribute(null, attName);
         assertThat(attribCaptor.getValue().getStringValue(), equalToIgnoringWhiteSpace(expected));
         verifyNoMoreInteractions(writer);

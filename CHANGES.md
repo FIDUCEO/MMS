@@ -1,6 +1,6 @@
 ### Updates from version 1.5.4 to 1.5.5
 * updated to use SNAP version 8.0.9 / S3TBX version 8.0.6
-* updated to use Apache Commons DBCP2 2.9.0, postgres jdbc 42.3.3, MongoDB jdbc and bson 3.12.10
+* updated to use Apache Commons DBCP2 2.9.0, postgres jdbc 42.3.3, MongoDB jdbc and bson 3.12.10, JUnit 4.13.2, Mockito 4.4.0
 * added shutdown hook for resource cleanup on hard shutdowns 
 * corrected fill value handling for time-variable in ERA-5 post processing
 * corrected ERA-5 raster position calculations
