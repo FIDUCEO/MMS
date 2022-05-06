@@ -1,6 +1,8 @@
-# fiduceo
+# MMS
 <h1>Introduction</h1>
 
-The aim of Fiduceo (Fidelity and Uncertainty in Climate record from Earth Observation) is to set new standard in measuring the accuracy and rigour in the generation of FCDRs (Fundamental Climate Data Records) and CDRs (Climate Data Records) with defensible uncertainty and stability information of level 1 satellite dataset. The approach is to enable to use more than 20 years-long statellite sensors series to create four new FCDRs, then use the metrological FCDRs to derive CDRs in rigorous manner.
+The Multisensor Matchup System is a set of software components that allows to detect
+simultaneous measurements of geolocated instrument data. Its main purpose is to support
+the validation of satellite based instruments by generating cross-sensor matches of either
+instruments from different platforms or between satellite and ground-based measurements.
 
-source base for Horizon-2020 project "Fiduceo"
