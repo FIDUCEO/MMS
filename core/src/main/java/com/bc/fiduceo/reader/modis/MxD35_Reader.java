@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 Brockmann Consult GmbH
+ * Copyright (C) 2022 Brockmann Consult GmbH
  * This code was developed for the EC project "Fidelity and Uncertainty in
  * Climate Data Records from Earth Observations (FIDUCEO)".
  * Grant Agreement: 638822
@@ -29,34 +29,40 @@ import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.hdf.HdfEOSUtil;
 import com.bc.fiduceo.location.PixelLocator;
-import com.bc.fiduceo.reader.*;
+import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.BoundingPolygonCreator;
+import com.bc.fiduceo.reader.Geometries;
+import com.bc.fiduceo.reader.RawDataReader;
+import com.bc.fiduceo.reader.ReaderContext;
+import com.bc.fiduceo.reader.ReaderUtils;
 import com.bc.fiduceo.reader.netcdf.NetCDFReader;
 import com.bc.fiduceo.reader.time.TimeLocator;
 import com.bc.fiduceo.reader.time.TimeLocator_TAI1993Vector;
 import com.bc.fiduceo.util.NetCDFUtils;
-import com.bc.fiduceo.util.TimeUtils;
 import com.bc.fiduceo.util.VariableProxy;
-import ucar.ma2.*;
+import ucar.ma2.Array;
+import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
+import ucar.ma2.IndexIterator;
+import ucar.ma2.InvalidRangeException;
+import ucar.ma2.MAMath;
 import ucar.nc2.Attribute;
 import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import static com.bc.fiduceo.reader.modis.ModisConstants.LATITUDE_VAR_NAME;
 import static com.bc.fiduceo.reader.modis.ModisConstants.LONGITUDE_VAR_NAME;
 
-public class MxD06_Reader extends NetCDFReader {
+public class MxD35_Reader extends NetCDFReader {
 
-    private static final String REG_EX = "M([OY])D06_L2.A\\d{7}.\\d{4}.\\d{3}.\\d{13}.hdf";
+    private static final String REG_EX = "M([OY])D35_L2.A\\d{7}.\\d{4}.\\d{3}.\\d{13}.hdf";
 
-    private static final String GEOLOCATION_GROUP = "mod06/Geolocation_Fields";
-    private static final String DATA_GROUP = "mod06/Data_Fields";
+    private static final String GEOLOCATION_GROUP = "mod35/Geolocation_Fields";
+    private static final String DATA_GROUP = "mod35/Data_Fields";
 
     private final GeometryFactory geometryFactory;
     private final Dimension size1Km;
@@ -65,7 +71,7 @@ public class MxD06_Reader extends NetCDFReader {
     private BowTiePixelLocator pixelLocator;
     private Dimension productSize;
 
-    MxD06_Reader(ReaderContext readerContext) {
+    MxD35_Reader(ReaderContext readerContext) {
         this.size1Km = new Dimension("size", 1354, 0);
         this.size5km = new Dimension("size", 270, 0);
         this.geometryFactory = readerContext.getGeometryFactory();
@@ -306,7 +312,7 @@ public class MxD06_Reader extends NetCDFReader {
     }
 
     private void createTimeLocator() throws IOException {
-        final Array time = arrayCache.get("mod06/Data_Fields", "Scan_Start_Time");
+        final Array time = arrayCache.get("mod35/Data_Fields", "Scan_Start_Time");
         final int[] offsets = new int[]{0, 0};
         final int[] shape = time.getShape();
         shape[1] = 1;
@@ -316,7 +322,7 @@ public class MxD06_Reader extends NetCDFReader {
     }
 
     private void createPixelLocator() throws IOException {
-         pixelLocator = new BowTiePixelLocator(arrayCache.get(GEOLOCATION_GROUP, LONGITUDE_VAR_NAME), arrayCache.get(GEOLOCATION_GROUP, LATITUDE_VAR_NAME), geometryFactory);
+        pixelLocator = new BowTiePixelLocator(arrayCache.get(GEOLOCATION_GROUP, LONGITUDE_VAR_NAME), arrayCache.get(GEOLOCATION_GROUP, LATITUDE_VAR_NAME), geometryFactory);
     }
 
     private Array readRaw1km(int centerX, int centerY, Interval interval, Array array, Number fillValue) throws IOException, InvalidRangeException {
