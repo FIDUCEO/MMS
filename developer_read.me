@@ -23,3 +23,31 @@ You can find needed test files at:
 
 Interested external developers please contact Brockmann-Consult to receive a copy of the test data.
 
+
+
+MongoDB  preparation for test execution
+=======================================
+Given:
+   MongoDB is installed, up and running.
+   MongoDB command line is started.
+
+Notice!
+°°°°°°°°
+The unit level tests require that a user is set up with the username and password listed below.
+Otherwise some unit level tests will fail.
+For operational use, it is strongly recommended to use a different username and password.
+
+>>> use FIDUCEO
+>>> db.myNewCollection111.insertOne({x:"A"})
+>>>
+>>> use admin
+>>> db.createUser(
+        {
+            user: 'fiduceo',
+            pwd: 'oecudif',
+            roles: [
+                { role: 'readWrite', db: 'FIDUCEO' },
+                { role: 'dbAdmin', db: 'FIDUCEO' }
+            ]
+        }
+    )
