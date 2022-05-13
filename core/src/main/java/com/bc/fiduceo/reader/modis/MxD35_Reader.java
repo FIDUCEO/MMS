@@ -214,6 +214,7 @@ public class MxD35_Reader extends NetCDFReader {
                     slice.setShortName(slice.getShortName() + "_" + i);
                     exportVariables.add(slice);
                 }
+                //  @ todo se - Add FlagMeanings and FlagMask
                 continue;
             }
 
