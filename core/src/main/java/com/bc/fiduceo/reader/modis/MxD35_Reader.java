@@ -63,6 +63,8 @@ public class MxD35_Reader extends NetCDFReader {
 
     private static final String GEOLOCATION_GROUP = "mod35/Geolocation_Fields";
     private static final String DATA_GROUP = "mod35/Data_Fields";
+    private static final int SMALLEST_DIM_IDX = 0;
+    private static final int SMALLEST_DIM_SIZE = 1;
 
     private final GeometryFactory geometryFactory;
     private final Dimension size1Km;
@@ -190,59 +192,50 @@ public class MxD35_Reader extends NetCDFReader {
     }
 
     @Override
-    public List<Variable> getVariables() {
+    public List<Variable> getVariables() throws InvalidRangeException {
         final List<Variable> variablesInFile = netcdfFile.getVariables();
-
         final ArrayList<Variable> exportVariables = new ArrayList<>();
         for (Variable variable : variablesInFile) {
             final String variableName = variable.getShortName();
             if (variableName.contains("StructMetadata") ||
-                    variableName.contains("CoreMetadata") ||
-                    variableName.contains("Statistics_1km") ||
-                    variableName.contains("Cell_Across_Swath_1km") ||
-                    variableName.contains("Cell_Along_Swath_1km") ||
-                    variableName.contains("Band_Number") ||
-                    variableName.contains("Brightness_Temperature") ||
-                    variableName.contains("Spectral_Cloud_Forcing") ||
-                    variableName.contains("Cloud_Top_Pressure_From_Ratios") ||
-                    variableName.contains("Cloud_Mask_1km") ||
-                    variableName.contains("Extinction_Efficiency_Ice") ||
-                    variableName.contains("Asymmetry_Parameter_Ice") ||
-                    variableName.contains("Single_Scatter_Albedo_Ice") ||
-                    variableName.contains("Extinction_Efficiency_Liq") ||
-                    variableName.contains("Asymmetry_Parameter_Liq") ||
-                    variableName.contains("Single_Scatter_Albedo_Liq") ||
-                    variableName.contains("Cloud_Mask_SPI") ||
-                    variableName.contains("Retrieval_Failure_Metric") ||
-                    variableName.contains("Atm_Corr_Refl") ||
-                    variableName.contains("Quality_Assurance_1km") ||
-                    variableName.contains("ArchiveMetadata")) {
+                variableName.contains("CoreMetadata") ||
+                variableName.contains("ArchiveMetadata") ||
+                variableName.contains("Cell_Across_Swath_1km") ||
+                variableName.contains("Cell_Along_Swath_1km") ||
+                variableName.contains("Byte_Segment") ||
+                variableName.contains("Cloud_Mask_SPI")) {
                 continue;
             }
 
-            if (variableName.equals("Cloud_Mask_5km")) {
-                final List<Attribute> attributes = variable.getAttributes();
-                variable = new VariableProxy(variable.getShortName(), DataType.SHORT, attributes);
-            }
-
-            if (variableName.equals("Quality_Assurance_5km")) {
-                final List<Attribute> attributes = variable.getAttributes();
-                variable = new VariableProxy("Quality_Assurance_5km_03", DataType.BYTE, attributes);
-                exportVariables.add(variable);
-
-                variable = new VariableProxy("Quality_Assurance_5km_04", DataType.BYTE, attributes);
-                exportVariables.add(variable);
-
-                variable = new VariableProxy("Quality_Assurance_5km_05", DataType.BYTE, attributes);
-                exportVariables.add(variable);
-
-                variable = new VariableProxy("Quality_Assurance_5km_09", DataType.BYTE, attributes);
+            if (variableName.equals("Cloud_Mask") || variableName.equals("Quality_Assurance")) {
+                final int[] slicingConditions = findSlicingConditions(variable);
+                for (int i = 0; i < slicingConditions[SMALLEST_DIM_SIZE]; i++) {
+                    final Variable slice = variable.slice(slicingConditions[SMALLEST_DIM_IDX], i);
+                    slice.setShortName(slice.getShortName() + "_" + i);
+                    exportVariables.add(slice);
+                }
+                continue;
             }
 
             exportVariables.add(variable);
         }
 
         return exportVariables;
+    }
+
+    private int[] findSlicingConditions(Variable variable) {
+        final int[] shape = variable.getShape();
+        final int[] conditions = new int[2];
+        conditions[SMALLEST_DIM_IDX] = -1;
+        conditions[SMALLEST_DIM_SIZE] = Integer.MAX_VALUE;
+        for (int k = 0; k < shape.length; k++) {
+            int dimSize = shape[k];
+            if (dimSize < conditions[SMALLEST_DIM_SIZE]) {
+                conditions[SMALLEST_DIM_IDX] = k;
+                conditions[SMALLEST_DIM_SIZE] = dimSize;
+            }
+        }
+        return conditions;
     }
 
     @Override
