@@ -51,6 +51,7 @@ import ucar.nc2.Variable;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -87,10 +88,10 @@ public class MxD35_Reader_IO_Test {
         assertNotNull(acquisitionInfo);
 
         final Date sensingStart = acquisitionInfo.getSensingStart();
-        TestUtil.assertCorrectUTCDate(2013, 2, 6, 14, 35, 0, 0, sensingStart);
+        TestUtil.assertCorrectUTCDate(2022, 4, 25, 11, 25, 0, 0, sensingStart);
 
         final Date sensingStop = acquisitionInfo.getSensingStop();
-        TestUtil.assertCorrectUTCDate(2013, 2, 6, 14, 40, 0, 0, sensingStop);
+        TestUtil.assertCorrectUTCDate(2022, 4, 25, 11, 30, 0, 0, sensingStop);
 
         final NodeType nodeType = acquisitionInfo.getNodeType();
         assertEquals(NodeType.UNDEFINED, nodeType);
@@ -100,21 +101,21 @@ public class MxD35_Reader_IO_Test {
         assertTrue(boundingGeometry instanceof Polygon);
         final Point[] coordinates = boundingGeometry.getCoordinates();
         assertEquals(31, coordinates.length);
-        assertEquals(-67.80709838867188, coordinates[0].getLon(), 1e-8);
-        assertEquals(48.376953125, coordinates[0].getLat(), 1e-8);
+        assertEquals(-22.777761459350586, coordinates[0].getLon(), 1e-8);
+        assertEquals(53.5734519958496, coordinates[0].getLat(), 1e-8);
 
-        assertEquals(-38.39603042602539, coordinates[24].getLon(), 1e-8);
-        assertEquals(44.151187896728516, coordinates[24].getLat(), 1e-8);
+        assertEquals(9.727559089660645, coordinates[24].getLon(), 1e-8);
+        assertEquals(48.95251083374024, coordinates[24].getLat(), 1e-8);
 
         final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
         assertEquals(1, timeAxes.length);
         Point[] locations = coordinates[0].getCoordinates();
         Date time = timeAxes[0].getTime(locations[0]);
-        TestUtil.assertCorrectUTCDate(2013, 2, 6, 14, 35, 7, 198, time);
+        TestUtil.assertCorrectUTCDate(2022, 4, 25, 11, 25, 6, 501, time);
 
         locations = coordinates[9].getCoordinates();
         time = timeAxes[0].getTime(locations[0]);
-        TestUtil.assertCorrectUTCDate(2013, 2, 6, 14, 40, 0, 0, time);
+        TestUtil.assertCorrectUTCDate(2022, 4, 25, 11, 30, 0, 0, time);
     }
 
     @Test
@@ -127,10 +128,10 @@ public class MxD35_Reader_IO_Test {
         assertNotNull(acquisitionInfo);
 
         final Date sensingStart = acquisitionInfo.getSensingStart();
-        TestUtil.assertCorrectUTCDate(2009, 5, 13, 10, 35, 0, 0, sensingStart);
+        TestUtil.assertCorrectUTCDate(2022, 4, 25, 11, 35, 0, 0, sensingStart);
 
         final Date sensingStop = acquisitionInfo.getSensingStop();
-        TestUtil.assertCorrectUTCDate(2009, 5, 13, 10, 40, 0, 0, sensingStop);
+        TestUtil.assertCorrectUTCDate(2022, 4, 25, 11, 40, 0, 0, sensingStop);
 
         final NodeType nodeType = acquisitionInfo.getNodeType();
         assertEquals(NodeType.UNDEFINED, nodeType);
@@ -140,11 +141,11 @@ public class MxD35_Reader_IO_Test {
         assertTrue(boundingGeometry instanceof Polygon);
         final Point[] coordinates = boundingGeometry.getCoordinates();
         assertEquals(31, coordinates.length);
-        assertEquals(95.26064300537111, coordinates[0].getLon(), 1e-8);
-        assertEquals(-65.07981872558594, coordinates[0].getLat(), 1e-8);
+        assertEquals(37.24235916137696, coordinates[0].getLon(), 1e-8);
+        assertEquals(43.53104782104492, coordinates[0].getLat(), 1e-8);
 
-        assertEquals(36.58618927001953, coordinates[24].getLon(), 1e-8);
-        assertEquals(-73.6755599975586, coordinates[24].getLat(), 1e-8);
+        assertEquals(10.076601028442381, coordinates[24].getLon(), 1e-8);
+        assertEquals(39.65580368041992, coordinates[24].getLat(), 1e-8);
 
         final Dimension psze = reader.getProductSize();
         final PixelLocator pixelLocator = reader.getPixelLocator();
@@ -157,11 +158,11 @@ public class MxD35_Reader_IO_Test {
         assertEquals(1, timeAxes.length);
         Point[] locations = coordinates[0].getCoordinates();
         Date time = timeAxes[0].getTime(locations[0]);
-        TestUtil.assertCorrectUTCDate(2009, 5, 13, 10, 35, 0, 0, time);
+        TestUtil.assertCorrectUTCDate(2022, 4, 25, 11, 35, 0, 0, time);
 
         locations = coordinates[9].getCoordinates();
         time = timeAxes[0].getTime(locations[0]);
-        TestUtil.assertCorrectUTCDate(2009, 5, 13, 10, 39, 54, 17, time);
+        TestUtil.assertCorrectUTCDate(2022, 4, 25, 11, 39, 54, 175, time);
     }
 
     @Test
@@ -190,11 +191,11 @@ public class MxD35_Reader_IO_Test {
 
         reader.open(file);
         final TimeLocator timeLocator = reader.getTimeLocator();
-        assertEquals(1360161273778L, timeLocator.getTimeFor(0, 0));
-        assertEquals(1360161273778L, timeLocator.getTimeFor(269, 0));
+        assertEquals(1650885874131L, timeLocator.getTimeFor(0, 0));
+        assertEquals(1650885874131L, timeLocator.getTimeFor(269, 0));
 
-        assertEquals(1360161422969L, timeLocator.getTimeFor(76, 203));
-        assertEquals(1360161572161L, timeLocator.getTimeFor(145, 405));
+        assertEquals(1650886023322L, timeLocator.getTimeFor(76, 203));
+        assertEquals(1650886172513L, timeLocator.getTimeFor(145, 405));
     }
 
     @Test
@@ -204,19 +205,19 @@ public class MxD35_Reader_IO_Test {
         reader.open(file);
         final TimeLocator timeLocator = reader.getTimeLocator();
         assertEquals(1650886473917L, timeLocator.getTimeFor(4, 0));
-        assertEquals(1242210874206L, timeLocator.getTimeFor(223, 0));
+        assertEquals(1650886473917L, timeLocator.getTimeFor(223, 0));
 
-        assertEquals(1242211023395L, timeLocator.getTimeFor(21, 202));
-        assertEquals(1242211172583L, timeLocator.getTimeFor(147, 405));
+        assertEquals(1650886623106L, timeLocator.getTimeFor(21, 202));
+        assertEquals(1650886772294L, timeLocator.getTimeFor(147, 405));
     }
 
     @Test
-    public void testGetVariables_Terra() throws IOException {
+    public void testGetVariables_Terra() throws IOException, InvalidRangeException {
         final File file = getTerraFile();
 
         reader.open(file);
         final List<Variable> variables = reader.getVariables();
-        assertEquals(112, variables.size());
+        assertEquals(23, variables.size());
 
         Variable variable = variables.get(0);
         assertEquals("Latitude", variable.getShortName());
@@ -227,52 +228,24 @@ public class MxD35_Reader_IO_Test {
         assertEquals(DataType.DOUBLE, variable.getDataType());
 
         variable = variables.get(4);
-        assertEquals("Solar_Zenith_Day", variable.getShortName());
+        assertEquals("Solar_Azimuth", variable.getShortName());
         assertEquals(DataType.SHORT, variable.getDataType());
 
-        variable = variables.get(8);
-        assertEquals("Solar_Azimuth_Night", variable.getShortName());
-        assertEquals(DataType.SHORT, variable.getDataType());
-
-        variable = variables.get(15);
-        assertEquals("Surface_Temperature", variable.getShortName());
-        assertEquals(DataType.SHORT, variable.getDataType());
-
-        variable = variables.get(21);
-        assertEquals("Cloud_Top_Height_Nadir_Night", variable.getShortName());
-        assertEquals(DataType.SHORT, variable.getDataType());
-
-        variable = variables.get(32);
-        assertEquals("Cloud_Top_Temperature_Day", variable.getShortName());
-        assertEquals(DataType.SHORT, variable.getDataType());
-
-        variable = variables.get(43);
-        assertEquals("Cloud_Effective_Emissivity_Night", variable.getShortName());
+        variable = variables.get(7);
+        assertEquals("Cloud_Mask_0", variable.getShortName());
         assertEquals(DataType.BYTE, variable.getDataType());
 
-        variable = variables.get(54);
-        assertEquals("os_top_flag_1km", variable.getShortName());
+        variable = variables.get(12);
+        assertEquals("Cloud_Mask_5", variable.getShortName());
         assertEquals(DataType.BYTE, variable.getDataType());
 
-        variable = variables.get(65);
-        assertEquals("Cloud_Effective_Radius", variable.getShortName());
-        assertEquals(DataType.SHORT, variable.getDataType());
+        variable = variables.get(13);
+        assertEquals("Quality_Assurance_0", variable.getShortName());
+        assertEquals(DataType.BYTE, variable.getDataType());
 
-        variable = variables.get(76);
-        assertEquals("Cloud_Optical_Thickness_37_PCL", variable.getShortName());
-        assertEquals(DataType.SHORT, variable.getDataType());
-
-        variable = variables.get(87);
-        assertEquals("Cloud_Water_Path_37", variable.getShortName());
-        assertEquals(DataType.SHORT, variable.getDataType());
-
-        variable = variables.get(98);
-        assertEquals("Cloud_Water_Path_Uncertainty_1621", variable.getShortName());
-        assertEquals(DataType.SHORT, variable.getDataType());
-
-        variable = variables.get(107);
-        assertEquals("Cloud_Mask_5km", variable.getShortName());
-        assertEquals(DataType.SHORT, variable.getDataType());
+        variable = variables.get(22);
+        assertEquals("Quality_Assurance_9", variable.getShortName());
+        assertEquals(DataType.BYTE, variable.getDataType());
     }
 
     @Test
@@ -364,18 +337,18 @@ public class MxD35_Reader_IO_Test {
         assertEquals(25, acquisitionTime.getSize());
 
         // first scan
-        NCTestUtils.assertValueAt(1242211027, 0, 0, acquisitionTime);
-        NCTestUtils.assertValueAt(1242211027, 1, 0, acquisitionTime);
+        NCTestUtils.assertValueAt(1650886627, 0, 0, acquisitionTime);
+        NCTestUtils.assertValueAt(1650886627, 1, 0, acquisitionTime);
 
         // next scan
-        NCTestUtils.assertValueAt(1242211029, 1, 1, acquisitionTime);
-        NCTestUtils.assertValueAt(1242211029, 2, 1, acquisitionTime);
-        NCTestUtils.assertValueAt(1242211029, 1, 2, acquisitionTime);
-        NCTestUtils.assertValueAt(1242211029, 2, 2, acquisitionTime);
+        NCTestUtils.assertValueAt(1650886629, 1, 1, acquisitionTime);
+        NCTestUtils.assertValueAt(1650886629, 2, 1, acquisitionTime);
+        NCTestUtils.assertValueAt(1650886629, 1, 2, acquisitionTime);
+        NCTestUtils.assertValueAt(1650886629, 2, 2, acquisitionTime);
 
         // next scan
-        NCTestUtils.assertValueAt(1242211030, 1, 3, acquisitionTime);
-        NCTestUtils.assertValueAt(1242211030, 2, 3, acquisitionTime);
+        NCTestUtils.assertValueAt(1650886630, 1, 3, acquisitionTime);
+        NCTestUtils.assertValueAt(1650886630, 2, 3, acquisitionTime);
     }
 
     @Test
@@ -438,67 +411,39 @@ public class MxD35_Reader_IO_Test {
     }
 
     @Test
-    public void testGetVariables_Aqua() throws IOException {
+    public void testGetVariables_Aqua() throws IOException, InvalidRangeException {
         final File file = getAquaFile();
 
         reader.open(file);
         final List<Variable> variables = reader.getVariables();
-        assertEquals(112, variables.size());
+        assertEquals(23, variables.size());
 
-        Variable variable = variables.get(1);
-        assertEquals("Longitude", variable.getShortName());
+        Variable variable = variables.get(0);
+        assertEquals("Latitude", variable.getShortName());
         assertEquals(DataType.FLOAT, variable.getDataType());
 
-        variable = variables.get(5);
-        assertEquals("Solar_Zenith_Night", variable.getShortName());
+        variable = variables.get(2);
+        assertEquals("Scan_Start_Time", variable.getShortName());
+        assertEquals(DataType.DOUBLE, variable.getDataType());
+
+        variable = variables.get(4);
+        assertEquals("Solar_Azimuth", variable.getShortName());
         assertEquals(DataType.SHORT, variable.getDataType());
 
-        variable = variables.get(9);
-        assertEquals("Sensor_Zenith", variable.getShortName());
-        assertEquals(DataType.SHORT, variable.getDataType());
+        variable = variables.get(7);
+        assertEquals("Cloud_Mask_0", variable.getShortName());
+        assertEquals(DataType.BYTE, variable.getDataType());
 
-        variable = variables.get(16);
-        assertEquals("Surface_Pressure", variable.getShortName());
-        assertEquals(DataType.SHORT, variable.getDataType());
+        variable = variables.get(12);
+        assertEquals("Cloud_Mask_5", variable.getShortName());
+        assertEquals(DataType.BYTE, variable.getDataType());
+
+        variable = variables.get(13);
+        assertEquals("Quality_Assurance_0", variable.getShortName());
+        assertEquals(DataType.BYTE, variable.getDataType());
 
         variable = variables.get(22);
-        assertEquals("Cloud_Top_Pressure", variable.getShortName());
-        assertEquals(DataType.SHORT, variable.getDataType());
-
-        variable = variables.get(33);
-        assertEquals("Cloud_Top_Temperature_Nadir_Day", variable.getShortName());
-        assertEquals(DataType.SHORT, variable.getDataType());
-
-        variable = variables.get(44);
-        assertEquals("Cloud_Effective_Emissivity_Nadir_Night", variable.getShortName());
-        assertEquals(DataType.BYTE, variable.getDataType());
-
-        variable = variables.get(55);
-        assertEquals("cloud_top_pressure_1km", variable.getShortName());
-        assertEquals(DataType.SHORT, variable.getDataType());
-
-        variable = variables.get(66);
-        assertEquals("Cloud_Effective_Radius_PCL", variable.getShortName());
-        assertEquals(DataType.SHORT, variable.getDataType());
-
-        variable = variables.get(77);
-        assertEquals("Cloud_Effective_Radius_1621", variable.getShortName());
-        assertEquals(DataType.SHORT, variable.getDataType());
-
-        variable = variables.get(88);
-        assertEquals("Cloud_Water_Path_37_PCL", variable.getShortName());
-        assertEquals(DataType.SHORT, variable.getDataType());
-
-        variable = variables.get(99);
-        assertEquals("Cloud_Water_Path_Uncertainty_16", variable.getShortName());
-        assertEquals(DataType.SHORT, variable.getDataType());
-
-        variable = variables.get(108);
-        assertEquals("Quality_Assurance_5km_03", variable.getShortName());
-        assertEquals(DataType.BYTE, variable.getDataType());
-
-        variable = variables.get(111);
-        assertEquals("Quality_Assurance_5km_09", variable.getShortName());
+        assertEquals("Quality_Assurance_9", variable.getShortName());
         assertEquals(DataType.BYTE, variable.getDataType());
     }
 
