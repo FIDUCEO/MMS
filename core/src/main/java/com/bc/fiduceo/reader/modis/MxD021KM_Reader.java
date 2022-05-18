@@ -245,7 +245,6 @@ class MxD021KM_Reader extends NetCDFReader {
                 continue;
             }
 
-            // @todo 1 tb/tb scale_factors and offsets (and probably other attributes) need to be extracted per layer!
             if (variableName.contains("EV_1KM_RefSB")) {
                 final ArrayList<Variable> bandVariables = new ArrayList<>(NUM_1KM_REF_CHAN);
 
