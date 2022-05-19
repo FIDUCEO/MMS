@@ -231,29 +231,34 @@ public class TimeUtils {
         return calendar;
     }
 
+    /**
+     * calculates the leap seconds that have been passed since 1993-01-01 (UTC)
+     * @param taiInstant the TAI seconds since 1993-01-01 (UTC)
+     * @return number of leap seconds since
+     */
     static long getTaiToUtcOffset(double taiInstant) {
         if (taiInstant > 1483228800) {
-            return 37L;
+            return 10L;
         } else if (taiInstant > 1435708800) {
-            return 36L;
+            return 9L;
         } else if (taiInstant > 1341100800) {
-            return 35L;
+            return 8L;
         } else if (taiInstant > 1230768000) {
-            return 34L;
+            return 7L;
         } else if (taiInstant > 1136073600) {
-            return 33L;
+            return 6L;
         } else if (taiInstant > 915148800) {
-            return 32L;
+            return 5L;
         } else if (taiInstant > 867715200) {
-            return 31L;
+            return 4L;
         } else if (taiInstant > 820454400) {
-            return 30L;
+            return 3L;
         } else if (taiInstant > 773020800) {
-            return 29L;
+            return 2L;
         } else if (taiInstant > 741484800) {
-            return 28L;
+            return 1L;
         } else if (taiInstant > 709948800) {
-            return 27L;
+            return 0L;
         }
 
         throw new RuntimeException("unsupported time range");

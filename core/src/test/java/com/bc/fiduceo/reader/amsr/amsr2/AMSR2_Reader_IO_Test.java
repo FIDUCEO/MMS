@@ -132,16 +132,16 @@ public class AMSR2_Reader_IO_Test {
             assertTrue(timeLocator instanceof TimeLocator_TAI1993Vector);
 
             long time = timeLocator.getTimeFor(68, 0);
-            assertEquals(1372671701158L, time);
-            TestUtil.assertCorrectUTCDate(2013, 7, 1, 9, 41, 41, new Date(time));
+            assertEquals(1372671728158L, time);
+            TestUtil.assertCorrectUTCDate(2013, 7, 1, 9, 42, 8, new Date(time));
 
             time = timeLocator.getTimeFor(69, 1000);
-            assertEquals(1372673201011L, time);
-            TestUtil.assertCorrectUTCDate(2013, 7, 1, 10, 6, 41, new Date(time));
+            assertEquals(1372673228011L, time);
+            TestUtil.assertCorrectUTCDate(2013, 7, 1, 10, 7, 8, new Date(time));
 
             time = timeLocator.getTimeFor(70, 1994);
-            assertEquals(1372674691867L, time);
-            TestUtil.assertCorrectUTCDate(2013, 7, 1, 10, 31, 31, new Date(time));
+            assertEquals(1372674718867L, time);
+            TestUtil.assertCorrectUTCDate(2013, 7, 1, 10, 31, 58, new Date(time));
         } finally {
             reader.close();
         }
@@ -372,9 +372,9 @@ public class AMSR2_Reader_IO_Test {
 
             final Interval interval = new Interval(3, 3);
             final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(62, 987, interval);
-            NCTestUtils.assertValueAt(1372673180, 0, 0, acquisitionTime);
-            NCTestUtils.assertValueAt(1372673181, 0, 1, acquisitionTime);
-            NCTestUtils.assertValueAt(1372673183, 0, 2, acquisitionTime);
+            NCTestUtils.assertValueAt(1372673207, 0, 0, acquisitionTime);
+            NCTestUtils.assertValueAt(1372673208, 0, 1, acquisitionTime);
+            NCTestUtils.assertValueAt(1372673210, 0, 2, acquisitionTime);
         } finally {
             reader.close();
         }
@@ -392,9 +392,9 @@ public class AMSR2_Reader_IO_Test {
 
             final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(242, 1786, interval);
             assertNotNull(acquisitionTime);
-            NCTestUtils.assertValueAt(1372674379, 0, 2, acquisitionTime);
-            NCTestUtils.assertValueAt(1372674379, 1, 2, acquisitionTime);
-            NCTestUtils.assertValueAt(1372674379, 2, 2, acquisitionTime);
+            NCTestUtils.assertValueAt(1372674406, 0, 2, acquisitionTime);
+            NCTestUtils.assertValueAt(1372674406, 1, 2, acquisitionTime);
+            NCTestUtils.assertValueAt(1372674406, 2, 2, acquisitionTime);
             NCTestUtils.assertValueAt(defaultFillValue, 3, 2, acquisitionTime);
             NCTestUtils.assertValueAt(defaultFillValue, 4, 2, acquisitionTime);
         } finally {

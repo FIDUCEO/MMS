@@ -131,15 +131,16 @@ public class CALIOP_L2_VFM_Reader_IO_Test {
         final Dimension productSize = reader.getProductSize();
 
         long time = timeLocator.getTimeFor(0, 0);
-        assertEquals(1294011394826L, time);
-        TestUtil.assertCorrectUTCDate(2011, 1, 2, 23, 36, 34, new Date(time));
+        assertEquals(1294011421826L, time);
+        TestUtil.assertCorrectUTCDate(2011, 1, 2, 23, 37, 1, new Date(time));
 
         time = timeLocator.getTimeFor(0, productSize.getNy() / 2);
-        assertEquals(1294012966052L, time);
+        assertEquals(1294012993052L, time);
+        TestUtil.assertCorrectUTCDate(2011, 1, 3, 0, 3, 13, new Date(time));
 
         time = timeLocator.getTimeFor(0, productSize.getNy() - 1);
-        assertEquals(1294014536597L, time);
-        TestUtil.assertCorrectUTCDate(2011, 1, 3, 0, 28, 56, new Date(time));
+        assertEquals(1294014563597L, time);
+        TestUtil.assertCorrectUTCDate(2011, 1, 3, 0, 29, 23, new Date(time));
     }
 
     @Test

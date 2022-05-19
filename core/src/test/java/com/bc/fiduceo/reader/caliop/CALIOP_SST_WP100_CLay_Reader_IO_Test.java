@@ -144,16 +144,16 @@ public class CALIOP_SST_WP100_CLay_Reader_IO_Test {
         final Dimension productSize = reader.getProductSize();
 
         long time = timeLocator.getTimeFor(0, 0);
-        assertEquals(1212145223799L, time);
-        TestUtil.assertCorrectUTCDate(2008, 5, 30, 11, 0, 23, new Date(time));
+        assertEquals(1212145250799L, time);
+        TestUtil.assertCorrectUTCDate(2008, 5, 30, 11, 0, 50, new Date(time));
 
         time = timeLocator.getTimeFor(0, productSize.getNy() / 2);
-        assertEquals(1212146616474L, time);
-        TestUtil.assertCorrectUTCDate(2008, 5, 30, 11, 23, 36, new Date(time));
+        assertEquals(1212146643474L, time);
+        TestUtil.assertCorrectUTCDate(2008, 5, 30, 11, 24, 3, new Date(time));
 
         time = timeLocator.getTimeFor(0, productSize.getNy() - 1);
-        assertEquals(1212148008367L, time);
-        TestUtil.assertCorrectUTCDate(2008, 5, 30, 11, 46, 48, new Date(time));
+        assertEquals(1212148035367L, time);
+        TestUtil.assertCorrectUTCDate(2008, 5, 30, 11, 47, 15, new Date(time));
     }
 
     @Test
