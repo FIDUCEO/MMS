@@ -66,8 +66,8 @@ abstract class FCDR_Reader extends NetCDFReader {
     @Override
     public PixelLocator getPixelLocator() throws IOException {
         if (pixelLocator == null) {
-            final ArrayDouble lonStorage = (ArrayDouble) arrayCache.getScaled(LONGITUDE_VAR_NAME, CF_SCALE_FACTOR_NAME, CF_OFFSET_NAME);
-            final ArrayDouble latStorage = (ArrayDouble) arrayCache.getScaled(LATITUDE_VAR_NAME, CF_SCALE_FACTOR_NAME, CF_OFFSET_NAME);
+            final ArrayDouble lonStorage = (ArrayDouble) arrayCache.getScaled(LONGITUDE_VAR_NAME, CF_SCALE_FACTOR_NAME, CF_ADD_OFFSET_NAME);
+            final ArrayDouble latStorage = (ArrayDouble) arrayCache.getScaled(LATITUDE_VAR_NAME, CF_SCALE_FACTOR_NAME, CF_ADD_OFFSET_NAME);
             final int[] shape = lonStorage.getShape();
             final int width = shape[1];
             final int height = shape[0];
@@ -87,8 +87,8 @@ abstract class FCDR_Reader extends NetCDFReader {
     }
 
     Geometries calculateGeometries(boolean clockwise, BoundingPolygonCreator boundingPolygonCreator) throws IOException {
-        final Array longitudes = arrayCache.getScaled(LONGITUDE_VAR_NAME, CF_SCALE_FACTOR_NAME, CF_OFFSET_NAME);
-        final Array latitudes = arrayCache.getScaled(LATITUDE_VAR_NAME, CF_SCALE_FACTOR_NAME, CF_OFFSET_NAME);
+        final Array longitudes = arrayCache.getScaled(LONGITUDE_VAR_NAME, CF_SCALE_FACTOR_NAME, CF_ADD_OFFSET_NAME);
+        final Array latitudes = arrayCache.getScaled(LATITUDE_VAR_NAME, CF_SCALE_FACTOR_NAME, CF_ADD_OFFSET_NAME);
 
         final double fillValue = arrayCache.getNumberAttributeValue(CF_FILL_VALUE_NAME, LONGITUDE_VAR_NAME).doubleValue();
 

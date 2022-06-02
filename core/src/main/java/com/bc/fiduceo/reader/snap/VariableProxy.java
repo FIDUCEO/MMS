@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
-import static com.bc.fiduceo.util.NetCDFUtils.CF_OFFSET_NAME;
+import static com.bc.fiduceo.util.NetCDFUtils.CF_ADD_OFFSET_NAME;
 import static com.bc.fiduceo.util.NetCDFUtils.CF_SCALE_FACTOR_NAME;
 
 // This class should be used when driving special purpose classes from the NetCDF Variable class. Overwriting
@@ -73,7 +73,7 @@ public class VariableProxy extends VariablePrototype {
 
             final double scalingOffset = rasterDataNode.getScalingOffset();
             if (scalingOffset != 0.0) {
-                attributes.add(new Attribute(CF_OFFSET_NAME, scalingOffset));
+                attributes.add(new Attribute(CF_ADD_OFFSET_NAME, scalingOffset));
             }
         }
 
