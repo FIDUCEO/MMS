@@ -37,9 +37,7 @@ import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.time.TimeLocator;
 import com.bc.fiduceo.util.NetCDFUtils;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
@@ -79,8 +77,8 @@ public class MxD35_Reader_IO_Test {
     private static GeometryFactory geometryFactory;
     private static ReaderContext readerContext;
 
-    @BeforeClass
-    public static void setUp() throws IOException {
+    @Before
+    public void setUp() throws IOException {
         geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
         final Archive archive = TestUtil.getArchive();
 
@@ -95,8 +93,8 @@ public class MxD35_Reader_IO_Test {
         readerAqua.open(getAquaFile());
     }
 
-    @AfterClass
-    public static void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         readerTerra.close();
         readerAqua.close();
     }
