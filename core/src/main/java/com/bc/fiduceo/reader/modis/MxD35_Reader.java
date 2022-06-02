@@ -287,12 +287,8 @@ public class MxD35_Reader extends NetCDFReader {
             mxD03Reader.close();
             mxD03Reader = null;
         }
-        if (_variables != null) {
-            _variables = null;
-        }
-        if (_variablesLUT != null) {
-            _variablesLUT = null;
-        }
+        _variables = null;
+        _variablesLUT = null;
         super.close();
     }
 

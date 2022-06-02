@@ -72,8 +72,7 @@ import static org.junit.Assert.assertTrue;
 @RunWith(IOTestRunner.class)
 public class MxD35_Reader_IO_Test {
 
-    private static MxD35_Reader readerTerra;
-    private static MxD35_Reader readerAqua;
+    private static MxD35_Reader reader;
     private static GeometryFactory geometryFactory;
     private static ReaderContext readerContext;
 
@@ -86,128 +85,116 @@ public class MxD35_Reader_IO_Test {
         readerContext.setGeometryFactory(geometryFactory);
         readerContext.setArchive(archive);
 
-        readerTerra = new MxD35_Reader(readerContext);
-        readerTerra.open(getTerraFile());
-
-        readerAqua = new MxD35_Reader(readerContext);
-        readerAqua.open(getAquaFile());
+        reader = new MxD35_Reader(readerContext);
     }
 
     @After
     public void tearDown() throws Exception {
-        readerTerra.close();
-        readerAqua.close();
+        reader.close();
     }
 
     @Test
     public void testReadAcquisitionInfo_Terra() throws IOException {
-        final MxD35_Reader reader = new MxD35_Reader(readerContext);
-        try {
-            reader.open(getTerraFile());
+        reader.open(getTerraFile());
 
-            final AcquisitionInfo acquisitionInfo = reader.read();
-            assertNotNull(acquisitionInfo);
+        final AcquisitionInfo acquisitionInfo = reader.read();
+        assertNotNull(acquisitionInfo);
 
-            final Date sensingStart = acquisitionInfo.getSensingStart();
-            TestUtil.assertCorrectUTCDate(2022, 4, 25, 11, 25, 0, 0, sensingStart);
+        final Date sensingStart = acquisitionInfo.getSensingStart();
+        TestUtil.assertCorrectUTCDate(2022, 4, 25, 11, 25, 0, 0, sensingStart);
 
-            final Date sensingStop = acquisitionInfo.getSensingStop();
-            TestUtil.assertCorrectUTCDate(2022, 4, 25, 11, 30, 0, 0, sensingStop);
+        final Date sensingStop = acquisitionInfo.getSensingStop();
+        TestUtil.assertCorrectUTCDate(2022, 4, 25, 11, 30, 0, 0, sensingStop);
 
-            final NodeType nodeType = acquisitionInfo.getNodeType();
-            assertEquals(NodeType.UNDEFINED, nodeType);
+        final NodeType nodeType = acquisitionInfo.getNodeType();
+        assertEquals(NodeType.UNDEFINED, nodeType);
 
-            final Geometry boundingGeometry = acquisitionInfo.getBoundingGeometry();
-            assertNotNull(boundingGeometry);
-            assertTrue(boundingGeometry instanceof Polygon);
-            final Point[] coordinates = boundingGeometry.getCoordinates();
-            assertEquals(31, coordinates.length);
-            assertEquals(-22.777761459350586, coordinates[0].getLon(), 1e-8);
-            assertEquals(53.5734519958496, coordinates[0].getLat(), 1e-8);
+        final Geometry boundingGeometry = acquisitionInfo.getBoundingGeometry();
+        assertNotNull(boundingGeometry);
+        assertTrue(boundingGeometry instanceof Polygon);
+        final Point[] coordinates = boundingGeometry.getCoordinates();
+        assertEquals(31, coordinates.length);
+        assertEquals(-22.777761459350586, coordinates[0].getLon(), 1e-8);
+        assertEquals(53.5734519958496, coordinates[0].getLat(), 1e-8);
 
-            assertEquals(9.727559089660645, coordinates[24].getLon(), 1e-8);
-            assertEquals(48.95251083374024, coordinates[24].getLat(), 1e-8);
+        assertEquals(9.727559089660645, coordinates[24].getLon(), 1e-8);
+        assertEquals(48.95251083374024, coordinates[24].getLat(), 1e-8);
 
-            final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
-            assertEquals(1, timeAxes.length);
-            Point[] locations = coordinates[0].getCoordinates();
-            Date time = timeAxes[0].getTime(locations[0]);
-            TestUtil.assertCorrectUTCDate(2022, 4, 25, 11, 25, 6, 501, time);
+        final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
+        assertEquals(1, timeAxes.length);
+        Point[] locations = coordinates[0].getCoordinates();
+        Date time = timeAxes[0].getTime(locations[0]);
+        TestUtil.assertCorrectUTCDate(2022, 4, 25, 11, 25, 6, 501, time);
 
-            locations = coordinates[9].getCoordinates();
-            time = timeAxes[0].getTime(locations[0]);
-            TestUtil.assertCorrectUTCDate(2022, 4, 25, 11, 30, 0, 0, time);
-        } finally {
-            reader.close();
-        }
+        locations = coordinates[9].getCoordinates();
+        time = timeAxes[0].getTime(locations[0]);
+        TestUtil.assertCorrectUTCDate(2022, 4, 25, 11, 30, 0, 0, time);
     }
 
     @Test
     public void testReadAcquisitionInfo_Aqua() throws IOException {
-        final MxD35_Reader reader = new MxD35_Reader(readerContext);
-        try {
-            reader.open(getAquaFile());
-            final AcquisitionInfo acquisitionInfo = reader.read();
-            assertNotNull(acquisitionInfo);
+        reader.open(getAquaFile());
+        final AcquisitionInfo acquisitionInfo = reader.read();
+        assertNotNull(acquisitionInfo);
 
-            final Date sensingStart = acquisitionInfo.getSensingStart();
-            TestUtil.assertCorrectUTCDate(2022, 4, 25, 11, 35, 0, 0, sensingStart);
+        final Date sensingStart = acquisitionInfo.getSensingStart();
+        TestUtil.assertCorrectUTCDate(2022, 4, 25, 11, 35, 0, 0, sensingStart);
 
-            final Date sensingStop = acquisitionInfo.getSensingStop();
-            TestUtil.assertCorrectUTCDate(2022, 4, 25, 11, 40, 0, 0, sensingStop);
+        final Date sensingStop = acquisitionInfo.getSensingStop();
+        TestUtil.assertCorrectUTCDate(2022, 4, 25, 11, 40, 0, 0, sensingStop);
 
-            final NodeType nodeType = acquisitionInfo.getNodeType();
-            assertEquals(NodeType.UNDEFINED, nodeType);
+        final NodeType nodeType = acquisitionInfo.getNodeType();
+        assertEquals(NodeType.UNDEFINED, nodeType);
 
-            final Geometry boundingGeometry = acquisitionInfo.getBoundingGeometry();
-            assertNotNull(boundingGeometry);
-            assertTrue(boundingGeometry instanceof Polygon);
-            final Point[] coordinates = boundingGeometry.getCoordinates();
-            assertEquals(31, coordinates.length);
-            assertEquals(37.24235916137696, coordinates[0].getLon(), 1e-8);
-            assertEquals(43.53104782104492, coordinates[0].getLat(), 1e-8);
+        final Geometry boundingGeometry = acquisitionInfo.getBoundingGeometry();
+        assertNotNull(boundingGeometry);
+        assertTrue(boundingGeometry instanceof Polygon);
+        final Point[] coordinates = boundingGeometry.getCoordinates();
+        assertEquals(31, coordinates.length);
+        assertEquals(37.24235916137696, coordinates[0].getLon(), 1e-8);
+        assertEquals(43.53104782104492, coordinates[0].getLat(), 1e-8);
 
-            assertEquals(10.076601028442381, coordinates[24].getLon(), 1e-8);
-            assertEquals(39.65580368041992, coordinates[24].getLat(), 1e-8);
+        assertEquals(10.076601028442381, coordinates[24].getLon(), 1e-8);
+        assertEquals(39.65580368041992, coordinates[24].getLat(), 1e-8);
 
-            final Dimension psze = reader.getProductSize();
-            final PixelLocator pixelLocator = reader.getPixelLocator();
-            final Point2D centerLoc = pixelLocator.getGeoLocation(psze.getNx() / 2, psze.getNy() / 2, null);
-            final Geometry intersection = boundingGeometry.getIntersection(geometryFactory.createPoint(centerLoc.getX(), centerLoc.getY()));
-            assertNotNull(intersection);
-            assertFalse(intersection.isEmpty());
+        final Dimension psze = reader.getProductSize();
+        final PixelLocator pixelLocator = reader.getPixelLocator();
+        final Point2D centerLoc = pixelLocator.getGeoLocation(psze.getNx() / 2, psze.getNy() / 2, null);
+        final Geometry intersection = boundingGeometry.getIntersection(geometryFactory.createPoint(centerLoc.getX(), centerLoc.getY()));
+        assertNotNull(intersection);
+        assertFalse(intersection.isEmpty());
 
-            final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
-            assertEquals(1, timeAxes.length);
-            Point[] locations = coordinates[0].getCoordinates();
-            Date time = timeAxes[0].getTime(locations[0]);
-            TestUtil.assertCorrectUTCDate(2022, 4, 25, 11, 35, 0, 0, time);
+        final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
+        assertEquals(1, timeAxes.length);
+        Point[] locations = coordinates[0].getCoordinates();
+        Date time = timeAxes[0].getTime(locations[0]);
+        TestUtil.assertCorrectUTCDate(2022, 4, 25, 11, 35, 0, 0, time);
 
-            locations = coordinates[9].getCoordinates();
-            time = timeAxes[0].getTime(locations[0]);
-            TestUtil.assertCorrectUTCDate(2022, 4, 25, 11, 39, 54, 175, time);
-        } finally {
-            reader.close();
-        }
+        locations = coordinates[9].getCoordinates();
+        time = timeAxes[0].getTime(locations[0]);
+        TestUtil.assertCorrectUTCDate(2022, 4, 25, 11, 39, 54, 175, time);
     }
 
     @Test
     public void testGetProductSize_Terra() throws IOException {
-        final Dimension productSize = readerTerra.getProductSize();
+        reader.open(getTerraFile());
+        final Dimension productSize = reader.getProductSize();
         assertEquals(1354, productSize.getNx());
         assertEquals(2030, productSize.getNy());
     }
 
     @Test
     public void testGetProductSize_Aqua() throws IOException {
-        final Dimension productSize = readerAqua.getProductSize();
+        reader.open(getAquaFile());
+        final Dimension productSize = reader.getProductSize();
         assertEquals(1354, productSize.getNx());
         assertEquals(2030, productSize.getNy());
     }
 
     @Test
     public void testGetTimeLocator_Terra() throws IOException {
-        final TimeLocator timeLocator = readerTerra.getTimeLocator();
+        reader.open(getTerraFile());
+        final TimeLocator timeLocator = reader.getTimeLocator();
         assertEquals(1650885874131L, timeLocator.getTimeFor(0, 0));
         assertEquals(1650885874131L, timeLocator.getTimeFor(269, 0));
 
@@ -217,7 +204,8 @@ public class MxD35_Reader_IO_Test {
 
     @Test
     public void testGetTimeLocator_Aqua() throws IOException {
-        final TimeLocator timeLocator = readerAqua.getTimeLocator();
+        reader.open(getAquaFile());
+        final TimeLocator timeLocator = reader.getTimeLocator();
         assertEquals(1650886473917L, timeLocator.getTimeFor(4, 0));
         assertEquals(1650886473917L, timeLocator.getTimeFor(223, 0));
 
@@ -227,17 +215,20 @@ public class MxD35_Reader_IO_Test {
 
     @Test
     public void testGetVariables_Terra() throws IOException, InvalidRangeException {
-        checkVariables(readerTerra);
+        reader.open(getTerraFile());
+        checkVariables(reader);
     }
 
     @Test
     public void testGetVariables_Aqua() throws IOException, InvalidRangeException {
-        checkVariables(readerAqua);
+        reader.open(getAquaFile());
+        checkVariables(reader);
     }
 
     @Test
     public void testReadAcquisitionTime_Terra() throws IOException {
-        final ArrayInt.D2 acquisitionTime = readerTerra.readAcquisitionTime(34, 110, new Interval(2, 4));
+        reader.open(getTerraFile());
+        final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(34, 110, new Interval(2, 4));
         assertEquals(8, acquisitionTime.getSize());
 
         // one scan
@@ -257,8 +248,9 @@ public class MxD35_Reader_IO_Test {
     public void testReadAcquisitionTime_Terra_outside_top() throws IOException {
         // fillValue see {@link com.bc.fiduceo.reader.Reader#readAcquisitionTime(int, int, Interval)}
         final int fillValue = NetCDFUtils.getDefaultFillValue(int.class).intValue();
+        reader.open(getTerraFile());
 
-        final ArrayInt.D2 acquisitionTime = readerTerra.readAcquisitionTime(36, 0, new Interval(2, 3));
+        final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(36, 0, new Interval(2, 3));
         assertEquals(6, acquisitionTime.getSize());
 
         // outside line
@@ -276,10 +268,11 @@ public class MxD35_Reader_IO_Test {
     public void testReadAcquisitionTime_Terra_outside_bottom() throws IOException {
         // fillValue see {@link com.bc.fiduceo.reader.Reader#readAcquisitionTime(int, int, Interval)}
         final int fillValue = NetCDFUtils.getDefaultFillValue(int.class).intValue();
+        reader.open(getTerraFile());
 
-        final int ny = readerTerra.getProductSize().getNy();
+        final int ny = reader.getProductSize().getNy();
 
-        final ArrayInt.D2 acquisitionTime = readerTerra.readAcquisitionTime(36, ny - 1, new Interval(2, 3));
+        final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(36, ny - 1, new Interval(2, 3));
         assertEquals(6, acquisitionTime.getSize());
 
         // inside lines
@@ -295,7 +288,8 @@ public class MxD35_Reader_IO_Test {
 
     @Test
     public void testReadAcquisitionTime_Aqua() throws IOException {
-        final ArrayInt.D2 acquisitionTime = readerAqua.readAcquisitionTime(36, 216, new Interval(2, 15));
+        reader.open(getAquaFile());
+        final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(36, 216, new Interval(2, 15));
         assertEquals(30, acquisitionTime.getSize());
 
         // first scan
@@ -319,8 +313,9 @@ public class MxD35_Reader_IO_Test {
     public void testReadAcquisitionTime_Aqua_outside_top() throws IOException {
         // fillValue see {@link com.bc.fiduceo.reader.Reader#readAcquisitionTime(int, int, Interval)}
         final int fillValue = NetCDFUtils.getDefaultFillValue(int.class).intValue();
+        reader.open(getAquaFile());
 
-        final ArrayInt.D2 acquisitionTime = readerAqua.readAcquisitionTime(36, 5, new Interval(2, 13));
+        final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(36, 5, new Interval(2, 13));
         assertEquals(26, acquisitionTime.getSize());
 
         // first scan outside
@@ -344,10 +339,11 @@ public class MxD35_Reader_IO_Test {
     public void testReadAcquisitionTime_Aqua_outside_bottom() throws IOException {
         // fillValue see {@link com.bc.fiduceo.reader.Reader#readAcquisitionTime(int, int, Interval)}
         final int fillValue = NetCDFUtils.getDefaultFillValue(int.class).intValue();
+        reader.open(getAquaFile());
 
-        final int ny = readerAqua.getProductSize().getNy();
+        final int ny = reader.getProductSize().getNy();
 
-        final ArrayInt.D2 acquisitionTime = readerAqua.readAcquisitionTime(36, ny - 2, new Interval(5, 5));
+        final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(36, ny - 2, new Interval(5, 5));
         assertEquals(25, acquisitionTime.getSize());
 
         System.out.println(acquisitionTime);
@@ -378,7 +374,7 @@ public class MxD35_Reader_IO_Test {
         final int centerX = 174;
         final int centerY = 389;
         final Interval interval = new Interval(3, 3);
-        final MxD35_Reader reader = readerAqua;
+        reader.open(getAquaFile());
 
         //execution
         Array arrayR = reader.readRaw(centerX, centerY, interval, "Cloud_Mask_SPI_0");
@@ -420,7 +416,7 @@ public class MxD35_Reader_IO_Test {
         int centerY = 0;
         final Interval interval = new Interval(3, 3);
         String varName = "Cloud_Mask_SPI_0";
-        final MxD35_Reader reader = readerAqua;
+        reader.open(getAquaFile());
         short fillR = findVariableFillRaw(reader, varName).shortValue();
         double fillS = findVariableFillScaled(reader, varName).doubleValue();
 
@@ -461,7 +457,7 @@ public class MxD35_Reader_IO_Test {
     @Test
     public void testReadCloudMaskSPI_unscaled_and_scaled_Aqua_outside_lower_right() throws IOException, InvalidRangeException {
         //preparation
-        final MxD35_Reader reader = readerAqua;
+        reader.open(getAquaFile());
         final Dimension productSize = reader.getProductSize();
         int centerX = productSize.getNx() - 1;
         int centerY = productSize.getNy() - 1;
@@ -506,7 +502,8 @@ public class MxD35_Reader_IO_Test {
 
     @Test
     public void testGetPixelLocator_Aqua() throws IOException {
-        final PixelLocator pixelLocator = readerAqua.getPixelLocator();
+        reader.open(getAquaFile());
+        final PixelLocator pixelLocator = reader.getPixelLocator();
         Point2D geoLocation = pixelLocator.getGeoLocation(636.5, 176.5, null);
         assertEquals(23.081594400612136, geoLocation.getX(), 1e-8);
         assertEquals(44.011016845703125, geoLocation.getY(), 1e-8);
@@ -532,7 +529,8 @@ public class MxD35_Reader_IO_Test {
 
     @Test
     public void testGetPixelLocator_Terra() throws IOException {
-        final PixelLocator pixelLocator = readerTerra.getPixelLocator();
+        reader.open(getTerraFile());
+        final PixelLocator pixelLocator = reader.getPixelLocator();
         Point2D geoLocation = pixelLocator.getGeoLocation(263.5, 91.5, null);
         assertEquals(-12.790703f, (float) geoLocation.getX(), 1e-8);
         assertEquals(52.37138f, (float) geoLocation.getY(), 1e-8);
