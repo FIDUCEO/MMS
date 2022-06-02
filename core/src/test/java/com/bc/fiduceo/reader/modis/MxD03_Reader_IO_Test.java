@@ -325,8 +325,8 @@ public class MxD03_Reader_IO_Test {
 
         Point2D[] pixelLocation = pixelLocator.getPixelLocation(-123.13317182832749, 70.2547378540039);
         assertEquals(1, pixelLocation.length);
-        assertEquals(25.50189334826153, pixelLocation[0].getX(), 1e-8);
-        assertEquals(177.4805633096407, pixelLocation[0].getY(), 1e-8);
+        assertEquals(25.5, pixelLocation[0].getX(), 0.1);
+        assertEquals(177.5, pixelLocation[0].getY(), 0.1);
 
         pixelLocation = pixelLocator.getPixelLocation(-137.3659346494336, 70.98120880126953);
         assertEquals(1, pixelLocation.length);

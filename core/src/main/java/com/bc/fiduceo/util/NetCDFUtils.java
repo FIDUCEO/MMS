@@ -30,7 +30,6 @@ import ucar.nc2.*;
 import ucar.nc2.iosp.netcdf3.N3iosp;
 import ucar.unidata.io.RandomAccessFile;
 
-import javax.xml.crypto.Data;
 import java.io.IOException;
 
 public class NetCDFUtils {
@@ -38,7 +37,8 @@ public class NetCDFUtils {
     public static final String CF_FILL_VALUE_NAME = "_FillValue";
     public static final String CF_UNSIGNED = "_Unsigned";
     public static final String CF_SCALE_FACTOR_NAME = "scale_factor";
-    public static final String CF_OFFSET_NAME = "add_offset";
+    public static final String CF_ADD_OFFSET_NAME = "add_offset";
+    public static final String CF_VALID_RANGE_NAME = "valid_range";
     public static final String CF_UNITS_NAME = "units";
     public static final String CF_STANDARD_NAME = "standard_name";
     public static final String CF_LONG_NAME = "long_name";
@@ -377,7 +377,7 @@ public class NetCDFUtils {
     }
 
     public static double getOffset(Variable variable) {
-        double scaleFactor = NetCDFUtils.getAttributeDouble(variable, NetCDFUtils.CF_OFFSET_NAME, Double.NaN);
+        double scaleFactor = NetCDFUtils.getAttributeDouble(variable, NetCDFUtils.CF_ADD_OFFSET_NAME, Double.NaN);
         if (Double.isNaN(scaleFactor)) {
             return 0.f;
         }

@@ -37,6 +37,7 @@ import ucar.ma2.IndexIterator;
 import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 class BowTiePixelLocator implements PixelLocator {
@@ -119,7 +120,8 @@ class BowTiePixelLocator implements PixelLocator {
         subSearchIndices[3] = minIndex + 1 < listSize ? minIndex + 1 : -1;
         subSearchIndices[4] = minIndex + 2 < listSize ? minIndex + 2 : -1;
 
-        final double[] subSearchDistances = new double[]{Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN};
+        final double[] subSearchDistances = new double[subSearchIndices.length];
+        Arrays.fill(subSearchDistances, Double.NaN);
 
         for (int i = 0; i < subSearchIndices.length; i++) {
             if (subSearchIndices[i] > 0) {
@@ -139,7 +141,7 @@ class BowTiePixelLocator implements PixelLocator {
             }
         }
 
-        int minOffset = Integer.MIN_VALUE;
+        minIndex = Integer.MIN_VALUE;
         minDistance = Double.MAX_VALUE;
         for (int i = 0; i < subSearchDistances.length; i++) {
             final double currentDistance = subSearchDistances[i];
@@ -148,15 +150,14 @@ class BowTiePixelLocator implements PixelLocator {
             }
             if (currentDistance < minDistance) {
                 minDistance = currentDistance;
-                minOffset = i - 2;
+                minIndex = subSearchIndices[i];
             }
         }
 
-        if (minOffset == Integer.MIN_VALUE) {
+        if (minIndex == Integer.MIN_VALUE) {
             return new Point2D[0];
         }
 
-        minIndex = minIndex + minOffset;
         final GeoCoding geoCoding = geoCodingList.get(minIndex);
         final PixelPos pixelPos = geoCoding.getPixelPos(new GeoPos(lat, lon), null);
         final double subGeocodingY = pixelPos.getY();
