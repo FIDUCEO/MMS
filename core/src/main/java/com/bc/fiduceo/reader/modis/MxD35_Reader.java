@@ -219,7 +219,7 @@ public class MxD35_Reader extends NetCDFReader {
                 "ecosys_map_LoLaNA1km ecosys_map_OlsonEco ecosys_map_mod12 ecosys_map_other " +
                 "snow_mask_mod33 snow_mask_SSMI snow_mask_other snow_mask_notUsed " +
                 "ice_cover_mod42 ice_cover_SSMI ice_cover_other ice_cover_notUsed " +
-                "land/sea_mask_USGS1km6level land/sea_mask_USGS1kmBinary land/sea_mask_other land/sea_mask_otUsed");
+                "land/sea_mask_USGS1km6level land/sea_mask_USGS1kmBinary land/sea_mask_other land/sea_mask_notUsed");
         }});
 
         qualAssurFlagDef.setDefinitionForLayer(9, new HashMap<String, Object>() {{
