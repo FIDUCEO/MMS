@@ -1075,6 +1075,37 @@ public class IngestionToolIntegrationTest {
     }
 
     @Test
+    public void testIngest_MOD35() throws SQLException, IOException, ParseException {
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "mod35-te", "-start", "2020-168", "-end", "2023-168", "-v", "v61"};
+
+        try {
+            IngestionToolMain.main(args);
+            final List<SatelliteObservation> satelliteObservations = storage.get();
+            assertEquals(1, satelliteObservations.size());
+
+            final SatelliteObservation observation = getSatelliteObservation("MOD35_L2.A2022115.1125.061.2022115193707.hdf", satelliteObservations);
+            TestUtil.assertCorrectUTCDate(2022, 4, 25, 11, 25, 0, 0, observation.getStartTime());
+            TestUtil.assertCorrectUTCDate(2022, 4, 25, 11, 30, 0, 0, observation.getStopTime());
+
+            assertEquals("mod35-te", observation.getSensor().getName());
+
+            final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"mod35-te", "v61", "2022", "115", "MOD35_L2.A2022115.1125.061.2022115193707.hdf"}, true);
+            final String expectedPath = TestUtil.getTestDataDirectory().getAbsolutePath() + testFilePath;
+            assertEquals(expectedPath, observation.getDataFilePath().toString());
+
+            assertEquals(NodeType.UNDEFINED, observation.getNodeType());
+            assertEquals("v61", observation.getVersion());
+
+            final Geometry geoBounds = observation.getGeoBounds();
+            assertEquals(TestData.MOD35_TE_GEOMETRY, geometryFactory.format(geoBounds));
+            assertEquals(TestData.MOD35_TE_AXIS_GEOMETRY, geometryFactory.format(observation.getTimeAxes()[0].getGeometry()));
+        } finally {
+            storage.clear();
+            storage.close();
+        }
+    }
+
+    @Test
     public void testIngest_AVHRR_FRAC_MB() throws SQLException, IOException, ParseException {
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "avhrr-frac-mb", "-start", "2019-254", "-end", "2019-254", "-v", "v1"};
 
