@@ -74,14 +74,13 @@ public class MxD35_Reader_IO_Test {
 
     private static MxD35_Reader reader;
     private static GeometryFactory geometryFactory;
-    private static ReaderContext readerContext;
 
     @Before
     public void setUp() throws IOException {
         geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
         final Archive archive = TestUtil.getArchive();
 
-        readerContext = new ReaderContext();
+        ReaderContext readerContext = new ReaderContext();
         readerContext.setGeometryFactory(geometryFactory);
         readerContext.setArchive(archive);
 
@@ -159,7 +158,7 @@ public class MxD35_Reader_IO_Test {
 
         final Dimension psze = reader.getProductSize();
         final PixelLocator pixelLocator = reader.getPixelLocator();
-        final Point2D centerLoc = pixelLocator.getGeoLocation(psze.getNx() / 2, psze.getNy() / 2, null);
+        final Point2D centerLoc = pixelLocator.getGeoLocation(psze.getNx() / 2.0, psze.getNy() / 2.0, null);
         final Geometry intersection = boundingGeometry.getIntersection(geometryFactory.createPoint(centerLoc.getX(), centerLoc.getY()));
         assertNotNull(intersection);
         assertFalse(intersection.isEmpty());
@@ -542,6 +541,34 @@ public class MxD35_Reader_IO_Test {
         geoLocation = pixelLocator.getGeoLocation(6.5, 402.5, null);
         assertEquals(-22.722326f, (float) geoLocation.getX(), 1e-8);
         assertEquals(50.045197f, (float) geoLocation.getY(), 1e-8);
+
+        Point2D[] pixelLocation = pixelLocator.getPixelLocation(-12.790703f, 52.37138f);
+        assertEquals(1, pixelLocation.length);
+        assertEquals(263.5, pixelLocation[0].getX(), 0.1);
+        assertEquals(91.5, pixelLocation[0].getY(), 0.1);
+
+        pixelLocation = pixelLocator.getPixelLocation(-7.192285f, 49.096855f);
+        assertEquals(1, pixelLocation.length);
+        assertEquals(656.5, pixelLocation[0].getX(), 0.1);
+        assertEquals(378.5, pixelLocation[0].getY(), 0.1);
+    }
+
+    @Test
+    public void testGetPixelLocator_Terra_NoCorrespondingMod03File() throws IOException {
+        reader.packageLocalPropertyForUnitLevelTestsOnly_toSimulate_correspondingMod03FileNotAvailable = true;
+        reader.open(getTerraFile());
+        final PixelLocator pixelLocator = reader.getPixelLocator();
+        Point2D geoLocation = pixelLocator.getGeoLocation(263.5, 91.5, null);
+        assertEquals(-12.790703f, (float) geoLocation.getX(), 0.00011f);
+        assertEquals(52.37138f, (float) geoLocation.getY(), 0.000004f);
+
+        geoLocation = pixelLocator.getGeoLocation(656.5, 378.5, null);
+        assertEquals(-7.192285f, (float) geoLocation.getX(), 0.00001f);
+        assertEquals(49.096855f, (float) geoLocation.getY(), 0.000005f);
+
+        geoLocation = pixelLocator.getGeoLocation(6.5, 402.5, null);
+        assertEquals(-22.722326f, (float) geoLocation.getX(), 0.0011f);
+        assertEquals(50.045197f, (float) geoLocation.getY(), 0.00007f);
 
         Point2D[] pixelLocation = pixelLocator.getPixelLocation(-12.790703f, 52.37138f);
         assertEquals(1, pixelLocation.length);
