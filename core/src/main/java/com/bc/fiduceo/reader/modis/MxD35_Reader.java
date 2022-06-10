@@ -244,6 +244,8 @@ public class MxD35_Reader extends NetCDFReader {
         return (byte) i;
     }
 
+    boolean packageLocalPropertyForUnitLevelTestsOnly_toSimulate_correspondingMod03FileNotAvailable = false;
+
     private final GeometryFactory geometryFactory;
     private final Dimension size1Km;
     private final Dimension size5km;
@@ -327,14 +329,18 @@ public class MxD35_Reader extends NetCDFReader {
             pixelLocator = mxD03Reader.getPixelLocator();
         } else {
             // fallback
-            pixelLocator = createPixelLocator();
+            try {
+                pixelLocator = createPixelLocator();
+            } catch (InvalidRangeException e) {
+                throw new IOException(e);
+            }
         }
         return pixelLocator;
     }
 
     @Override
     public PixelLocator getSubScenePixelLocator(Polygon sceneGeometry) throws IOException {
-        return getPixelLocator();   // we just have 5 minute products, no large geometries tb 2017-09-04
+        return getPixelLocator();
     }
 
     @Override
@@ -499,6 +505,9 @@ public class MxD35_Reader extends NetCDFReader {
     }
 
     private boolean loadCorrespondingMod03File() throws IOException {
+        if (packageLocalPropertyForUnitLevelTestsOnly_toSimulate_correspondingMod03FileNotAvailable) {
+            return false;
+        }
         if (mxD03Reader == null) {
             final int[] ymd = extractYearMonthDayFromFilename(fileName);
             final String fileType = extractGeoFileType(fileName);
@@ -609,7 +618,8 @@ public class MxD35_Reader extends NetCDFReader {
         timeLocator = new TimeLocator_TAI1993Vector(section);
     }
 
-    private PixelLocator createPixelLocator() throws IOException {
+    private PixelLocator createPixelLocator() throws IOException, InvalidRangeException {
+        getVariables();
         return new BowTiePixelLocator(arrayCache.get(LONGITUDE_VAR_NAME), arrayCache.get(LATITUDE_VAR_NAME), geometryFactory, 10);
     }
 
