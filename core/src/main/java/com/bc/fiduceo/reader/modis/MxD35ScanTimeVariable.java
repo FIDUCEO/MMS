@@ -17,7 +17,7 @@ public class MxD35ScanTimeVariable extends VariableProxy {
     private final Variable _variable;
     private Array _timeData;
 
-    public MxD35ScanTimeVariable(Variable variable, int width, int height) throws InvalidRangeException, IOException {
+    public MxD35ScanTimeVariable(Variable variable, int width, int height) throws IOException {
         super(variable.getShortName(), variable.getDataType(), new ArrayList<Attribute>() {{
             variable.attributes().forEach(attribute -> {
                 final String name = attribute.getShortName();
@@ -54,8 +54,12 @@ public class MxD35ScanTimeVariable extends VariableProxy {
         return read().section(origin, shape);
     }
 
-    private void init() throws IOException, InvalidRangeException {
+    private void init() throws IOException {
         final int[] tiePointShape = _variable.getShape();
-        _timeData = _variable.read(new Section(new int[2], new int[]{tiePointShape[0] / 2, 1}, new int[]{2, 1}));
+        try {
+            _timeData = _variable.read(new Section(new int[2], new int[]{tiePointShape[0] / 2, 1}, new int[]{2, 1}));
+        } catch (InvalidRangeException e) {
+            throw new IOException(e);
+        }
     }
 }

@@ -37,7 +37,9 @@ import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.time.TimeLocator;
 import com.bc.fiduceo.util.NetCDFUtils;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
@@ -53,6 +55,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.bc.fiduceo.util.NetCDFUtils.CF_ADD_OFFSET_NAME;
 import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
@@ -67,6 +70,7 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(IOTestRunner.class)
@@ -113,17 +117,17 @@ public class MxD35_Reader_IO_Test {
         assertTrue(boundingGeometry instanceof Polygon);
         final Point[] coordinates = boundingGeometry.getCoordinates();
         assertEquals(31, coordinates.length);
-        assertEquals(-22.777761459350586, coordinates[0].getLon(), 1e-8);
-        assertEquals(53.5734519958496, coordinates[0].getLat(), 1e-8);
+        assertEquals(-22.925876617431644, coordinates[0].getLon(), 1e-8);
+        assertEquals(53.60942459106445, coordinates[0].getLat(), 1e-8);
 
-        assertEquals(9.727559089660645, coordinates[24].getLon(), 1e-8);
-        assertEquals(48.95251083374024, coordinates[24].getLat(), 1e-8);
+        assertEquals(10.10037326812744, coordinates[24].getLon(), 1e-8);
+        assertEquals(48.87732315063477, coordinates[24].getLat(), 1e-8);
 
         final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
         assertEquals(1, timeAxes.length);
         Point[] locations = coordinates[0].getCoordinates();
         Date time = timeAxes[0].getTime(locations[0]);
-        TestUtil.assertCorrectUTCDate(2022, 4, 25, 11, 25, 6, 501, time);
+        TestUtil.assertCorrectUTCDate(2022, 4, 25, 11, 25, 6, 233, time);
 
         locations = coordinates[9].getCoordinates();
         time = timeAxes[0].getTime(locations[0]);
@@ -150,11 +154,11 @@ public class MxD35_Reader_IO_Test {
         assertTrue(boundingGeometry instanceof Polygon);
         final Point[] coordinates = boundingGeometry.getCoordinates();
         assertEquals(31, coordinates.length);
-        assertEquals(37.24235916137696, coordinates[0].getLon(), 1e-8);
-        assertEquals(43.53104782104492, coordinates[0].getLat(), 1e-8);
+        assertEquals(37.362316131591804, coordinates[0].getLon(), 1e-8);
+        assertEquals(43.49676513671875, coordinates[0].getLat(), 1e-8);
 
-        assertEquals(10.076601028442381, coordinates[24].getLon(), 1e-8);
-        assertEquals(39.65580368041992, coordinates[24].getLat(), 1e-8);
+        assertEquals(9.78400707244873, coordinates[24].getLon(), 1e-8);
+        assertEquals(39.534942626953125, coordinates[24].getLat(), 1e-8);
 
         final Dimension psze = reader.getProductSize();
         final PixelLocator pixelLocator = reader.getPixelLocator();
@@ -171,7 +175,7 @@ public class MxD35_Reader_IO_Test {
 
         locations = coordinates[9].getCoordinates();
         time = timeAxes[0].getTime(locations[0]);
-        TestUtil.assertCorrectUTCDate(2022, 4, 25, 11, 39, 54, 175, time);
+        TestUtil.assertCorrectUTCDate(2022, 4, 25, 11, 39, 54, 445, time);
     }
 
     @Test
@@ -219,7 +223,21 @@ public class MxD35_Reader_IO_Test {
     }
 
     @Test
+    public void testGetVariables_Terra_Mod03FileNotAvailable() throws IOException, InvalidRangeException {
+        reader.packageLocalPropertyForUnitLevelTestsOnly_toSimulate_correspondingMod03FileNotAvailable = true;
+        reader.open(getTerraFile());
+        checkVariables(reader);
+    }
+
+    @Test
     public void testGetVariables_Aqua() throws IOException, InvalidRangeException {
+        reader.open(getAquaFile());
+        checkVariables(reader);
+    }
+
+    @Test
+    public void testGetVariables_Aqua_Mod03FileNotAvailable() throws IOException, InvalidRangeException {
+        reader.packageLocalPropertyForUnitLevelTestsOnly_toSimulate_correspondingMod03FileNotAvailable = true;
         reader.open(getAquaFile());
         checkVariables(reader);
     }
@@ -581,17 +599,40 @@ public class MxD35_Reader_IO_Test {
         assertEquals(378.5, pixelLocation[0].getY(), 0.1);
     }
 
+    @Test
+    public void testReadRawAndScaledGiveTheSameResults_except_Cloud_Mask_SPI() throws IOException, InvalidRangeException {
+        reader.open(getTerraFile());
+
+        final List<String> names = reader.getVariables().stream()
+                .map(v -> {
+                    final String name = v.getShortName();
+                    System.out.println(name);
+                    return name;
+                })
+                .filter(n -> !n.startsWith("Cloud_Mask_SPI"))
+                .collect(Collectors.toList());
+        for (String name : names) {
+            final Array rawArray = reader.readRaw(2, 2, new Interval(5, 5), name);
+            final Array scaledArray = reader.readScaled(2, 2, new Interval(5, 5), name);
+            final Object rawStorage = rawArray.getStorage();
+            final Object scaledStorage = scaledArray.getStorage();
+            assertSame(name, rawStorage, scaledStorage);
+        }
+    }
+
     private void checkVariables(MxD35_Reader reader) throws InvalidRangeException, IOException {
         final List<Variable> variables = reader.getVariables();
         assertEquals(25, variables.size());
 
+        final boolean noMod03 = reader.packageLocalPropertyForUnitLevelTestsOnly_toSimulate_correspondingMod03FileNotAvailable;
+        final String expectedLonLatClass = noMod03 ? MxD35BowTieVariable.class.getName() : Variable.class.getName();
         Variable variable = variables.get(0);
-        assertThat(variable.getClass().getName(), is(MxD35BowTieVariable.class.getName()));
+        assertThat(variable.getClass().getName(), is(expectedLonLatClass));
         assertEquals("Latitude", variable.getShortName());
         assertEquals(DataType.FLOAT, variable.getDataType());
 
         variable = variables.get(1);
-        assertThat(variable.getClass().getName(), is(MxD35BowTieVariable.class.getName()));
+        assertThat(variable.getClass().getName(), is(expectedLonLatClass));
         assertEquals("Longitude", variable.getShortName());
         assertEquals(DataType.FLOAT, variable.getDataType());
 

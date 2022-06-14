@@ -23,7 +23,7 @@ public class MxD35BowTieVariable extends VariableProxy {
     private final Variable _variable;
     private TiePointGrid[] grids;
 
-    public MxD35BowTieVariable(Variable variable, int width, int height) throws InvalidRangeException, IOException {
+    public MxD35BowTieVariable(Variable variable, int width, int height) throws IOException {
         super(variable.getShortName(), DataType.FLOAT, getAttributes(variable));
         setShape(new int[]{height, width});
         this._variable = variable;
@@ -83,7 +83,7 @@ public class MxD35BowTieVariable extends VariableProxy {
         return attributes;
     }
 
-    private void init() throws IOException, InvalidRangeException {
+    private void init() throws IOException {
         final int[] shape = getShape();
         final int[] tiePointShape = _variable.getShape();
         final int height = shape[0];
@@ -105,11 +105,16 @@ public class MxD35BowTieVariable extends VariableProxy {
 
         grids = new TiePointGrid[height / 10];
         final String units = _variable.findAttribute("units").getStringValue();
-        for (int line = 0; line < tHeight / 2; line++) {
-            sectionOrigin[0] = line * 2;
-            final Array section = tiePointData.section(sectionOrigin, sectionShape);
+        for (int scanLine = 0; scanLine < tHeight / 2; scanLine++) {
+            sectionOrigin[0] = scanLine * 2;
+            final Array section;
+            try {
+                section = tiePointData.section(sectionOrigin, sectionShape);
+            } catch (InvalidRangeException e) {
+                throw new IOException(e);
+            }
             final float[] floats = (float[]) section.copyTo1DJavaArray();
-            grids[line] = new TiePointGrid("line_" + line, tWidth, 2, 2.5, 2.5, 5, 5, floats, units.contains("degree"));
+            grids[scanLine] = new TiePointGrid("scanLine_" + scanLine, tWidth, 2, 2.5, 2.5, 5, 5, floats, units.contains("degree"));
         }
     }
 }
