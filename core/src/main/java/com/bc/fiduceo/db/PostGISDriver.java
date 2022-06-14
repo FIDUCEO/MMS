@@ -147,14 +147,6 @@ public class PostGISDriver extends AbstractDriver {
                 preparedStatement.executeUpdate();
             }
         }
-//        else {
-//            preparedStatement = connection.prepareStatement("INSERT INTO TIMEAXIS VALUES(default, ?, ?, ?, ?)");
-//            preparedStatement.setInt(1, observationId);
-//            preparedStatement.setNull(2, Types.OTHER);
-//            preparedStatement.setTimestamp(3, TimeUtils.toTimestamp(observation.getStartTime()));
-//            preparedStatement.setTimestamp(4, TimeUtils.toTimestamp(observation.getStopTime()));
-//            preparedStatement.executeUpdate();
-//        }
     }
 
     @Override

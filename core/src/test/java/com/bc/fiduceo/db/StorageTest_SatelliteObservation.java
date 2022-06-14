@@ -23,6 +23,7 @@ package com.bc.fiduceo.db;
 
 import com.bc.fiduceo.TestData;
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.geometry.Geometry;
@@ -248,6 +249,59 @@ public abstract class StorageTest_SatelliteObservation {
         satelliteObservation = result.get(0);
         final String expected = fs + "the" + fs + "updated" +fs + "path" + fs + "to" + fs + "product.prd";
         assertEquals(expected, satelliteObservation.getDataFilePath().toString());
+    }
+
+    @Test
+    public void testUpdate() throws SQLException {
+        final SatelliteObservation observation = TestData.createSatelliteObservation(geometryFactory);
+        storage.insert(observation);
+
+        List<SatelliteObservation> result = storage.get();
+        assertNotNull(result);
+        assertEquals(1, result.size());
+
+        observation.setStartTime(TimeUtils.create(1440000000000L));
+        observation.setStopTime(TimeUtils.create(1440001000000L));
+        observation.setGeoBounds(geometryFactory.parse("POLYGON ((11 5, 11 7, 13 7, 13 5, 11 5))"));
+        final TimeAxis timeAxis = TestData.createTimeAxis("LINESTRING(2 5, 2 6, 2 7)", observation.getStartTime(), observation.getStopTime(), geometryFactory);
+        observation.setTimeAxes(new TimeAxis[]{timeAxis});
+        observation.setNodeType(NodeType.ASCENDING);
+        observation.setVersion("newOne!");
+        observation.setSensor(new Sensor("new Name"));
+
+        storage.update(observation);
+
+        result = storage.get();
+        assertEquals(1, result.size());
+
+        final SatelliteObservation updatedObservation = result.get(0);
+        assertEquals(1440000000000L, updatedObservation.getStartTime().getTime());
+        assertEquals(1440001000000L, updatedObservation.getStopTime().getTime());
+        assertEquals("POLYGON((13.0 4.999999999999998,13.0 6.999999999999999,11.0 6.999999999999999,11.0 4.999999999999998,13.0 4.999999999999998))", geometryFactory.format(updatedObservation.getGeoBounds()));
+
+        final TimeAxis[] timeAxes = observation.getTimeAxes();
+        assertEquals(1, timeAxes.length);
+        assertEquals(1440000000000L, timeAxes[0].getStartTime().getTime());
+        assertEquals(1440001000000L, timeAxes[0].getEndTime().getTime());
+        assertEquals("LINESTRING(1.9999999999999996 4.999999999999999,1.9999999999999996 6.0,1.9999999999999996 6.999999999999999)", geometryFactory.format(timeAxes[0].getGeometry()));
+        assertEquals(NodeType.ASCENDING, updatedObservation.getNodeType());
+        // path must be the same, this is the DB logic, so we don't check here tb 2022-06-14
+        assertEquals("newOne!", updatedObservation.getVersion());
+        final Sensor sensor = updatedObservation.getSensor();
+        assertEquals("new Name", sensor.getName());
+    }
+
+    @Test
+    public void testUpdate_notInDb() throws SQLException {
+        List<SatelliteObservation> result = storage.get();
+        assertEquals(0, result.size());
+
+        final SatelliteObservation observation = TestData.createSatelliteObservation(geometryFactory);
+
+        storage.update(observation);
+
+        result = storage.get();
+        assertEquals(0, result.size());
     }
 
     @Test

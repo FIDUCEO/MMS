@@ -1,5 +1,6 @@
 ### Updates from version 1.5.5 to 1.5.6
 * corrected TAI 1993 to UTC conversion for MODIS data
+* added option for IngestionTool to update already existing entries
 
 ### Updates from version 1.5.4 to 1.5.5
 * updated to use SNAP version 8.0.9 / S3TBX version 8.0.6

@@ -64,6 +64,10 @@ public class Storage {
         driver.insert(satelliteObservation);
     }
 
+    public void update(SatelliteObservation satelliteObservation) throws SQLException {
+        driver.update(satelliteObservation);
+    }
+
     public void updatePath(SatelliteObservation satelliteObservation, String newPath) throws SQLException {
         driver.updatePath(satelliteObservation, newPath);
     }
