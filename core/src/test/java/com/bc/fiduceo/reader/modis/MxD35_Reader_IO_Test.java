@@ -198,22 +198,22 @@ public class MxD35_Reader_IO_Test {
     public void testGetTimeLocator_Terra() throws IOException {
         reader.open(getTerraFile());
         final TimeLocator timeLocator = reader.getTimeLocator();
-        assertEquals(1650885874131L, timeLocator.getTimeFor(0, 0));
-        assertEquals(1650885874131L, timeLocator.getTimeFor(269, 0));
+        assertEquals(1650885901131L, timeLocator.getTimeFor(0, 0));
+        assertEquals(1650885901131L, timeLocator.getTimeFor(269, 0));
 
-        assertEquals(1650885903674L, timeLocator.getTimeFor(76, 203));
-        assertEquals(1650885933216L, timeLocator.getTimeFor(145, 405));
+        assertEquals(1650885930674L, timeLocator.getTimeFor(76, 203));
+        assertEquals(1650885960216L, timeLocator.getTimeFor(145, 405));
     }
 
     @Test
     public void testGetTimeLocator_Aqua() throws IOException {
         reader.open(getAquaFile());
         final TimeLocator timeLocator = reader.getTimeLocator();
-        assertEquals(1650886473917L, timeLocator.getTimeFor(4, 0));
-        assertEquals(1650886473917L, timeLocator.getTimeFor(223, 0));
+        assertEquals(1650886500917L, timeLocator.getTimeFor(4, 0));
+        assertEquals(1650886500917L, timeLocator.getTimeFor(223, 0));
 
-        assertEquals(1650886503460L, timeLocator.getTimeFor(21, 202));
-        assertEquals(1650886533002L, timeLocator.getTimeFor(147, 405));
+        assertEquals(1650886530460L, timeLocator.getTimeFor(21, 202));
+        assertEquals(1650886560002L, timeLocator.getTimeFor(147, 405));
     }
 
     @Test
@@ -249,16 +249,16 @@ public class MxD35_Reader_IO_Test {
         assertEquals(8, acquisitionTime.getSize());
 
         // one scan
-        NCTestUtils.assertValueAt(1650885888, 0, 0, acquisitionTime);
-        NCTestUtils.assertValueAt(1650885888, 1, 0, acquisitionTime);
-        NCTestUtils.assertValueAt(1650885888, 0, 1, acquisitionTime);
-        NCTestUtils.assertValueAt(1650885888, 1, 1, acquisitionTime);
+        NCTestUtils.assertValueAt(1650885915, 0, 0, acquisitionTime);
+        NCTestUtils.assertValueAt(1650885915, 1, 0, acquisitionTime);
+        NCTestUtils.assertValueAt(1650885915, 0, 1, acquisitionTime);
+        NCTestUtils.assertValueAt(1650885915, 1, 1, acquisitionTime);
 
         // next scan
-        NCTestUtils.assertValueAt(1650885890, 0, 2, acquisitionTime);
-        NCTestUtils.assertValueAt(1650885890, 1, 2, acquisitionTime);
-        NCTestUtils.assertValueAt(1650885890, 0, 3, acquisitionTime);
-        NCTestUtils.assertValueAt(1650885890, 1, 3, acquisitionTime);
+        NCTestUtils.assertValueAt(1650885917, 0, 2, acquisitionTime);
+        NCTestUtils.assertValueAt(1650885917, 1, 2, acquisitionTime);
+        NCTestUtils.assertValueAt(1650885917, 0, 3, acquisitionTime);
+        NCTestUtils.assertValueAt(1650885917, 1, 3, acquisitionTime);
     }
 
     @Test
@@ -275,10 +275,10 @@ public class MxD35_Reader_IO_Test {
         NCTestUtils.assertValueAt(fillValue, 1, 0, acquisitionTime);
 
         // inside lines
-        NCTestUtils.assertValueAt(1650885874, 0, 1, acquisitionTime);
-        NCTestUtils.assertValueAt(1650885874, 1, 1, acquisitionTime);
-        NCTestUtils.assertValueAt(1650885874, 0, 2, acquisitionTime);
-        NCTestUtils.assertValueAt(1650885874, 1, 2, acquisitionTime);
+        NCTestUtils.assertValueAt(1650885901, 0, 1, acquisitionTime);
+        NCTestUtils.assertValueAt(1650885901, 1, 1, acquisitionTime);
+        NCTestUtils.assertValueAt(1650885901, 0, 2, acquisitionTime);
+        NCTestUtils.assertValueAt(1650885901, 1, 2, acquisitionTime);
     }
 
     @Test
@@ -293,10 +293,10 @@ public class MxD35_Reader_IO_Test {
         assertEquals(6, acquisitionTime.getSize());
 
         // inside lines
-        NCTestUtils.assertValueAt(725846373, 0, 0, acquisitionTime);
-        NCTestUtils.assertValueAt(725846373, 1, 0, acquisitionTime);
-        NCTestUtils.assertValueAt(725846373, 0, 1, acquisitionTime);
-        NCTestUtils.assertValueAt(725846373, 1, 1, acquisitionTime);
+        NCTestUtils.assertValueAt(725846400, 0, 0, acquisitionTime);
+        NCTestUtils.assertValueAt(725846400, 1, 0, acquisitionTime);
+        NCTestUtils.assertValueAt(725846400, 0, 1, acquisitionTime);
+        NCTestUtils.assertValueAt(725846400, 1, 1, acquisitionTime);
 
         // outside line
         NCTestUtils.assertValueAt(fillValue, 0, 2, acquisitionTime);
@@ -310,20 +310,20 @@ public class MxD35_Reader_IO_Test {
         assertEquals(30, acquisitionTime.getSize());
 
         // first scan
-        NCTestUtils.assertValueAt(1650886503, 0, 0, acquisitionTime);
-        NCTestUtils.assertValueAt(1650886503, 1, 0, acquisitionTime);
+        NCTestUtils.assertValueAt(1650886530, 0, 0, acquisitionTime);
+        NCTestUtils.assertValueAt(1650886530, 1, 0, acquisitionTime);
 
         // next scan
-        NCTestUtils.assertValueAt(1650886504, 0, 1, acquisitionTime);
-        NCTestUtils.assertValueAt(1650886504, 1, 1, acquisitionTime);
-        NCTestUtils.assertValueAt(1650886504, 0, 10, acquisitionTime);
-        NCTestUtils.assertValueAt(1650886504, 1, 10, acquisitionTime);
+        NCTestUtils.assertValueAt(1650886531, 0, 1, acquisitionTime);
+        NCTestUtils.assertValueAt(1650886531, 1, 1, acquisitionTime);
+        NCTestUtils.assertValueAt(1650886531, 0, 10, acquisitionTime);
+        NCTestUtils.assertValueAt(1650886531, 1, 10, acquisitionTime);
 
         // next scan
-        NCTestUtils.assertValueAt(1650886506, 0, 11, acquisitionTime);
-        NCTestUtils.assertValueAt(1650886506, 1, 11, acquisitionTime);
-        NCTestUtils.assertValueAt(1650886506, 0, 14, acquisitionTime);
-        NCTestUtils.assertValueAt(1650886506, 1, 14, acquisitionTime);
+        NCTestUtils.assertValueAt(1650886533, 0, 11, acquisitionTime);
+        NCTestUtils.assertValueAt(1650886533, 1, 11, acquisitionTime);
+        NCTestUtils.assertValueAt(1650886533, 0, 14, acquisitionTime);
+        NCTestUtils.assertValueAt(1650886533, 1, 14, acquisitionTime);
     }
 
     @Test
@@ -340,16 +340,16 @@ public class MxD35_Reader_IO_Test {
         NCTestUtils.assertValueAt(fillValue, 1, 0, acquisitionTime);
 
         // first scan inside
-        NCTestUtils.assertValueAt(1650886473, 0, 1, acquisitionTime);
-        NCTestUtils.assertValueAt(1650886473, 1, 1, acquisitionTime);
-        NCTestUtils.assertValueAt(1650886473, 0, 10, acquisitionTime);
-        NCTestUtils.assertValueAt(1650886473, 1, 10, acquisitionTime);
+        NCTestUtils.assertValueAt(1650886500, 0, 1, acquisitionTime);
+        NCTestUtils.assertValueAt(1650886500, 1, 1, acquisitionTime);
+        NCTestUtils.assertValueAt(1650886500, 0, 10, acquisitionTime);
+        NCTestUtils.assertValueAt(1650886500, 1, 10, acquisitionTime);
 
         // next scan
-        NCTestUtils.assertValueAt(1650886475, 0, 11, acquisitionTime);
-        NCTestUtils.assertValueAt(1650886475, 1, 11, acquisitionTime);
-        NCTestUtils.assertValueAt(1650886475, 0, 12, acquisitionTime);
-        NCTestUtils.assertValueAt(1650886475, 1, 12, acquisitionTime);
+        NCTestUtils.assertValueAt(1650886502, 0, 11, acquisitionTime);
+        NCTestUtils.assertValueAt(1650886502, 1, 11, acquisitionTime);
+        NCTestUtils.assertValueAt(1650886502, 0, 12, acquisitionTime);
+        NCTestUtils.assertValueAt(1650886502, 1, 12, acquisitionTime);
     }
 
     @Test
@@ -365,20 +365,20 @@ public class MxD35_Reader_IO_Test {
 
         System.out.println(acquisitionTime);
         // first line
-        NCTestUtils.assertValueAt(725846373, 0, 0, acquisitionTime);
-        NCTestUtils.assertValueAt(725846373, 1, 0, acquisitionTime);
+        NCTestUtils.assertValueAt(725846400, 0, 0, acquisitionTime);
+        NCTestUtils.assertValueAt(725846400, 1, 0, acquisitionTime);
 
         // second line
-        NCTestUtils.assertValueAt(725846373, 1, 1, acquisitionTime);
-        NCTestUtils.assertValueAt(725846373, 2, 1, acquisitionTime);
+        NCTestUtils.assertValueAt(725846400, 1, 1, acquisitionTime);
+        NCTestUtils.assertValueAt(725846400, 2, 1, acquisitionTime);
 
         // third line
-        NCTestUtils.assertValueAt(725846373, 2, 2, acquisitionTime);
-        NCTestUtils.assertValueAt(725846373, 3, 2, acquisitionTime);
+        NCTestUtils.assertValueAt(725846400, 2, 2, acquisitionTime);
+        NCTestUtils.assertValueAt(725846400, 3, 2, acquisitionTime);
 
         // fourth line
-        NCTestUtils.assertValueAt(725846373, 3, 3, acquisitionTime);
-        NCTestUtils.assertValueAt(725846373, 4, 3, acquisitionTime);
+        NCTestUtils.assertValueAt(725846400, 3, 3, acquisitionTime);
+        NCTestUtils.assertValueAt(725846400, 4, 3, acquisitionTime);
 
         // fifth line
         NCTestUtils.assertValueAt(fillValue, 3, 4, acquisitionTime);
