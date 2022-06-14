@@ -296,6 +296,7 @@ public class MxD35_Reader extends NetCDFReader {
 
     @Override
     public AcquisitionInfo read() throws IOException {
+        getPixelLocator();
         final AcquisitionInfo acquisitionInfo = new AcquisitionInfo();
 
         HdfEOSUtil.extractAcquisitionTimes(acquisitionInfo, netcdfFile);
@@ -325,8 +326,23 @@ public class MxD35_Reader extends NetCDFReader {
         if (pixelLocator != null) {
             return pixelLocator;
         }
+        initVariables();
         if (loadCorrespondingMod03File()) {
             pixelLocator = mxD03Reader.getPixelLocator();
+            final List<Variable> variables = mxD03Reader.getVariables();
+            final String[] varNames = {"Longitude", "Latitude"};
+            for (String varName : varNames) {
+                final Variable var = variables.stream().filter(v -> varName.equals(v.getShortName())).findFirst().get();
+                _variablesLUT.put(varName, var);
+                arrayCache.inject(var);
+                _variables.replaceAll(listVar -> {
+                    if (varName.equals(listVar.getShortName())) {
+                        return var;
+                    } else {
+                        return listVar;
+                    }
+                });
+            }
         } else {
             // fallback
             try {
@@ -363,7 +379,8 @@ public class MxD35_Reader extends NetCDFReader {
 
     @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
-        final Variable variable = getVariablesLUT().get(variableName);
+        getPixelLocator();
+        final Variable variable = _variablesLUT.get(variableName);
         final Array array = arrayCache.get(variableName);
         final Number fillValue = variable.findAttribute(CF_FILL_VALUE_NAME).getNumericValue();
         if (fillValue == null) {
@@ -395,10 +412,7 @@ public class MxD35_Reader extends NetCDFReader {
 
     @Override
     public List<Variable> getVariables() throws InvalidRangeException, IOException {
-        if (_variables != null) {
-            return _variables;
-        }
-        initVariables();
+        getPixelLocator();
         return _variables;
     }
 
@@ -417,19 +431,15 @@ public class MxD35_Reader extends NetCDFReader {
         return _productSize;
     }
 
-    private Map<String, Variable> getVariablesLUT() throws IOException, InvalidRangeException {
-        if (_variablesLUT == null) {
-            initVariables();
+    private void initVariables() throws IOException {
+        if (_variables != null) {
+            return;
         }
-        return _variablesLUT;
-    }
-
-    private void initVariables() throws IOException, InvalidRangeException {
         final List<Variable> variablesInFile = netcdfFile.getVariables();
         final Dimension productSize = getProductSize();
         final int sceneWidth = productSize.getNx();
         final int sceneHeight = productSize.getNy();
-        List<Variable> variables = new ArrayList<>();
+        _variables = new ArrayList<>();
         for (Variable variable : variablesInFile) {
             final String variableName = variable.getShortName();
             if (variableName.contains("StructMetadata")
@@ -463,7 +473,12 @@ public class MxD35_Reader extends NetCDFReader {
                 final FlagDefinition flagDefinition = FLAG_DEFINITIONS.get(variableName);
                 final int[] slicingConditions = findSlicingConditions(variable);
                 for (int i = 0; i < slicingConditions[SMALLEST_DIM_SIZE]; i++) {
-                    final Variable slice = variable.slice(slicingConditions[SMALLEST_DIM_IDX], i);
+                    final Variable slice;
+                    try {
+                        slice = variable.slice(slicingConditions[SMALLEST_DIM_IDX], i);
+                    } catch (InvalidRangeException e) {
+                        throw new IOException(e);
+                    }
                     slice.setShortName(slice.getShortName() + "_" + i);
                     if (flagDefinition != null) {
                         slice.removeAttribute(CF_VALID_RANGE_NAME);
@@ -481,19 +496,17 @@ public class MxD35_Reader extends NetCDFReader {
                             }
                         }
                     }
-                    variables.add(slice);
+                    _variables.add(slice);
                 }
                 continue;
             }
-            variables.add(variable);
+            _variables.add(variable);
         }
-        _variables = Collections.unmodifiableList(variables);
-        _variablesLUT = Collections.unmodifiableMap(new HashMap<String, Variable>() {{
-            for (Variable variable : variables) {
-                arrayCache.inject(variable);
-                put(variable.getShortName(), variable);
-            }
-        }});
+        _variablesLUT = new HashMap<>();
+        for (Variable variable : _variables) {
+            arrayCache.inject(variable);
+            _variablesLUT.put(variable.getShortName(), variable);
+        }
     }
 
     // package access for testing only tb 2017-08-28
@@ -593,7 +606,7 @@ public class MxD35_Reader extends NetCDFReader {
     }
 
     private void extractGeometries(AcquisitionInfo acquisitionInfo) throws IOException {
-        final BoundingPolygonCreator boundingPolygonCreator = new BoundingPolygonCreator(new Interval(50, 50), geometryFactory);
+        final BoundingPolygonCreator boundingPolygonCreator = new BoundingPolygonCreator(new Interval(250, 250), geometryFactory);
         final Array longitude = arrayCache.get(GEOLOCATION_GROUP, LONGITUDE_VAR_NAME);
         final Array latitude = arrayCache.get(GEOLOCATION_GROUP, LATITUDE_VAR_NAME);
         final Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometry(longitude, latitude);
@@ -610,7 +623,8 @@ public class MxD35_Reader extends NetCDFReader {
     }
 
     private void createTimeLocator() throws IOException, InvalidRangeException {
-        final Variable variable = getVariablesLUT().get("Scan_Start_Time");
+        getPixelLocator();
+        final Variable variable = _variablesLUT.get("Scan_Start_Time");
         final int[] offsets = new int[]{0, 0};
         final int[] shape = variable.getShape();
         shape[1] = 1;
@@ -619,7 +633,6 @@ public class MxD35_Reader extends NetCDFReader {
     }
 
     private PixelLocator createPixelLocator() throws IOException, InvalidRangeException {
-        getVariables();
         return new BowTiePixelLocator(arrayCache.get(LONGITUDE_VAR_NAME), arrayCache.get(LATITUDE_VAR_NAME), geometryFactory, 10);
     }
 
