@@ -27,8 +27,6 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.util.TimeUtils;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.io.WKTWriter;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -39,7 +37,6 @@ import java.util.List;
 public class H2Driver extends AbstractDriver {
 
     private GeometryFactory geometryFactory;
-    private WKTWriter wktWriter;
 
     @Override
     public String getUrlPattern() {
@@ -49,7 +46,6 @@ public class H2Driver extends AbstractDriver {
     @Override
     public void setGeometryFactory(GeometryFactory geometryFactory) {
         this.geometryFactory = geometryFactory;
-        wktWriter = new WKTWriter();
     }
 
     @Override
@@ -66,7 +62,7 @@ public class H2Driver extends AbstractDriver {
             sensorId = insert(sensor);
         }
 
-        PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO SATELLITE_OBSERVATION VALUES(default, ?, ?, ?, ?, ?, ?, ?)");
+        PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO SATELLITE_OBSERVATION VALUES(default, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
         preparedStatement.setTimestamp(1, TimeUtils.toTimestamp(observation.getStartTime()));
         preparedStatement.setTimestamp(2, TimeUtils.toTimestamp(observation.getStopTime()));
         preparedStatement.setByte(3, (byte) observation.getNodeType().toId());
@@ -166,9 +162,9 @@ public class H2Driver extends AbstractDriver {
             final int nodeTypeId = resultSet.getInt("NodeType");
             observation.setNodeType(NodeType.fromId(nodeTypeId));
 
-            final Geometry geoBounds = (Geometry) resultSet.getObject("GeoBounds");
+            final Object geoBounds = resultSet.getObject("GeoBounds");
             if (geoBounds != null) {
-                final String geoBoundsWkt = wktWriter.write(geoBounds);
+                final String geoBoundsWkt = geoBounds.toString();
                 final com.bc.fiduceo.geometry.Geometry geometry = geometryFactory.fromStorageFormat(geoBoundsWkt.getBytes());
                 observation.setGeoBounds(geometry);
             }
@@ -207,11 +203,11 @@ public class H2Driver extends AbstractDriver {
     }
 
     private TimeAxis getTimeAxis(ResultSet resultSet) throws SQLException {
-        final Geometry axis = (Geometry) resultSet.getObject("Axis");
+        final Object axis = resultSet.getObject("Axis");
         if (axis == null) {
             return null;
         }
-        final String axisWkt = wktWriter.write(axis);
+        final String axisWkt = axis.toString();
         final LineString axisGeometry = (LineString) geometryFactory.fromStorageFormat(axisWkt.getBytes());
 
         final Timestamp startTime = resultSet.getTimestamp("StartTime");
