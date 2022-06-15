@@ -93,7 +93,7 @@ public abstract class NetCDFReader implements Reader {
     }
 
     protected double getOffset(String variableName) throws IOException {
-        final Number offsetValue = arrayCache.getNumberAttributeValue(CF_OFFSET_NAME, variableName);
+        final Number offsetValue = arrayCache.getNumberAttributeValue(CF_ADD_OFFSET_NAME, variableName);
         if (offsetValue != null) {
             return offsetValue.doubleValue();
         }
@@ -106,7 +106,7 @@ public abstract class NetCDFReader implements Reader {
 
     protected double getOffset(String groupName, String variableName, String attributeName) throws IOException {
         if (attributeName == null) {
-            attributeName = CF_OFFSET_NAME;
+            attributeName = CF_ADD_OFFSET_NAME;
         }
         final Number offsetValue = arrayCache.getNumberAttributeValue(attributeName, groupName, variableName);
         if (offsetValue != null) {

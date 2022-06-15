@@ -10,6 +10,7 @@ com.bc.fiduceo.reader.amsr.amsr2.AMSR2_ReaderPlugin
 com.bc.fiduceo.reader.ssmt2.SSMT2_ReaderPlugin
 com.bc.fiduceo.reader.modis.MxD06_ReaderPlugin
 com.bc.fiduceo.reader.modis.MxD021KM_ReaderPlugin
+com.bc.fiduceo.reader.modis.MxD35_ReaderPlugin
 com.bc.fiduceo.reader.caliop.CALIOP_L2_VFM_ReaderPlugin
 com.bc.fiduceo.reader.caliop.CALIOP_SST_WP100_CLay_ReaderPlugin
 com.bc.fiduceo.reader.insitu.sst_cci.SSTInsituReaderPlugin

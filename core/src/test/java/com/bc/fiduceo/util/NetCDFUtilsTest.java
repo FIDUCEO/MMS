@@ -572,7 +572,7 @@ public class NetCDFUtilsTest {
         when(attribute.getNumericValue()).thenReturn(30.8);
 
         final Variable variable = mock(Variable.class);
-        when(variable.findAttribute(CF_OFFSET_NAME)).thenReturn(attribute);
+        when(variable.findAttribute(CF_ADD_OFFSET_NAME)).thenReturn(attribute);
 
         final double offset = NetCDFUtils.getOffset(variable);
         assertEquals(30.8, offset, 1e-8);
