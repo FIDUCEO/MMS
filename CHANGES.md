@@ -1,6 +1,7 @@
 ### Updates from version 1.5.5 to 1.5.6
 * corrected TAI 1993 to UTC conversion for MODIS data
 * updated H2 database driver
+* added support for MODIS MxD035 cloud data
 
 ### Updates from version 1.5.5 to 1.5.6
 * corrected TAI 1993 to UTC conversion for MODIS data
