@@ -111,6 +111,21 @@ abstract class AbstractDriver implements Driver {
     }
 
     @Override
+    public void update(SatelliteObservation observation) throws SQLException {
+        final QueryParameter queryParameter = new QueryParameter();
+        final String path = observation.getDataFilePath().toString();
+        queryParameter.setPath(path);
+
+        final List<SatelliteObservation> observations = get(queryParameter);
+        if (observations.size() >= 1) {
+            final PreparedStatement preparedStatement = connection.prepareStatement("DELETE from SATELLITE_OBSERVATION AS obs where obs.DataFile = '" + path + "'");
+            preparedStatement.executeUpdate();
+
+            insert(observation);
+        }
+    }
+
+    @Override
     public boolean isAlreadyRegistered(QueryParameter queryParameter) throws SQLException {
         final List<SatelliteObservation> observations = get(queryParameter);
         return observations.size() > 0;

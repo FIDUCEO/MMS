@@ -23,14 +23,7 @@ package com.bc.fiduceo.db;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryCollection;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.LineString;
-import com.bc.fiduceo.geometry.MultiPolygon;
-import com.bc.fiduceo.geometry.Point;
-import com.bc.fiduceo.geometry.Polygon;
-import com.bc.fiduceo.geometry.TimeAxis;
+import com.bc.fiduceo.geometry.*;
 import com.mongodb.*;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
@@ -42,6 +35,7 @@ import org.apache.commons.dbcp2.BasicDataSource;
 import org.bson.Document;
 import org.esa.snap.core.util.StringUtils;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -136,27 +130,21 @@ public class MongoDbDriver extends AbstractDriver {
     public void insert(SatelliteObservation satelliteObservation) {
         final MongoCollection<Document> observationCollection = database.getCollection(SATELLITE_DATA_COLLECTION);
 
-        final Document document = new Document(DATA_FILE_KEY, satelliteObservation.getDataFilePath().toString());
-        document.append(START_TIME_KEY, satelliteObservation.getStartTime());
-        document.append(STOP_TIME_KEY, satelliteObservation.getStopTime());
-        document.append(NODE_TYPE_KEY, satelliteObservation.getNodeType().toId());
-
-        final Geometry geoBounds = satelliteObservation.getGeoBounds();
-        if (geoBounds != null) {
-            document.append(GEO_BOUNDS_KEY, convertToGeoJSON(geoBounds));
-        }
-
-        // @todo 2 tb/tb does not work correctly when we extend the sensor class, improve here 2016-02-09
-        document.append(SENSOR_KEY, new Document("name", satelliteObservation.getSensor().getName()));
-
-        final TimeAxis[] timeAxes = satelliteObservation.getTimeAxes();
-        if (timeAxes != null) {
-            document.append(TIME_AXES_KEY, convertToDocument(timeAxes));
-        }
-
-        document.append(VERSION_KEY, satelliteObservation.getVersion());
+        final Document document = createSatelliteObservationDocument(satelliteObservation);
 
         observationCollection.insertOne(document);
+    }
+
+    @Override
+    public void update(SatelliteObservation satelliteObservation) throws SQLException {
+        final QueryParameter queryParameter = new QueryParameter();
+        queryParameter.setPath(satelliteObservation.getDataFilePath().toString());
+
+        final Document queryDocument = createQueryDocument(queryParameter);
+        final Document observationDocument = createSatelliteObservationDocument(satelliteObservation);
+
+        final MongoCollection<Document> observationCollection = database.getCollection(SATELLITE_DATA_COLLECTION);
+        observationCollection.replaceOne(queryDocument, observationDocument);
     }
 
     @Override
@@ -246,6 +234,29 @@ public class MongoDbDriver extends AbstractDriver {
         }
 
         return satelliteObservation;
+    }
+
+    private Document createSatelliteObservationDocument(SatelliteObservation satelliteObservation) {
+        final Document document = new Document(DATA_FILE_KEY, satelliteObservation.getDataFilePath().toString());
+        document.append(START_TIME_KEY, satelliteObservation.getStartTime());
+        document.append(STOP_TIME_KEY, satelliteObservation.getStopTime());
+        document.append(NODE_TYPE_KEY, satelliteObservation.getNodeType().toId());
+
+        final Geometry geoBounds = satelliteObservation.getGeoBounds();
+        if (geoBounds != null) {
+            document.append(GEO_BOUNDS_KEY, convertToGeoJSON(geoBounds));
+        }
+
+        // @todo 2 tb/tb does not work correctly when we extend the sensor class, improve here 2016-02-09
+        document.append(SENSOR_KEY, new Document("name", satelliteObservation.getSensor().getName()));
+
+        final TimeAxis[] timeAxes = satelliteObservation.getTimeAxes();
+        if (timeAxes != null) {
+            document.append(TIME_AXES_KEY, convertToDocument(timeAxes));
+        }
+
+        document.append(VERSION_KEY, satelliteObservation.getVersion());
+        return document;
     }
 
     // static access for testing only tb 2016-02-09

@@ -53,6 +53,8 @@ public interface Driver {
     void close() throws SQLException;
 
     void insert(SatelliteObservation satelliteObservation) throws SQLException;
+
+    void update(SatelliteObservation satelliteObservation) throws SQLException;
     
     void updatePath(SatelliteObservation satelliteObservation, String newPath) throws SQLException;
 
