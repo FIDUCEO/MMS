@@ -141,7 +141,7 @@ public class MongoDbDriver extends AbstractDriver {
         queryParameter.setPath(satelliteObservation.getDataFilePath().toString());
 
         final Document queryDocument = createQueryDocument(queryParameter);
-        Document observationDocument = createSatelliteObservationDocument(satelliteObservation);
+        final Document observationDocument = createSatelliteObservationDocument(satelliteObservation);
 
         final MongoCollection<Document> observationCollection = database.getCollection(SATELLITE_DATA_COLLECTION);
         observationCollection.replaceOne(queryDocument, observationDocument);

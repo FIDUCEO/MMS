@@ -117,7 +117,7 @@ abstract class AbstractDriver implements Driver {
         queryParameter.setPath(path);
 
         final List<SatelliteObservation> observations = get(queryParameter);
-        if (observations.size() == 1) {
+        if (observations.size() >= 1) {
             final PreparedStatement preparedStatement = connection.prepareStatement("DELETE from SATELLITE_OBSERVATION AS obs where obs.DataFile = '" + path + "'");
             preparedStatement.executeUpdate();
 
