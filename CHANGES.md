@@ -1,5 +1,8 @@
 ### Updates from version 1.5.5 to 1.5.6
 * corrected TAI 1993 to UTC conversion for MODIS data
+
+### Updates from version 1.5.5 to 1.5.6
+* corrected TAI 1993 to UTC conversion for MODIS data
 * added option for IngestionTool to update already existing entries
 * updated H2 database driver
 
