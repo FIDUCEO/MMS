@@ -24,6 +24,7 @@ import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
+import org.esa.snap.core.util.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,8 +34,7 @@ import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFiles;
 import ucar.nc2.Variable;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 
 import static org.junit.Assert.*;
 
@@ -156,7 +156,7 @@ public class PostProcessingToolIntegrationTest_Era5 {
     public void testAddEra5Variables_coo1() throws IOException, InvalidRangeException {
         final File inputDir = getInputDirectory_coo1();
 
-        writeConfiguration_coo1();
+        writeConfiguration_coo1(false);
 
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-start", "2008-149", "-end", "2008-155",
                 "-i", inputDir.getAbsolutePath(), "-j", "post-processing-config.xml"};
@@ -204,6 +204,49 @@ public class PostProcessingToolIntegrationTest_Era5 {
         }
     }
 
+    @Test
+    public void testAddEra5Variables_coo1_overwrite() throws IOException, InvalidRangeException {
+        final File inputDir = getInputDirectory_coo1();
+
+        // copy input to test-directory as we want to overwrite the MMD
+        copyFilesTo(inputDir, testDirectory);
+
+        writeConfiguration_coo1(true);
+
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-start", "2008-149", "-end", "2008-155",
+                "-i", testDirectory.getAbsolutePath(), "-j", "post-processing-config.xml"};
+
+        PostProcessingToolMain.main(args);
+
+        final File targetFile = new File(testDirectory, "coo_1_slstr-s3a-nt_avhrr-frac-ma_2008-149_2008-155.nc");
+        assertTrue(targetFile.isFile());
+
+        try (NetcdfFile mmd = NetcdfFiles.open(targetFile.getAbsolutePath())) {
+            NCTestUtils.assertGlobalAttribute(mmd, "era5-collection", "ERA_5");
+
+            Variable variable = NCTestUtils.getVariable("avhrr-frac-ma_delta_azimuth", mmd, false);
+            NCTestUtils.assert3DValueDouble(1, 0, 0, 11.975187301635742, variable);
+            NCTestUtils.assert3DValueDouble(2, 0, 0, 11.977825164794922, variable);
+
+            NCTestUtils.assertDimension(FiduceoConstants.MATCHUP_COUNT, 1, mmd);
+
+            // satellite fields
+            NCTestUtils.assertDimension("slstr.s3a.nt_nwp_x", 1, mmd);
+            NCTestUtils.assertDimension("slstr.s3a.nt_nwp_y", 1, mmd);
+            NCTestUtils.assertDimension("slstr.s3a.nt_nwp_z", 137, mmd);
+
+            variable = NCTestUtils.getVariable("nwp_lnsp", mmd);
+            NCTestUtils.assertAttribute(variable, "units", "~");
+            NCTestUtils.assert3DVariable(variable.getFullName(), 0, 0, 0, 11.525882720947266, mmd);
+
+            variable = NCTestUtils.getVariable("nwp_o3", mmd);
+            NCTestUtils.assertAttribute(variable, "units", "kg kg**-1");
+            NCTestUtils.assert4DVariable(variable.getFullName(), 0, 0, 30, 0, 1.5600191545672715E-5, mmd);
+            NCTestUtils.assert4DVariable(variable.getFullName(), 0, 0, 40, 0, 7.585892490169499E-6, mmd);
+            NCTestUtils.assert4DVariable(variable.getFullName(), 0, 0, 50, 0, 1.5478117347811349E-6, mmd);
+        }
+    }
+
     private void writeConfiguration_mmd15() throws IOException {
         final File testDataDirectory = TestUtil.getTestDataDirectory();
         final File era5Dir = new File(testDataDirectory, "era-5/v1");
@@ -247,40 +290,46 @@ public class PostProcessingToolIntegrationTest_Era5 {
         TestUtil.writeStringTo(postProcessingConfigFile, postProcessingConfig);
     }
 
-    private void writeConfiguration_coo1() throws IOException {
+    private void writeConfiguration_coo1(boolean overwrite) throws IOException {
         final File testDataDirectory = TestUtil.getTestDataDirectory();
         final File era5Dir = new File(testDataDirectory, "era-5/v1");
-        final String postProcessingConfig = "<post-processing-config>\n" +
-                "    <create-new-files>\n" +
-                "        <output-directory>\n" +
-                testDirectory.getAbsolutePath() +
-                "        </output-directory>\n" +
-                "    </create-new-files>\n" +
-                "    <post-processings>\n" +
-                "        <era5>\n" +
-                "            <nwp-aux-dir>\n" +
-                era5Dir.getAbsolutePath() +
-                "            </nwp-aux-dir>\n" +
-                "            <satellite-fields>" +
-                "                <x_dim name='slstr.s3a.nt_nwp_x' length='1' />" +
-                "                <y_dim name='slstr.s3a.nt_nwp_y' length='1' />" +
-                "                <z_dim name='slstr.s3a.nt_nwp_z' />" +
-                "                <era5_time_variable>slstr.s3ant_nwp_time</era5_time_variable>" +
-                "                <time_variable>slstr-s3a-nt_acquisition_time</time_variable>" +
-                "                <longitude_variable>slstr-s3a-nt_longitude_tx</longitude_variable>" +
-                "                <latitude_variable>slstr-s3a-nt_latitude_tx</latitude_variable>" +
-                "" +
-                "                <an_sfc_v10>slstr.s3a.blowVert</an_sfc_v10>" +
-                "            </satellite-fields>" +
-                "        </era5>\n" +
-                "    </post-processings>\n" +
-                "</post-processing-config>";
+
+        final StringBuilder configBuffer = new StringBuilder();
+        configBuffer.append("<post-processing-config>\n");
+        if (overwrite) {
+            configBuffer.append("    <overwrite/>\n");
+        } else {
+            configBuffer.append("    <create-new-files>\n");
+            configBuffer.append("        <output-directory>\n");
+            configBuffer.append(testDirectory.getAbsolutePath());
+            configBuffer.append("        </output-directory>\n");
+            configBuffer.append("    </create-new-files>\n");
+        }
+
+        configBuffer.append("    <post-processings>\n");
+        configBuffer.append("        <era5>\n");
+        configBuffer.append("            <nwp-aux-dir>\n");
+        configBuffer.append(era5Dir.getAbsolutePath());
+        configBuffer.append("            </nwp-aux-dir>\n");
+        configBuffer.append("            <satellite-fields>");
+        configBuffer.append("                <x_dim name='slstr.s3a.nt_nwp_x' length='1' />");
+        configBuffer.append("                <y_dim name='slstr.s3a.nt_nwp_y' length='1' />");
+        configBuffer.append("                <z_dim name='slstr.s3a.nt_nwp_z' />");
+        configBuffer.append("                <era5_time_variable>slstr.s3ant_nwp_time</era5_time_variable>");
+        configBuffer.append("                <time_variable>slstr-s3a-nt_acquisition_time</time_variable>");
+        configBuffer.append("                <longitude_variable>slstr-s3a-nt_longitude_tx</longitude_variable>" );
+        configBuffer.append("                <latitude_variable>slstr-s3a-nt_latitude_tx</latitude_variable>");
+        configBuffer.append("                <an_sfc_v10>slstr.s3a.blowVert</an_sfc_v10>");
+        configBuffer.append("            </satellite-fields>");
+        configBuffer.append("        </era5>\n");
+        configBuffer.append("    </post-processings>\n");
+        configBuffer.append("</post-processing-config>");
 
         final File postProcessingConfigFile = new File(configDir, "post-processing-config.xml");
         if (!postProcessingConfigFile.createNewFile()) {
             fail("unable to create test file");
         }
-        TestUtil.writeStringTo(postProcessingConfigFile, postProcessingConfig);
+        TestUtil.writeStringTo(postProcessingConfigFile, configBuffer.toString());
     }
 
     private File getInputDirectory_mmd15() throws IOException {
@@ -291,5 +340,43 @@ public class PostProcessingToolIntegrationTest_Era5 {
     private File getInputDirectory_coo1() throws IOException {
         final File testDataDirectory = TestUtil.getTestDataDirectory();
         return new File(testDataDirectory, "post-processing/mmd_coo1");
+    }
+
+    // @todo 3 tb/** this is code of general interest, we may move it to a common location tb 2022-06-16
+    private static void copyFilesTo(File inputDir, File outputDir) throws IOException {
+        final File[] inputFiles = inputDir.listFiles();
+        if (inputFiles == null) {
+            throw new IOException("invalid directory path: " + inputDir.getAbsolutePath());
+        }
+        final  byte[] buffer = new byte[32768];
+
+        for (final File inputFile: inputFiles) {
+            final String filename = FileUtils.getFilenameFromPath(inputFile.toString());
+            final File targetFile = new File(outputDir, filename);
+
+            FileInputStream inputStream = null;
+            FileOutputStream outputStream = null;
+            try {
+                boolean newFile = targetFile.createNewFile();
+                if (!newFile) {
+                    throw new IOException("Unable to create target file: " + targetFile.getAbsolutePath());
+                }
+
+                inputStream = new FileInputStream(inputFile);
+                outputStream = new FileOutputStream(targetFile);
+
+                int length;
+                while ((length = inputStream.read(buffer)) > 0) {
+                    outputStream.write(buffer, 0, length);
+                }
+            } finally {
+                if (inputStream != null) {
+                    inputStream.close();
+                }
+                if (outputStream != null) {
+                    outputStream.close();
+                }
+            }
+        }
     }
 }
