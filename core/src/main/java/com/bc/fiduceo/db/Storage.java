@@ -72,6 +72,14 @@ public class Storage {
         driver.updatePath(satelliteObservation, newPath);
     }
 
+    public AbstractBatch updatePathBatch(SatelliteObservation satelliteObservation, String newPath, AbstractBatch batch) throws SQLException{
+        return driver.updatePathBatch(satelliteObservation, newPath, batch);
+    }
+
+    public void commitBatch(AbstractBatch batch) throws SQLException {
+        driver.commitBatch(batch);
+    }
+
     public List<SatelliteObservation> get() throws SQLException {
         return driver.get();
     }

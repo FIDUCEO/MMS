@@ -105,6 +105,8 @@ public class H2Driver extends AbstractDriver {
             preparedStatement.setTimestamp(4, TimeUtils.toTimestamp(observation.getStopTime()));
             preparedStatement.executeUpdate();
         }
+
+        connection.commit();
     }
 
     @Override
@@ -128,6 +130,18 @@ public class H2Driver extends AbstractDriver {
 
         final PreparedStatement preparedStatement = connection.prepareStatement(sql.toString());
         preparedStatement.executeUpdate();
+
+        connection.commit();
+    }
+
+    @Override
+    public AbstractBatch updatePathBatch(SatelliteObservation satelliteObservation, String newPath, AbstractBatch batch) throws SQLException {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
+    public void commitBatch(AbstractBatch batch) throws SQLException {
+        throw new RuntimeException("not implemented");
     }
 
     @Override

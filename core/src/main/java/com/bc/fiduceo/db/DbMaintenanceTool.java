@@ -97,12 +97,18 @@ class DbMaintenanceTool {
     }
 
     private void updatePaths(String oldPathSegment, String newPathSegment, List<SatelliteObservation> satelliteObservations) throws SQLException {
+        AbstractBatch batch = null;
+
         for (final SatelliteObservation observation : satelliteObservations) {
             final String oldPath = observation.getDataFilePath().toString();
             if (oldPath.contains(oldPathSegment)) {
                 final String newPath = oldPath.replace(oldPathSegment, newPathSegment);
-                storage.updatePath(observation, newPath);
+                batch = storage.updatePathBatch(observation, newPath, batch);
             }
+        }
+
+        if (batch != null) {
+            storage.commitBatch(batch);
         }
     }
 

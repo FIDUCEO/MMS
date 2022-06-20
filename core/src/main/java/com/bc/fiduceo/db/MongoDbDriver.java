@@ -163,6 +163,16 @@ public class MongoDbDriver extends AbstractDriver {
     }
 
     @Override
+    public AbstractBatch updatePathBatch(SatelliteObservation satelliteObservation, String newPath, AbstractBatch batch) throws SQLException {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
+    public void commitBatch(AbstractBatch batch) throws SQLException {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
     public int insert(Sensor sensor) {
         // we use embedded storage at the moment, no need to separately ingest the sensor tb 2016-02-09
         return -1;
