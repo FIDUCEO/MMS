@@ -136,12 +136,35 @@ public class H2Driver extends AbstractDriver {
 
     @Override
     public AbstractBatch updatePathBatch(SatelliteObservation satelliteObservation, String newPath, AbstractBatch batch) throws SQLException {
-        throw new RuntimeException("not implemented");
+        if (batch == null) {
+            final StringBuilder sql = new StringBuilder();
+            sql.append("UPDATE SATELLITE_OBSERVATION AS obs SET DataFile = ?  WHERE obs.stopDate >= '");
+            sql.append(TimeUtils.format(satelliteObservation.getStartTime(), DATE_PATTERN));
+            sql.append("' AND obs.startDate <= '");
+            sql.append(TimeUtils.format(satelliteObservation.getStopTime(), DATE_PATTERN));
+            sql.append("' AND obs.DataFile = ? AND obs.Version = '");
+            sql.append(satelliteObservation.getVersion());
+            sql.append("' AND obs.SensorId = ");
+            sql.append(getSensorId(satelliteObservation.getSensor().getName()));
+
+            final PreparedStatement preparedStatement = connection.prepareStatement(sql.toString());
+            batch = new JdbcBatch(preparedStatement);
+        }
+
+        final PreparedStatement preparedStatement = (PreparedStatement) batch.getStatement();
+        preparedStatement.setString(1, newPath);
+        preparedStatement.setString(2, satelliteObservation.getDataFilePath().toString());
+        preparedStatement.addBatch();
+
+        return batch;
     }
 
     @Override
     public void commitBatch(AbstractBatch batch) throws SQLException {
-        throw new RuntimeException("not implemented");
+        final PreparedStatement preparedStatement = (PreparedStatement) batch.getStatement();
+        preparedStatement.executeBatch();
+
+        connection.commit();
     }
 
     @Override

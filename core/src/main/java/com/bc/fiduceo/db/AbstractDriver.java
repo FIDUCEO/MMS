@@ -38,7 +38,7 @@ import java.util.List;
 
 abstract class AbstractDriver implements Driver {
 
-    private static final String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss.S";
+    static final String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss.S";
 
     Connection connection;
 
