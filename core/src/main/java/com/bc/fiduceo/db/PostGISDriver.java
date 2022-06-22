@@ -155,28 +155,6 @@ public class PostGISDriver extends AbstractDriver {
     }
 
     @Override
-    public void updatePath(SatelliteObservation satelliteObservation, String newPath) throws SQLException {
-        final QueryParameter queryParameter = new QueryParameter();
-        queryParameter.setStartTime(satelliteObservation.getStartTime());
-        queryParameter.setStopTime(satelliteObservation.getStopTime());
-        queryParameter.setSensorName(satelliteObservation.getSensor().getName());
-        queryParameter.setVersion(satelliteObservation.getVersion());
-        queryParameter.setPath(satelliteObservation.getDataFilePath().toString());
-
-        final StringBuilder sql = new StringBuilder();
-        sql.append("UPDATE SATELLITE_OBSERVATION AS obs SET DataFile = ? FROM SENSOR AS sen");
-
-        appendWhereClause(queryParameter, sql);
-        sql.append(" AND obs.SensorId = sen.ID");
-
-        final PreparedStatement preparedStatement = connection.prepareStatement(sql.toString());
-        preparedStatement.setString(1, newPath);
-        preparedStatement.executeUpdate();
-
-        connection.commit();
-    }
-
-    @Override
     public AbstractBatch updatePathBatch(SatelliteObservation satelliteObservation, String newPath, AbstractBatch batch) throws SQLException {
         if (batch == null) {
             final StringBuilder sql = new StringBuilder();

@@ -232,26 +232,6 @@ public abstract class StorageTest_SatelliteObservation {
     }
 
     @Test
-    public void testInsert_updatePath_and_get() throws SQLException {
-        final String fs = File.separator;
-        final SatelliteObservation observation = TestData.createSatelliteObservation(geometryFactory);
-        storage.insert(observation);
-
-        List<SatelliteObservation> result = storage.get();
-        assertNotNull(result);
-        assertEquals(1, result.size());
-
-        SatelliteObservation satelliteObservation = result.get(0);
-        storage.updatePath(satelliteObservation, "/the/updated/path/to/product.prd");
-
-        result = storage.get();
-        assertEquals(1, result.size());
-        satelliteObservation = result.get(0);
-        final String expected = fs + "the" + fs + "updated" +fs + "path" + fs + "to" + fs + "product.prd";
-        assertEquals(expected, satelliteObservation.getDataFilePath().toString());
-    }
-
-    @Test
     public void testUpdate() throws SQLException {
         final SatelliteObservation observation = TestData.createSatelliteObservation(geometryFactory);
         storage.insert(observation);

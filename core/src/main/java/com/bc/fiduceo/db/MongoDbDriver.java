@@ -29,6 +29,8 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.MongoIterable;
+import com.mongodb.client.model.UpdateOneModel;
+import com.mongodb.client.model.WriteModel;
 import com.mongodb.client.model.geojson.PolygonCoordinates;
 import com.mongodb.client.model.geojson.Position;
 import org.apache.commons.dbcp2.BasicDataSource;
@@ -148,7 +150,11 @@ public class MongoDbDriver extends AbstractDriver {
     }
 
     @Override
-    public void updatePath(SatelliteObservation satelliteObservation, String newPath) {
+    public AbstractBatch updatePathBatch(SatelliteObservation satelliteObservation, String newPath, AbstractBatch batch) {
+        if (batch == null) {
+            batch = new MongoBatch();
+        }
+
         final QueryParameter queryParameter = new QueryParameter();
         queryParameter.setStartTime(satelliteObservation.getStartTime());
         queryParameter.setStopTime(satelliteObservation.getStopTime());
@@ -157,19 +163,23 @@ public class MongoDbDriver extends AbstractDriver {
         queryParameter.setPath(satelliteObservation.getDataFilePath().toString());
 
         final Document queryDocument = createQueryDocument(queryParameter);
+        final Document updateDocument = new Document("$set", new Document(DATA_FILE_KEY, newPath));
 
-        final MongoCollection<Document> observationCollection = database.getCollection(SATELLITE_DATA_COLLECTION);
-        observationCollection.updateOne(queryDocument, new Document("$set", new Document(DATA_FILE_KEY, newPath)));
+        final UpdateOneModel<Document> updateOneModel = new UpdateOneModel<>(queryDocument, updateDocument);
+
+        final List<WriteModel<Document>> writeOperations = (List<WriteModel<Document>>) batch.getStatement();
+        writeOperations.add(updateOneModel);
+
+        return batch;
     }
 
     @Override
-    public AbstractBatch updatePathBatch(SatelliteObservation satelliteObservation, String newPath, AbstractBatch batch) throws SQLException {
-        throw new RuntimeException("not implemented");
-    }
-
-    @Override
-    public void commitBatch(AbstractBatch batch) throws SQLException {
-        throw new RuntimeException("not implemented");
+    public void commitBatch(AbstractBatch batch) {
+        if (batch != null) {
+            final MongoCollection<Document> observationCollection = database.getCollection(SATELLITE_DATA_COLLECTION);
+            final List<WriteModel<Document>> writeOperations = (List<WriteModel<Document>>) batch.getStatement();
+            observationCollection.bulkWrite(writeOperations);
+        }
     }
 
     @Override

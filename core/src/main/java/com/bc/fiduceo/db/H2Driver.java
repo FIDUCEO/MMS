@@ -110,31 +110,6 @@ public class H2Driver extends AbstractDriver {
     }
 
     @Override
-    public void updatePath(SatelliteObservation satelliteObservation, String newPath) throws SQLException {
-        final QueryParameter queryParameter = new QueryParameter();
-        queryParameter.setStartTime(satelliteObservation.getStartTime());
-        queryParameter.setStopTime(satelliteObservation.getStopTime());
-        queryParameter.setVersion(satelliteObservation.getVersion());
-        queryParameter.setPath(satelliteObservation.getDataFilePath().toString());
-
-        final Integer sensorId = getSensorId(satelliteObservation.getSensor().getName());
-
-        final StringBuilder sql = new StringBuilder();
-        sql.append("UPDATE SATELLITE_OBSERVATION AS obs SET DataFile = '");
-        sql.append(newPath);
-        sql.append("' ");
-
-        appendWhereClause(queryParameter, sql);
-        sql.append(" AND obs.SensorId = ");
-        sql.append(sensorId);
-
-        final PreparedStatement preparedStatement = connection.prepareStatement(sql.toString());
-        preparedStatement.executeUpdate();
-
-        connection.commit();
-    }
-
-    @Override
     public AbstractBatch updatePathBatch(SatelliteObservation satelliteObservation, String newPath, AbstractBatch batch) throws SQLException {
         if (batch == null) {
             final StringBuilder sql = new StringBuilder();
