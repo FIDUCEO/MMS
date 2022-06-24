@@ -363,7 +363,6 @@ public class MxD35_Reader_IO_Test {
         final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(36, ny - 2, new Interval(5, 5));
         assertEquals(25, acquisitionTime.getSize());
 
-        System.out.println(acquisitionTime);
         // first line
         NCTestUtils.assertValueAt(725846400, 0, 0, acquisitionTime);
         NCTestUtils.assertValueAt(725846400, 1, 0, acquisitionTime);
@@ -605,9 +604,7 @@ public class MxD35_Reader_IO_Test {
 
         final List<String> names = reader.getVariables().stream()
                 .map(v -> {
-                    final String name = v.getShortName();
-                    System.out.println(name);
-                    return name;
+                    return v.getShortName();
                 })
                 .filter(n -> !n.startsWith("Cloud_Mask_SPI"))
                 .collect(Collectors.toList());
