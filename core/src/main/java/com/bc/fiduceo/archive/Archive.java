@@ -26,6 +26,7 @@ import com.bc.fiduceo.util.TimeUtils;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -69,7 +70,6 @@ public class Archive {
     }
 
     // package access for testing only tb 2020-06-03
-
     static String[] relativeElements(Path archivePath, Path rootPath) {
         final Path absolutArchivePath = archivePath.toAbsolutePath().normalize();
         final Path absoluteRootPath = rootPath.toAbsolutePath().normalize();
@@ -103,6 +103,25 @@ public class Archive {
         }
 
         return resultTokens.toArray(new String[]{});
+    }
+
+    public Path toRelative(Path absolutePath) throws IOException {
+        final String[] relativeElements = relativeElements(absolutePath, rootPath);
+
+        if (relativeElements.length == 0) {
+            throw new IOException("requested path is not part of the archive: " + absolutePath);
+        }
+
+        Path path = Paths.get(relativeElements[0]);
+        for (int i = 1; i < relativeElements.length; i++) {
+            path = path.resolve(relativeElements[i]);
+        }
+
+        return path;
+    }
+
+    public Path toAbsolute(Path relativePath) {
+        return Paths.get(rootPath.toString(), relativePath.toString());
     }
 
     public Path[] get(Date startDate, Date endDate, String processingVersion, String sensorType) throws IOException {

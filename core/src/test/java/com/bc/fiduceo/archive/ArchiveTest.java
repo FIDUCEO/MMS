@@ -33,8 +33,7 @@ import java.nio.file.*;
 import java.util.Date;
 import java.util.HashMap;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 public class ArchiveTest {
 
@@ -388,12 +387,54 @@ public class ArchiveTest {
     public void testRelativeElements() {
         final String sep = File.separator;
         final Path root = Paths.get("C:" + sep + "data" + sep + "root");
-        final Path archivePath = Paths.get("C:" + sep + "data" +  sep + "root" + sep + "sensor" + sep + "version" + sep + "2008");
+        final Path archivePath = Paths.get("C:" + sep + "data" + sep + "root" + sep + "sensor" + sep + "version" + sep + "2008");
 
         final String[] elements = Archive.relativeElements(archivePath, root);
         assertEquals(3, elements.length);
         assertEquals("sensor", elements[0]);
         assertEquals("version", elements[1]);
         assertEquals("2008", elements[2]);
+    }
+
+    @Test
+    public void testToRelative() throws IOException {
+        final String[] pathElements = new String[]{"sensor", "year", "day_of_year", "heffalump.data"};
+
+        Path absolutePath = root;
+        for (final String pathElement : pathElements) {
+            absolutePath = absolutePath.resolve(pathElement);
+        }
+
+        final Path relativePath = archive.toRelative(absolutePath);
+
+        final Path expectedPath = Paths.get("sensor", "year", "day_of_year", "heffalump.data");
+        assertEquals(expectedPath.toString(), relativePath.toString());
+    }
+
+    @Test
+    public void testToRelative_notInArchive() throws IOException {
+        final String[] pathElements = new String[]{"sensor", "year", "day_of_year", "heffalump.data"};
+
+        Path absolutePath = Paths.get("elsewhere");
+        for (final String pathElement : pathElements) {
+            absolutePath = absolutePath.resolve(pathElement);
+        }
+
+        try {
+            archive.toRelative(absolutePath);
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException expected) {
+        }
+    }
+
+    @Test
+    public void testToAbsolute() {
+        final String sep = File.separator;
+        final Path relativePath = Paths.get("sensor", "year", "DOY", "data.file");
+
+        final Path absolutePath = archive.toAbsolute(relativePath);
+
+        assertEquals("archiveRoot" + sep + "sensor" + sep + "year" + sep + "DOY" + sep + "data.file",
+                absolutePath.toString());
     }
 }
