@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.matchup.strategy;
 
+import com.bc.fiduceo.archive.Archive;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
@@ -43,6 +44,7 @@ import org.esa.snap.core.util.StringUtils;
 import ucar.ma2.InvalidRangeException;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -147,7 +149,12 @@ public abstract class AbstractMatchupStrategy {
         logger.info("Requesting primary data ... (" + parameter.getSensorName() + ", " + parameter.getStartTime() + ", " + parameter.getStopTime());
 
         final Storage storage = context.getStorage();
+        final Archive archive = context.getArchive();
         final List<SatelliteObservation> primaryObservations = storage.get(parameter);
+        for (final SatelliteObservation observation : primaryObservations) {
+            final Path relativePath = observation.getDataFilePath();
+            observation.setDataFilePath(archive.toAbsolute(relativePath).toString());
+        }
 
         logger.info("Received " + primaryObservations.size() + " primary satellite observations");
 
@@ -159,11 +166,18 @@ public abstract class AbstractMatchupStrategy {
 
         final UseCaseConfig useCaseConfig = context.getUseCaseConfig();
         final Storage storage = context.getStorage();
+        final Archive archive = context.getArchive();
         final List<QueryParameter> parameters = getSecondarySensorParameter(useCaseConfig, searchTimeStart, searchTimeEnd);
         for (QueryParameter parameter : parameters) {
             final String sensorName = parameter.getSensorName();
             logger.info("Requesting secondary data ... (" + sensorName + ", " + parameter.getStartTime() + ", " + parameter.getStopTime());
+
             final List<SatelliteObservation> secondaryObservations = storage.get(parameter);
+            for (final SatelliteObservation observation : secondaryObservations) {
+                final Path relativePath = observation.getDataFilePath();
+                observation.setDataFilePath(archive.toAbsolute(relativePath).toString());
+            }
+
             logger.info("Received " + secondaryObservations.size() + " secondary satellite observations of sensor type " + sensorName);
             observationsSet.add(sensorName, secondaryObservations);
         }

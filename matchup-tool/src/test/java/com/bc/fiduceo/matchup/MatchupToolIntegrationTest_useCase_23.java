@@ -101,8 +101,7 @@ public class MatchupToolIntegrationTest_useCase_23 extends AbstractUsecaseIntegr
         final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{
                 SECONDARY_SENSOR_NAME, "1.0", "2011", "08", "23", "190455003.NSS.HIRX.NN.D11235.S0028.E0223.B3223536.WI.nc"
         }, true);
-        final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
-        final SatelliteObservation satelliteObservation = readSatelliteObservation(SECONDARY_SENSOR_NAME, absolutePath, "1.0");
+        final SatelliteObservation satelliteObservation = readSatelliteObservation(SECONDARY_SENSOR_NAME, relativeArchivePath, "1.0");
         storage.insert(satelliteObservation);
     }
 
@@ -110,8 +109,7 @@ public class MatchupToolIntegrationTest_useCase_23 extends AbstractUsecaseIntegr
         final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{
                 PRIMARY_SENSOR_NAME, "v1.0", "2011", "08", "23", "190457103.NSS.MHSX.NN.D11235.S0028.E0223.B3223536.WI.h5"
         }, true);
-        final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
-        final SatelliteObservation satelliteObservation = readSatelliteObservation(PRIMARY_SENSOR_NAME, absolutePath, "v1.0");
+        final SatelliteObservation satelliteObservation = readSatelliteObservation(PRIMARY_SENSOR_NAME, relativeArchivePath, "v1.0");
         storage.insert(satelliteObservation);
     }
 

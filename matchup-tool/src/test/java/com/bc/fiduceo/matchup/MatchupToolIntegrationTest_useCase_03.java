@@ -221,16 +221,14 @@ public class MatchupToolIntegrationTest_useCase_03 extends AbstractUsecaseIntegr
         final String processingVersion = "v01.3";
         final String sensorKey = "avhrr-n19";
         final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{sensorKey, processingVersion, "2014", "04", "25", "20140425111800-ESACCI-L1C-AVHRR19_G-fv01.0.nc"}, true);
-        final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
-        final SatelliteObservation aatsr = readSatelliteObservation(sensorKey, absolutePath, processingVersion);
+        final SatelliteObservation aatsr = readSatelliteObservation(sensorKey, relativeArchivePath, processingVersion);
         storage.insert(aatsr);
     }
 
     private void insert_IASI_MetopB() throws IOException, SQLException {
         final String processingVersion = "v7-0N";
         final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{"iasi-mb", processingVersion, "2014", "04", "IASI_xxx_1C_M01_20140425124756Z_20140425142652Z_N_O_20140425133911Z.nat"}, true);
-        final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
-        final SatelliteObservation iasi = readSatelliteObservation("iasi-mb", absolutePath, processingVersion);
+        final SatelliteObservation iasi = readSatelliteObservation("iasi-mb", relativeArchivePath, processingVersion);
         storage.insert(iasi);
     }
 }

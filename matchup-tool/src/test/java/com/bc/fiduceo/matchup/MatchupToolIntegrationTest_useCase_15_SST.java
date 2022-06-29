@@ -66,9 +66,8 @@ public class MatchupToolIntegrationTest_useCase_15_SST extends AbstractUsecaseIn
         final String sensorKey = "aatsr-en";
         final String version = "v3";
         final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{sensorKey, version, "2012", "02", "15", "ATS_TOA_1PUUPA20120215_010547_000065273111_00361_52099_6045.N1"}, true);
-        final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
 
-        final SatelliteObservation satelliteObservation = readSatelliteObservation(sensorKey, absolutePath, version);
+        final SatelliteObservation satelliteObservation = readSatelliteObservation(sensorKey, relativeArchivePath, version);
         storage.insert(satelliteObservation);
     }
 
@@ -76,9 +75,8 @@ public class MatchupToolIntegrationTest_useCase_15_SST extends AbstractUsecaseIn
         final String sensorKey = "mod021km-te";
         final String version = "v61";
         final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{sensorKey, version, "2012", "02", "15", "MOD021KM.A2012046.0055.061.2017330053712.hdf"}, true);
-        final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
 
-        final SatelliteObservation satelliteObservation = readSatelliteObservation(sensorKey, absolutePath, version);
+        final SatelliteObservation satelliteObservation = readSatelliteObservation(sensorKey, relativeArchivePath, version);
         storage.insert(satelliteObservation);
     }
 

@@ -92,18 +92,16 @@ public class MatchupToolIntegrationTest_useCase_35 extends AbstractUsecaseIntegr
     private void insert_OceanRain() throws IOException, SQLException {
         final String sensorKey = "ocean-rain-sst";
         final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{"insitu", sensorKey, "v1.0", "OceanRAIN_allships_2010-2017_SST.ascii"}, true);
-        final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
 
-        final SatelliteObservation satelliteObservation = readSatelliteObservation(sensorKey, absolutePath, "v1.0");
+        final SatelliteObservation satelliteObservation = readSatelliteObservation(sensorKey, relativeArchivePath, "v1.0");
         storage.insert(satelliteObservation);
     }
 
     private void insert_MHS_NOAA18() throws IOException, SQLException {
         final String sensorKey = "mhs-n18";
         final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{sensorKey, "v1.0", "2011", "08", "23", "190457103.NSS.MHSX.NN.D11235.S0028.E0223.B3223536.WI.h5"}, true);
-        final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
 
-        final SatelliteObservation satelliteObservation = readSatelliteObservation(sensorKey, absolutePath, "v1.0");
+        final SatelliteObservation satelliteObservation = readSatelliteObservation(sensorKey, relativeArchivePath, "v1.0");
         storage.insert(satelliteObservation);
     }
 

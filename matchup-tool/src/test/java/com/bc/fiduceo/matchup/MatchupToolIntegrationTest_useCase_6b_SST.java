@@ -83,16 +83,14 @@ public class MatchupToolIntegrationTest_useCase_6b_SST extends AbstractUsecaseIn
         final String sensorKey = "amsr2-gcw1";
         final String version = "v220";
         final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{sensorKey, version, "2013", "07", "01", "GW1AM2_201307010942_035A_L1SGRTBR_2220220.h5"}, true);
-        final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
 
-        final SatelliteObservation satelliteObservation = readSatelliteObservation(sensorKey, absolutePath, version);
+        final SatelliteObservation satelliteObservation = readSatelliteObservation(sensorKey, relativeArchivePath, version);
         storage.insert(satelliteObservation);
     }
 
     private void insert_Insitu(String insituType, String fileName) throws IOException, SQLException {
         final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{"insitu", insituType, "vFake", fileName}, true);
-        final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
-        final SatelliteObservation insitu = readSatelliteObservation("gtmba-sst", absolutePath, "vFake");
+        final SatelliteObservation insitu = readSatelliteObservation("gtmba-sst", relativeArchivePath, "vFake");
         storage.insert(insitu);
     }
 

@@ -79,8 +79,17 @@ abstract class AbstractUsecaseIntegrationTest {
         TestUtil.deleteTestDirectory();
     }
 
-    SatelliteObservation readSatelliteObservation(String sensorKey, String absolutePath, String version) throws IOException {
+    /**
+     *
+     * @param sensorKey sensor key
+     * @param relativePath relative path or archive root
+     * @param version data version
+     * @return a satellite observation ready to ingest into database
+     * @throws IOException on disk acces failures
+     */
+    SatelliteObservation readSatelliteObservation(String sensorKey, String relativePath, String version) throws IOException {
         final ReaderFactory readerFactory = ReaderFactory.create(geometryFactory, new TempFileUtils(), TestUtil.getArchive());
+        final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativePath;
         try (Reader reader = readerFactory.getReader(sensorKey)) {
             reader.open(new File(absolutePath));
             final AcquisitionInfo acquisitionInfo = reader.read();
@@ -88,7 +97,7 @@ abstract class AbstractUsecaseIntegrationTest {
             satelliteObservation.setSensor(new Sensor(sensorKey));
             satelliteObservation.setStartTime(acquisitionInfo.getSensingStart());
             satelliteObservation.setStopTime(acquisitionInfo.getSensingStop());
-            satelliteObservation.setDataFilePath(absolutePath);
+            satelliteObservation.setDataFilePath(relativePath);
             satelliteObservation.setGeoBounds(acquisitionInfo.getBoundingGeometry());
             satelliteObservation.setTimeAxes(acquisitionInfo.getTimeAxes());
             satelliteObservation.setNodeType(acquisitionInfo.getNodeType());

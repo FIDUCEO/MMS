@@ -222,8 +222,7 @@ public class MatchupToolIntegrationTest_useCase_14_SST_2secondarySensors extends
 
     private void insert_Insitu(String insituType, String fileName) throws IOException, SQLException {
         final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{"insitu", insituType, "v03.3", fileName}, true);
-        final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
-        final SatelliteObservation insitu = readSatelliteObservation("drifter-sst", absolutePath, "v03.3");
+        final SatelliteObservation insitu = readSatelliteObservation("drifter-sst", relativeArchivePath, "v03.3");
         storage.insert(insitu);
     }
 
@@ -231,8 +230,7 @@ public class MatchupToolIntegrationTest_useCase_14_SST_2secondarySensors extends
         final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{
                     "hirs-n18", "1.0", "2011", "08", "23", "190455003.NSS.HIRX.NN.D11235.S0028.E0223.B3223536.WI.nc"
         }, true);
-        final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
-        final SatelliteObservation satelliteObservation = readSatelliteObservation("hirs-n18", absolutePath, "1.0");
+        final SatelliteObservation satelliteObservation = readSatelliteObservation("hirs-n18", relativeArchivePath, "1.0");
         storage.insert(satelliteObservation);
     }
 
@@ -240,8 +238,7 @@ public class MatchupToolIntegrationTest_useCase_14_SST_2secondarySensors extends
         final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{
                     "mhs-n18", "v1.0", "2011", "08", "23", "190457103.NSS.MHSX.NN.D11235.S0028.E0223.B3223536.WI.h5"
         }, true);
-        final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
-        final SatelliteObservation satelliteObservation = readSatelliteObservation("mhs-n18", absolutePath, "v1.0");
+        final SatelliteObservation satelliteObservation = readSatelliteObservation("mhs-n18", relativeArchivePath, "v1.0");
         storage.insert(satelliteObservation);
     }
 
