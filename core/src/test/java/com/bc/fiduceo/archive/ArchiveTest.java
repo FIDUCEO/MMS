@@ -386,10 +386,15 @@ public class ArchiveTest {
     @Test
     public void testRelativeElements() {
         final String sep = File.separator;
+
+        final ArchiveConfig archiveConfig = new ArchiveConfig();
         final Path root = Paths.get("C:" + sep + "data" + sep + "root");
+        archiveConfig.setRootPath(root);
+        final Archive localArchive = new Archive(archiveConfig);
+
         final Path archivePath = Paths.get("C:" + sep + "data" + sep + "root" + sep + "sensor" + sep + "version" + sep + "2008");
 
-        final String[] elements = Archive.relativeElements(archivePath, root);
+        final String[] elements = localArchive.relativeElements(archivePath);
         assertEquals(3, elements.length);
         assertEquals("sensor", elements[0]);
         assertEquals("version", elements[1]);
