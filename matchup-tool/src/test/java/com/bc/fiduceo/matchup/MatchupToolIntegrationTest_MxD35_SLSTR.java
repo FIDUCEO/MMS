@@ -84,9 +84,8 @@ public class MatchupToolIntegrationTest_MxD35_SLSTR extends AbstractUsecaseInteg
         final String sensorKey = "mod35-te";
         final String version = "v61";
         final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{sensorKey, version, "2022", "115", "MOD35_L2.A2022115.1125.061.2022115193707.hdf"}, true);
-        final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
 
-        final SatelliteObservation satelliteObservation = readSatelliteObservation(sensorKey, absolutePath, version);
+        final SatelliteObservation satelliteObservation = readSatelliteObservation(sensorKey, relativeArchivePath, version);
         storage.insert(satelliteObservation);
     }
 
@@ -100,9 +99,8 @@ public class MatchupToolIntegrationTest_MxD35_SLSTR extends AbstractUsecaseInteg
         };
         for (String product : products) {
             final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{sensorKey, version, "2022", "04", "25", product}, true);
-            final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
 
-            final SatelliteObservation satelliteObservation = readSatelliteObservation(sensorKey, absolutePath, version);
+            final SatelliteObservation satelliteObservation = readSatelliteObservation(sensorKey, relativeArchivePath, version);
             storage.insert(satelliteObservation);
         }
     }

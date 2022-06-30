@@ -56,7 +56,9 @@ public interface Driver {
 
     void update(SatelliteObservation satelliteObservation) throws SQLException;
     
-    void updatePath(SatelliteObservation satelliteObservation, String newPath) throws SQLException;
+    AbstractBatch updatePathBatch(SatelliteObservation satelliteObservation, String newPath, AbstractBatch batch) throws SQLException;
+
+    void commitBatch(AbstractBatch batch) throws SQLException;
 
     List<SatelliteObservation> get() throws SQLException;
 

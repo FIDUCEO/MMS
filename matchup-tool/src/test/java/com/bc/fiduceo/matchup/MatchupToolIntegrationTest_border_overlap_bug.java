@@ -77,9 +77,8 @@ public class MatchupToolIntegrationTest_border_overlap_bug extends AbstractUseca
         final String sensorKey = "aatsr-en";
         final String version = "v3";
         final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{sensorKey, version, "2012", "02", "15", "ATS_TOA_1PUUPA20120215_010547_000065273111_00361_52099_6045.N1"}, true);
-        final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
 
-        final SatelliteObservation satelliteObservation = readSatelliteObservation(sensorKey, absolutePath, version);
+        final SatelliteObservation satelliteObservation = readSatelliteObservation(sensorKey, relativeArchivePath, version);
         storage.insert(satelliteObservation);
     }
 
@@ -87,8 +86,7 @@ public class MatchupToolIntegrationTest_border_overlap_bug extends AbstractUseca
         final String processingVersion = "v04.0";
         final String sensorKey = "argo-sst";
         final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{"insitu", "argo-sst", processingVersion, "insitu_5_WMOID_5904372_20130819_20161225.nc"}, true);
-        final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
-        final SatelliteObservation argoInsitu = readSatelliteObservation(sensorKey, absolutePath, processingVersion);
+        final SatelliteObservation argoInsitu = readSatelliteObservation(sensorKey, relativeArchivePath, processingVersion);
         storage.insert(argoInsitu);
     }
 }

@@ -38,7 +38,7 @@ import java.util.List;
 
 abstract class AbstractDriver implements Driver {
 
-    private static final String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss.S";
+    static final String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss.S";
 
     Connection connection;
 
@@ -53,6 +53,8 @@ abstract class AbstractDriver implements Driver {
         connection = DriverManager.getConnection(dataSource.getUrl(),
                 dataSource.getUsername(),
                 dataSource.getPassword());
+
+        connection.setAutoCommit(false);
     }
 
     @Override
@@ -90,6 +92,8 @@ abstract class AbstractDriver implements Driver {
 
         connection.createStatement();
         statement.execute("DROP TABLE IF EXISTS SENSOR");
+
+        connection.commit();
     }
 
     @Override

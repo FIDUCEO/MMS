@@ -68,6 +68,7 @@ public class PostGISDriver extends AbstractDriver {
         properties.put("connectTimeout", "120");
 
         connection = DriverManager.getConnection(url, properties);
+        connection.setAutoCommit(false);
     }
 
     @Override
@@ -108,6 +109,8 @@ public class PostGISDriver extends AbstractDriver {
 
         statement = connection.createStatement();
         statement.execute("CREATE INDEX OBSERVATION_ID ON TIMEAXIS(ObservationId)");
+
+        connection.commit();
     }
 
     @Override
@@ -147,28 +150,44 @@ public class PostGISDriver extends AbstractDriver {
                 preparedStatement.executeUpdate();
             }
         }
+
+        connection.commit();
     }
 
     @Override
-    public void updatePath(SatelliteObservation satelliteObservation, String newPath) throws SQLException {
-        final QueryParameter queryParameter = new QueryParameter();
-        queryParameter.setStartTime(satelliteObservation.getStartTime());
-        queryParameter.setStopTime(satelliteObservation.getStopTime());
-        queryParameter.setSensorName(satelliteObservation.getSensor().getName());
-        queryParameter.setVersion(satelliteObservation.getVersion());
-        queryParameter.setPath(satelliteObservation.getDataFilePath().toString());
+    public AbstractBatch updatePathBatch(SatelliteObservation satelliteObservation, String newPath, AbstractBatch batch) throws SQLException {
+        if (batch == null) {
+            final StringBuilder sql = new StringBuilder();
+            sql.append("UPDATE SATELLITE_OBSERVATION AS obs SET DataFile = ? FROM SENSOR AS sen");
+            sql.append(" WHERE obs.stopDate >= '");
+            sql.append(satelliteObservation.getStartTime());
+            sql.append("' AND obs.startDate <= '");
+            sql.append(satelliteObservation.getStopTime());
+            sql.append("' AND sen.Name = '");
+            sql.append(satelliteObservation.getSensor().getName());
+            sql.append("' AND obs.DataFile = ? ");
+            sql.append("AND obs.Version = '");
+            sql.append(satelliteObservation.getVersion());
+            sql.append("' AND obs.SensorId = sen.ID");
 
-        final StringBuilder sql = new StringBuilder();
-        sql.append("UPDATE SATELLITE_OBSERVATION AS obs SET DataFile = '");
-        sql.append(newPath);
-        sql.append("' ");
-        sql.append("FROM SENSOR AS sen"); //ON obs.SensorId = sen.ID
+            final PreparedStatement preparedStatement = connection.prepareStatement(sql.toString());
+            batch = new JdbcBatch(preparedStatement);
+        }
 
-        appendWhereClause(queryParameter, sql);
-        sql.append(" AND obs.SensorId = sen.ID");
+        final PreparedStatement preparedStatement = (PreparedStatement) batch.getStatement();
+        preparedStatement.setString(1, newPath);
+        preparedStatement.setString(2, satelliteObservation.getDataFilePath().toString());
+        preparedStatement.addBatch();
 
-        final PreparedStatement preparedStatement = connection.prepareStatement(sql.toString());
-        preparedStatement.executeUpdate();
+        return batch;
+    }
+
+    @Override
+    public void commitBatch(AbstractBatch batch) throws SQLException {
+        final PreparedStatement preparedStatement = (PreparedStatement) batch.getStatement();
+        preparedStatement.executeBatch();
+
+        connection.commit();
     }
 
     @Override

@@ -143,16 +143,14 @@ public class MatchupToolIntegrationTest_useCase_6c_SST extends AbstractUsecaseIn
         final String sensorKey = "amsre-aq";
         final String version = "v12";
         final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{sensorKey, version, "2005", "02", "16", "AMSR_E_L2A_BrightnessTemperatures_V12_200502161217_A.hdf"}, true);
-        final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
 
-        final SatelliteObservation satelliteObservation = readSatelliteObservation(sensorKey, absolutePath, version);
+        final SatelliteObservation satelliteObservation = readSatelliteObservation(sensorKey, relativeArchivePath, version);
         storage.insert(satelliteObservation);
     }
 
     private void insert_Insitu(String insituType, String fileName) throws IOException, SQLException {
         final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{"insitu", insituType, "v03.3", fileName}, true);
-        final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
-        final SatelliteObservation insitu = readSatelliteObservation("drifter-sst", absolutePath, "v03.3");
+        final SatelliteObservation insitu = readSatelliteObservation("drifter-sst", relativeArchivePath, "v03.3");
         storage.insert(insitu);
     }
 

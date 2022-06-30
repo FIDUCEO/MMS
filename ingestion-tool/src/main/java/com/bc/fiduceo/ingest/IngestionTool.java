@@ -111,7 +111,9 @@ class IngestionTool {
                 continue;
             }
 
-            queryParameter.setPath(dataFilePath);
+            final Path relativePath = archive.toRelative(Paths.get(dataFilePath));
+            queryParameter.setPath(relativePath.toString());
+
             boolean registered = storage.isAlreadyRegistered(queryParameter);
             if (registered && !update) {
                 logger.info("The file '" + dataFilePath + "' is already registered to the database. Skipping");
@@ -128,7 +130,7 @@ class IngestionTool {
                 satelliteObservation.setSensor(new Sensor(sensorType));
                 satelliteObservation.setStartTime(acquisitionInfo.getSensingStart());
                 satelliteObservation.setStopTime(acquisitionInfo.getSensingStop());
-                satelliteObservation.setDataFilePath(dataFilePath);
+                satelliteObservation.setDataFilePath(relativePath.toString());
                 satelliteObservation.setGeoBounds(acquisitionInfo.getBoundingGeometry());
                 satelliteObservation.setTimeAxes(acquisitionInfo.getTimeAxes());
                 satelliteObservation.setNodeType(acquisitionInfo.getNodeType());

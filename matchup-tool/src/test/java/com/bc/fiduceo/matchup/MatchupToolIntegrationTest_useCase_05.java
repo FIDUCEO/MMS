@@ -148,15 +148,13 @@ public class MatchupToolIntegrationTest_useCase_05 extends AbstractUsecaseIntegr
 
     private void insert_HIRS_NOAA11() throws IOException, SQLException {
         final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{"hirs-n11", "1.0", "1989", "03", "17", "NSS.HIRX.NH.D89076.S0557.E0743.B0245152.WI.nc"}, true);
-        final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
-        final SatelliteObservation noaa11 = readSatelliteObservation("hirs-n11", absolutePath, "1.0");
+        final SatelliteObservation noaa11 = readSatelliteObservation("hirs-n11", relativeArchivePath, "1.0");
         storage.insert(noaa11);
     }
 
     private void insert_HIRS_NOAA10() throws IOException, SQLException {
         final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{"hirs-n10", "1.0", "1989", "03", "17", "NSS.HIRX.NG.D89076.S0608.E0802.B1296162.WI.nc"}, true);
-        final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
-        final SatelliteObservation noaa10 = readSatelliteObservation("hirs-n10", absolutePath, "1.0");
+        final SatelliteObservation noaa10 = readSatelliteObservation("hirs-n10", relativeArchivePath, "1.0");
         storage.insert(noaa10);
     }
 

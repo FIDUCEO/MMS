@@ -119,8 +119,7 @@ public class MatchupToolIntegrationTest_useCase_03_SST extends AbstractUsecaseIn
         final String processingVersion = "v01.2";
         final String sensorKey = "avhrr-n17";
         final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{sensorKey, processingVersion, "2006", "10", "30", "20061030110000-ESACCI-L1C-AVHRR17_G-fv01.0.nc"}, true);
-        final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
-        final SatelliteObservation aatsr = readSatelliteObservation(sensorKey, absolutePath, processingVersion);
+        final SatelliteObservation aatsr = readSatelliteObservation(sensorKey, relativeArchivePath, processingVersion);
         storage.insert(aatsr);
     }
 
@@ -128,8 +127,7 @@ public class MatchupToolIntegrationTest_useCase_03_SST extends AbstractUsecaseIn
         final String processingVersion = "v04.0";
         final String sensorKey = "gtmba-sst";
         final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{"insitu", sensorKey, processingVersion, "insitu_3_WMOID_31007_19990306_20160920.nc"}, true);
-        final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
-        final SatelliteObservation iasi = readSatelliteObservation(sensorKey, absolutePath, processingVersion);
+        final SatelliteObservation iasi = readSatelliteObservation(sensorKey, relativeArchivePath, processingVersion);
         storage.insert(iasi);
     }
 }

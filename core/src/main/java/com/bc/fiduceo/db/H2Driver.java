@@ -105,29 +105,41 @@ public class H2Driver extends AbstractDriver {
             preparedStatement.setTimestamp(4, TimeUtils.toTimestamp(observation.getStopTime()));
             preparedStatement.executeUpdate();
         }
+
+        connection.commit();
     }
 
     @Override
-    public void updatePath(SatelliteObservation satelliteObservation, String newPath) throws SQLException {
-        final QueryParameter queryParameter = new QueryParameter();
-        queryParameter.setStartTime(satelliteObservation.getStartTime());
-        queryParameter.setStopTime(satelliteObservation.getStopTime());
-        queryParameter.setVersion(satelliteObservation.getVersion());
-        queryParameter.setPath(satelliteObservation.getDataFilePath().toString());
+    public AbstractBatch updatePathBatch(SatelliteObservation satelliteObservation, String newPath, AbstractBatch batch) throws SQLException {
+        if (batch == null) {
+            final StringBuilder sql = new StringBuilder();
+            sql.append("UPDATE SATELLITE_OBSERVATION AS obs SET DataFile = ?  WHERE obs.stopDate >= '");
+            sql.append(TimeUtils.format(satelliteObservation.getStartTime(), DATE_PATTERN));
+            sql.append("' AND obs.startDate <= '");
+            sql.append(TimeUtils.format(satelliteObservation.getStopTime(), DATE_PATTERN));
+            sql.append("' AND obs.DataFile = ? AND obs.Version = '");
+            sql.append(satelliteObservation.getVersion());
+            sql.append("' AND obs.SensorId = ");
+            sql.append(getSensorId(satelliteObservation.getSensor().getName()));
 
-        final Integer sensorId = getSensorId(satelliteObservation.getSensor().getName());
+            final PreparedStatement preparedStatement = connection.prepareStatement(sql.toString());
+            batch = new JdbcBatch(preparedStatement);
+        }
 
-        final StringBuilder sql = new StringBuilder();
-        sql.append("UPDATE SATELLITE_OBSERVATION AS obs SET DataFile = '");
-        sql.append(newPath);
-        sql.append("' ");
+        final PreparedStatement preparedStatement = (PreparedStatement) batch.getStatement();
+        preparedStatement.setString(1, newPath);
+        preparedStatement.setString(2, satelliteObservation.getDataFilePath().toString());
+        preparedStatement.addBatch();
 
-        appendWhereClause(queryParameter, sql);
-        sql.append(" AND obs.SensorId = ");
-        sql.append(sensorId);
+        return batch;
+    }
 
-        final PreparedStatement preparedStatement = connection.prepareStatement(sql.toString());
-        preparedStatement.executeUpdate();
+    @Override
+    public void commitBatch(AbstractBatch batch) throws SQLException {
+        final PreparedStatement preparedStatement = (PreparedStatement) batch.getStatement();
+        preparedStatement.executeBatch();
+
+        connection.commit();
     }
 
     @Override
