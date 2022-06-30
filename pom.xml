@@ -204,14 +204,15 @@
 <!--            <name>bintray</name>-->
 <!--            <url>http://dl.bintray.com/jnegre/maven</url>-->
 <!--        </repository>-->
-<!--        <repository>-->
-<!--            <snapshots>-->
-<!--                <enabled>false</enabled>-->
-<!--            </snapshots>-->
-<!--            <id>maven-central</id>-->
-<!--            <name>Maven central repository</name>-->
+        <repository>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>maven-central</id>
+            <name>Maven central repository</name>
 <!--            <url>https://repo1.maven.org/maven2/</url>-->
-<!--        </repository>-->
+            <url>https://repo.maven.apache.org/maven2/</url>
+        </repository>
         <repository>
             <id>snap-repo-public</id>
             <name>Public Maven Repository for SNAP</name>
