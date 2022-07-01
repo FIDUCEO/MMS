@@ -77,7 +77,7 @@ public class PostProcessingConfigTest {
         pw.println("    <" + DUMMY_NAME + ">C</" + DUMMY_NAME + ">");
         pw.println("  </post-processings>");
         pw.println("</post-processing-config>");
-        pw.println();
+//        pw.println();
         pw.flush();
 
         assertEquals(sw.toString().trim(), outputStream.toString().trim());
