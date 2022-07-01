@@ -80,7 +80,7 @@ public class PostProcessingConfigTest {
         pw.println();
         pw.flush();
 
-        assertEquals(sw.toString(), outputStream.toString());
+        assertEquals(sw.toString().trim(), outputStream.toString().trim());
     }
 
     @Test
