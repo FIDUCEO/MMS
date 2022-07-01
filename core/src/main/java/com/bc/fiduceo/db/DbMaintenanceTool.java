@@ -40,6 +40,9 @@ class DbMaintenanceTool {
         final Option configOption = new Option("c", "config", true, "Defines the configuration directory. Defaults to './config'.");
         options.addOption(configOption);
 
+        final Option dryRunOption = new Option("d", "dryrun", false, "Defines 'dryrun' status, i.e. just test the replacement and report problems.");
+        options.addOption(dryRunOption);
+
         final Option pathOption = new Option("p", "path", true, "Observation path segment to be replaced.");
         options.addOption(pathOption);
 

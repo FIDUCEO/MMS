@@ -26,6 +26,7 @@ public class DbMaintenanceToolIntegrationTest {
 
     private final String fs;
     private File configDir;
+    private GeometryFactory geometryFactory;
 
     public DbMaintenanceToolIntegrationTest() {
         fs = File.separator;
@@ -38,6 +39,7 @@ public class DbMaintenanceToolIntegrationTest {
         if (!configDir.mkdir()) {
             fail("unable to create testGroupInputProduct directory: " + configDir.getAbsolutePath());
         }
+        geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
     }
 
     @After
@@ -70,6 +72,7 @@ public class DbMaintenanceToolIntegrationTest {
                     "usage: db-maintenance-tool <options>" + ls +
                     "Valid options are:" + ls +
                     "   -c,--config <arg>    Defines the configuration directory. Defaults to './config'." + ls +
+                    "   -d,--dryrun          Defines 'dryrun' status, i.e. just test the replacement and report problems." + ls +
                     "   -h,--help            Prints the tool usage." + ls +
                     "   -p,--path <arg>      Observation path segment to be replaced." + ls +
                     "   -r,--replace <arg>   Observation path segment replacement." + ls, err.toString());
@@ -146,14 +149,7 @@ public class DbMaintenanceToolIntegrationTest {
     }
 
     private void runTest_alterNoPath(BasicDataSource dataSource) throws SQLException, ParseException {
-        final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
-        final Storage storage = Storage.create(dataSource, geometryFactory);
-
-        if (!storage.isInitialized()) {
-            storage.initialize();
-        }
-
-        storage.insert(new Sensor(TestData.SENSOR_NAME));
+        final Storage storage = initializeStorage(dataSource);
 
         for (int i = 0; i < 12; i++) {
             final SatelliteObservation observation = TestData.createSatelliteObservation(geometryFactory);
@@ -184,14 +180,7 @@ public class DbMaintenanceToolIntegrationTest {
     }
 
     private void runTest_alterSomePaths(BasicDataSource dataSource) throws SQLException, ParseException {
-        final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
-        final Storage storage = Storage.create(dataSource, geometryFactory);
-
-        if (!storage.isInitialized()) {
-            storage.initialize();
-        }
-
-        storage.insert(new Sensor(TestData.SENSOR_NAME));
+        final Storage storage = initializeStorage(dataSource);
 
         for (int i = 0; i < 16; i++) {
             final SatelliteObservation observation = TestData.createSatelliteObservation(geometryFactory);
@@ -222,5 +211,43 @@ public class DbMaintenanceToolIntegrationTest {
             storage.clear();
             storage.close();
         }
+    }
+
+    private void runTest_dryRunNoPath(BasicDataSource dataSource) throws SQLException, ParseException {
+        final Storage storage = initializeStorage(dataSource);
+
+        for (int i = 0; i < 12; i++) {
+            final SatelliteObservation observation = TestData.createSatelliteObservation(geometryFactory);
+            final String obsPath = TestUtil.assembleFileSystemPath(new String[]{"archive", "correct", "the_file_number_" + i}, true);
+            observation.setDataFilePath(obsPath);
+            storage.insert(observation);
+        }
+
+        try {
+            final String searchPath = TestUtil.assembleFileSystemPath(new String[]{"data", "archive", "wrong"}, true);
+            final String replacePath = TestUtil.assembleFileSystemPath(new String[]{"archive", "correct",}, true);
+
+            final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-d",
+                    "-p", searchPath,
+                    "-r", replacePath};
+
+            DbMaintenanceToolMain.main(args);
+
+        } finally {
+            storage.clear();
+            storage.close();
+        }
+    }
+
+    private Storage initializeStorage(BasicDataSource dataSource) throws SQLException {
+        final Storage storage = Storage.create(dataSource, geometryFactory);
+
+        if (!storage.isInitialized()) {
+            storage.initialize();
+        }
+
+        storage.insert(new Sensor(TestData.SENSOR_NAME));
+
+        return storage;
     }
 }
