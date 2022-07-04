@@ -356,17 +356,7 @@ public class SlstrRegriddedSubsetReader implements Reader {
         for (Variable variable : _variables) {
             final String shortName = variable.getShortName();
             _variablesLUT.put(shortName, variable);
-//            if (shortName.contains("latit")||shortName.contains("longit")) {
-//                System.out.println(shortName);
-//                System.out.print("\t" + Arrays.toString(variable.getShape()));
-//                System.out.print("\t" + Arrays.toString(fullShape));
-//                try {
-//                    Array array = readScaled(1499, 1199, new Interval(1, 1), shortName);
-//                    System.out.print("\t" + array);
-//                } catch (InvalidRangeException ignored) {
-//                }
-//                System.out.println();
-//            }
+
         }
     }
 
@@ -435,7 +425,6 @@ public class SlstrRegriddedSubsetReader implements Reader {
     }
 
     // package instead of private for testing purposes
-
     static String extractName(String key) {
         if (key.contains("\\")) {
             return key.substring(key.lastIndexOf("\\") + 1);
