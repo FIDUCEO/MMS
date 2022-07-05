@@ -7,13 +7,13 @@ import com.bc.fiduceo.reader.ReaderPlugin;
 
 public class SlstrRegriddedSubsetReaderPluginNadir implements ReaderPlugin {
     @Override
-    public Reader createReader(ReaderContext readerContext) {
-        return new SlstrRegriddedSubsetReader(readerContext, true);
+    public String[] getSupportedSensorKeys() {
+        return new String[]{"slstr.a", "slstr.b"};
     }
 
     @Override
-    public String[] getSupportedSensorKeys() {
-        return new String[] {"slstr.a","slstr.b"};
+    public Reader createReader(ReaderContext readerContext) {
+        return new SlstrRegriddedSubsetReader(readerContext, true);
     }
 
     @Override

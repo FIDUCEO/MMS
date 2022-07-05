@@ -356,7 +356,6 @@ public class SlstrRegriddedSubsetReader implements Reader {
         for (Variable variable : _variables) {
             final String shortName = variable.getShortName();
             _variablesLUT.put(shortName, variable);
-
         }
     }
 
