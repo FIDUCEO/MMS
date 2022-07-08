@@ -25,6 +25,7 @@ class DbMaintenanceTool {
     private static final int PAGE_SIZE = 512;
     private final Logger logger;
     private Storage storage;
+    private PathAccumulator accumulator;
 
     DbMaintenanceTool() {
         this.logger = FiduceoLogger.getLogger();
@@ -71,16 +72,50 @@ class DbMaintenanceTool {
 
         initialize(commandLine);
 
-        final String oldPathSegment = commandLine.getOptionValue("path");
+        final String
+                oldPathSegment = commandLine.getOptionValue("path");
         final String newPathSegment = commandLine.getOptionValue("replace");
 
-        logger.info("Replacing paths  old: " + oldPathSegment +  "  new: " + newPathSegment);
+        final QueryParameter queryParameter = new QueryParameter();
+        queryParameter.setOffset(0);
+        queryParameter.setPageSize(PAGE_SIZE);
 
+        boolean dryrun = commandLine.hasOption("dryrun");
+
+        if (dryrun) {
+            logger.info("Dryrun checking paths  old: " + oldPathSegment + "  new: " + newPathSegment);
+            accumulator = new PathAccumulator(oldPathSegment, 3); // @todo 1 tb/tb read from command line 2022-07-08
+            executeDryrun(oldPathSegment, queryParameter);
+        } else {
+            logger.info("Replacing paths  old: " + oldPathSegment + "  new: " + newPathSegment);
+            processUpdate(oldPathSegment, newPathSegment, queryParameter);
+        }
+    }
+
+    private void executeDryrun(String oldPathSegment, QueryParameter queryParameter) throws SQLException {
+        int total_count = 0;
+
+        List<SatelliteObservation> satelliteObservations = storage.get(queryParameter);
+        while (satelliteObservations.size() > 0) {
+            checkPaths(oldPathSegment, satelliteObservations);
+
+            total_count += satelliteObservations.size();
+            logger.info("processed " + total_count + " datasets");
+
+            final int newOffset = queryParameter.getOffset() + PAGE_SIZE;
+            queryParameter.setOffset(newOffset);
+            satelliteObservations = storage.get(queryParameter);
+        }
+
+
+        System.out.println("Datasets checked: " + total_count);
+
+        final PathCount matches = accumulator.getMatches();
+        System.out.println("Datasets ok to convert: " + matches.count);
+    }
+
+    private void processUpdate(String oldPathSegment, String newPathSegment, QueryParameter queryParameter) throws SQLException {
         try {
-            final QueryParameter queryParameter = new QueryParameter();
-            queryParameter.setOffset(0);
-            queryParameter.setPageSize(PAGE_SIZE);
-
             int total_count = 0;
 
             List<SatelliteObservation> satelliteObservations = storage.get(queryParameter);
@@ -112,6 +147,17 @@ class DbMaintenanceTool {
 
         if (batch != null) {
             storage.commitBatch(batch);
+        }
+    }
+
+    private void checkPaths(String oldPathSegment, List<SatelliteObservation> satelliteObservations) {
+        for (final SatelliteObservation observation : satelliteObservations) {
+            final String oldPath = observation.getDataFilePath().toString();
+            if (oldPath.contains(oldPathSegment)) {
+                accumulator.addMatch();
+            } else {
+                accumulator.addMiss(oldPath);
+            }
         }
     }
 

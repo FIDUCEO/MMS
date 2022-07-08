@@ -148,6 +148,33 @@ public class DbMaintenanceToolIntegrationTest {
         runTest_alterSomePaths(dataSource);
     }
 
+    @Test
+    public void testDryRun_MongoDb_correctPaths() throws IOException, ParseException, SQLException {
+        TestUtil.writeDatabaseProperties_MongoDb(configDir);
+        TestUtil.writeSystemConfig(configDir);
+        final BasicDataSource dataSource = TestUtil.getDataSource_MongoDb();
+
+        runTest_dryRun_allOk(dataSource);
+    }
+
+    @Test
+    public void testDryRun_Postgres_correctPaths() throws IOException, ParseException, SQLException {
+        TestUtil.writeDatabaseProperties_Postgres(configDir);
+        TestUtil.writeSystemConfig(configDir);
+        final BasicDataSource dataSource = TestUtil.getDataSource_Postgres();
+
+        runTest_dryRun_allOk(dataSource);
+    }
+
+    @Test
+    public void testDryRun_H2_correctPaths() throws IOException, ParseException, SQLException {
+        TestUtil.writeDatabaseProperties_H2(configDir);
+        TestUtil.writeSystemConfig(configDir);
+        final BasicDataSource dataSource = TestUtil.getDatasource_H2();
+
+        runTest_dryRun_allOk(dataSource);
+    }
+
     private void runTest_alterNoPath(BasicDataSource dataSource) throws SQLException, ParseException {
         final Storage storage = initializeStorage(dataSource);
 
@@ -213,19 +240,26 @@ public class DbMaintenanceToolIntegrationTest {
         }
     }
 
-    private void runTest_dryRunNoPath(BasicDataSource dataSource) throws SQLException, ParseException {
+    private void runTest_dryRun_allOk(BasicDataSource dataSource) throws SQLException, ParseException {
+        final String sep = System.lineSeparator();
         final Storage storage = initializeStorage(dataSource);
 
         for (int i = 0; i < 12; i++) {
             final SatelliteObservation observation = TestData.createSatelliteObservation(geometryFactory);
-            final String obsPath = TestUtil.assembleFileSystemPath(new String[]{"archive", "correct", "the_file_number_" + i}, true);
+            final String obsPath = TestUtil.assembleFileSystemPath(new String[]{"data", "archive", "correct", "the_file_number_" + i}, true);
             observation.setDataFilePath(obsPath);
             storage.insert(observation);
         }
 
+        final PrintStream _out = System.out;
+
         try {
-            final String searchPath = TestUtil.assembleFileSystemPath(new String[]{"data", "archive", "wrong"}, true);
-            final String replacePath = TestUtil.assembleFileSystemPath(new String[]{"archive", "correct",}, true);
+            final ByteArrayOutputStream out = new ByteArrayOutputStream();
+            final PrintStream psO = new PrintStream(out);
+            System.setOut(psO);
+
+            final String searchPath = TestUtil.assembleFileSystemPath(new String[]{"data", "archive", "correct"}, true);
+            final String replacePath = TestUtil.assembleFileSystemPath(new String[]{"archive", "whatever",}, true);
 
             final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-d",
                     "-p", searchPath,
@@ -233,7 +267,14 @@ public class DbMaintenanceToolIntegrationTest {
 
             DbMaintenanceToolMain.main(args);
 
+            psO.flush();
+
+            assertEquals("Datasets checked: 12" + sep +
+                    "Datasets ok to convert: 12" + sep, out.toString());
+
         } finally {
+            System.setOut(_out);
+
             storage.clear();
             storage.close();
         }

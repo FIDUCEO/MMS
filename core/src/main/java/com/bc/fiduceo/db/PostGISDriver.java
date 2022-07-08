@@ -261,6 +261,8 @@ public class PostGISDriver extends AbstractDriver {
             timeAxesList.clear();
         }
 
+        connection.commit();
+
         return resultList;
     }
 
@@ -280,6 +282,9 @@ public class PostGISDriver extends AbstractDriver {
         final ResultSet resultSet = statement.executeQuery(sql.toString());
         resultSet.next();
         final int numValues = resultSet.getInt(1);
+
+        connection.commit();
+
         return numValues > 0;
     }
 
