@@ -1,7 +1,10 @@
 package com.bc.fiduceo.db;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
 
 class PathAccumulator {
 
@@ -35,9 +38,17 @@ class PathAccumulator {
         return match;
     }
 
+    /**
+     * Retrieves a list of database satellite paths not matching the search path,
+     * list is ordered by number of paths, descending
+     *
+     * @return the list
+     */
     List<PathCount> getMisses() {
         final Collection<PathCount> values = missedCollector.values();
-        return new ArrayList<>(values);
+        final ArrayList<PathCount> missesArray = new ArrayList<>(values);
+        missesArray.sort((o1, o2) -> o2.getCount() - o1.getCount());
+        return missesArray;
     }
 
     // package access for testing only tb 2022-07-08

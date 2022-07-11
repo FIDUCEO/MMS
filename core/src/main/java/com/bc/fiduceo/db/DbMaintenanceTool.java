@@ -50,6 +50,9 @@ class DbMaintenanceTool {
         final Option replaceOption = new Option("r", "replace", true, "Observation path segment replacement.");
         options.addOption(replaceOption);
 
+        final Option segmentsOption = new Option("s", "segments", true, "Number of segments to consider for paths missing the search expression (default: 4)");
+        options.addOption(segmentsOption);
+
         return options;
     }
 
@@ -83,8 +86,14 @@ class DbMaintenanceTool {
         boolean dryrun = commandLine.hasOption("dryrun");
 
         if (dryrun) {
+            int numPathSegments = 4;
+            final boolean segments = commandLine.hasOption("segments");
+            if (segments) {
+                final String numSegmentsString = commandLine.getOptionValue("segments");
+                numPathSegments = Integer.parseInt(numSegmentsString);
+            }
             logger.info("Dryrun checking paths  old: " + oldPathSegment + "  new: " + newPathSegment);
-            accumulator = new PathAccumulator(oldPathSegment, 3); // @todo 1 tb/tb read from command line 2022-07-08
+            accumulator = new PathAccumulator(oldPathSegment, numPathSegments);
             executeDryrun(oldPathSegment, queryParameter);
         } else {
             logger.info("Replacing paths  old: " + oldPathSegment + "  new: " + newPathSegment);
@@ -107,11 +116,18 @@ class DbMaintenanceTool {
             satelliteObservations = storage.get(queryParameter);
         }
 
-
         System.out.println("Datasets checked: " + total_count);
 
         final PathCount matches = accumulator.getMatches();
         System.out.println("Datasets ok to convert: " + matches.count);
+
+        final List<PathCount> misses = accumulator.getMisses();
+        if (misses.size() > 0) {
+            System.out.println("Datasets with deviating path:");
+            for (final PathCount miss : misses) {
+                System.out.println("- " + miss.getPath() + ": " + miss.getCount());
+            }
+        }
     }
 
     private void processUpdate(String oldPathSegment, String newPathSegment, QueryParameter queryParameter) throws SQLException {

@@ -82,6 +82,35 @@ public class PathAccumulatorTest {
     }
 
     @Test
+    public void test_accumulate_addMisses_threePaths() {
+        final String sep = File.separator;
+        pathAccumulator.addMiss(sep + "root" + sep + "path" + sep + "different" + sep + "file_1");
+        pathAccumulator.addMiss(sep + "root" + sep + "path" + sep + "other" + sep + "file_2");
+        pathAccumulator.addMiss(sep + "root" + sep + "path" + sep + "other" + sep + "file_3");
+        pathAccumulator.addMiss(sep + "root" + sep + "path" + sep + "different" + sep + "file_4");
+        pathAccumulator.addMiss(sep + "hut" + sep + "path" + sep + "other" + sep + "file_5");
+        pathAccumulator.addMiss(sep + "root" + sep + "path" + sep + "different" + sep + "file_6");
+
+        final PathCount match = pathAccumulator.getMatches();
+        assertEquals(0, match.getCount());
+
+        final List<PathCount> misses = pathAccumulator.getMisses();
+        assertEquals(3, misses.size());
+
+        PathCount pathMatch = misses.get(0);
+        assertEquals(sep + "root" + sep + "path" + sep + "different", pathMatch.getPath());
+        assertEquals(3, pathMatch.getCount());
+
+        pathMatch = misses.get(1);
+        assertEquals(sep + "root" + sep + "path" + sep + "other", pathMatch.getPath());
+        assertEquals(2, pathMatch.getCount());
+
+        pathMatch = misses.get(2);
+        assertEquals(sep + "hut" + sep + "path" + sep + "other", pathMatch.getPath());
+        assertEquals(1, pathMatch.getCount());
+    }
+
+    @Test
     public void testStripPath() {
         final String sep = File.separator;
         final String path = sep + "root" + sep + "sub_1" + sep + "sub_2" + sep + "file";

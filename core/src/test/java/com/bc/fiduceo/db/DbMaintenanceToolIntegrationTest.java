@@ -71,11 +71,12 @@ public class DbMaintenanceToolIntegrationTest {
                     ls +
                     "usage: db-maintenance-tool <options>" + ls +
                     "Valid options are:" + ls +
-                    "   -c,--config <arg>    Defines the configuration directory. Defaults to './config'." + ls +
-                    "   -d,--dryrun          Defines 'dryrun' status, i.e. just test the replacement and report problems." + ls +
-                    "   -h,--help            Prints the tool usage." + ls +
-                    "   -p,--path <arg>      Observation path segment to be replaced." + ls +
-                    "   -r,--replace <arg>   Observation path segment replacement." + ls, err.toString());
+                    "   -c,--config <arg>     Defines the configuration directory. Defaults to './config'." + ls +
+                    "   -d,--dryrun           Defines 'dryrun' status, i.e. just test the replacement and report problems." + ls +
+                    "   -h,--help             Prints the tool usage." + ls +
+                    "   -p,--path <arg>       Observation path segment to be replaced." + ls +
+                    "   -r,--replace <arg>    Observation path segment replacement." + ls +
+                    "   -s,--segments <arg>   Number of segments to consider for paths missing the search expression (default: 4)" + ls, err.toString());
         } finally {
             System.setOut(_out);
             System.setErr(_err);
@@ -175,6 +176,33 @@ public class DbMaintenanceToolIntegrationTest {
         runTest_dryRun_allOk(dataSource);
     }
 
+    @Test
+    public void testDryRun_MongoDb_someIncorrectPaths() throws IOException, ParseException, SQLException {
+        TestUtil.writeDatabaseProperties_MongoDb(configDir);
+        TestUtil.writeSystemConfig(configDir);
+        final BasicDataSource dataSource = TestUtil.getDataSource_MongoDb();
+
+        runTest_dryRun_someNotOk(dataSource);
+    }
+
+    @Test
+    public void testDryRun_Postgres_someIncorrectPaths() throws IOException, ParseException, SQLException {
+        TestUtil.writeDatabaseProperties_Postgres(configDir);
+        TestUtil.writeSystemConfig(configDir);
+        final BasicDataSource dataSource = TestUtil.getDataSource_Postgres();
+
+        runTest_dryRun_someNotOk(dataSource);
+    }
+
+    @Test
+    public void testDryRun_H2_someIncorrectPaths() throws IOException, ParseException, SQLException {
+        TestUtil.writeDatabaseProperties_H2(configDir);
+        TestUtil.writeSystemConfig(configDir);
+        final BasicDataSource dataSource = TestUtil.getDatasource_H2();
+
+        runTest_dryRun_someNotOk(dataSource);
+    }
+
     private void runTest_alterNoPath(BasicDataSource dataSource) throws SQLException, ParseException {
         final Storage storage = initializeStorage(dataSource);
 
@@ -271,6 +299,54 @@ public class DbMaintenanceToolIntegrationTest {
 
             assertEquals("Datasets checked: 12" + sep +
                     "Datasets ok to convert: 12" + sep, out.toString());
+
+        } finally {
+            System.setOut(_out);
+
+            storage.clear();
+            storage.close();
+        }
+    }
+
+    private void runTest_dryRun_someNotOk(BasicDataSource dataSource) throws SQLException, ParseException {
+        final String sep = System.lineSeparator();
+        final Storage storage = initializeStorage(dataSource);
+
+        for (int i = 0; i < 12; i++) {
+            final SatelliteObservation observation = TestData.createSatelliteObservation(geometryFactory);
+            final String obsPath;
+            if (i % 3 == 0) {
+                obsPath = TestUtil.assembleFileSystemPath(new String[]{"other", "archive", "unexpected", "the_file_number_" + i}, true);
+            } else {
+                obsPath = TestUtil.assembleFileSystemPath(new String[]{"data", "archive", "correct", "the_file_number_" + i}, true);
+            }
+            observation.setDataFilePath(obsPath);
+            storage.insert(observation);
+        }
+
+        final PrintStream _out = System.out;
+
+        try {
+            final ByteArrayOutputStream out = new ByteArrayOutputStream();
+            final PrintStream psO = new PrintStream(out);
+            System.setOut(psO);
+
+            final String searchPath = TestUtil.assembleFileSystemPath(new String[]{"data", "archive", "correct"}, true);
+            final String replacePath = TestUtil.assembleFileSystemPath(new String[]{"archive", "whatever",}, true);
+
+            final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-d",
+                    "-p", searchPath,
+                    "-r", replacePath,
+                    "-s", "3"}; // for this test we only need 3 path segments tb 2022-07-11
+
+            DbMaintenanceToolMain.main(args);
+
+            psO.flush();
+
+            assertEquals("Datasets checked: 12" + sep +
+                    "Datasets ok to convert: 8" + sep +
+                    "Datasets with deviating path:" + sep +
+                    "- /other/archive/unexpected: 4" + sep, out.toString());
 
         } finally {
             System.setOut(_out);

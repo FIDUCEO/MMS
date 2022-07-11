@@ -56,10 +56,11 @@ public class DbMaintenanceToolTest {
                 ls +
                 "usage: db-maintenance-tool <options>" + ls +
                 "Valid options are:" + ls +
-                "   -c,--config <arg>    Defines the configuration directory. Defaults to './config'." + ls +
-                "   -d,--dryrun          Defines 'dryrun' status, i.e. just test the replacement and report problems." + ls +
-                "   -h,--help            Prints the tool usage." + ls +
-                "   -p,--path <arg>      Observation path segment to be replaced." + ls +
-                "   -r,--replace <arg>   Observation path segment replacement." + ls, stream.toString());
+                "   -c,--config <arg>     Defines the configuration directory. Defaults to './config'." + ls +
+                "   -d,--dryrun           Defines 'dryrun' status, i.e. just test the replacement and report problems." + ls +
+                "   -h,--help             Prints the tool usage." + ls +
+                "   -p,--path <arg>       Observation path segment to be replaced." + ls +
+                "   -r,--replace <arg>    Observation path segment replacement." + ls +
+                "   -s,--segments <arg>   Number of segments to consider for paths missing the search expression (default: 4)" + ls, stream.toString());
     }
 }
