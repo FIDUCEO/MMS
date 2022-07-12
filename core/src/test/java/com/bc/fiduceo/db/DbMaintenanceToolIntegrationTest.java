@@ -310,6 +310,7 @@ public class DbMaintenanceToolIntegrationTest {
 
     private void runTest_dryRun_someNotOk(BasicDataSource dataSource) throws SQLException, ParseException {
         final String sep = System.lineSeparator();
+        final String ps = File.separator;
         final Storage storage = initializeStorage(dataSource);
 
         for (int i = 0; i < 12; i++) {
@@ -343,10 +344,11 @@ public class DbMaintenanceToolIntegrationTest {
 
             psO.flush();
 
+            String expected = TestUtil.assembleFileSystemPath(new String[]{"other", "archive", "unexpected"}, true);
             assertEquals("Datasets checked: 12" + sep +
                     "Datasets ok to convert: 8" + sep +
                     "Datasets with deviating path:" + sep +
-                    "- /other/archive/unexpected: 4" + sep, out.toString());
+                    "- " + expected + ": 4" + sep, out.toString());
 
         } finally {
             System.setOut(_out);
