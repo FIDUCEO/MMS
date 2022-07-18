@@ -1,19 +1,17 @@
 package com.bc.fiduceo.reader.slstr_subset;
 
+import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestData;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.NodeType;
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.Point;
-import com.bc.fiduceo.geometry.Polygon;
-import com.bc.fiduceo.geometry.TimeAxis;
+import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import ucar.nc2.Variable;
 
 import java.io.File;
@@ -27,7 +25,7 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-
+@RunWith(IOTestRunner.class)
 public abstract class AbstractRegriddedSubsetReader_SlstrA_IOTest {
     private SlstrRegriddedSubsetReader reader;
     private ReaderContext readerContext;
@@ -63,8 +61,7 @@ public abstract class AbstractRegriddedSubsetReader_SlstrA_IOTest {
         final List<Variable> variables = reader.getVariables();
 
         assertEquals(32, variables.size());
-        @SuppressWarnings("Convert2MethodRef")
-        final List<String> names = variables.stream().map(v -> v.getShortName()).collect(Collectors.toList());
+        @SuppressWarnings("Convert2MethodRef") final List<String> names = variables.stream().map(v -> v.getShortName()).collect(Collectors.toList());
         assertThat(names, Matchers.containsInAnyOrder(
                 "bayes_in", "bayes_orphan_in", "cloud_in", "confidence_in", "detector_in",
                 "latitude_in", "latitude_tx", "longitude_in", "longitude_tx",
@@ -84,8 +81,7 @@ public abstract class AbstractRegriddedSubsetReader_SlstrA_IOTest {
         final List<Variable> variables = reader.getVariables();
 
         assertEquals(32, variables.size());
-        @SuppressWarnings("Convert2MethodRef")
-        final List<String> names = variables.stream().map(v -> v.getShortName()).collect(Collectors.toList());
+        @SuppressWarnings("Convert2MethodRef") final List<String> names = variables.stream().map(v -> v.getShortName()).collect(Collectors.toList());
         assertThat(names, Matchers.containsInAnyOrder(
                 "bayes_io", "bayes_orphan_io", "cloud_io", "confidence_io", "detector_io",
                 "latitude_io", "latitude_tx", "longitude_io", "longitude_tx",

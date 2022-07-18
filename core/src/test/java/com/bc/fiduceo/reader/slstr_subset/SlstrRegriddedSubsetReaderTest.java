@@ -1,23 +1,19 @@
 package com.bc.fiduceo.reader.slstr_subset;
 
-import com.bc.fiduceo.TestData;
+import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.reader.ReaderContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import ucar.ma2.InvalidRangeException;
-import ucar.nc2.Variable;
+import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
-import static org.junit.Assert.fail;
 import static org.junit.Assert.assertEquals;
-import static org.hamcrest.Matchers.*;
-import static org.hamcrest.MatcherAssert.*;
 
+@RunWith(IOTestRunner.class)
 public class SlstrRegriddedSubsetReaderTest {
 
     private SlstrRegriddedSubsetReader reader;
