@@ -1022,7 +1022,7 @@ public class IngestionToolIntegrationTest {
 
     @Test
     public void testIngest_SLSTR_SUBSET_S3A_Nadir() throws SQLException, ParseException {
-        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "slstr.a", "-start", "2020-143", "-end", "2020-145", "-v", "1.0"};
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "slstr-s3a-uor-n", "-start", "2020-143", "-end", "2020-145", "-v", "1.0"};
 
         try {
             IngestionToolMain.main(args);
@@ -1035,7 +1035,7 @@ public class IngestionToolIntegrationTest {
 
             assertEquals("slstr.a", observation.getSensor().getName());
 
-            final String expectedPath = TestUtil.assembleFileSystemPath(new String[]{"slstr.a", "1.0", "2020", "05", "22", "S3A_SL_1_RBT____20200522T231202_20200522T231502_20200524T053503_0179_058_286_5580_LN2_O_NT_004.zip"}, false);
+            final String expectedPath = TestUtil.assembleFileSystemPath(new String[]{"slstr-s3a-uor-n", "1.0", "2020", "05", "22", "S3A_SL_1_RBT____20200522T231202_20200522T231502_20200524T053503_0179_058_286_5580_LN2_O_NT_004.zip"}, false);
             assertEquals(expectedPath, observation.getDataFilePath().toString());
 
             assertEquals(NodeType.ASCENDING, observation.getNodeType());
@@ -1067,7 +1067,7 @@ public class IngestionToolIntegrationTest {
 
     @Test
     public void testIngest_SLSTR_SUBSET_S3A_Oblique() throws SQLException, ParseException {
-        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "slstr.a.o", "-start", "2020-143", "-end", "2020-145", "-v", "1.0"};
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "slstr-s3a-uor-o", "-start", "2020-143", "-end", "2020-145", "-v", "1.0"};
 
         try {
             IngestionToolMain.main(args);
@@ -1081,7 +1081,7 @@ public class IngestionToolIntegrationTest {
 
             assertEquals("slstr.a.o", observation.getSensor().getName());
 
-            final String expectedPath = TestUtil.assembleFileSystemPath(new String[]{"slstr.a.o", "1.0", "2020", "05", "22", "S3A_SL_1_RBT____20200522T231202_20200522T231502_20200524T053503_0179_058_286_5580_LN2_O_NT_004.zip"}, false);
+            final String expectedPath = TestUtil.assembleFileSystemPath(new String[]{"slstr-s3a-uor-o", "1.0", "2020", "05", "22", "S3A_SL_1_RBT____20200522T231202_20200522T231502_20200524T053503_0179_058_286_5580_LN2_O_NT_004.zip"}, false);
             assertEquals(expectedPath, observation.getDataFilePath().toString());
 
             assertEquals(NodeType.ASCENDING, observation.getNodeType());

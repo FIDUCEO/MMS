@@ -6,9 +6,10 @@ import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.ReaderPlugin;
 
 public class SlstrRegriddedSubsetReaderPluginNadir implements ReaderPlugin {
+
     @Override
     public String[] getSupportedSensorKeys() {
-        return new String[]{"slstr.a", "slstr.b"};
+        return new String[]{"slstr-s3a-uor-n", "slstr-s3b-uor-n"};
     }
 
     @Override

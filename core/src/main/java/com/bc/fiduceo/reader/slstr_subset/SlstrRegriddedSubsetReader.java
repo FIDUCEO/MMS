@@ -9,13 +9,7 @@ import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.location.PixelLocatorFactory;
-import com.bc.fiduceo.reader.AcquisitionInfo;
-import com.bc.fiduceo.reader.BoundingPolygonCreator;
-import com.bc.fiduceo.reader.Geometries;
-import com.bc.fiduceo.reader.RawDataReader;
-import com.bc.fiduceo.reader.Reader;
-import com.bc.fiduceo.reader.ReaderContext;
-import com.bc.fiduceo.reader.ReaderUtils;
+import com.bc.fiduceo.reader.*;
 import com.bc.fiduceo.reader.time.TimeLocator;
 import com.bc.fiduceo.reader.time.TimeLocator_MicrosSince2000;
 import com.bc.fiduceo.store.FileSystemStore;
@@ -25,12 +19,8 @@ import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.util.StringUtils;
-import ucar.ma2.Array;
-import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
-import ucar.ma2.Index;
-import ucar.ma2.InvalidRangeException;
-import ucar.ma2.MAMath;
+import ucar.ma2.*;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
@@ -38,22 +28,12 @@ import ucar.nc2.Variable;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipFile;
 
-import static com.bc.fiduceo.util.NetCDFUtils.CF_ADD_OFFSET_NAME;
-import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
-import static com.bc.fiduceo.util.NetCDFUtils.CF_SCALE_FACTOR_NAME;
+import static com.bc.fiduceo.util.NetCDFUtils.*;
 import static ucar.ma2.DataType.INT;
 import static ucar.nc2.NetcdfFiles.openInMemory;
 
@@ -105,12 +85,17 @@ public class SlstrRegriddedSubsetReader implements Reader {
 
     @Override
     public AcquisitionInfo read() throws IOException {
-        getVariables();
-        final AcquisitionInfo info = new AcquisitionInfo();
-        info.setNodeType(findNodeType());
-        info.setSensingStart(findSensingTime("start_time"));
-        info.setSensingStop(findSensingTime("stop_time"));
-        extractGeometries(info);
+        final AcquisitionInfo info;
+        try {
+            getVariables();
+            info = new AcquisitionInfo();
+            info.setNodeType(findNodeType());
+            info.setSensingStart(findSensingTime("start_time"));
+            info.setSensingStop(findSensingTime("stop_time"));
+            extractGeometries(info);
+        } catch (ParseException e) {
+            throw new IOException(e.getMessage());
+        }
         return info;
     }
 
@@ -132,16 +117,12 @@ public class SlstrRegriddedSubsetReader implements Reader {
         ReaderUtils.setTimeAxes(acquisitionInfo, geometries.getTimeAxesGeometry(), geometryFactory);
     }
 
-    private Date findSensingTime(String attributeName) {
-        try {
-            final NetcdfFile netcdfFile = _ncFiles.firstEntry().getValue();
-            final String startTimeStr = NetCDFUtils.getGlobalAttributeString(attributeName, netcdfFile);
-            final String substring = startTimeStr.substring(0, startTimeStr.lastIndexOf("."));
-            final ProductData.UTC utc = ProductData.UTC.parse(substring, "yyyy-MM-dd'T'HH:mm:ss");
-            return utc.getAsDate();
-        } catch (ParseException ignored) {
-        }
-        return null;
+    private Date findSensingTime(String attributeName) throws ParseException {
+        final NetcdfFile netcdfFile = _ncFiles.firstEntry().getValue();
+        final String startTimeStr = NetCDFUtils.getGlobalAttributeString(attributeName, netcdfFile);
+        final String substring = startTimeStr.substring(0, startTimeStr.lastIndexOf("."));
+        final ProductData.UTC utc = ProductData.UTC.parse(substring, "yyyy-MM-dd'T'HH:mm:ss");
+        return utc.getAsDate();
     }
 
     private NodeType findNodeType() {
@@ -162,7 +143,7 @@ public class SlstrRegriddedSubsetReader implements Reader {
 
     @Override
     public String getRegEx() {
-        return "S3[AB]_SL_1_RBT____(\\d{8}T\\d{6}_){3}\\d{4}(_\\d{3}){2}_\\d{4}_LN2_O_NT_\\d{3}\\.[Zz][Ii][Pp]";
+        return "S3[AB]_SL_1_RBT____(\\d{8}T\\d{6}_){3}\\d{4}(_\\d{3}){2}_\\d{4}_LN2_O_NT_\\d{3}(.SEN3|zip)";
     }
 
     @Override
@@ -204,8 +185,8 @@ public class SlstrRegriddedSubsetReader implements Reader {
             for (Variable variable : variables) {
                 final String shortName = variable.getShortName();
                 if (shortName.toLowerCase().contains("time_stamp")
-                    && variable.getRank() == 1
-                    && variable.getShape(0) == numRows) {
+                        && variable.getRank() == 1
+                        && variable.getShape(0) == numRows) {
                     final Array array = variable.read();
                     _timeStamps2000 = (long[]) array.get1DJavaArray(DataType.LONG);
                     break;
@@ -430,6 +411,11 @@ public class SlstrRegriddedSubsetReader implements Reader {
         } else {
             return key.substring(key.lastIndexOf("/") + 1);
         }
+    }
+
+    // just for testing tb 2022-07-18
+    boolean isNadirView() {
+        return _nadirView;
     }
 
     @SuppressWarnings("SameParameterValue")
