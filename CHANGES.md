@@ -3,6 +3,7 @@
 * updated H2 database driver
 * added support for MODIS MxD035 cloud data
 * added option for IngestionTool to update already existing entries
+* updated to use SNAP 9.0.0
 
 ### Updates from version 1.5.4 to 1.5.5
 * updated to use SNAP version 8.0.9 / S3TBX version 8.0.6
