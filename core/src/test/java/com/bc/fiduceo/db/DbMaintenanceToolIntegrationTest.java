@@ -310,7 +310,6 @@ public class DbMaintenanceToolIntegrationTest {
 
     private void runTest_dryRun_someNotOk(BasicDataSource dataSource) throws SQLException, ParseException {
         final String sep = System.lineSeparator();
-        final String ps = File.separator;
         final Storage storage = initializeStorage(dataSource);
 
         for (int i = 0; i < 12; i++) {
