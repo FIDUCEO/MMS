@@ -27,31 +27,31 @@
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-core</artifactId>
-                <version>8.0.9</version>
+                <version>9.0.0</version>
             </dependency>
 
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-engine-utilities</artifactId>
-                <version>8.0.9</version>
+                <version>9.0.0</version>
             </dependency>
 
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-envisat-reader</artifactId>
-                <version>8.0.9</version>
+                <version>9.0.0</version>
             </dependency>
 
             <dependency>
                 <groupId>org.esa.s3tbx</groupId>
                 <artifactId>s3tbx-avhrr-reader</artifactId>
-                <version>8.0.6</version>
+                <version>9.0.0</version>
             </dependency>
 
             <dependency>
                 <groupId>org.esa.s3tbx</groupId>
                 <artifactId>s3tbx-sentinel3-reader</artifactId>
-                <version>8.0.6</version>
+                <version>9.0.0</version>
                 <!--<exclusions>-->
                     <!--<exclusion>-->
                         <!--<groupId>edu.ucar</groupId>-->
