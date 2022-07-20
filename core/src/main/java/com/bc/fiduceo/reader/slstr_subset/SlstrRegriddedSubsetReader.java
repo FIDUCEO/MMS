@@ -143,7 +143,7 @@ public class SlstrRegriddedSubsetReader implements Reader {
 
     @Override
     public String getRegEx() {
-        return "S3[AB]_SL_1_RBT____(\\d{8}T\\d{6}_){3}\\d{4}(_\\d{3}){2}_\\d{4}_LN2_O_NT_\\d{3}(.SEN3|zip)";
+        return "S3[AB]_SL_1_RBT____(\\d{8}T\\d{6}_){3}\\d{4}(_\\d{3}){2}_\\d{4}_LN2_O_NT_\\d{3}(.SEN3|.zip)";
     }
 
     @Override
@@ -179,21 +179,17 @@ public class SlstrRegriddedSubsetReader implements Reader {
 
     private void ensureTimeStamps() throws IOException {
         if (_timeStamps2000 == null) {
-            final int numRows = getProductSize().getNy();
             final NetcdfFile ncFile = _ncFiles.get("time_in.nc");
-            final List<Variable> variables = ncFile.getVariables();
-            for (Variable variable : variables) {
-                final String shortName = variable.getShortName();
-                if (shortName.toLowerCase().contains("time_stamp")
-                        && variable.getRank() == 1
-                        && variable.getShape(0) == numRows) {
-                    final Array array = variable.read();
-                    _timeStamps2000 = (long[]) array.get1DJavaArray(DataType.LONG);
-                    break;
-                }
+            final Variable timeStampVariable = ncFile.findVariable("time_stamp_i");
+            if (timeStampVariable == null) {
+                throw new IOException("variable time_stamp_i not found.");
             }
+
+            final Array array = timeStampVariable.read();
+            _timeStamps2000 = (long[]) array.get1DJavaArray(DataType.LONG);
+
             if (_timeStamps2000 == null) {
-                throw new IOException("Unable to initialize time stamp data");
+                throw new IOException("Unable to read time stamp data");
             }
         }
     }
