@@ -410,12 +410,12 @@ public class SlstrReader_IO_Test {
             reader.open(file);
 
             final Interval interval = new Interval(5, 5);
-            final Array array = reader.readScaled(0, 318, interval, "S7_exception_in");
+            final Array array = reader.readRaw(0, 318, interval, "S7_exception_in");
             NCTestUtils.assertValueAt(-1, 0, 1, array);
             NCTestUtils.assertValueAt(-1, 1, 1, array);
-            NCTestUtils.assertValueAt(128, 2, 1, array);
-            NCTestUtils.assertValueAt(128, 3, 1, array);
-            NCTestUtils.assertValueAt(128, 4, 1, array);
+            NCTestUtils.assertValueAt(-128, 2, 1, array);
+            NCTestUtils.assertValueAt(-128, 3, 1, array);
+            NCTestUtils.assertValueAt(-128, 4, 1, array);
         } finally {
             reader.close();
         }

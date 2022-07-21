@@ -21,7 +21,6 @@ import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.util.StringUtils;
 import ucar.ma2.DataType;
 import ucar.ma2.*;
-import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
@@ -33,7 +32,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipFile;
 
-import static com.bc.fiduceo.util.NetCDFUtils.*;
+import static com.bc.fiduceo.util.NetCDFUtils.scaleIfNecessary;
 import static ucar.ma2.DataType.INT;
 import static ucar.nc2.NetcdfFiles.openInMemory;
 
@@ -48,7 +47,6 @@ public class SlstrRegriddedSubsetReader implements Reader {
     private HashMap<String, Variable> _variablesLUT;
     private String _manifest;
     private PixelLocator pixelLocator;
-    private BoundingPolygonCreator boundingPolygonCreator;
     private TimeLocator_MicrosSince2000 _timeLocator;
     private long[] _timeStamps2000;
 
@@ -101,7 +99,7 @@ public class SlstrRegriddedSubsetReader implements Reader {
 
     private void extractGeometries(AcquisitionInfo acquisitionInfo) throws IOException {
         final GeometryFactory geometryFactory = _readerContext.getGeometryFactory();
-        boundingPolygonCreator = new BoundingPolygonCreator(new Interval(250, 250), geometryFactory);
+        final BoundingPolygonCreator boundingPolygonCreator = new BoundingPolygonCreator(new Interval(250, 250), geometryFactory);
         final Array longitude = _variablesLUT.get(LONGITUDE_VAR_NAME).read();
         final Array latitude = _variablesLUT.get(LATITUDE_VAR_NAME).read();
         final Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometry(longitude, latitude);
@@ -159,13 +157,7 @@ public class SlstrRegriddedSubsetReader implements Reader {
 
     @Override
     public PixelLocator getSubScenePixelLocator(Polygon sceneGeometry) throws IOException {
-        final Dimension productSize = getProductSize();
-        final int height = productSize.getNy();
-        final int width = productSize.getNx();
-        final int subsetHeight = boundingPolygonCreator.getSubsetHeight(height, 250);
-        final PixelLocator pixelLocator = getPixelLocator();
-
-        return PixelLocatorFactory.getSubScenePixelLocator(sceneGeometry, width, height, subsetHeight, pixelLocator);
+        return getPixelLocator();
     }
 
     @Override
@@ -207,27 +199,18 @@ public class SlstrRegriddedSubsetReader implements Reader {
     @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
         final Variable variable = _variablesLUT.get(variableName);
-        final Number fillValue = findAttributeSafe(CF_FILL_VALUE_NAME, variable).getNumericValue();
-        if (fillValue == null) {
-            throw new IOException("The attribute '" + CF_FILL_VALUE_NAME + "' of variable '" + variableName + "' does not contain a numeric value.");
-        }
+        final Number fillValue = NetCDFUtils.getFillValue(variable);
+        // @todo 1 tb/** this needs to be cached! Else we read the full array for every matchup. tb 2022-07-21
         final Array fullArray = variable.read();
-        final Array windowArray = RawDataReader.read(centerX, centerY, interval, fillValue, fullArray, getProductSize());
-        return windowArray.reshape(windowArray.getShape());
+        return RawDataReader.read(centerX, centerY, interval, fillValue, fullArray, getProductSize());
     }
 
     @Override
     public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
         final Array rawData = readRaw(centerX, centerY, interval, variableName);
         final Variable variable = _variablesLUT.get(variableName);
-        final double scaleFactor = variable.attributes().findAttributeDouble(CF_SCALE_FACTOR_NAME, 1.0);
-        final double offset = variable.attributes().findAttributeDouble(CF_ADD_OFFSET_NAME, 0.0);
-        if (ReaderUtils.mustScale(scaleFactor, offset)) {
-            final MAMath.ScaleOffset scaleOffset = new MAMath.ScaleOffset(scaleFactor, offset);
-            return MAMath.convert2Unpacked(rawData, scaleOffset);
-        }
 
-        return rawData;
+        return scaleIfNecessary(variable, rawData);
     }
 
     @Override
@@ -305,10 +288,8 @@ public class SlstrRegriddedSubsetReader implements Reader {
         final Variable fullSizeVar = _variables.get(0);
         final NetcdfFile fullSizeNcFile = fullSizeVar.getNetcdfFile();
         assert fullSizeNcFile != null;
-        final Number fullTrackOffset = findGlobalAttributeSafe("track_offset", fullSizeNcFile).getNumericValue();
-        assert fullTrackOffset != null;
-        final String fullAcrossResStr = findGlobalAttributeSafe("resolution", fullSizeNcFile).getStringValue();
-        assert fullAcrossResStr != null;
+        final double fullTrackOffset = NetCDFUtils.getGlobalAttributeDouble("track_offset", fullSizeNcFile);
+        final String fullAcrossResStr = NetCDFUtils.getGlobalAttributeString("resolution", fullSizeNcFile);
         final Number fullAcrossRes = Double.parseDouble(StringUtils.split(fullAcrossResStr, " ".toCharArray(), true)[1]);
 
         for (Map.Entry<int[], ArrayList<Variable>> entry : shapeGroupedVariablesMap.entrySet()) {
@@ -316,13 +297,11 @@ public class SlstrRegriddedSubsetReader implements Reader {
             for (Variable var : vars) {
                 final NetcdfFile varNcFile = var.getNetcdfFile();
                 assert varNcFile != null;
-                final Number varTrackOffset = findGlobalAttributeSafe("track_offset", varNcFile).getNumericValue();
-                assert varTrackOffset != null;
-                final String varAcrossResStr = findGlobalAttributeSafe("resolution", varNcFile).getStringValue();
-                assert varAcrossResStr != null;
+                final double varTrackOffset = NetCDFUtils.getGlobalAttributeDouble("track_offset", varNcFile);
+                final String varAcrossResStr = NetCDFUtils.getGlobalAttributeString("resolution", varNcFile);
                 final Number varAcrossRes = Double.parseDouble(StringUtils.split(varAcrossResStr, " ".toCharArray(), true)[1]);
                 final double subsamplingX = varAcrossRes.doubleValue() / fullAcrossRes.doubleValue();
-                final double offsetX = fullTrackOffset.doubleValue() - varTrackOffset.doubleValue() * subsamplingX;
+                final double offsetX = fullTrackOffset - varTrackOffset * subsamplingX;
                 _variables.add(
                         new SlstrSubsetTiePointVariable(var, fullSizeShape[1], fullSizeShape[0], offsetX, subsamplingX)
                 );
@@ -412,22 +391,5 @@ public class SlstrRegriddedSubsetReader implements Reader {
     // just for testing tb 2022-07-18
     boolean isNadirView() {
         return _nadirView;
-    }
-
-    @SuppressWarnings("SameParameterValue")
-    private Attribute findAttributeSafe(String attributeName, Variable variable) throws IOException {
-        final Attribute attribute = variable.findAttribute(attributeName);
-        if (attribute == null) {
-            throw new IOException("Attribute '" + attributeName + "' is expected in variable '" + variable.getShortName() + "'");
-        }
-        return attribute;
-    }
-
-    private Attribute findGlobalAttributeSafe(String attributeName, NetcdfFile netcdfFile) throws IOException {
-        final Attribute attribute = netcdfFile.findGlobalAttribute(attributeName);
-        if (attribute == null) {
-            throw new IOException("Global attribute '" + attributeName + "' is expected in netcdf file '" + netcdfFile.getLocation() + "'");
-        }
-        return attribute;
     }
 }

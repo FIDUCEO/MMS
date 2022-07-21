@@ -171,6 +171,11 @@ public class NetCDFUtils {
         return attribute.getNumericValue().intValue();
     }
 
+    public static double getGlobalAttributeDouble(String attributeName, NetcdfFile netcdfFile) {
+        final Attribute attribute = getGlobalAttributeSafe(attributeName, netcdfFile);
+        return attribute.getNumericValue().doubleValue();
+    }
+
     public static int getAttributeInt(Variable variable, String name, int defaultValue) {
         final Attribute attribute = variable.findAttribute(name);
         if (attribute == null) {
@@ -343,9 +348,9 @@ public class NetCDFUtils {
         return array;
     }
 
-    public static Array readAndScaleIfNecessary(Variable angleVariable) throws IOException {
-        final Array longitudes = angleVariable.read();
-        return scaleIfNecessary(angleVariable, longitudes);
+    public static Array readAndScaleIfNecessary(Variable variable) throws IOException {
+        final Array dataArray = variable.read();
+        return scaleIfNecessary(variable, dataArray);
     }
 
     public static Array scaleIfNecessary(Variable variable, Array array) {
