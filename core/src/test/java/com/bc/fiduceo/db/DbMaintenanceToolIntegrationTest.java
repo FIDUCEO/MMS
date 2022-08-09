@@ -74,9 +74,10 @@ public class DbMaintenanceToolIntegrationTest {
                     "   -c,--config <arg>     Defines the configuration directory. Defaults to './config'." + ls +
                     "   -d,--dryrun           Defines 'dryrun' status, i.e. just test the replacement and report problems." + ls +
                     "   -h,--help             Prints the tool usage." + ls +
-                    "   -p,--path <arg>       Observation path segment to be replaced." + ls +
+                    "   -p,--path <arg>       Observation path segment to be replaced or truncated." + ls +
                     "   -r,--replace <arg>    Observation path segment replacement." + ls +
-                    "   -s,--segments <arg>   Number of segments to consider for paths missing the search expression (default: 4)" + ls, err.toString());
+                    "   -s,--segments <arg>   Number of segments to consider for paths missing the search expression (default: 4)" + ls +
+                    "   -t,--truncate         Command to truncate path segment." + ls, err.toString());
         } finally {
             System.setOut(_out);
             System.setErr(_err);
@@ -141,12 +142,57 @@ public class DbMaintenanceToolIntegrationTest {
     }
 
     @Test
-    public void testCorrectPaths_H2_alterSomePaths() throws IOException, ParseException, SQLException {
+    public void testTruncatePaths_MongoDb_alterSomePaths() throws IOException, ParseException, SQLException {
+        TestUtil.writeDatabaseProperties_MongoDb(configDir);
+        TestUtil.writeSystemConfig(configDir);
+        final BasicDataSource dataSource = TestUtil.getDataSource_MongoDb();
+
+        runTest_truncatePath(dataSource);
+    }
+
+    @Test
+    public void testTruncatePaths_Postgres_alterSomePaths() throws IOException, ParseException, SQLException {
+        TestUtil.writeDatabaseProperties_Postgres(configDir);
+        TestUtil.writeSystemConfig(configDir);
+        final BasicDataSource dataSource = TestUtil.getDataSource_Postgres();
+
+        runTest_truncatePath(dataSource);
+    }
+
+    @Test
+    public void testTruncatePaths_H2_alterSomePaths() throws IOException, ParseException, SQLException {
         TestUtil.writeDatabaseProperties_H2(configDir);
         TestUtil.writeSystemConfig(configDir);
         final BasicDataSource dataSource = TestUtil.getDatasource_H2();
 
-        runTest_alterSomePaths(dataSource);
+        runTest_truncatePath(dataSource);
+    }
+
+    @Test
+    public void testTruncatePaths_MongoDb_innerSegment() throws IOException, ParseException, SQLException {
+        TestUtil.writeDatabaseProperties_MongoDb(configDir);
+        TestUtil.writeSystemConfig(configDir);
+        final BasicDataSource dataSource = TestUtil.getDataSource_MongoDb();
+
+        runTest_truncatePath_innerSegment(dataSource);
+    }
+
+    @Test
+    public void testTruncatePaths_Postgres_innerSegment() throws IOException, ParseException, SQLException {
+        TestUtil.writeDatabaseProperties_Postgres(configDir);
+        TestUtil.writeSystemConfig(configDir);
+        final BasicDataSource dataSource = TestUtil.getDataSource_Postgres();
+
+        runTest_truncatePath_innerSegment(dataSource);
+    }
+
+    @Test
+    public void testTruncatePaths_H2_innerSegment() throws IOException, ParseException, SQLException {
+        TestUtil.writeDatabaseProperties_H2(configDir);
+        TestUtil.writeSystemConfig(configDir);
+        final BasicDataSource dataSource = TestUtil.getDatasource_H2();
+
+        runTest_truncatePath_innerSegment(dataSource);
     }
 
     @Test
@@ -261,6 +307,66 @@ public class DbMaintenanceToolIntegrationTest {
             assertEquals(16, observations.size());
             for (SatelliteObservation satelliteObservation : observations) {
                 assertTrue(satelliteObservation.getDataFilePath().toString().contains(fs + "archive" + fs + "correct"));
+            }
+        } finally {
+            storage.clear();
+            storage.close();
+        }
+    }
+
+    private void runTest_truncatePath(BasicDataSource dataSource) throws SQLException, ParseException {
+        final Storage storage = initializeStorage(dataSource);
+
+        for (int i = 0; i < 12; i++) {
+            final SatelliteObservation observation = TestData.createSatelliteObservation(geometryFactory);
+            final String obsPath = TestUtil.assembleFileSystemPath(new String[]{"archive", "correct", "the_file_number_" + i}, true);
+            observation.setDataFilePath(obsPath);
+            storage.insert(observation);
+        }
+
+        try {
+            final String cutPath = TestUtil.assembleFileSystemPath(new String[]{"archive", "correct"}, true);
+
+            final String[] args = new String[]{"-c", configDir.getAbsolutePath(),
+                    "-p", cutPath,
+                    "-t"};
+
+            DbMaintenanceToolMain.main(args);
+
+            final List<SatelliteObservation> observations = storage.get();
+            assertEquals(12, observations.size());
+            for (SatelliteObservation satelliteObservation : observations) {
+                assertFalse(satelliteObservation.getDataFilePath().toString().contains(cutPath));
+            }
+        } finally {
+            storage.clear();
+            storage.close();
+        }
+    }
+
+    private void runTest_truncatePath_innerSegment(BasicDataSource dataSource) throws SQLException, ParseException {
+        final Storage storage = initializeStorage(dataSource);
+
+        for (int i = 0; i < 12; i++) {
+            final SatelliteObservation observation = TestData.createSatelliteObservation(geometryFactory);
+            final String obsPath = TestUtil.assembleFileSystemPath(new String[]{"archive", "correct", "the_file_number_" + i}, true);
+            observation.setDataFilePath(obsPath);
+            storage.insert(observation);
+        }
+
+        try {
+            final String cutPath = TestUtil.assembleFileSystemPath(new String[]{"correct"}, true);
+
+            final String[] args = new String[]{"-c", configDir.getAbsolutePath(),
+                    "-p", cutPath,
+                    "-t"};
+
+            DbMaintenanceToolMain.main(args);
+
+            final List<SatelliteObservation> observations = storage.get();
+            assertEquals(12, observations.size());
+            for (SatelliteObservation satelliteObservation : observations) {
+                assertFalse(satelliteObservation.getDataFilePath().toString().contains(cutPath));
             }
         } finally {
             storage.clear();

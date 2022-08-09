@@ -157,20 +157,7 @@ public class PostGISDriver extends AbstractDriver {
     @Override
     public AbstractBatch updatePathBatch(SatelliteObservation satelliteObservation, String newPath, AbstractBatch batch) throws SQLException {
         if (batch == null) {
-            final StringBuilder sql = new StringBuilder();
-            sql.append("UPDATE SATELLITE_OBSERVATION AS obs SET DataFile = ? FROM SENSOR AS sen");
-            sql.append(" WHERE obs.stopDate >= '");
-            sql.append(satelliteObservation.getStartTime());
-            sql.append("' AND obs.startDate <= '");
-            sql.append(satelliteObservation.getStopTime());
-            sql.append("' AND sen.Name = '");
-            sql.append(satelliteObservation.getSensor().getName());
-            sql.append("' AND obs.DataFile = ? ");
-            sql.append("AND obs.Version = '");
-            sql.append(satelliteObservation.getVersion());
-            sql.append("' AND obs.SensorId = sen.ID");
-
-            final PreparedStatement preparedStatement = connection.prepareStatement(sql.toString());
+            final PreparedStatement preparedStatement = connection.prepareStatement("UPDATE SATELLITE_OBSERVATION SET DataFile = ? WHERE DataFile = ?");
             batch = new JdbcBatch(preparedStatement);
         }
 

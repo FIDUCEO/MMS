@@ -8,6 +8,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -44,11 +45,14 @@ class DbMaintenanceTool {
         final Option dryRunOption = new Option("d", "dryrun", false, "Defines 'dryrun' status, i.e. just test the replacement and report problems.");
         options.addOption(dryRunOption);
 
-        final Option pathOption = new Option("p", "path", true, "Observation path segment to be replaced.");
+        final Option pathOption = new Option("p", "path", true, "Observation path segment to be replaced or truncated.");
         options.addOption(pathOption);
 
         final Option replaceOption = new Option("r", "replace", true, "Observation path segment replacement.");
         options.addOption(replaceOption);
+
+        final Option truncateOption = new Option("t", "truncate", false, "Command to truncate path segment.");
+        options.addOption(truncateOption);
 
         final Option segmentsOption = new Option("s", "segments", true, "Number of segments to consider for paths missing the search expression (default: 4)");
         options.addOption(segmentsOption);
@@ -75,8 +79,7 @@ class DbMaintenanceTool {
 
         initialize(commandLine);
 
-        final String
-                oldPathSegment = commandLine.getOptionValue("path");
+        final String oldPathSegment = commandLine.getOptionValue("path");
         final String newPathSegment = commandLine.getOptionValue("replace");
 
         final QueryParameter queryParameter = new QueryParameter();
@@ -96,8 +99,15 @@ class DbMaintenanceTool {
             accumulator = new PathAccumulator(oldPathSegment, numPathSegments);
             executeDryrun(oldPathSegment, queryParameter);
         } else {
-            logger.info("Replacing paths  old: " + oldPathSegment + "  new: " + newPathSegment);
-            processUpdate(oldPathSegment, newPathSegment, queryParameter);
+            final boolean truncate = commandLine.hasOption("truncate");
+
+            if (truncate) {
+                logger.info("Removing path segment: " + oldPathSegment);
+                processTruncate(oldPathSegment, queryParameter);
+            } else {
+                logger.info("Replacing paths - old: " + oldPathSegment + "  new: " + newPathSegment);
+                processUpdate(oldPathSegment, newPathSegment, queryParameter);
+            }
         }
     }
 
@@ -130,6 +140,26 @@ class DbMaintenanceTool {
         }
     }
 
+    private void processTruncate(String oldPathSegment, QueryParameter queryParameter) throws SQLException {
+        try {
+            int total_count = 0;
+
+            List<SatelliteObservation> satelliteObservations = storage.get(queryParameter);
+            while (satelliteObservations.size() > 0) {
+                truncatePaths(oldPathSegment, satelliteObservations);
+
+                total_count += satelliteObservations.size();
+                logger.info("processed " + total_count + " datasets");
+
+                final int newOffset = queryParameter.getOffset() + PAGE_SIZE;
+                queryParameter.setOffset(newOffset);
+                satelliteObservations = storage.get(queryParameter);
+            }
+        } finally {
+            cleanup();
+        }
+    }
+
     private void processUpdate(String oldPathSegment, String newPathSegment, QueryParameter queryParameter) throws SQLException {
         try {
             int total_count = 0;
@@ -147,6 +177,23 @@ class DbMaintenanceTool {
             }
         } finally {
             cleanup();
+        }
+    }
+
+    private void truncatePaths(String oldPathSegment, List<SatelliteObservation> satelliteObservations) throws SQLException {
+        AbstractBatch batch = null;
+
+        for (final SatelliteObservation observation : satelliteObservations) {
+            final String oldPath = observation.getDataFilePath().toString();
+            final int start = oldPath.indexOf(oldPath);
+            if (start >= 0) {
+                final String newPath = StringUtils.remove(oldPath, oldPathSegment);
+                batch = storage.updatePathBatch(observation, newPath, batch);
+            }
+        }
+
+        if (batch != null) {
+            storage.commitBatch(batch);
         }
     }
 
