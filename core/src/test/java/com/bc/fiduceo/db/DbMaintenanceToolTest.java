@@ -61,7 +61,7 @@ public class DbMaintenanceToolTest {
 
         assertEquals("db-maintenance-tool version 1.5.6" + ls +
                 ls +
-                "usage: db-maintenance-tool <options>" + ls +
+                "usage: db_maintenance <options>" + ls +
                 "Valid options are:" + ls +
                 "   -c,--config <arg>     Defines the configuration directory. Defaults to './config'." + ls +
                 "   -d,--dryrun           Defines 'dryrun' status, i.e. just test the replacement and report problems." + ls +

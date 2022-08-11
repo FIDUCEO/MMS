@@ -68,7 +68,7 @@ class DbMaintenanceTool {
         writer.write(ls + ls);
 
         final HelpFormatter helpFormatter = new HelpFormatter();
-        helpFormatter.printHelp(writer, 120, "db-maintenance-tool <options>", "Valid options are:", getOptions(), 3, 3, "");
+        helpFormatter.printHelp(writer, 120, "db_maintenance <options>", "Valid options are:", getOptions(), 3, 3, "");
 
         writer.flush();
     }
