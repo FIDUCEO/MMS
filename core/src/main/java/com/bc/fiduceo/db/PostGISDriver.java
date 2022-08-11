@@ -157,13 +157,13 @@ public class PostGISDriver extends AbstractDriver {
     @Override
     public AbstractBatch updatePathBatch(SatelliteObservation satelliteObservation, String newPath, AbstractBatch batch) throws SQLException {
         if (batch == null) {
-            final PreparedStatement preparedStatement = connection.prepareStatement("UPDATE SATELLITE_OBSERVATION SET DataFile = ? WHERE DataFile = ?");
+            final PreparedStatement preparedStatement = connection.prepareStatement("UPDATE SATELLITE_OBSERVATION SET DataFile = ? WHERE ID = ?");
             batch = new JdbcBatch(preparedStatement);
         }
 
         final PreparedStatement preparedStatement = (PreparedStatement) batch.getStatement();
         preparedStatement.setString(1, newPath);
-        preparedStatement.setString(2, satelliteObservation.getDataFilePath().toString());
+        preparedStatement.setInt(2, satelliteObservation.getId());
         preparedStatement.addBatch();
 
         return batch;
@@ -203,6 +203,7 @@ public class PostGISDriver extends AbstractDriver {
 
                 currentId = observationId;
                 currentObservation = new SatelliteObservation();
+                currentObservation.setId(currentId);
 
                 final Timestamp startDate = resultSet.getTimestamp("StartDate");
                 currentObservation.setStartTime(TimeUtils.toDate(startDate));

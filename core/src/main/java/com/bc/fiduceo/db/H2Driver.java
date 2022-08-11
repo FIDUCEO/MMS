@@ -112,13 +112,13 @@ public class H2Driver extends AbstractDriver {
     @Override
     public AbstractBatch updatePathBatch(SatelliteObservation satelliteObservation, String newPath, AbstractBatch batch) throws SQLException {
         if (batch == null) {
-            final PreparedStatement preparedStatement = connection.prepareStatement("UPDATE SATELLITE_OBSERVATION SET DataFile = ?  WHERE DataFile = ? ");
+            final PreparedStatement preparedStatement = connection.prepareStatement("UPDATE SATELLITE_OBSERVATION SET DataFile = ?  WHERE ID = ? ");
             batch = new JdbcBatch(preparedStatement);
         }
 
         final PreparedStatement preparedStatement = (PreparedStatement) batch.getStatement();
         preparedStatement.setString(1, newPath);
-        preparedStatement.setString(2, satelliteObservation.getDataFilePath().toString());
+        preparedStatement.setInt(2, satelliteObservation.getId());
         preparedStatement.addBatch();
 
         return batch;
@@ -139,9 +139,6 @@ public class H2Driver extends AbstractDriver {
 
     @Override
     public List<SatelliteObservation> get(QueryParameter parameter) throws SQLException {
-
-        //org.h2.tools.Server.startWebServer(connection);
-
         final Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
         final String sql = createSql(parameter);
         final ResultSet resultSet = statement.executeQuery(sql);
@@ -154,6 +151,7 @@ public class H2Driver extends AbstractDriver {
             final SatelliteObservation observation = new SatelliteObservation();
 
             final int observationId = resultSet.getInt("id");
+            observation.setId(observationId);
 
             final Timestamp startDate = resultSet.getTimestamp("StartDate");
             observation.setStartTime(TimeUtils.toDate(startDate));
@@ -198,8 +196,6 @@ public class H2Driver extends AbstractDriver {
 
             resultList.add(observation);
         }
-
-        //org.h2.tools.Server.startWebServer(connection);
 
         return resultList;
     }
