@@ -37,6 +37,7 @@ public class SatelliteObservationTest {
     @Test
     public void testConstructor() {
         assertEquals(NodeType.UNDEFINED, observation.getNodeType());
+        assertEquals(-1, observation.getId());
     }
 
     @Test

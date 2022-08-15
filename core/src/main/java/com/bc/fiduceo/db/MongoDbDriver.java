@@ -156,10 +156,6 @@ public class MongoDbDriver extends AbstractDriver {
         }
 
         final QueryParameter queryParameter = new QueryParameter();
-        queryParameter.setStartTime(satelliteObservation.getStartTime());
-        queryParameter.setStopTime(satelliteObservation.getStopTime());
-        queryParameter.setSensorName(satelliteObservation.getSensor().getName());
-        queryParameter.setVersion(satelliteObservation.getVersion());
         queryParameter.setPath(satelliteObservation.getDataFilePath().toString());
 
         final Document queryDocument = createQueryDocument(queryParameter);

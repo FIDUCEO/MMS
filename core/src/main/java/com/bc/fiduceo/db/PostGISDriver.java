@@ -157,26 +157,13 @@ public class PostGISDriver extends AbstractDriver {
     @Override
     public AbstractBatch updatePathBatch(SatelliteObservation satelliteObservation, String newPath, AbstractBatch batch) throws SQLException {
         if (batch == null) {
-            final StringBuilder sql = new StringBuilder();
-            sql.append("UPDATE SATELLITE_OBSERVATION AS obs SET DataFile = ? FROM SENSOR AS sen");
-            sql.append(" WHERE obs.stopDate >= '");
-            sql.append(satelliteObservation.getStartTime());
-            sql.append("' AND obs.startDate <= '");
-            sql.append(satelliteObservation.getStopTime());
-            sql.append("' AND sen.Name = '");
-            sql.append(satelliteObservation.getSensor().getName());
-            sql.append("' AND obs.DataFile = ? ");
-            sql.append("AND obs.Version = '");
-            sql.append(satelliteObservation.getVersion());
-            sql.append("' AND obs.SensorId = sen.ID");
-
-            final PreparedStatement preparedStatement = connection.prepareStatement(sql.toString());
+            final PreparedStatement preparedStatement = connection.prepareStatement("UPDATE SATELLITE_OBSERVATION SET DataFile = ? WHERE ID = ?");
             batch = new JdbcBatch(preparedStatement);
         }
 
         final PreparedStatement preparedStatement = (PreparedStatement) batch.getStatement();
         preparedStatement.setString(1, newPath);
-        preparedStatement.setString(2, satelliteObservation.getDataFilePath().toString());
+        preparedStatement.setInt(2, satelliteObservation.getId());
         preparedStatement.addBatch();
 
         return batch;
@@ -216,6 +203,7 @@ public class PostGISDriver extends AbstractDriver {
 
                 currentId = observationId;
                 currentObservation = new SatelliteObservation();
+                currentObservation.setId(currentId);
 
                 final Timestamp startDate = resultSet.getTimestamp("StartDate");
                 currentObservation.setStartTime(TimeUtils.toDate(startDate));
@@ -261,6 +249,8 @@ public class PostGISDriver extends AbstractDriver {
             timeAxesList.clear();
         }
 
+        connection.commit();
+
         return resultList;
     }
 
@@ -280,6 +270,9 @@ public class PostGISDriver extends AbstractDriver {
         final ResultSet resultSet = statement.executeQuery(sql.toString());
         resultSet.next();
         final int numValues = resultSet.getInt(1);
+
+        connection.commit();
+
         return numValues > 0;
     }
 

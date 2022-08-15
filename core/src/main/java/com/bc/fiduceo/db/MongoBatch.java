@@ -11,7 +11,7 @@ class MongoBatch extends AbstractBatch {
     private final List<WriteModel<Document>> writeOperations;
 
     public MongoBatch() {
-        writeOperations = new ArrayList<WriteModel<Document>>();
+        writeOperations = new ArrayList<>();
     }
 
     @Override
