@@ -1,5 +1,6 @@
-package com.bc.fiduceo.reader.slstr;
+package com.bc.fiduceo.reader.slstr.utility;
 
+import com.bc.fiduceo.reader.slstr.utility.*;
 import org.junit.Test;
 
 import static com.bc.fiduceo.reader.slstr.VariableType.*;

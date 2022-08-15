@@ -1,17 +1,19 @@
-package com.bc.fiduceo.reader.slstr;
+package com.bc.fiduceo.reader.slstr.utility;
 
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
 import ucar.ma2.Array;
 
-class Nadir1kmTransform implements Transform {
+class Oblique1kmTransform implements Transform {
 
     private final int rasterWidth;
     private final int rasterHeight;
+    private final int rasterXOffset;
 
-    Nadir1kmTransform(int rasterWidth, int rasterHeight) {
-        this.rasterWidth = rasterWidth / 2;
+    Oblique1kmTransform(int rasterWidth, int rasterHeight, int rasterXOffset) {
+        this.rasterWidth = rasterWidth / 2 - 600;
         this.rasterHeight = rasterHeight / 2;
+        this.rasterXOffset = rasterXOffset;
     }
 
     @Override
@@ -21,7 +23,7 @@ class Nadir1kmTransform implements Transform {
 
     @Override
     public double mapCoordinate_X(double coordinate) {
-        return coordinate;
+        return coordinate - rasterXOffset;
     }
 
     @Override
@@ -31,7 +33,7 @@ class Nadir1kmTransform implements Transform {
 
     @Override
     public double inverseCoordinate_X(double coordinate) {
-        return coordinate;
+        return coordinate + rasterXOffset;
     }
 
     @Override

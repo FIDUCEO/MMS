@@ -1,4 +1,4 @@
-package com.bc.fiduceo.reader.slstr;
+package com.bc.fiduceo.reader.slstr.utility;
 
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;

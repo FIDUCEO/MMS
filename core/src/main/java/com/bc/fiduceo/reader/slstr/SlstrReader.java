@@ -8,6 +8,9 @@ import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.ReaderUtils;
+import com.bc.fiduceo.reader.slstr.utility.ManifestUtil;
+import com.bc.fiduceo.reader.slstr.utility.Transform;
+import com.bc.fiduceo.reader.slstr.utility.TransformFactory;
 import com.bc.fiduceo.reader.snap.SNAP_Reader;
 import com.bc.fiduceo.reader.snap.VariableProxy;
 import com.bc.fiduceo.reader.time.TimeLocator;
@@ -232,21 +235,6 @@ public class SlstrReader extends SNAP_Reader {
 
         readRawProductData(dataNode, readArray, width, height, xOffset, yOffset);
 
-//        final Index index = targetArray.getIndex();
-//        int readIndex = 0;
-//        for (int y = 0; y < width; y++) {
-//            final int currentY = yOffset + y;
-//            for (int x = 0; x < height; x++) {
-//                final int currentX = xOffset + x;
-//
-//                if (currentX >= 0 && currentX < rasterSize.getNx() && currentY >= 0 && currentY < rasterSize.getNy()) {
-//                    index.set(y, x);
-//                    targetArray.setObject(index, readArray.getObject(readIndex));
-//                    ++readIndex;
-//                }
-//            }
-//        }
-
         if (variableNames.isFlagVariable(variableName)) {
             return transform.processFlags(readArray, (int) noDataValue);
         } else {
@@ -379,13 +367,13 @@ public class SlstrReader extends SNAP_Reader {
             if (element.getName().equalsIgnoreCase("nadirImageSize")) {
                 final MetadataAttribute grid = element.getAttribute("grid");
                 if (grid.getData().getElemString().equalsIgnoreCase("1 km")) {
-                    nadirTrackOffset = extractTrackOffset(element);
+                    nadirTrackOffset = ManifestUtil.extractTrackOffset(element);
                 }
             }
             if (element.getName().equalsIgnoreCase("obliqueImageSize")) {
                 final MetadataAttribute grid = element.getAttribute("grid");
                 if (grid.getData().getElemString().equalsIgnoreCase("1 km")) {
-                    obliqueTrackOffset = extractTrackOffset(element);
+                    obliqueTrackOffset = ManifestUtil.extractTrackOffset(element);
                 }
             }
         }
@@ -395,12 +383,6 @@ public class SlstrReader extends SNAP_Reader {
         }
 
         return nadirTrackOffset - obliqueTrackOffset;
-    }
-
-    private int extractTrackOffset(MetadataElement element) {
-        final MetadataAttribute trackOffset = element.getAttribute("trackOffset");
-        final String trackOffsetString = trackOffset.getData().getElemString();
-        return Integer.parseInt(trackOffsetString);
     }
 
     private void ensureTimingVector() {
