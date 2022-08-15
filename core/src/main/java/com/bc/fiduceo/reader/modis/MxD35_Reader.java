@@ -30,6 +30,7 @@ import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.hdf.HdfEOSUtil;
 import com.bc.fiduceo.location.PixelLocator;
+import com.bc.fiduceo.location.PixelLocatorFactory;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.BoundingPolygonCreator;
 import com.bc.fiduceo.reader.Geometries;
@@ -77,6 +78,7 @@ public class MxD35_Reader extends NetCDFReader {
     private static final int SMALLEST_DIM_IDX = 0;
     private static final int SMALLEST_DIM_SIZE = 1;
     private static final HashMap<String, FlagDefinition> FLAG_DEFINITIONS = new HashMap<>();
+    private BoundingPolygonCreator boundingPolygonCreator;
 
     {
         final FlagDefinition cloudMaskFlagDef = new FlagDefinition();
@@ -356,7 +358,13 @@ public class MxD35_Reader extends NetCDFReader {
 
     @Override
     public PixelLocator getSubScenePixelLocator(Polygon sceneGeometry) throws IOException {
-        return getPixelLocator();
+        final Dimension productSize = getProductSize();
+        final int height = productSize.getNy();
+        final int width = productSize.getNx();
+        final int subsetHeight = boundingPolygonCreator.getSubsetHeight(height, 250);
+        final PixelLocator pixelLocator = getPixelLocator();
+
+        return PixelLocatorFactory.getSubScenePixelLocator(sceneGeometry, width, height, subsetHeight, pixelLocator);
     }
 
     @Override
@@ -606,7 +614,7 @@ public class MxD35_Reader extends NetCDFReader {
     }
 
     private void extractGeometries(AcquisitionInfo acquisitionInfo) throws IOException {
-        final BoundingPolygonCreator boundingPolygonCreator = new BoundingPolygonCreator(new Interval(250, 250), geometryFactory);
+        boundingPolygonCreator = new BoundingPolygonCreator(new Interval(250, 250), geometryFactory);
         final Array longitude = arrayCache.get(GEOLOCATION_GROUP, LONGITUDE_VAR_NAME);
         final Array latitude = arrayCache.get(GEOLOCATION_GROUP, LATITUDE_VAR_NAME);
         final Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometry(longitude, latitude);

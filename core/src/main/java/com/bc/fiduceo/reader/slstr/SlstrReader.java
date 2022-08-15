@@ -8,9 +8,9 @@ import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.ReaderUtils;
-import com.bc.fiduceo.reader.time.TimeLocator;
 import com.bc.fiduceo.reader.snap.SNAP_Reader;
 import com.bc.fiduceo.reader.snap.VariableProxy;
+import com.bc.fiduceo.reader.time.TimeLocator;
 import com.bc.fiduceo.reader.time.TimeLocator_MicrosSince2000;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
@@ -20,7 +20,6 @@ import org.esa.snap.engine_utilities.util.ZipUtils;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
-import ucar.ma2.Index;
 import ucar.nc2.Variable;
 
 import java.io.File;
@@ -213,7 +212,6 @@ public class SlstrReader extends SNAP_Reader {
 
         final VariableType variableType = variableNames.getVariableType(variableName);
         final Transform transform = transformFactory.get(variableType);
-        final Dimension rasterSize = transform.getRasterSize();
 
         final RasterDataNode dataNode = getRasterDataNode(variableName);
 
@@ -225,7 +223,6 @@ public class SlstrReader extends SNAP_Reader {
         final int height = mappedInterval.getY();
         final int[] shape = getShape(mappedInterval);
         final Array readArray = Array.factory(targetDataType, shape);
-        final Array targetArray = NetCDFUtils.create(targetDataType, shape, noDataValue);
 
         final int mappedX = (int) (transform.mapCoordinate_X(centerX) + 0.5);
         final int mappedY = (int) (transform.mapCoordinate_Y(centerY) + 0.5);

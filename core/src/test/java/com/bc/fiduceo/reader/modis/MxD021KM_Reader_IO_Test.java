@@ -79,8 +79,9 @@ public class MxD021KM_Reader_IO_Test {
         assertTrue(boundingGeometry instanceof Polygon);
         final Point[] coordinates = boundingGeometry.getCoordinates();
         assertEquals(31, coordinates.length);
-        assertEquals(-119.84687042236328, coordinates[0].getLon(), 1e-8);
-        assertEquals(-67.26568603515625, coordinates[0].getLat(), 1e-8);
+        final Point cornerUpperLeft = coordinates[0];
+        assertEquals(-119.84687042236328, cornerUpperLeft.getLon(), 1e-8);
+        assertEquals(-67.26568603515625, cornerUpperLeft.getLat(), 1e-8);
 
         assertEquals(-50.65733337402344, coordinates[24].getLon(), 1e-8);
         assertEquals(-77.25603485107422, coordinates[24].getLat(), 1e-8);

@@ -22,6 +22,7 @@ package com.bc.fiduceo.util;
 
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
+import ucar.nc2.AttributeContainerMutable;
 
 import java.util.List;
 
@@ -35,6 +36,10 @@ public class VariableProxy extends VariablePrototype {
         this.name = name;
         this.dataType = dataType;
         this.attributes = attributes;
+        super.attributes = new AttributeContainerMutable(name+ "_atts");
+        if (attributes != null) {
+            super.attributes.addAll(attributes);
+        }
     }
 
     @Override

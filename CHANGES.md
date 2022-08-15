@@ -1,4 +1,5 @@
 ### Updates from version 1.5.5 to 1.5.6
+* added support for SLSTR regridded subseted data in safe format 
 * corrected TAI 1993 to UTC conversion for MODIS data
 * updated H2 database driver
 * added support for MODIS MxD035 cloud data
