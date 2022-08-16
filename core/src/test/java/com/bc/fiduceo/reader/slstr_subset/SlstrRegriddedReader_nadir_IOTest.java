@@ -71,10 +71,10 @@ public class SlstrRegriddedReader_nadir_IOTest {
             assertThat(coordinates.length, is(23));
             final Point cornerUpperLeft = coordinates[0];
             final Point cornerLowerRight = coordinates[11];
-            assertThat(cornerUpperLeft.getLon(), is(-3.6059465890532283));
-            assertThat(cornerUpperLeft.getLat(), is(-25.83171070667771));
-            assertThat(cornerLowerRight.getLon(), is(-20.57531176627247));
-            assertThat(cornerLowerRight.getLat(), is(-18.60994342420135));
+            assertThat(cornerUpperLeft.getLon(), is(-3.605947));
+            assertThat(cornerUpperLeft.getLat(), is(-25.831709));
+            assertThat(cornerLowerRight.getLon(), is(-20.575312));
+            assertThat(cornerLowerRight.getLat(), is(-18.609944000000002));
             assertThat(readerContext.getGeometryFactory().format(boundingGeometry), is(TestData.SLSTR_S3A_SUBSET_GEOMETRY_NADIR));
 
             final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
@@ -343,31 +343,31 @@ public class SlstrRegriddedReader_nadir_IOTest {
             assertNotNull(pixelLocator);
 
             Point2D geoLocation = pixelLocator.getGeoLocation(145.5, 1045.5, null);
-            assertEquals(-7.803977966308594, geoLocation.getX(), 1e-8);
-            assertEquals(-17.14834213256836, geoLocation.getY(), 1e-8);
+            assertEquals(-7.804243, geoLocation.getX(), 1e-8);
+            assertEquals(-17.144347, geoLocation.getY(), 1e-8);
 
-            Point2D[] pixelLocation = pixelLocator.getPixelLocation(-7.803977966308594, -17.14834213256836);
+            Point2D[] pixelLocation = pixelLocator.getPixelLocation(-7.804243, -17.144347);
             assertEquals(1, pixelLocation.length);
-            assertEquals(145.51237666088426, pixelLocation[0].getX(), 1e-8);
-            assertEquals(1045.5220957066847, pixelLocation[0].getY(), 1e-8);
+            assertEquals(145.5, pixelLocation[0].getX(), 1e-8);
+            assertEquals(1045.5, pixelLocation[0].getY(), 1e-8);
 
             geoLocation = pixelLocator.getGeoLocation(668.5, 805.5, null);
-            assertEquals(-12.025413513183594, geoLocation.getX(), 1e-8);
-            assertEquals(-20.448566436767578, geoLocation.getY(), 1e-8);
+            assertEquals(-12.020273999999999, geoLocation.getX(), 1e-8);
+            assertEquals(-20.451089, geoLocation.getY(), 1e-8);
 
-            pixelLocation = pixelLocator.getPixelLocation(-12.025413513183594, -20.448566436767578);
+            pixelLocation = pixelLocator.getPixelLocation(-12.020273999999999, -20.451089);
             assertEquals(1, pixelLocation.length);
-            assertEquals(668.5135864049676, pixelLocation[0].getX(), 1e-8);
-            assertEquals(805.4611526071664, pixelLocation[0].getY(), 1e-8);
+            assertEquals(668.5, pixelLocation[0].getX(), 1e-8);
+            assertEquals(805.5, pixelLocation[0].getY(), 1e-8);
 
             geoLocation = pixelLocator.getGeoLocation(1000.5, 850.5, null);
-            assertEquals(-15.22374153137207, geoLocation.getX(), 1e-8);
-            assertEquals(-20.74936294555664, geoLocation.getY(), 1e-8);
+            assertEquals(-15.228683, geoLocation.getX(), 1e-8);
+            assertEquals(-20.745514, geoLocation.getY(), 1e-8);
 
-            pixelLocation = pixelLocator.getPixelLocation(-15.22374153137207, -20.74936294555664);
+            pixelLocation = pixelLocator.getPixelLocation(-15.228683, -20.745514);
             assertEquals(1, pixelLocation.length);
-            assertEquals(1000.4004288332775, pixelLocation[0].getX(), 1e-8);
-            assertEquals(850.5332904213304, pixelLocation[0].getY(), 1e-8);
+            assertEquals(1000.5, pixelLocation[0].getX(), 1e-8);
+            assertEquals(850.5, pixelLocation[0].getY(), 1e-8);
 
             pixelLocation = pixelLocator.getPixelLocation(1725, -90);
             assertEquals(0, pixelLocation.length);

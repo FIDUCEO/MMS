@@ -10,7 +10,7 @@ public class SlstrPixelLocator extends SNAP_PixelLocator {
 
     private final Transform transform;
 
-    SlstrPixelLocator(GeoCoding geoCoding, Transform transform) {
+    public SlstrPixelLocator(GeoCoding geoCoding, Transform transform) {
         super(geoCoding);
 
         this.transform = transform;

@@ -8,8 +8,9 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
-import com.bc.fiduceo.location.PixelLocatorFactory;
 import com.bc.fiduceo.reader.*;
+import com.bc.fiduceo.reader.slstr.utility.TransformFactory;
+import com.bc.fiduceo.reader.snap.SNAP_PixelLocator;
 import com.bc.fiduceo.reader.time.TimeLocator;
 import com.bc.fiduceo.reader.time.TimeLocator_MicrosSince2000;
 import com.bc.fiduceo.store.FileSystemStore;
@@ -17,21 +18,34 @@ import com.bc.fiduceo.store.Store;
 import com.bc.fiduceo.store.ZipStore;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
+import org.esa.s3tbx.dataio.s3.Manifest;
+import org.esa.s3tbx.dataio.s3.XfduManifest;
+import org.esa.snap.core.dataio.geocoding.*;
+import org.esa.snap.core.dataio.geocoding.forward.PixelForward;
+import org.esa.snap.core.dataio.geocoding.inverse.PixelQuadTreeInverse;
+import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.util.StringUtils;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 import ucar.ma2.DataType;
 import ucar.ma2.*;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
 import java.text.ParseException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipFile;
 
+import static com.bc.fiduceo.reader.slstr.utility.ManifestUtil.getObliqueGridOffset;
 import static com.bc.fiduceo.util.NetCDFUtils.scaleIfNecessary;
 import static ucar.ma2.DataType.INT;
 import static ucar.nc2.NetcdfFiles.openInMemory;
@@ -40,8 +54,8 @@ public class SlstrRegriddedSubsetReader implements Reader {
 
     private final ReaderContext _readerContext;
     private final boolean _nadirView;
-    private final String LONGITUDE_VAR_NAME = "longitude_tx";
-    private final String LATITUDE_VAR_NAME = "latitude_tx";
+    private final String LONGITUDE_VAR_NAME = "longitude_in";
+    private final String LATITUDE_VAR_NAME = "latitude_in";
     private TreeMap<String, NetcdfFile> _ncFiles;
     private ArrayList<Variable> _variables;
     private HashMap<String, Variable> _variablesLUT;
@@ -49,6 +63,7 @@ public class SlstrRegriddedSubsetReader implements Reader {
     private PixelLocator pixelLocator;
     private TimeLocator_MicrosSince2000 _timeLocator;
     private long[] _timeStamps2000;
+    private TransformFactory transformFactory;
 
     public SlstrRegriddedSubsetReader(ReaderContext readerContext, boolean nadirView) {
         _readerContext = readerContext;
@@ -71,6 +86,21 @@ public class SlstrRegriddedSubsetReader implements Reader {
             _manifest = new String(store.getBytes(keyManifest.first()));
             openNcFiles(store);
             initVariables();
+
+            final InputSource is = new InputSource(new StringReader(_manifest));
+            final Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(is);
+            final Manifest manifest = XfduManifest.createManifest(document);
+
+            final MetadataElement metadataRoot = new MetadataElement("root");
+            metadataRoot.addElement(manifest.getMetadata());
+            final int obliqueGridOffset = getObliqueGridOffset(metadataRoot);
+            final Dimension productSize = getProductSize();
+
+            transformFactory = new TransformFactory(productSize.getNx() * 2,
+                    productSize.getNy() * 2,
+                    obliqueGridOffset);
+        } catch (ParserConfigurationException | SAXException e) {
+            throw new IOException(e.getMessage());
         } finally {
             store.close();
         }
@@ -79,6 +109,7 @@ public class SlstrRegriddedSubsetReader implements Reader {
     @Override
     public void close() throws IOException {
         _ncFiles.clear();
+        transformFactory = null;
     }
 
     @Override
@@ -100,8 +131,12 @@ public class SlstrRegriddedSubsetReader implements Reader {
     private void extractGeometries(AcquisitionInfo acquisitionInfo) throws IOException {
         final GeometryFactory geometryFactory = _readerContext.getGeometryFactory();
         final BoundingPolygonCreator boundingPolygonCreator = new BoundingPolygonCreator(new Interval(250, 250), geometryFactory);
-        final Array longitude = _variablesLUT.get(LONGITUDE_VAR_NAME).read();
-        final Array latitude = _variablesLUT.get(LATITUDE_VAR_NAME).read();
+
+        final Variable lonVariable = _variablesLUT.get(LONGITUDE_VAR_NAME);
+        final Array longitude = NetCDFUtils.readAndScaleIfNecessary(lonVariable);
+        final Variable latVariable = _variablesLUT.get(LATITUDE_VAR_NAME);
+        final Array latitude = NetCDFUtils.readAndScaleIfNecessary(latVariable);
+
         final Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometry(longitude, latitude);
         if (!boundingGeometry.isValid()) {
             throw new RuntimeException("Detected invalid bounding geometry");
@@ -147,10 +182,24 @@ public class SlstrRegriddedSubsetReader implements Reader {
     @Override
     public PixelLocator getPixelLocator() throws IOException {
         if (pixelLocator == null) {
-            final Array longitude = _variablesLUT.get(LONGITUDE_VAR_NAME).read();
-            final Array latitude = _variablesLUT.get(LATITUDE_VAR_NAME).read();
+            final Variable lonVariable = _variablesLUT.get(LONGITUDE_VAR_NAME);
+            final Array longitude = NetCDFUtils.readAndScaleIfNecessary(lonVariable);
+            final Variable latVariable = _variablesLUT.get(LATITUDE_VAR_NAME);
+            final Array latitude = NetCDFUtils.readAndScaleIfNecessary(latVariable);
             final int[] shape = latitude.getShape();
-            pixelLocator = PixelLocatorFactory.getSwathPixelLocator(longitude, latitude, shape[1], shape[0]);
+
+            final GeoRaster geoRaster = new GeoRaster((double[]) longitude.get1DJavaArray(DataType.DOUBLE),
+                    (double[]) latitude.get1DJavaArray(DataType.DOUBLE),
+                    LONGITUDE_VAR_NAME, LATITUDE_VAR_NAME,
+                    shape[1], shape[0], shape[1], shape[0],
+                    1.0, 0.5, 0.5, 1.0, 1.0);
+
+            final ForwardCoding forward = ComponentFactory.getForward(PixelForward.KEY);
+            final InverseCoding inverse = ComponentFactory.getInverse(PixelQuadTreeInverse.KEY);
+            final ComponentGeoCoding componentGeoCoding = new ComponentGeoCoding(geoRaster, forward, inverse, GeoChecks.ANTIMERIDIAN);
+            componentGeoCoding.initialize();
+
+            pixelLocator = new SNAP_PixelLocator(componentGeoCoding);
         }
         return pixelLocator;
     }

@@ -32,6 +32,7 @@ import java.util.List;
 
 import static com.bc.fiduceo.reader.slstr.VariableType.NADIR_1km;
 import static com.bc.fiduceo.reader.slstr.VariableType.NADIR_500m;
+import static com.bc.fiduceo.reader.slstr.utility.ManifestUtil.getObliqueGridOffset;
 import static ucar.ma2.DataType.INT;
 
 public class SlstrReader extends SNAP_Reader {
@@ -118,7 +119,7 @@ public class SlstrReader extends SNAP_Reader {
         }
         openCached(manifestFile, "Sen3");
 
-        final int obliqueGridOffset = getObliqueGridOffset();
+        final int obliqueGridOffset = getObliqueGridOffset(product.getMetadataRoot());
         transformFactory = new TransformFactory(product.getSceneRasterWidth(),
                 product.getSceneRasterHeight(),
                 obliqueGridOffset);
@@ -352,37 +353,6 @@ public class SlstrReader extends SNAP_Reader {
                 }
             }
         }
-    }
-
-    private int getObliqueGridOffset() {
-        final MetadataElement metadataRoot = product.getMetadataRoot();
-        final MetadataElement manifestElement = metadataRoot.getElement("Manifest");
-        final MetadataElement metadataElement = manifestElement.getElement("metadataSection");
-        final MetadataElement productInformationElement = metadataElement.getElement("slstrProductInformation");
-
-        int nadirTrackOffset = -1;
-        int obliqueTrackOffset = -1;
-        final MetadataElement[] elements = productInformationElement.getElements();
-        for (final MetadataElement element : elements) {
-            if (element.getName().equalsIgnoreCase("nadirImageSize")) {
-                final MetadataAttribute grid = element.getAttribute("grid");
-                if (grid.getData().getElemString().equalsIgnoreCase("1 km")) {
-                    nadirTrackOffset = ManifestUtil.extractTrackOffset(element);
-                }
-            }
-            if (element.getName().equalsIgnoreCase("obliqueImageSize")) {
-                final MetadataAttribute grid = element.getAttribute("grid");
-                if (grid.getData().getElemString().equalsIgnoreCase("1 km")) {
-                    obliqueTrackOffset = ManifestUtil.extractTrackOffset(element);
-                }
-            }
-        }
-
-        if (nadirTrackOffset < 0 | obliqueTrackOffset < 0) {
-            throw new RuntimeException("Unable to extract raster offsets from metadata.");
-        }
-
-        return nadirTrackOffset - obliqueTrackOffset;
     }
 
     private void ensureTimingVector() {

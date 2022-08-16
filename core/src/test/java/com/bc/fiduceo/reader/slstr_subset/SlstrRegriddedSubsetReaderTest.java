@@ -1,18 +1,9 @@
 package com.bc.fiduceo.reader.slstr_subset;
 
-import com.bc.fiduceo.IOTestRunner;
-import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderContext;
-import com.bc.fiduceo.reader.slstr.ProductType;
-import com.bc.fiduceo.reader.slstr.SlstrReader;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -55,14 +46,14 @@ public class SlstrRegriddedSubsetReaderTest {
     public void testGetLongitudeVariableName() {
         final Reader reader = new SlstrRegriddedSubsetReader(new ReaderContext(), true);
 
-        assertEquals("longitude_tx", reader.getLongitudeVariableName());
+        assertEquals("longitude_in", reader.getLongitudeVariableName());
     }
 
     @Test
     public void testGetLatitudeVariableName() {
         final Reader reader = new SlstrRegriddedSubsetReader(new ReaderContext(), false);
 
-        assertEquals("latitude_tx", reader.getLatitudeVariableName());
+        assertEquals("latitude_in", reader.getLatitudeVariableName());
     }
 
     @Test
