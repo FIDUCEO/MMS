@@ -29,7 +29,7 @@ public class SlstrRegriddedSubsetReaderTest {
 
     @Test
     public void testGetRegEx() {
-        final SlstrRegriddedSubsetReader reader = new SlstrRegriddedSubsetReader(null, true);
+        final SlstrRegriddedSubsetReader reader = new SlstrRegriddedSubsetReader(null); // this test does not require a context class tb 2022-08-19
 
         final String expected = "S3[AB]_SL_1_RBT____(\\d{8}T\\d{6}_){3}\\d{4}(_\\d{3}){2}_\\d{4}_LN2_O_NT_\\d{3}(.SEN3|.zip)";
         assertEquals(expected, reader.getRegEx());
@@ -53,21 +53,21 @@ public class SlstrRegriddedSubsetReaderTest {
 
     @Test
     public void testGetLongitudeVariableName() {
-        final Reader reader = new SlstrRegriddedSubsetReader(new ReaderContext(), true);
+        final Reader reader = new SlstrRegriddedSubsetReader(new ReaderContext());
 
         assertEquals("longitude_in", reader.getLongitudeVariableName());
     }
 
     @Test
     public void testGetLatitudeVariableName() {
-        final Reader reader = new SlstrRegriddedSubsetReader(new ReaderContext(), false);
+        final Reader reader = new SlstrRegriddedSubsetReader(new ReaderContext());
 
         assertEquals("latitude_in", reader.getLatitudeVariableName());
     }
 
     @Test
     public void testExtractYearMonthDayFromFilename() {
-        final SlstrRegriddedSubsetReader reader = new SlstrRegriddedSubsetReader(null, false);
+        final SlstrRegriddedSubsetReader reader = new SlstrRegriddedSubsetReader(null);
 
         int[] ymd = reader.extractYearMonthDayFromFilename("S3B_SL_1_RBT____20191117T231801_20191117T232101_20191119T035119_0180_032_172_5400_LN2_O_NT_003.SEN3");
         assertEquals(3, ymd.length);

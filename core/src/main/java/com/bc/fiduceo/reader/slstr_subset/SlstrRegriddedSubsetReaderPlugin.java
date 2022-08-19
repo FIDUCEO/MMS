@@ -5,15 +5,16 @@ import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.ReaderPlugin;
 
-public class SlstrRegriddedSubsetReaderPluginOblique implements ReaderPlugin {
+public class SlstrRegriddedSubsetReaderPlugin implements ReaderPlugin {
+
     @Override
     public String[] getSupportedSensorKeys() {
-        return new String[]{"slstr-s3a-uor-o", "slstr-s3b-uor-o"};
+        return new String[]{"slstr-s3a-uor", "slstr-s3b-uor"};
     }
 
     @Override
     public Reader createReader(ReaderContext readerContext) {
-        return new SlstrRegriddedSubsetReader(readerContext, false);
+        return new SlstrRegriddedSubsetReader(readerContext);
     }
 
     @Override

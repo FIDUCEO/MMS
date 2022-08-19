@@ -24,7 +24,7 @@ public class NcCacheTest {
 
     @Before
     public void setUp() throws IOException {
-        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"slstr-s3a-uor-n", "1.0", "2020", "05", "22", "S3A_SL_1_RBT____20200522T231202_20200522T231502_20200524T053503_0179_058_286_5580_LN2_O_NT_004.SEN3"}, false);
+        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"slstr-s3a-uor", "1.0", "2020", "05", "22", "S3A_SL_1_RBT____20200522T231202_20200522T231502_20200524T053503_0179_058_286_5580_LN2_O_NT_004.SEN3"}, false);
         final File file = TestUtil.getTestDataFileAsserted(testFilePath);
         final Store store = new FileSystemStore(file.toPath());
         cache = new NcCache();

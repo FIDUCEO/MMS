@@ -6,21 +6,21 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class SlstrRegriddedSubsetReaderPluginObliqueTest {
+public class SlstrRegriddedSubsetReaderPluginTest {
 
-    private SlstrRegriddedSubsetReaderPluginOblique plugin;
+    private SlstrRegriddedSubsetReaderPlugin plugin;
 
     @Before
     public void setUp() throws Exception {
-        plugin = new SlstrRegriddedSubsetReaderPluginOblique();
+        plugin = new SlstrRegriddedSubsetReaderPlugin();
     }
 
     @Test
     public void testGetSupportedSensorKeys() {
         final String[] keys = plugin.getSupportedSensorKeys();
         assertEquals(2, keys.length);
-        assertEquals("slstr-s3a-uor-o", keys[0]);
-        assertEquals("slstr-s3b-uor-o", keys[1]);
+        assertEquals("slstr-s3a-uor", keys[0]);
+        assertEquals("slstr-s3b-uor", keys[1]);
     }
 
     @Test
@@ -32,6 +32,5 @@ public class SlstrRegriddedSubsetReaderPluginObliqueTest {
     public void testCreateReader() {
         final SlstrRegriddedSubsetReader reader = (SlstrRegriddedSubsetReader) plugin.createReader(null);
         assertNotNull(reader);
-        assertFalse(reader.isNadirView());
     }
 }

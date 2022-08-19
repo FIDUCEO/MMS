@@ -9,6 +9,8 @@ import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.*;
+import com.bc.fiduceo.reader.slstr.VariableType;
+import com.bc.fiduceo.reader.slstr.utility.Transform;
 import com.bc.fiduceo.reader.slstr.utility.TransformFactory;
 import com.bc.fiduceo.reader.snap.SNAP_PixelLocator;
 import com.bc.fiduceo.reader.time.TimeLocator;
@@ -37,33 +39,33 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipFile;
 
 import static com.bc.fiduceo.reader.slstr.utility.ManifestUtil.getObliqueGridOffset;
-import static com.bc.fiduceo.util.NetCDFUtils.scaleIfNecessary;
 import static ucar.ma2.DataType.INT;
 
 public class SlstrRegriddedSubsetReader implements Reader {
 
-    private final ReaderContext _readerContext;
-    private final boolean _nadirView;
+    private final ReaderContext readerContext;
     private final String LONGITUDE_VAR_NAME = "longitude_in";
     private final String LATITUDE_VAR_NAME = "latitude_in";
-    private String _manifest;
+    private String manifestXml;
     private PixelLocator pixelLocator;
-    private TimeLocator_MicrosSince2000 _timeLocator;
-    private long[] _timeStamps2000;
+    private TimeLocator_MicrosSince2000 timeLocator;
+    private long[] timeStamps2000;
     private TransformFactory transformFactory;
     private final NcCache ncCache;
     private RasterInfo rasterInfo;
     private Manifest manifest;
 
-    public SlstrRegriddedSubsetReader(ReaderContext readerContext, boolean nadirView) {
-        _readerContext = readerContext;
-        _nadirView = nadirView;
+    public SlstrRegriddedSubsetReader(ReaderContext readerContext) {
+        this.readerContext = readerContext;
         ncCache = new NcCache();
     }
 
@@ -82,9 +84,9 @@ public class SlstrRegriddedSubsetReader implements Reader {
 
         try {
             final TreeSet<String> keyManifest = store.getKeysEndingWith("xfdumanifest.xml");
-            _manifest = new String(store.getBytes(keyManifest.first()));
+            manifestXml = new String(store.getBytes(keyManifest.first()));
 
-            final InputSource is = new InputSource(new StringReader(_manifest));
+            final InputSource is = new InputSource(new StringReader(manifestXml));
             final Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(is);
             manifest = XfduManifest.createManifest(document);
 
@@ -108,6 +110,7 @@ public class SlstrRegriddedSubsetReader implements Reader {
     public void close() throws IOException {
         ncCache.close();
         transformFactory = null;
+        rasterInfo = null;
     }
 
     @Override
@@ -121,7 +124,7 @@ public class SlstrRegriddedSubsetReader implements Reader {
     }
 
     private void extractGeometries(AcquisitionInfo acquisitionInfo) throws IOException {
-        final GeometryFactory geometryFactory = _readerContext.getGeometryFactory();
+        final GeometryFactory geometryFactory = readerContext.getGeometryFactory();
         final BoundingPolygonCreator boundingPolygonCreator = new BoundingPolygonCreator(new Interval(250, 250), geometryFactory);
 
         final Variable lonVariable = ncCache.getVariable(LONGITUDE_VAR_NAME);
@@ -144,9 +147,9 @@ public class SlstrRegriddedSubsetReader implements Reader {
 
     private NodeType findNodeType() {
         final NodeType nodeType;
-        if (_manifest.contains("groundTrackDirection")) {
+        if (manifestXml.contains("groundTrackDirection")) {
             final Pattern pattern = Pattern.compile("groundTrackDirection *= *['\"]ascending['\"]");
-            final Matcher matcher = pattern.matcher(_manifest);
+            final Matcher matcher = pattern.matcher(manifestXml);
             if (matcher.find()) {
                 nodeType = NodeType.ASCENDING;
             } else {
@@ -195,21 +198,21 @@ public class SlstrRegriddedSubsetReader implements Reader {
 
     @Override
     public TimeLocator getTimeLocator() throws IOException {
-        if (_timeLocator == null) {
+        if (timeLocator == null) {
             ensureTimeStamps();
-            _timeLocator = new TimeLocator_MicrosSince2000(_timeStamps2000);
+            timeLocator = new TimeLocator_MicrosSince2000(timeStamps2000);
         }
-        return _timeLocator;
+        return timeLocator;
     }
 
     private void ensureTimeStamps() throws IOException {
-        if (_timeStamps2000 == null) {
+        if (timeStamps2000 == null) {
             final Variable timeStampVariable = ncCache.getVariable("time_stamp_i");
 
             final Array array = timeStampVariable.read();
-            _timeStamps2000 = (long[]) array.get1DJavaArray(DataType.LONG);
+            timeStamps2000 = (long[]) array.get1DJavaArray(DataType.LONG);
 
-            if (_timeStamps2000 == null) {
+            if (timeStamps2000 == null) {
                 throw new IOException("Unable to read time stamp data");
             }
         }
@@ -228,18 +231,27 @@ public class SlstrRegriddedSubsetReader implements Reader {
     @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
         final Variable variable = ncCache.getVariable(variableName);
+        final Array rawArray = ncCache.getRawArray(variableName);
+        final Transform transform = getTransform(variableName);
         final Number fillValue = NetCDFUtils.getFillValue(variable);
-        // @todo 1 tb/** this needs to be cached! Else we read the full array for every matchup. tb 2022-07-21
-        final Array fullArray = variable.read();
-        return RawDataReader.read(centerX, centerY, interval, fillValue, fullArray, getProductSize());
+
+        final int mappedX = (int) transform.mapCoordinate_X(centerX);
+        final int mappedY = (int) transform.mapCoordinate_Y(centerY);
+
+        return RawDataReader.read(mappedX, mappedY, interval, fillValue, rawArray, getProductSize());
     }
 
     @Override
     public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
-        final Array rawData = readRaw(centerX, centerY, interval, variableName);
         final Variable variable = ncCache.getVariable(variableName);
+        final Array scaledArray = ncCache.getScaledArray(variableName);
+        final Transform transform = getTransform(variableName);
+        final Number fillValue = NetCDFUtils.getFillValue(variable);
 
-        return scaleIfNecessary(variable, rawData);
+        final int mappedX = (int) transform.mapCoordinate_X(centerX);
+        final int mappedY = (int) transform.mapCoordinate_Y(centerY);
+
+        return RawDataReader.read(mappedX, mappedY, interval, fillValue, scaledArray, getProductSize());
     }
 
     @Override
@@ -262,10 +274,10 @@ public class SlstrRegriddedSubsetReader implements Reader {
         final Index index = target.getIndex();
         for (int yIdx = 0; yIdx < targetHeight; yIdx++) {
             final int srcY = startY + yIdx;
-            if (srcY < 0 || srcY >= _timeStamps2000.length) {
+            if (srcY < 0 || srcY >= timeStamps2000.length) {
                 continue;
             }
-            final long lineTimeMillis = TimeUtils.millisSince2000ToUnixEpoch(_timeStamps2000[srcY]);
+            final long lineTimeMillis = TimeUtils.millisSince2000ToUnixEpoch(timeStamps2000[srcY]);
             int lineTimeSeconds = (int) Math.round(lineTimeMillis * 0.001);
             index.set0(yIdx);
             for (int xIdx = 0; xIdx < targetWidth; xIdx++) {
@@ -327,11 +339,6 @@ public class SlstrRegriddedSubsetReader implements Reader {
         }
     }
 
-    // just for testing tb 2022-07-18
-    boolean isNadirView() {
-        return _nadirView;
-    }
-
     static RasterInfo getRasterInfo(Manifest manifest) {
         final RasterInfo rasterInfo = new RasterInfo();
 
@@ -362,6 +369,16 @@ public class SlstrRegriddedSubsetReader implements Reader {
             }
         }
         return rasterInfo;
+    }
+
+    private Transform getTransform(String variableName) {
+        Transform transform;
+        if (variableName.endsWith("_io")) {
+            transform = transformFactory.get(VariableType.OBLIQUE_1km);
+        } else {
+            transform = transformFactory.get(VariableType.NADIR_1km);
+        }
+        return transform;
     }
 
     private static int getRasterAttributeInt(MetadataElement element, String attributeName) {

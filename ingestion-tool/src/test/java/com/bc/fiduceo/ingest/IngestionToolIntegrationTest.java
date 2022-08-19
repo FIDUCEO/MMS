@@ -1022,8 +1022,8 @@ public class IngestionToolIntegrationTest {
     }
 
     @Test
-    public void testIngest_SLSTR_SUBSET_S3A_Nadir() throws SQLException, ParseException {
-        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "slstr-s3a-uor-n", "-start", "2020-143", "-end", "2020-145", "-v", "1.0"};
+    public void testIngest_SLSTR_SUBSET_S3A() throws SQLException, ParseException {
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "slstr-s3a-uor", "-start", "2020-143", "-end", "2020-145", "-v", "1.0"};
 
         try {
             IngestionToolMain.main(args);
@@ -1034,9 +1034,9 @@ public class IngestionToolIntegrationTest {
             TestUtil.assertCorrectUTCDate(2020, 5, 22, 23, 12, 2, 240, observation.getStartTime());
             TestUtil.assertCorrectUTCDate(2020, 5, 22, 23, 15, 2, 240, observation.getStopTime());
 
-            assertEquals("slstr-s3a-uor-n", observation.getSensor().getName());
+            assertEquals("slstr-s3a-uor", observation.getSensor().getName());
 
-            final String expectedPath = TestUtil.assembleFileSystemPath(new String[]{"slstr-s3a-uor-n", "1.0", "2020", "05", "22", "S3A_SL_1_RBT____20200522T231202_20200522T231502_20200524T053503_0179_058_286_5580_LN2_O_NT_004.zip"}, false);
+            final String expectedPath = TestUtil.assembleFileSystemPath(new String[]{"slstr-s3a-uor", "1.0", "2020", "05", "22", "S3A_SL_1_RBT____20200522T231202_20200522T231502_20200524T053503_0179_058_286_5580_LN2_O_NT_004.zip"}, false);
             assertEquals(expectedPath, observation.getDataFilePath().toString());
 
             assertEquals(NodeType.ASCENDING, observation.getNodeType());
@@ -1046,51 +1046,6 @@ public class IngestionToolIntegrationTest {
             assertEquals("POLYGON((-3.605947 -25.831709,-4.345505 -23.678649999999998,-5.052073 -21.520253000000004,-5.7285819999999985 -19.357061000000005,-6.377657 -17.189569,-6.876289 -15.461471999999999,-9.131362 -16.047251000000003,-11.394941 -16.60798799999999,-13.671509000000002 -17.155166,-15.968603 -17.663905,-18.269608000000005 -18.157285999999992,-20.575312 -18.609944000000002,-20.109500000000008 -20.816586999999995,-19.641969 -23.022255,-19.171696999999998 -25.226836000000002,-18.697578999999998 -27.430221,-18.316648999999998 -29.183193000000003,-15.807929999999999 -28.733388,-13.315321999999998 -28.24385499999999,-10.84056 -27.702752999999998,-8.400936999999999 -27.118316000000007,-5.984294 -26.500103000000006,-3.605947 -25.831709))",
                          geometryFactory.format(geoBounds));
             assertEquals("LINESTRING(-10.851859 -27.702489000000003,-11.47645 -25.508398000000003,-12.080582999999999 -23.311636999999997,-12.666854999999996 -21.112256999999993,-13.226334000000001 -18.910415999999998,-13.671509000000002 -17.155166)",
-                         geometryFactory.format(observation.getTimeAxes()[0].getGeometry()));
-        } finally {
-            storage.clear();
-            storage.close();
-        }
-    }
-
-    @Test
-    @Ignore // @todo 1 tb/tb reactivate and adapt 2022-07-20
-    public void testIngest_SLSTR_SUBSET_S3A_Oblique() throws SQLException, ParseException {
-        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "slstr-s3a-uor-o", "-start", "2020-143", "-end", "2020-145", "-v", "1.0"};
-
-        try {
-            IngestionToolMain.main(args);
-            final List<SatelliteObservation> satelliteObservations = storage.get();
-            // if this test does not work take a look to test data directory "_ReadMe"
-            assertEquals(1, satelliteObservations.size());
-
-            final SatelliteObservation observation = getSatelliteObservation("S3A_SL_1_RBT____20200522T231202_20200522T231502_20200524T053503_0179_058_286_5580_LN2_O_NT_004.zip", satelliteObservations);
-            TestUtil.assertCorrectUTCDate(2020, 5, 22, 23, 12, 2, 0, observation.getStartTime());
-            TestUtil.assertCorrectUTCDate(2020, 5, 22, 23, 15, 2, 0, observation.getStopTime());
-
-            assertEquals("slstr.a.o", observation.getSensor().getName());
-
-            final String expectedPath = TestUtil.assembleFileSystemPath(new String[]{"slstr-s3a-uor-o", "1.0", "2020", "05", "22", "S3A_SL_1_RBT____20200522T231202_20200522T231502_20200524T053503_0179_058_286_5580_LN2_O_NT_004.zip"}, false);
-            assertEquals(expectedPath, observation.getDataFilePath().toString());
-
-            assertEquals(NodeType.ASCENDING, observation.getNodeType());
-            assertEquals("1.0", observation.getVersion());
-
-            final Geometry geoBounds = observation.getGeoBounds();
-            assertEquals("POLYGON((-8.878673644279557 -27.236764407917903,-9.535449286441251 -25.049676809856315," +
-                         "-10.168283586553411 -22.85918001143884,-10.77966001357282 -20.665598368117607," +
-                         "-11.371805324633524 -18.469237570892084,-11.830750577579213 -16.719139725495783," +
-                         "-14.111707091253587 -17.253519405126905,-16.405503939106993 -17.761861031693723," +
-                         "-18.711951540661282 -18.243180789270152,-20.09248904344504 -18.516825426872682," +
-                         "-19.619832834325003 -20.72437811748543,-19.14453660342757 -22.93090410853689," +
-                         "-18.665514146303046 -25.136288353275976,-18.18158387263854 -27.340416146148723," +
-                         "-17.792023457963918 -29.09393425591276,-15.282864211399815 -28.6363146380642," +
-                         "-12.796449865715998 -28.132648799227454,-10.334198582889913 -27.584267693764158," +
-                         "-8.878673644279557 -27.236764407917903))",
-                         geometryFactory.format(geoBounds));
-            assertEquals("LINESTRING(-13.301751646798486 -28.239088444241407,-13.87886138890875 -26.03753760888369," +
-                         "-14.440639833178524 -23.83381883773399,-14.989018872789016 -21.628126853268284," +
-                         "-15.525748571281992 -19.420644697224652,-15.945720048549337 -17.662329738599563)",
                          geometryFactory.format(observation.getTimeAxes()[0].getGeometry()));
         } finally {
             storage.clear();

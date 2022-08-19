@@ -33,7 +33,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(IOTestRunner.class)
-public class SlstrRegriddedReader_nadir_IOTest {
+public class SlstrRegriddedReader_IOTest {
 
     private SlstrRegriddedSubsetReader reader;
     private ReaderContext readerContext;
@@ -42,7 +42,7 @@ public class SlstrRegriddedReader_nadir_IOTest {
     public void setUp() throws IOException {
         readerContext = new ReaderContext();
         readerContext.setGeometryFactory(new GeometryFactory(GeometryFactory.Type.S2));
-        reader = new SlstrRegriddedSubsetReader(readerContext, true);
+        reader = new SlstrRegriddedSubsetReader(readerContext);
     }
 
     @Test
@@ -74,7 +74,7 @@ public class SlstrRegriddedReader_nadir_IOTest {
             assertThat(cornerUpperLeft.getLat(), is(-25.831709));
             assertThat(cornerLowerRight.getLon(), is(-20.575312));
             assertThat(cornerLowerRight.getLat(), is(-18.609944000000002));
-            assertThat(readerContext.getGeometryFactory().format(boundingGeometry), is(TestData.SLSTR_S3A_SUBSET_GEOMETRY_NADIR));
+            assertThat(readerContext.getGeometryFactory().format(boundingGeometry), is(TestData.SLSTR_S3A_SUBSET_GEOMETRY));
 
             final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
             assertEquals(1, timeAxes.length);
@@ -85,6 +85,51 @@ public class SlstrRegriddedReader_nadir_IOTest {
 
             time = timeAxis.getTime(cornerLowerRight);
             TestUtil.assertCorrectUTCDate(2020, 5, 22, 23, 15, 2, time);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadAcquisitionInfo_S3B_zip() throws IOException {
+        final File input = getS3BFile_zip();
+
+        try {
+            reader.open(input);
+
+            final AcquisitionInfo acquisitionInfo = reader.read();
+            assertNotNull(acquisitionInfo);
+
+            final Date sensingStart = acquisitionInfo.getSensingStart();
+            TestUtil.assertCorrectUTCDate(2019, 11, 17, 23, 18, 0, sensingStart);
+
+            final Date sensingStop = acquisitionInfo.getSensingStop();
+            TestUtil.assertCorrectUTCDate(2019, 11, 17, 23, 21, 0, sensingStop);
+
+            final Geometry boundingGeometry = acquisitionInfo.getBoundingGeometry();
+            assertThat(boundingGeometry, is(notNullValue()));
+            assertThat(acquisitionInfo.getTimeAxes(), is(notNullValue()));
+
+            assertThat(boundingGeometry, is(instanceOf(Polygon.class)));
+            final Point[] coordinates = boundingGeometry.getCoordinates();
+            assertThat(coordinates.length, is(23));
+            final Point cornerUpperLeft = coordinates[0];
+            final Point cornerLowerRight = coordinates[11];
+            assertThat(cornerUpperLeft.getLon(), is(-1.8131369999999998));
+            assertThat(cornerUpperLeft.getLat(), is(-36.064771));
+            assertThat(cornerLowerRight.getLon(), is(-20.651190000000003));
+            assertThat(cornerLowerRight.getLat(), is(-29.188024000000002));
+            assertThat(readerContext.getGeometryFactory().format(boundingGeometry), is(TestData.SLSTR_S3B_SUBSET_GEOMETRY));
+
+            final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
+            assertEquals(1, timeAxes.length);
+            final TimeAxis timeAxis = timeAxes[0];
+
+            Date time = timeAxis.getTime(cornerUpperLeft);
+            TestUtil.assertCorrectUTCDate(2019, 11, 17, 23, 18, 0, time);
+
+            time = timeAxis.getTime(cornerLowerRight);
+            TestUtil.assertCorrectUTCDate(2019, 11, 17, 23, 21, 0, time);
         } finally {
             reader.close();
         }
@@ -255,6 +300,11 @@ public class SlstrRegriddedReader_nadir_IOTest {
             NCTestUtils.assertValueAt(64, 1, 0, array);
             NCTestUtils.assertValueAt(64, 2, 0, array);
 
+            array = reader.readScaled(817, 812, interval, "confidence_io");
+            NCTestUtils.assertValueAt(16386, 0, 0, array);
+            NCTestUtils.assertValueAt(16642, 1, 0, array);
+            NCTestUtils.assertValueAt(16386, 2, 0, array);
+
             array = reader.readScaled(663, 618, interval, "detector_in");
             NCTestUtils.assertValueAt(1, 3, 0, array);
             NCTestUtils.assertValueAt(0, 4, 0, array);
@@ -269,13 +319,28 @@ public class SlstrRegriddedReader_nadir_IOTest {
             NCTestUtils.assertValueAt(0, 4, 1, array);
             NCTestUtils.assertValueAt(0, 0, 2, array);
             NCTestUtils.assertValueAt(0, 1, 2, array);
+
+            array = reader.readScaled(656, 957, interval, "S5_radiance_io");
+            NCTestUtils.assertValueAt(0.0, 2, 2, array);
+            NCTestUtils.assertValueAt(-0.004515999928116798, 3, 2, array);
+            NCTestUtils.assertValueAt(-0.004515999928116798, 4, 2, array);
+
+            array = reader.readScaled(115, 962, interval, "sat_azimuth_tn");
+            NCTestUtils.assertValueAt(275.87168487521694, 0, 3, array);
+            NCTestUtils.assertValueAt(275.848251150851, 1, 3, array);
+            NCTestUtils.assertValueAt(275.82481745776215, 2, 3, array);
+
+            array = reader.readScaled(615, 963, interval, "sat_zenith_to");
+            NCTestUtils.assertValueAt(54.92217802527567, 3, 3, array);
+            NCTestUtils.assertValueAt(54.92218323608754, 4, 3, array);
+            NCTestUtils.assertValueAt(54.922168373007366, 0, 4, array);
         } finally {
             reader.close();
         }
     }
 
     @Test
-    public void testReadScaled_S3B_nadir_bottom() throws IOException, InvalidRangeException {
+    public void testReadScaled_S3B_bottom() throws IOException, InvalidRangeException {
         final File file = getS3BFile_unpacked();
 
         try {
@@ -286,8 +351,27 @@ public class SlstrRegriddedReader_nadir_IOTest {
             NCTestUtils.assertValueAt(283.04, 2, 0, array);
             NCTestUtils.assertValueAt(274.66, 2, 1, array);
             NCTestUtils.assertValueAt(274.66, 2, 2, array);
-            NCTestUtils.assertValueAt(-43.94999999999999, 2, 3, array);
-            NCTestUtils.assertValueAt(-43.94999999999999, 2, 4, array);
+            NCTestUtils.assertValueAt(-32768.0, 2, 3, array);
+            NCTestUtils.assertValueAt(-32768.0, 2, 4, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadScaled_S3B_nadir_oblique_border() throws IOException, InvalidRangeException {
+        final File file = getS3BFile_unpacked();
+
+        try {
+            reader.open(file);
+
+            final Interval interval = new Interval(5, 5);
+            final Array array = reader.readScaled(548, 155, interval, "S9_exception_io");
+            NCTestUtils.assertValueAt(-127, 0, 2, array);
+            NCTestUtils.assertValueAt(-127, 1, 2, array);
+            NCTestUtils.assertValueAt(-128, 2, 2, array);
+            NCTestUtils.assertValueAt(-128, 3, 2, array);
+            NCTestUtils.assertValueAt(-128, 4, 2, array);
         } finally {
             reader.close();
         }
@@ -315,6 +399,11 @@ public class SlstrRegriddedReader_nadir_IOTest {
             NCTestUtils.assertValueAt(204.96172681244948, 1, 1, array);
             NCTestUtils.assertValueAt(204.97304213239295, 2, 1, array);
             NCTestUtils.assertValueAt(204.98435744789836, 3, 1, array);
+
+            array = reader.readRaw(739, 813, interval, "S8_BT_io");
+            NCTestUtils.assertValueAt(-5739, 4, 1, array);
+            NCTestUtils.assertValueAt(-4162, 0, 2, array);
+            NCTestUtils.assertValueAt(-5241, 1, 2, array);
         } finally {
             reader.close();
         }
@@ -340,7 +429,26 @@ public class SlstrRegriddedReader_nadir_IOTest {
     }
 
     @Test
-    public void testGetPixel_S3A_zip() throws IOException {
+    public void testReadRaw_S3b_right_nadir_oblique_border() throws IOException, InvalidRangeException {
+        final File file = getS3BFile_unpacked();
+
+        try {
+            reader.open(file);
+
+            final Interval interval = new Interval(5, 5);
+            final Array array = reader.readRaw(1448, 381, interval, "S8_exception_io");
+            NCTestUtils.assertValueAt(-128, 0, 1, array);
+            NCTestUtils.assertValueAt(-128, 1, 1, array);
+            NCTestUtils.assertValueAt(-127, 2, 1, array);
+            NCTestUtils.assertValueAt(-127, 3, 1, array);
+            NCTestUtils.assertValueAt(-127, 4, 1, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testPixelLocator_S3A_zip() throws IOException {
         final File file = getS3AFile_zip();
 
         try {
@@ -383,23 +491,67 @@ public class SlstrRegriddedReader_nadir_IOTest {
         }
     }
 
+    @Test
+    public void testPixelLocator_S3B() throws IOException {
+        final File file = getS3BFile_unpacked();
+
+        try {
+            reader.open(file);
+
+            final PixelLocator pixelLocator = reader.getPixelLocator();
+            assertNotNull(pixelLocator);
+
+            Point2D geoLocation = pixelLocator.getGeoLocation(155.5, 1055.5, null);
+            assertEquals(-6.996779, geoLocation.getX(), 1e-8);
+            assertEquals(-27.492663, geoLocation.getY(), 1e-8);
+
+            Point2D[] pixelLocation = pixelLocator.getPixelLocation(-6.996779, -27.492663);
+            assertEquals(1, pixelLocation.length);
+            assertEquals(155.5, pixelLocation[0].getX(), 1e-8);
+            assertEquals(1055.5, pixelLocation[0].getY(), 1e-8);
+
+            geoLocation = pixelLocator.getGeoLocation(678.5, 815.5, null);
+            assertEquals(-11.462551, geoLocation.getX(), 1e-8);
+            assertEquals(-30.898374999999998, geoLocation.getY(), 1e-8);
+
+            pixelLocation = pixelLocator.getPixelLocation(-11.462551, -30.898374999999998);
+            assertEquals(1, pixelLocation.length);
+            assertEquals(678.5, pixelLocation[0].getX(), 1e-8);
+            assertEquals(815.5, pixelLocation[0].getY(), 1e-8);
+
+            geoLocation = pixelLocator.getGeoLocation(1010.5, 860.5, null);
+            assertEquals(-14.947355, geoLocation.getX(), 1e-8);
+            assertEquals(-31.249896, geoLocation.getY(), 1e-8);
+
+            pixelLocation = pixelLocator.getPixelLocation(-14.947355, -31.249896);
+            assertEquals(1, pixelLocation.length);
+            assertEquals(1010.5, pixelLocation[0].getX(), 1e-8);
+            assertEquals(860.5, pixelLocation[0].getY(), 1e-8);
+
+            pixelLocation = pixelLocator.getPixelLocation(1755, -80);
+            assertEquals(0, pixelLocation.length);
+        } finally {
+            reader.close();
+        }
+    }
+
     private File getS3AFile_unpacked() throws IOException {
-        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"slstr-s3a-uor-n", "1.0", "2020", "05", "22", "S3A_SL_1_RBT____20200522T231202_20200522T231502_20200524T053503_0179_058_286_5580_LN2_O_NT_004.SEN3"}, false);
+        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"slstr-s3a-uor", "1.0", "2020", "05", "22", "S3A_SL_1_RBT____20200522T231202_20200522T231502_20200524T053503_0179_058_286_5580_LN2_O_NT_004.SEN3"}, false);
         return TestUtil.getTestDataFileAsserted(testFilePath);
     }
 
     private File getS3AFile_zip() throws IOException {
-        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"slstr-s3a-uor-n", "1.0", "2020", "05", "22", "S3A_SL_1_RBT____20200522T231202_20200522T231502_20200524T053503_0179_058_286_5580_LN2_O_NT_004.zip"}, false);
+        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"slstr-s3a-uor", "1.0", "2020", "05", "22", "S3A_SL_1_RBT____20200522T231202_20200522T231502_20200524T053503_0179_058_286_5580_LN2_O_NT_004.zip"}, false);
         return TestUtil.getTestDataFileAsserted(testFilePath);
     }
 
     private File getS3BFile_unpacked() throws IOException {
-        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"slstr-s3b-uor-o", "1.0", "2019", "11", "17", "S3B_SL_1_RBT____20191117T231801_20191117T232101_20191119T035119_0180_032_172_5400_LN2_O_NT_003.SEN3"}, false);
+        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"slstr-s3b-uor", "1.0", "2019", "11", "17", "S3B_SL_1_RBT____20191117T231801_20191117T232101_20191119T035119_0180_032_172_5400_LN2_O_NT_003.SEN3"}, false);
         return TestUtil.getTestDataFileAsserted(testFilePath);
     }
 
     private File getS3BFile_zip() throws IOException {
-        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"slstr-s3b-uor-o", "1.0", "2019", "11", "17", "S3B_SL_1_RBT____20191117T231801_20191117T232101_20191119T035119_0180_032_172_5400_LN2_O_NT_003.zip"}, false);
+        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"slstr-s3b-uor", "1.0", "2019", "11", "17", "S3B_SL_1_RBT____20191117T231801_20191117T232101_20191119T035119_0180_032_172_5400_LN2_O_NT_003.zip"}, false);
         return TestUtil.getTestDataFileAsserted(testFilePath);
     }
 }

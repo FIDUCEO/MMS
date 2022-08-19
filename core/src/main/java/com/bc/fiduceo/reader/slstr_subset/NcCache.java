@@ -1,12 +1,13 @@
 package com.bc.fiduceo.reader.slstr_subset;
 
 import com.bc.fiduceo.store.Store;
+import com.bc.fiduceo.util.NetCDFUtils;
 import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.core.util.io.CsvReader;
+import ucar.ma2.Array;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
-import java.awt.image.Raster;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -28,7 +29,9 @@ class NcCache {
     private RasterInfo rasterInfo;
     private HashMap<String, String> dddBMap;
     private HashMap<String, NetcdfFile> ncFilesMap;
-    private HashMap<String, Variable> variableMap;
+    private HashMap<String, Variable> variablesMap;
+    private HashMap<String, Array> rawArraysMap;
+    private HashMap<String, Array> scaledArraysMap;
 
     void open(Store store, RasterInfo rasterInfo) throws IOException {
         this.store = store;
@@ -37,15 +40,22 @@ class NcCache {
         parseDDDB();
 
         ncFilesMap = new HashMap<>();
-        variableMap = new HashMap<>();
+        variablesMap = new HashMap<>();
+        rawArraysMap = new HashMap<>();
+        scaledArraysMap = new HashMap<>();
     }
 
     void close() throws IOException {
         dddBMap.clear();
         dddBMap = null;
 
-        variableMap.clear();
-        variableMap = null;
+        rawArraysMap.clear();
+        rawArraysMap = null;
+        scaledArraysMap.clear();
+        scaledArraysMap = null;
+
+        variablesMap.clear();
+        variablesMap = null;
 
         for (final NetcdfFile ncFile : ncFilesMap.values()) {
             ncFile.close();
@@ -78,7 +88,7 @@ class NcCache {
     }
 
     Variable getVariable(String variableName) throws IOException {
-        Variable variable = variableMap.get(variableName);
+        Variable variable = variablesMap.get(variableName);
         if (variable != null) {
             return variable;
         } else {
@@ -98,9 +108,30 @@ class NcCache {
                 final double offset = rasterInfo.rasterTrackOffset - rasterInfo.tiePointTrackOffset * subSampling;
                 variable = new SlstrSubsetTiePointVariable(variable, rasterInfo.rasterWidth, rasterInfo.rasterHeight, offset, subSampling);
             }
-            variableMap.put(variableName, variable);
+            variablesMap.put(variableName, variable);
             return variable;
         }
+    }
+
+    Array getRawArray(String variableName) throws IOException {
+        Array array = rawArraysMap.get(variableName);
+        if (array == null) {
+            final Variable variable = getVariable(variableName);
+            array = variable.read();
+            rawArraysMap.put(variableName, array);
+        }
+        return array;
+    }
+
+    Array getScaledArray(String variableName) throws IOException {
+        Array array = scaledArraysMap.get(variableName);
+        if (array == null) {
+            final Array rawArray = getRawArray(variableName);
+            Variable variable = getVariable(variableName);
+            array = NetCDFUtils.scaleIfNecessary(variable, rawArray);
+            scaledArraysMap.put(variableName, array);
+        }
+        return array;
     }
 
     // package access for testing only tb 2022-08-18
