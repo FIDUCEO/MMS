@@ -2,8 +2,17 @@ package com.bc.fiduceo.reader.slstr_subset;
 
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderContext;
+import org.esa.s3tbx.dataio.s3.Manifest;
+import org.esa.s3tbx.dataio.s3.XfduManifest;
 import org.junit.Test;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -71,5 +80,49 @@ public class SlstrRegriddedSubsetReaderTest {
         assertEquals(2020, ymd[0]);
         assertEquals(5, ymd[1]);
         assertEquals(22, ymd[2]);
+    }
+
+    @Test
+    public void testGetRasterInfo() throws ParserConfigurationException, IOException, SAXException {
+        final String manifestXML = "<?xml version =\"1.0\" encoding=\"UTF-8\"?>" +
+                "<xfdu:XFDU xmlns:xfdu=\"urn:ccsds:schema:xfdu:1\" xmlns:sentinel-safe=\"http://www.esa.int/safe/sentinel/1.1\" xmlns:gml=\"http://www.opengis.net/gml\" xmlns:sentinel3=\"http://www.esa.int/safe/sentinel/sentinel-3/1.0\" xmlns:slstr=\"http://www.esa.int/safe/sentinel/sentinel-3/slstr/1.0\" version=\"esa/safe/sentinel/sentinel-3/slstr/level-1/1.0\">" +
+                "    <metadataSection>" +
+                "        <metadataObject ID=\"slstrProductInformation\" classification=\"DESCRIPTION\" category=\"DMD\">" +
+                "            <metadataWrap mimeType=\"text/xml\" vocabularyName=\"Sentinel-SAFE\" textInfo=\"Slstr Product Information\">" +
+                "                <xmlData>" +
+                "                    <slstr:slstrProductInformation>" +
+                "                        <slstr:resolution grid=\"1 km\">" +
+                "                            <slstr:spatialResolution>1000</slstr:spatialResolution>" +
+                "                        </slstr:resolution>" +
+                "                        <slstr:resolution grid=\"Tie Points\">" +
+                "                            <slstr:spatialResolution>16000</slstr:spatialResolution>" +
+                "                        </slstr:resolution>" +
+                "                        <slstr:nadirImageSize grid=\"1 km\">" +
+                "                            <sentinel3:trackOffset>998</sentinel3:trackOffset>" +
+                "                            <sentinel3:rows>1200</sentinel3:rows>" +
+                "                            <sentinel3:columns>1500</sentinel3:columns>" +
+                "                        </slstr:nadirImageSize>" +
+                "                        <slstr:nadirImageSize grid=\"Tie Points\">" +
+                "                            <sentinel3:trackOffset>64</sentinel3:trackOffset>" +
+                "                        </slstr:nadirImageSize>" +
+                "                    </slstr:slstrProductInformation>" +
+                "                </xmlData>" +
+                "            </metadataWrap>" +
+                "        </metadataObject>" +
+                "    </metadataSection>" +
+                "</xfdu:XFDU>";
+        final InputSource is = new InputSource(new StringReader(manifestXML));
+        final Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(is);
+        final Manifest manifest = XfduManifest.createManifest(document);
+
+        final RasterInfo rasterInfo = SlstrRegriddedSubsetReader.getRasterInfo(manifest);
+        assertNotNull(rasterInfo);
+
+        assertEquals(1500, rasterInfo.rasterWidth);
+        assertEquals(1200, rasterInfo.rasterHeight);
+        assertEquals(1000, rasterInfo.rasterResolution);
+        assertEquals(16000, rasterInfo.tiePointResolution);
+        assertEquals(998, rasterInfo.rasterTrackOffset);
+        assertEquals(64, rasterInfo.tiePointTrackOffset);
     }
 }

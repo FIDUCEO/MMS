@@ -57,46 +57,6 @@ public abstract class AbstractRegriddedSubsetReader_SlstrA_IOTest {
     }
 
     @Test
-    public void getVariables_nadir() throws IOException {
-        initReaderNadir();
-        final List<Variable> variables = reader.getVariables();
-
-        assertEquals(32, variables.size());
-        @SuppressWarnings("Convert2MethodRef") final List<String> names = variables.stream().map(v -> v.getShortName()).collect(Collectors.toList());
-        assertThat(names, Matchers.containsInAnyOrder(
-                "bayes_in", "bayes_orphan_in", "cloud_in", "confidence_in", "detector_in",
-                "latitude_in", "latitude_tx", "longitude_in", "longitude_tx",
-                "pixel_in", "pointing_in", "probability_cloud_dual_in", "probability_cloud_single_in",
-                "S1_radiance_in", "S2_radiance_in", "S3_radiance_in", "S4_radiance_in", "S5_radiance_in",
-                "S6_radiance_in", "S7_BT_in", "S7_exception_in", "S8_BT_in", "S8_exception_in", "S9_BT_in",
-                "S9_exception_in",
-                "sat_azimuth_tn", "sat_path_tn", "sat_zenith_tn",
-                "scan_in",
-                "solar_azimuth_tn", "solar_path_tn", "solar_zenith_tn"
-        ));
-    }
-
-    @Test
-    public void getVariables_oblique() throws IOException {
-        initReaderOblique();
-        final List<Variable> variables = reader.getVariables();
-
-        assertEquals(32, variables.size());
-        @SuppressWarnings("Convert2MethodRef") final List<String> names = variables.stream().map(v -> v.getShortName()).collect(Collectors.toList());
-        assertThat(names, Matchers.containsInAnyOrder(
-                "bayes_io", "bayes_orphan_io", "cloud_io", "confidence_io", "detector_io",
-                "latitude_io", "latitude_tx", "longitude_io", "longitude_tx",
-                "pixel_io", "pointing_io", "probability_cloud_dual_io", "probability_cloud_single_io",
-                "S1_radiance_io", "S2_radiance_io", "S3_radiance_io", "S4_radiance_io", "S5_radiance_io",
-                "S6_radiance_io", "S7_BT_io", "S7_exception_io", "S8_BT_io", "S8_exception_io", "S9_BT_io",
-                "S9_exception_io",
-                "sat_azimuth_to", "sat_path_to", "sat_zenith_to",
-                "scan_io",
-                "solar_azimuth_to", "solar_path_to", "solar_zenith_to"
-        ));
-    }
-
-    @Test
     public void read_nadir() throws IOException {
         initReaderNadir();
         final AcquisitionInfo info = reader.read();
@@ -131,7 +91,7 @@ public abstract class AbstractRegriddedSubsetReader_SlstrA_IOTest {
         TestUtil.assertCorrectUTCDate(2020, 5, 22, 23, 12, 2, time);
 
         time = timeAxis.getTime(cornerLowerRight);
-        TestUtil.assertCorrectUTCDate(2020, 5, 22, 23, 15, 1, time);
+        TestUtil.assertCorrectUTCDate(2020, 5, 22, 23, 15, 2, time);
     }
 
     @Test

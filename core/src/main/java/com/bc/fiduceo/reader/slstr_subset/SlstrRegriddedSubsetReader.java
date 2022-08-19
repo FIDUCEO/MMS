@@ -23,15 +23,13 @@ import org.esa.s3tbx.dataio.s3.XfduManifest;
 import org.esa.snap.core.dataio.geocoding.*;
 import org.esa.snap.core.dataio.geocoding.forward.PixelForward;
 import org.esa.snap.core.dataio.geocoding.inverse.PixelQuadTreeInverse;
+import org.esa.snap.core.datamodel.MetadataAttribute;
 import org.esa.snap.core.datamodel.MetadataElement;
-import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.util.StringUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import ucar.ma2.DataType;
 import ucar.ma2.*;
-import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -39,7 +37,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
-import java.text.ParseException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -48,7 +45,6 @@ import java.util.zip.ZipFile;
 import static com.bc.fiduceo.reader.slstr.utility.ManifestUtil.getObliqueGridOffset;
 import static com.bc.fiduceo.util.NetCDFUtils.scaleIfNecessary;
 import static ucar.ma2.DataType.INT;
-import static ucar.nc2.NetcdfFiles.openInMemory;
 
 public class SlstrRegriddedSubsetReader implements Reader {
 
@@ -56,18 +52,19 @@ public class SlstrRegriddedSubsetReader implements Reader {
     private final boolean _nadirView;
     private final String LONGITUDE_VAR_NAME = "longitude_in";
     private final String LATITUDE_VAR_NAME = "latitude_in";
-    private TreeMap<String, NetcdfFile> _ncFiles;
-    private ArrayList<Variable> _variables;
-    private HashMap<String, Variable> _variablesLUT;
     private String _manifest;
     private PixelLocator pixelLocator;
     private TimeLocator_MicrosSince2000 _timeLocator;
     private long[] _timeStamps2000;
     private TransformFactory transformFactory;
+    private final NcCache ncCache;
+    private RasterInfo rasterInfo;
+    private Manifest manifest;
 
     public SlstrRegriddedSubsetReader(ReaderContext readerContext, boolean nadirView) {
         _readerContext = readerContext;
         _nadirView = nadirView;
+        ncCache = new NcCache();
     }
 
     @Override
@@ -81,15 +78,18 @@ public class SlstrRegriddedSubsetReader implements Reader {
             }
             store = new FileSystemStore(file.toPath());
         }
+
+
         try {
             final TreeSet<String> keyManifest = store.getKeysEndingWith("xfdumanifest.xml");
             _manifest = new String(store.getBytes(keyManifest.first()));
-            openNcFiles(store);
-            initVariables();
 
             final InputSource is = new InputSource(new StringReader(_manifest));
             final Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(is);
-            final Manifest manifest = XfduManifest.createManifest(document);
+            manifest = XfduManifest.createManifest(document);
+
+            rasterInfo = getRasterInfo(manifest);
+            ncCache.open(store, rasterInfo);
 
             final MetadataElement metadataRoot = new MetadataElement("root");
             metadataRoot.addElement(manifest.getMetadata());
@@ -101,30 +101,22 @@ public class SlstrRegriddedSubsetReader implements Reader {
                     obliqueGridOffset);
         } catch (ParserConfigurationException | SAXException e) {
             throw new IOException(e.getMessage());
-        } finally {
-            store.close();
         }
     }
 
     @Override
     public void close() throws IOException {
-        _ncFiles.clear();
+        ncCache.close();
         transformFactory = null;
     }
 
     @Override
     public AcquisitionInfo read() throws IOException {
-        final AcquisitionInfo info;
-        try {
-            getVariables();
-            info = new AcquisitionInfo();
-            info.setNodeType(findNodeType());
-            info.setSensingStart(findSensingTime("start_time"));
-            info.setSensingStop(findSensingTime("stop_time"));
-            extractGeometries(info);
-        } catch (ParseException e) {
-            throw new IOException(e.getMessage());
-        }
+        final AcquisitionInfo info = new AcquisitionInfo();
+        info.setNodeType(findNodeType());
+        info.setSensingStart(manifest.getStartTime().getAsDate());
+        info.setSensingStop(manifest.getStopTime().getAsDate());
+        extractGeometries(info);
         return info;
     }
 
@@ -132,9 +124,9 @@ public class SlstrRegriddedSubsetReader implements Reader {
         final GeometryFactory geometryFactory = _readerContext.getGeometryFactory();
         final BoundingPolygonCreator boundingPolygonCreator = new BoundingPolygonCreator(new Interval(250, 250), geometryFactory);
 
-        final Variable lonVariable = _variablesLUT.get(LONGITUDE_VAR_NAME);
+        final Variable lonVariable = ncCache.getVariable(LONGITUDE_VAR_NAME);
         final Array longitude = NetCDFUtils.readAndScaleIfNecessary(lonVariable);
-        final Variable latVariable = _variablesLUT.get(LATITUDE_VAR_NAME);
+        final Variable latVariable = ncCache.getVariable(LATITUDE_VAR_NAME);
         final Array latitude = NetCDFUtils.readAndScaleIfNecessary(latVariable);
 
         final Geometry boundingGeometry = boundingPolygonCreator.createBoundingGeometry(longitude, latitude);
@@ -148,14 +140,6 @@ public class SlstrRegriddedSubsetReader implements Reader {
         final LineString timeAxisGeometry = boundingPolygonCreator.createTimeAxisGeometry(longitude, latitude);
         geometries.setTimeAxesGeometry(timeAxisGeometry);
         ReaderUtils.setTimeAxes(acquisitionInfo, geometries.getTimeAxesGeometry(), geometryFactory);
-    }
-
-    private Date findSensingTime(String attributeName) throws ParseException {
-        final NetcdfFile netcdfFile = _ncFiles.firstEntry().getValue();
-        final String startTimeStr = NetCDFUtils.getGlobalAttributeString(attributeName, netcdfFile);
-        final String substring = startTimeStr.substring(0, startTimeStr.lastIndexOf("."));
-        final ProductData.UTC utc = ProductData.UTC.parse(substring, "yyyy-MM-dd'T'HH:mm:ss");
-        return utc.getAsDate();
     }
 
     private NodeType findNodeType() {
@@ -182,9 +166,9 @@ public class SlstrRegriddedSubsetReader implements Reader {
     @Override
     public PixelLocator getPixelLocator() throws IOException {
         if (pixelLocator == null) {
-            final Variable lonVariable = _variablesLUT.get(LONGITUDE_VAR_NAME);
+            final Variable lonVariable = ncCache.getVariable(LONGITUDE_VAR_NAME);
             final Array longitude = NetCDFUtils.readAndScaleIfNecessary(lonVariable);
-            final Variable latVariable = _variablesLUT.get(LATITUDE_VAR_NAME);
+            final Variable latVariable = ncCache.getVariable(LATITUDE_VAR_NAME);
             final Array latitude = NetCDFUtils.readAndScaleIfNecessary(latVariable);
             final int[] shape = latitude.getShape();
 
@@ -220,11 +204,7 @@ public class SlstrRegriddedSubsetReader implements Reader {
 
     private void ensureTimeStamps() throws IOException {
         if (_timeStamps2000 == null) {
-            final NetcdfFile ncFile = _ncFiles.get("time_in.nc");
-            final Variable timeStampVariable = ncFile.findVariable("time_stamp_i");
-            if (timeStampVariable == null) {
-                throw new IOException("variable time_stamp_i not found.");
-            }
+            final Variable timeStampVariable = ncCache.getVariable("time_stamp_i");
 
             final Array array = timeStampVariable.read();
             _timeStamps2000 = (long[]) array.get1DJavaArray(DataType.LONG);
@@ -247,7 +227,7 @@ public class SlstrRegriddedSubsetReader implements Reader {
 
     @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
-        final Variable variable = _variablesLUT.get(variableName);
+        final Variable variable = ncCache.getVariable(variableName);
         final Number fillValue = NetCDFUtils.getFillValue(variable);
         // @todo 1 tb/** this needs to be cached! Else we read the full array for every matchup. tb 2022-07-21
         final Array fullArray = variable.read();
@@ -257,7 +237,7 @@ public class SlstrRegriddedSubsetReader implements Reader {
     @Override
     public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
         final Array rawData = readRaw(centerX, centerY, interval, variableName);
-        final Variable variable = _variablesLUT.get(variableName);
+        final Variable variable = ncCache.getVariable(variableName);
 
         return scaleIfNecessary(variable, rawData);
     }
@@ -301,91 +281,22 @@ public class SlstrRegriddedSubsetReader implements Reader {
         return target;
     }
 
-    private void initVariables() throws IOException {
-        if (_variables != null) {
-            return;
-        }
-        final Comparator<int[]> comp = getIntArrayComparator();
-        final TreeMap<int[], ArrayList<Variable>> shapeGroupedVariablesMap = new TreeMap<>(comp.reversed());
-        for (NetcdfFile netcdfFile : _ncFiles.values()) {
-            final ucar.nc2.Dimension rowsDim = netcdfFile.findDimension("rows");
-            final ucar.nc2.Dimension colsDim = netcdfFile.findDimension("columns");
-            if (rowsDim == null || colsDim == null) {
-                continue;
-            }
-            final int numRows = rowsDim.getLength();
-            final int numCols = colsDim.getLength();
-            final int[] fileShape = new int[]{numRows, numCols};
-            if (!shapeGroupedVariablesMap.containsKey(fileShape)) {
-                shapeGroupedVariablesMap.put(fileShape, new ArrayList<>());
-            }
-            final List<Variable> vars = netcdfFile.getVariables();
-            for (Variable var : vars) {
-                final int[] shape = var.getShape();
-                if (shape.length != 2 || shape[0] != numRows || shape[1] < 130) {
-                    continue;
-                }
-                if (shape[1] < numCols && var.getShortName().contains("orphan")) {
-                    continue;
-                }
-                shapeGroupedVariablesMap.get(fileShape).add(var);
-            }
-        }
-        final Map.Entry<int[], ArrayList<Variable>> fullSizeVarsEntry = shapeGroupedVariablesMap.pollFirstEntry();
-        final int[] fullSizeShape = fullSizeVarsEntry.getKey();
-        _variables = fullSizeVarsEntry.getValue();
-        final Variable fullSizeVar = _variables.get(0);
-        final NetcdfFile fullSizeNcFile = fullSizeVar.getNetcdfFile();
-        assert fullSizeNcFile != null;
-        final double fullTrackOffset = NetCDFUtils.getGlobalAttributeDouble("track_offset", fullSizeNcFile);
-        final String fullAcrossResStr = NetCDFUtils.getGlobalAttributeString("resolution", fullSizeNcFile);
-        final Number fullAcrossRes = Double.parseDouble(StringUtils.split(fullAcrossResStr, " ".toCharArray(), true)[1]);
-
-        for (Map.Entry<int[], ArrayList<Variable>> entry : shapeGroupedVariablesMap.entrySet()) {
-            final ArrayList<Variable> vars = entry.getValue();
-            for (Variable var : vars) {
-                final NetcdfFile varNcFile = var.getNetcdfFile();
-                assert varNcFile != null;
-                final double varTrackOffset = NetCDFUtils.getGlobalAttributeDouble("track_offset", varNcFile);
-                final String varAcrossResStr = NetCDFUtils.getGlobalAttributeString("resolution", varNcFile);
-                final Number varAcrossRes = Double.parseDouble(StringUtils.split(varAcrossResStr, " ".toCharArray(), true)[1]);
-                final double subsamplingX = varAcrossRes.doubleValue() / fullAcrossRes.doubleValue();
-                final double offsetX = fullTrackOffset - varTrackOffset * subsamplingX;
-                _variables.add(
-                        new SlstrSubsetTiePointVariable(var, fullSizeShape[1], fullSizeShape[0], offsetX, subsamplingX)
-                );
-            }
-        }
-
-        _variablesLUT = new HashMap<>();
-        for (Variable variable : _variables) {
-            final String shortName = variable.getShortName();
-            _variablesLUT.put(shortName, variable);
-        }
-    }
-
     @Override
     public List<Variable> getVariables() throws IOException {
-        return _variables;
-    }
-
-    private Comparator<int[]> getIntArrayComparator() {
-        return (o1, o2) -> {
-            int numIter = Math.min(o1.length, o2.length);
-            for (int i = 0; i < numIter; i++) {
-                int result = Integer.compare(o1[i], o2[i]);
-                if (result != 0) {
-                    return result;
-                }
-            }
-            return Integer.compare(o1.length, o2.length);
-        };
+        final List<Variable> variables = new ArrayList<>();
+        final List<String> variableNames = ncCache.getVariableNames();
+        for (final String varName : variableNames) {
+            variables.add(ncCache.getVariable(varName));
+        }
+        return variables;
     }
 
     @Override
     public Dimension getProductSize() throws IOException {
-        final int[] shape = _variables.get(0).getShape();
-        return new Dimension("shape", shape[1], shape[0]);
+        if (rasterInfo != null) {
+            return new Dimension("shape", rasterInfo.rasterWidth, rasterInfo.rasterHeight);
+        }
+        throw new IOException("Product not opened.");
     }
 
     @Override
@@ -407,27 +318,6 @@ public class SlstrRegriddedSubsetReader implements Reader {
         }
     }
 
-    private void openNcFiles(Store store) throws IOException {
-        final String suffix;
-        if (_nadirView) {
-            suffix = "n.nc";
-        } else {
-            suffix = "o.nc";
-        }
-        final TreeSet<String> keys = store.getKeysEndingWith(suffix);
-        final TreeSet<String> geoTx = store.getKeysEndingWith("geodetic_tx.nc");
-        final TreeSet<String> timeIn = store.getKeysEndingWith("time_in.nc");
-        keys.addAll(geoTx);
-        keys.addAll(timeIn);
-        _ncFiles = new TreeMap<>();
-        for (String key : keys) {
-            final byte[] bytes = store.getBytes(key);
-            final String name = extractName(key);
-            final NetcdfFile netcdfFile = openInMemory(key, bytes);
-            _ncFiles.put(name, netcdfFile);
-        }
-    }
-
     // package instead of private for testing purposes
     static String extractName(String key) {
         if (key.contains("\\")) {
@@ -440,5 +330,43 @@ public class SlstrRegriddedSubsetReader implements Reader {
     // just for testing tb 2022-07-18
     boolean isNadirView() {
         return _nadirView;
+    }
+
+    static RasterInfo getRasterInfo(Manifest manifest) {
+        final RasterInfo rasterInfo = new RasterInfo();
+
+        final MetadataElement metadata = manifest.getMetadata();
+        final MetadataElement metadataSection = metadata.getElement("metadataSection");
+        final MetadataElement slstrProductInformation = metadataSection.getElement("slstrProductInformation");
+        MetadataElement[] elements = slstrProductInformation.getElements();
+        for (final MetadataElement element : elements) {
+            if (element.getName().equals("resolution")) {
+                final MetadataAttribute grid = element.getAttribute("grid");
+                final String gridValue = grid.getData().getElemString();
+                if (gridValue.equals("1 km")) {
+                    rasterInfo.rasterResolution = getRasterAttributeInt(element, "spatialResolution");
+                } else if (gridValue.equals("Tie Points")) {
+                    rasterInfo.tiePointResolution = getRasterAttributeInt(element, "spatialResolution");
+                }
+            }
+            if (element.getName().equals("nadirImageSize")) {
+                final MetadataAttribute grid = element.getAttribute("grid");
+                final String gridValue = grid.getData().getElemString();
+                if (gridValue.equals("1 km")) {
+                    rasterInfo.rasterTrackOffset = getRasterAttributeInt(element, "trackOffset");
+                    rasterInfo.rasterHeight = getRasterAttributeInt(element, "rows");
+                    rasterInfo.rasterWidth = getRasterAttributeInt(element, "columns");
+                } else if (gridValue.equals("Tie Points")) {
+                    rasterInfo.tiePointTrackOffset = getRasterAttributeInt(element, "trackOffset");
+                }
+            }
+        }
+        return rasterInfo;
+    }
+
+    private static int getRasterAttributeInt(MetadataElement element, String attributeName) {
+        final MetadataAttribute spatialResolution = element.getAttribute(attributeName);
+        final String resolutionString = spatialResolution.getData().getElemString();
+        return Integer.parseInt(resolutionString);
     }
 }

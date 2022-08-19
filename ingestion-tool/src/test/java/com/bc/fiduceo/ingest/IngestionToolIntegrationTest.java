@@ -1031,8 +1031,8 @@ public class IngestionToolIntegrationTest {
             assertEquals(2, satelliteObservations.size());
 
             final SatelliteObservation observation = getSatelliteObservation("S3A_SL_1_RBT____20200522T231202_20200522T231502_20200524T053503_0179_058_286_5580_LN2_O_NT_004.zip", satelliteObservations);
-            TestUtil.assertCorrectUTCDate(2020, 5, 22, 23, 12, 2, 0, observation.getStartTime());
-            TestUtil.assertCorrectUTCDate(2020, 5, 22, 23, 15, 2, 0, observation.getStopTime());
+            TestUtil.assertCorrectUTCDate(2020, 5, 22, 23, 12, 2, 240, observation.getStartTime());
+            TestUtil.assertCorrectUTCDate(2020, 5, 22, 23, 15, 2, 240, observation.getStopTime());
 
             assertEquals("slstr-s3a-uor-n", observation.getSensor().getName());
 
