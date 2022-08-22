@@ -37,7 +37,6 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -1044,9 +1043,9 @@ public class IngestionToolIntegrationTest {
 
             final Geometry geoBounds = observation.getGeoBounds();
             assertEquals("POLYGON((-3.605947 -25.831709,-4.345505 -23.678649999999998,-5.052073 -21.520253000000004,-5.7285819999999985 -19.357061000000005,-6.377657 -17.189569,-6.876289 -15.461471999999999,-9.131362 -16.047251000000003,-11.394941 -16.60798799999999,-13.671509000000002 -17.155166,-15.968603 -17.663905,-18.269608000000005 -18.157285999999992,-20.575312 -18.609944000000002,-20.109500000000008 -20.816586999999995,-19.641969 -23.022255,-19.171696999999998 -25.226836000000002,-18.697578999999998 -27.430221,-18.316648999999998 -29.183193000000003,-15.807929999999999 -28.733388,-13.315321999999998 -28.24385499999999,-10.84056 -27.702752999999998,-8.400936999999999 -27.118316000000007,-5.984294 -26.500103000000006,-3.605947 -25.831709))",
-                         geometryFactory.format(geoBounds));
+                    geometryFactory.format(geoBounds));
             assertEquals("LINESTRING(-10.851859 -27.702489000000003,-11.47645 -25.508398000000003,-12.080582999999999 -23.311636999999997,-12.666854999999996 -21.112256999999993,-13.226334000000001 -18.910415999999998,-13.671509000000002 -17.155166)",
-                         geometryFactory.format(observation.getTimeAxes()[0].getGeometry()));
+                    geometryFactory.format(observation.getTimeAxes()[0].getGeometry()));
         } finally {
             storage.clear();
             storage.close();

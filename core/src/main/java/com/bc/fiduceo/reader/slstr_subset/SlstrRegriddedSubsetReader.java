@@ -60,13 +60,12 @@ public class SlstrRegriddedSubsetReader implements Reader {
     private TimeLocator_MicrosSince2000 timeLocator;
     private long[] timeStamps2000;
     private TransformFactory transformFactory;
-    private final NcCache ncCache;
+    private NcCache ncCache;
     private RasterInfo rasterInfo;
     private Manifest manifest;
 
     public SlstrRegriddedSubsetReader(ReaderContext readerContext) {
         this.readerContext = readerContext;
-        ncCache = new NcCache();
     }
 
     @Override
@@ -80,7 +79,7 @@ public class SlstrRegriddedSubsetReader implements Reader {
             }
             store = new FileSystemStore(file.toPath());
         }
-
+        ncCache = new NcCache();
 
         try {
             final TreeSet<String> keyManifest = store.getKeysEndingWith("xfdumanifest.xml");
@@ -108,7 +107,10 @@ public class SlstrRegriddedSubsetReader implements Reader {
 
     @Override
     public void close() throws IOException {
-        ncCache.close();
+        if (ncCache != null) {
+            ncCache.close();
+            ncCache = null;
+        }
         transformFactory = null;
         rasterInfo = null;
     }

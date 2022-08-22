@@ -26,12 +26,17 @@ import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.db.Storage;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.GeometryUtil;
 import com.bc.fiduceo.matchup.writer.MmdWriterFactory;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderFactory;
 import com.bc.fiduceo.util.TempFileUtils;
 import com.bc.fiduceo.util.TimeUtils;
+import com.bc.geometry.s2.S2WKTWriter;
+import com.vividsolutions.jts.io.WKTReader;
+import com.vividsolutions.jts.io.WKTWriter;
+import org.esa.snap.core.util.GeoUtils;
 import org.junit.After;
 import org.junit.Before;
 
