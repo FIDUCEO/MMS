@@ -49,12 +49,14 @@ public class MatchupToolIntegrationTest_AVHRR_SLSTR extends AbstractUsecaseInteg
     @Test
     public void testMatchup_AVHRR_SLSTR_UOR() throws IOException, ParseException, SQLException, InvalidRangeException {
         final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
-                .withTimeDeltaSeconds(60000, null)
-                .withMaxPixelDistanceKm(0.1f, null)
+                .withTimeDeltaSeconds(7200, null)
+                .withMaxPixelDistanceKm(0.025f, null)
+                .withOverlapRemoval("SECONDARY")
+                .withPixelPosition("SECONDARY", 568, 1467, -1, -1)
                 .createConfig();
         final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-avhrr-slstr.xml");
 
-        insert_AVHRR_FRAC_MA();
+        insert_AVHRR_FRAC_MC();
         insert_SLSTR_UOR();
 
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "2020-142", "-end", "2020-143"};
@@ -65,28 +67,28 @@ public class MatchupToolIntegrationTest_AVHRR_SLSTR extends AbstractUsecaseInteg
 
         try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
             final int matchupCount = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, mmd);
-            assertEquals(1380, matchupCount);
+            assertEquals(1641, matchupCount);
 
             NCTestUtils.assert3DVariable("slstr-s3a-uor_S1_radiance_in", 0, 0, 0, -32768, mmd);
-            NCTestUtils.assert3DVariable("slstr-s3a-uor_S7_BT_in", 1, 0, 24, 854, mmd);
-            NCTestUtils.assert3DVariable("slstr-s3a-uor_acquisition_time", 2, 0, 25, 1590189249, mmd);
-            NCTestUtils.assert3DVariable("slstr-s3a-uor_S8_exception_in", 0, 1, 30, 2, mmd);
-            NCTestUtils.assert3DVariable("slstr-s3a-uor_cloud_io", 1, 1, 31, 32769, mmd);
-            NCTestUtils.assert3DVariable("slstr-s3a-uor_detector_io", 2, 1, 32, 255, mmd);
-            NCTestUtils.assert3DVariable("slstr-s3a-uor_latitude_in", 0, 2, 33, -19847056, mmd);
-            NCTestUtils.assert3DVariable("slstr-s3a-uor_longitude_in", 1, 2, 34, -5812828, mmd);
-            NCTestUtils.assert3DVariable("slstr-s3a-uor_solar_azimuth_tn", 2, 2, 35, 275.6034547080558, mmd);
-            NCTestUtils.assert3DVariable("slstr-s3a-uor_solar_azimuth_to", 0, 0, 36, Float.NaN, mmd);
+            NCTestUtils.assert3DVariable("slstr-s3a-uor_S7_BT_in", 1, 0, 24, -641, mmd);
+            NCTestUtils.assert3DVariable("slstr-s3a-uor_acquisition_time", 2, 0, 25, 1590189143, mmd);
+            NCTestUtils.assert3DVariable("slstr-s3a-uor_S8_exception_in", 0, 1, 30, 0, mmd);
+            NCTestUtils.assert3DVariable("slstr-s3a-uor_cloud_io", 1, 1, 31, 1024, mmd);
+            NCTestUtils.assert3DVariable("slstr-s3a-uor_detector_io", 2, 1, 32, 0, mmd);
+            NCTestUtils.assert3DVariable("slstr-s3a-uor_latitude_in", 0, 2, 33, -28294595, mmd);
+            NCTestUtils.assert3DVariable("slstr-s3a-uor_longitude_in", 1, 2, 34, -15396355, mmd);
+            NCTestUtils.assert3DVariable("slstr-s3a-uor_solar_azimuth_tn", 2, 2, 35, 255.55368047574404, mmd);
+            NCTestUtils.assert3DVariable("slstr-s3a-uor_solar_azimuth_to", 0, 0, 36, 255.10406145929286, mmd);
 
-            NCTestUtils.assert3DVariable("avhrr-frac-mc_acquisition_time", 0, 0, 1, 1590137472, mmd);
+            NCTestUtils.assert3DVariable("avhrr-frac-mc_acquisition_time", 0, 0, 1, 1590186057, mmd);
             NCTestUtils.assert3DVariable("avhrr-frac-mc_cloudFlag", 1, 0, 2, 0, mmd);
-            NCTestUtils.assert3DVariable("avhrr-frac-mc_delta_azimuth", 2, 0, 3, 52.04375076293945, mmd);
-            NCTestUtils.assert3DVariable("avhrr-frac-mc_flags", 0, 1, 4, -1, mmd);
-            NCTestUtils.assert3DVariable("avhrr-frac-mc_latitude", 1, 1, 5, -19.104799270629883, mmd);
-            NCTestUtils.assert3DVariable("avhrr-frac-mc_longitude", 2, 1, 6, -5.870356559753418, mmd);
-            NCTestUtils.assert3DVariable("avhrr-frac-mc_radiance_1", 0, 2, 7, 87.23554992675781, mmd);
-            NCTestUtils.assert3DVariable("avhrr-frac-mc_radiance_2", 1, 2, 8, 64.54716491699219, mmd);
-            NCTestUtils.assert3DVariable("avhrr-frac-mc_radiance_3a", 2, 2, 9, 11.970253944396973, mmd);
+            NCTestUtils.assert3DVariable("avhrr-frac-mc_delta_azimuth", 2, 0, 3, -5.319550037384033, mmd);
+            NCTestUtils.assert3DVariable("avhrr-frac-mc_flags", 0, 1, 4, 0, mmd);
+            NCTestUtils.assert3DVariable("avhrr-frac-mc_latitude", 1, 1, 5, -28.55242347717285, mmd);
+            NCTestUtils.assert3DVariable("avhrr-frac-mc_longitude", 2, 1, 6, -11.668692588806152, mmd);
+            NCTestUtils.assert3DVariable("avhrr-frac-mc_radiance_1", 0, 2, 7, -0.10571436583995819, mmd);
+            NCTestUtils.assert3DVariable("avhrr-frac-mc_radiance_2", 1, 2, 8, 0.009339322336018085, mmd);
+            NCTestUtils.assert3DVariable("avhrr-frac-mc_radiance_3a", 2, 2, 9, 0.0, mmd);
         }
     }
 
@@ -98,9 +100,9 @@ public class MatchupToolIntegrationTest_AVHRR_SLSTR extends AbstractUsecaseInteg
         storage.insert(satelliteObservation);
     }
 
-    private void insert_AVHRR_FRAC_MA() throws IOException, SQLException {
+    private void insert_AVHRR_FRAC_MC() throws IOException, SQLException {
         final String sensorKey = "avhrr-frac-mc";
-        final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{sensorKey, "v1", "2020", "05", "22", "NSS.FRAC.M3.D20143.S0824.E1005.B0798990.SV"}, true);
+        final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{sensorKey, "v1", "2020", "05", "22", "NSS.FRAC.M3.D20143.S2148.E2331.B0799798.SV"}, true);
 
         final SatelliteObservation satelliteObservation = readSatelliteObservation(sensorKey, relativeArchivePath, "v1");
         storage.insert(satelliteObservation);
