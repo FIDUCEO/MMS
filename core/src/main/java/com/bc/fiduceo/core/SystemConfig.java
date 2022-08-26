@@ -56,7 +56,7 @@ public class SystemConfig {
             final Document document = saxBuilder.build(inputStream);
             return new SystemConfig(document);
         } catch (JDOMException | IOException | RuntimeException e) {
-            throw new RuntimeException("Unable to initialize use case configuration: " + e.getMessage(), e);
+            throw new RuntimeException("Unable to initialize system configuration: " + e.getMessage(), e);
         }
     }
 
