@@ -56,7 +56,7 @@ public class SystemConfigTest {
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
             assertEquals("java.lang.RuntimeException", expected.getClass().getTypeName());
-            assertEquals("Unable to initialize use case configuration: Root tag name 'system-config' expected", expected.getMessage());
+            assertEquals("Unable to initialize system configuration: Root tag name 'system-config' expected", expected.getMessage());
         }
     }
 
