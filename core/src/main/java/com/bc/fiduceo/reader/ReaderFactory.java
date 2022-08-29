@@ -40,9 +40,9 @@ public class ReaderFactory {
     private final HashMap<String, ReaderPlugin> readerPluginHashMap = new HashMap<>();
     private final ReaderContext readerContext;
 
-    public static ReaderFactory create(GeometryFactory geometryFactory, TempFileUtils tempFileUtils, Archive archive) {
+    public static ReaderFactory create(GeometryFactory geometryFactory, TempFileUtils tempFileUtils, Archive archive, String configDir) {
         if (readerFactory == null) {
-            readerFactory = new ReaderFactory(geometryFactory, tempFileUtils, archive);
+            readerFactory = new ReaderFactory(geometryFactory, tempFileUtils, archive, configDir);
         }
         return readerFactory;
     }
@@ -85,11 +85,12 @@ public class ReaderFactory {
         return readerPlugin;
     }
 
-    private ReaderFactory(GeometryFactory geometryFactory, TempFileUtils tempFileUtils, Archive archive) {
+    private ReaderFactory(GeometryFactory geometryFactory, TempFileUtils tempFileUtils, Archive archive, String configDir) {
         readerContext = new ReaderContext();
         readerContext.setGeometryFactory(geometryFactory);
         readerContext.setTempFileUtils(tempFileUtils);
         readerContext.setArchive(archive);
+        readerContext.setConfigDir(configDir);
 
         final ServiceRegistryManager serviceRegistryManager = ServiceRegistryManager.getInstance();
         final ServiceRegistry<ReaderPlugin> readerRegistry = serviceRegistryManager.getServiceRegistry(ReaderPlugin.class);

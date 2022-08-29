@@ -135,7 +135,7 @@ public class SstInsituTimeSeries_IO_Test {
                         "    </archive>" +
                         "</system-config>").getBytes())));
 
-        context.setReaderFactory(ReaderFactory.create(new GeometryFactory(GeometryFactory.Type.S2), null, null));
+        context.setReaderFactory(ReaderFactory.create(new GeometryFactory(GeometryFactory.Type.S2), null, null, null));
 
         final SstInsituTimeSeries.Configuration configuration = new SstInsituTimeSeries.Configuration();
         configuration.processingVersion = "v03.3";
@@ -208,7 +208,7 @@ public class SstInsituTimeSeries_IO_Test {
         configuration.matchupTimeVarName = "matchupTimeVarName";
         final SstInsituTimeSeries insituTimeSeries = new SstInsituTimeSeries(configuration);
 
-        final ReaderFactory readerFactory = ReaderFactory.create(new GeometryFactory("S2"), null, null); // we don't need temp file support here tb 2018-01-23
+        final ReaderFactory readerFactory = ReaderFactory.create(new GeometryFactory("S2"), null, null, null); // we don't need temp file support here tb 2018-01-23
         final Reader insituReader = readerFactory.getReader("animal-sst");
 
         final File insituFile = testDataDirectory.toPath()

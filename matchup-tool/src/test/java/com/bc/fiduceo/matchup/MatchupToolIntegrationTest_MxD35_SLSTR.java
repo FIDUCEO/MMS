@@ -94,8 +94,6 @@ public class MatchupToolIntegrationTest_MxD35_SLSTR extends AbstractUsecaseInteg
         final String version = "1.0";
         final String[] products = {
                 "S3B_SL_1_RBT____20220425T222331_20220425T222631_20220426T125142_0179_065_158_0540_PS2_O_NT_004.zip",
-//                "S3A_SL_1_RBT____20220425T212458_20220425T212758_20220427T071339_0180_084_300_0720_PS1_O_NT_004.zip",
-//                "S3A_SL_1_RBT____20220425T212158_20220425T212458_20220427T071339_0179_084_300_0540_PS1_O_NT_004.zip"
         };
         for (String product : products) {
             final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{sensorKey, version, "2022", "04", "25", product}, true);

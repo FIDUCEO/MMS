@@ -367,7 +367,8 @@ class MatchupTool {
         final Archive archive = new Archive(archiveConfig);
         context.setArchive(archive);
 
-        final ReaderFactory readerFactory = ReaderFactory.create(geometryFactory, context.getTempFileUtils(), archive);
+        final ReaderFactory readerFactory = ReaderFactory.create(geometryFactory, context.getTempFileUtils(),
+                archive, configValue);
         context.setReaderFactory(readerFactory);
 
         final Storage storage = Storage.create(databaseConfig.getDataSource(), geometryFactory);

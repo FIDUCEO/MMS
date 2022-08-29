@@ -124,9 +124,7 @@ public class MmdWriter_IO_Test {
         //verification
         assertTrue(Files.isRegularFile(mmdFile));
 
-        NetcdfFile mmd = null;
-        try {
-            mmd = NetcdfFile.open(mmdFile.toString());
+        try (NetcdfFile mmd = NetcdfFile.open(mmdFile.toString())) {
             final List<Variable> variables = mmd.getVariables();
             assertEquals(1, variables.size());
 
@@ -146,10 +144,6 @@ public class MmdWriter_IO_Test {
             final Attribute halimasch = variable.findAttribute("halimasch");
             assertNotNull(halimasch);
             assertEquals("brt", halimasch.getStringValue());
-        } finally {
-            if (mmd != null) {
-                mmd.close();
-            }
         }
     }
 
@@ -347,7 +341,7 @@ public class MmdWriter_IO_Test {
         context.setStartDate(TimeUtils.parseDOYBeginOfDay("1989-122"));
         context.setEndDate(TimeUtils.parseDOYEndOfDay("1989-123"));
 
-        final ReaderFactory readerFactory = ReaderFactory.create(context.getGeometryFactory(), new TempFileUtils(), null);
+        final ReaderFactory readerFactory = ReaderFactory.create(context.getGeometryFactory(), new TempFileUtils(), null, null);
         context.setReaderFactory(readerFactory);
         final IOVariablesList ioVariablesList = new IOVariablesList(readerFactory);
 

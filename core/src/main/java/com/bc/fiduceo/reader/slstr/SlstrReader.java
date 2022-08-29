@@ -8,15 +8,19 @@ import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.ReaderUtils;
-import com.bc.fiduceo.reader.slstr.utility.ManifestUtil;
 import com.bc.fiduceo.reader.slstr.utility.Transform;
 import com.bc.fiduceo.reader.slstr.utility.TransformFactory;
+import com.bc.fiduceo.reader.snap.SNAP_PixelLocator;
 import com.bc.fiduceo.reader.snap.SNAP_Reader;
 import com.bc.fiduceo.reader.snap.VariableProxy;
 import com.bc.fiduceo.reader.time.TimeLocator;
 import com.bc.fiduceo.reader.time.TimeLocator_MicrosSince2000;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
+import org.esa.snap.core.dataio.geocoding.*;
+import org.esa.snap.core.dataio.geocoding.forward.PixelForward;
+import org.esa.snap.core.dataio.geocoding.inverse.PixelQuadTreeInverse;
+import org.esa.snap.core.dataio.geocoding.util.RasterUtils;
 import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.engine_utilities.util.ZipUtils;
@@ -49,6 +53,8 @@ public class SlstrReader extends SNAP_Reader {
     private long[] subs_times;
     private TransformFactory transformFactory;
     private File productDir;
+    private SlstrReaderConfig config;
+    private PixelLocator pixelLocator;
 
     SlstrReader(ReaderContext readerContext, ProductType productType) {
         super(readerContext);
@@ -65,6 +71,12 @@ public class SlstrReader extends SNAP_Reader {
             this.regEx = REGEX_NT;
         } else {
             throw new IllegalArgumentException("Unsupported product type");
+        }
+
+        try {
+            config = SlstrReaderConfig.loadFrom(new File(readerContext.getConfigDir()));
+        } catch (IOException e) {
+            throw new RuntimeException(e.getMessage());
         }
     }
 
@@ -134,6 +146,7 @@ public class SlstrReader extends SNAP_Reader {
             productDir = null;
         }
         transformFactory = null;
+        pixelLocator = null;
     }
 
     @Override
@@ -151,12 +164,41 @@ public class SlstrReader extends SNAP_Reader {
     }
 
     @Override
-    public PixelLocator getPixelLocator() {
-        return new SlstrPixelLocator(product.getSceneGeoCoding(), transformFactory.get(NADIR_500m));
+    public PixelLocator getPixelLocator() throws IOException {
+        if (pixelLocator == null) {
+            if (config.usePixelGeoCoding()) {
+                final String longitudeVariableName = getLongitudeVariableName();
+                final RasterDataNode lonBand = product.getRasterDataNode(longitudeVariableName);
+                final double[] longitudes = RasterUtils.loadGeoData(lonBand);
+
+                final String latitudeVariableName = getLatitudeVariableName();
+                final RasterDataNode latBand = product.getRasterDataNode(latitudeVariableName);
+                final double[] latitudes = RasterUtils.loadGeoData(latBand);
+
+                final Dimension productSize = getProductSize();
+                final GeoRaster geoRaster = new GeoRaster(longitudes, latitudes,
+                        longitudeVariableName, latitudeVariableName,
+                        productSize.getNx(), productSize.getNx(), productSize.getNx(), productSize.getNy(),
+                        1.0, 0.5, 0.5, 1.0, 1.0);
+
+                final ForwardCoding forward = ComponentFactory.getForward(PixelForward.KEY);
+                final InverseCoding inverse = ComponentFactory.getInverse(PixelQuadTreeInverse.KEY);
+                final ComponentGeoCoding componentGeoCoding = new ComponentGeoCoding(geoRaster, forward, inverse, GeoChecks.ANTIMERIDIAN);
+                componentGeoCoding.initialize();
+
+                pixelLocator = new SNAP_PixelLocator(componentGeoCoding);
+            } else {
+                pixelLocator = new SlstrPixelLocator(product.getSceneGeoCoding(), transformFactory.get(NADIR_500m));
+            }
+        }
+        return pixelLocator;
+    }
+
+    private void etLatitudeVariableName() {
     }
 
     @Override
-    public PixelLocator getSubScenePixelLocator(Polygon sceneGeometry) {
+    public PixelLocator getSubScenePixelLocator(Polygon sceneGeometry) throws IOException {
         return getPixelLocator();
     }
 
@@ -307,12 +349,20 @@ public class SlstrReader extends SNAP_Reader {
 
     @Override
     public String getLongitudeVariableName() {
-        return "longitude_tx";
+        if (config.usePixelGeoCoding()) {
+            return "longitude_in";
+        } else {
+            return "longitude_tx";
+        }
     }
 
     @Override
     public String getLatitudeVariableName() {
-        return "latitude_tx";
+        if (config.usePixelGeoCoding()) {
+            return "latitude_in";
+        } else {
+            return "latitude_tx";
+        }
     }
 
     protected void readProductData(RasterDataNode dataNode, Array targetArray, int width, int height, int xOffset, int yOffset) throws IOException {

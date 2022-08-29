@@ -55,7 +55,7 @@ public class CALIOP_L2_VFM_FLAGS_PP_IOTest {
 
     @Before
     public void setUp() throws Exception {
-        ReaderFactory.create(new GeometryFactory(GeometryFactory.Type.S2), null, null);
+        ReaderFactory.create(new GeometryFactory(GeometryFactory.Type.S2), null, null, null);
 
         pp = new CALIOP_L2_VFM_FLAGS_PP("caliop_vfm.file_name",
                 "caliop_vfm.processing_version",

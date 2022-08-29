@@ -108,7 +108,7 @@ public class CALIOP_SST_WP100_CLay_PP_IOTest {
         // a call setContext(...) generates an framework call to initReaderCache() method
         tempDirectory = Files.createTempDirectory(fiduceoTestDirPefix);
 
-        ReaderFactory.create(new GeometryFactory(GeometryFactory.Type.S2), null, null);
+        ReaderFactory.create(new GeometryFactory(GeometryFactory.Type.S2), null, null, null);
     }
 
     @After
@@ -282,7 +282,7 @@ public class CALIOP_SST_WP100_CLay_PP_IOTest {
             bufferedWriter.write("<system-config>\n" +
                     "    <geometry-library name=\"S2\"/>\n" +
                     "    <archive>\n" +
-                    "        <root-path>" + archivePath.toAbsolutePath().toString() + "</root-path>\n" +
+                    "        <root-path>" + archivePath.toAbsolutePath() + "</root-path>\n" +
                     "    </archive>\n" +
                     "</system-config>");
         }
@@ -297,7 +297,7 @@ public class CALIOP_SST_WP100_CLay_PP_IOTest {
                     "<post-processing-config>\n" +
                             "    <create-new-files>\n" +
                             "        <output-directory>\n" +
-                            "            " + outDirPath.toAbsolutePath().toString() + "\n" +
+                            "            " + outDirPath.toAbsolutePath() + "\n" +
                             "        </output-directory>\n" +
                             "    </create-new-files>\n" +
                             "    <post-processings>\n" +

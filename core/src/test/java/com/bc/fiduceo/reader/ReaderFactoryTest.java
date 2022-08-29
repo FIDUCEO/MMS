@@ -44,7 +44,8 @@ public class ReaderFactoryTest {
 
     @Before
     public void setUp() throws Exception {
-        readerFactory = ReaderFactory.create(new GeometryFactory(GeometryFactory.Type.S2), null, null); // we don't need temp file support here tb 2018-01-23
+        // we don't need temp file support, archive or configDir here tb 2018-01-23
+        readerFactory = ReaderFactory.create(new GeometryFactory(GeometryFactory.Type.S2), null, null, null);
     }
 
     @Test
@@ -167,10 +168,10 @@ public class ReaderFactoryTest {
 
     @Test
     public void testSingletonBehaviour() {
-        final ReaderFactory factory = ReaderFactory.create(new GeometryFactory(GeometryFactory.Type.S2), null, null); // we don't need temp file support here tb 2018-01-23
+        final ReaderFactory factory = ReaderFactory.create(new GeometryFactory(GeometryFactory.Type.S2), null, null, null); // we don't need temp file support here tb 2018-01-23
         assertNotNull(factory);
 
-        final ReaderFactory secondCallFactory = ReaderFactory.create(new GeometryFactory(GeometryFactory.Type.S2), null, null); // we don't need temp file support here tb 2018-01-23
+        final ReaderFactory secondCallFactory = ReaderFactory.create(new GeometryFactory(GeometryFactory.Type.S2), null, null, null); // we don't need temp file support here tb 2018-01-23
         assertNotNull(secondCallFactory);
 
         assertSame(factory, secondCallFactory);
@@ -178,7 +179,7 @@ public class ReaderFactoryTest {
 
     @Test
     public void testGet() {
-        final ReaderFactory factory = ReaderFactory.create(new GeometryFactory(GeometryFactory.Type.S2), null, null); // we don't need temp file support here tb 2018-01-23
+        final ReaderFactory factory = ReaderFactory.create(new GeometryFactory(GeometryFactory.Type.S2), null, null, null); // we don't need temp file support here tb 2018-01-23
 
         final ReaderFactory factoryFromGet = ReaderFactory.get();
 

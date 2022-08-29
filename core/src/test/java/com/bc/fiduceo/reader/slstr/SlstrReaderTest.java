@@ -83,20 +83,6 @@ public class SlstrReaderTest {
     }
 
     @Test
-    public void testGetLongitudeVariableName() {
-        final SlstrReader reader = new SlstrReader(new ReaderContext(), ProductType.NR);// we do not need a gemetry factory here tb 2019-05-10
-
-        assertEquals("longitude_tx", reader.getLongitudeVariableName());
-    }
-
-    @Test
-    public void testGetLatitudeVariableName() {
-        final SlstrReader reader = new SlstrReader(new ReaderContext(), ProductType.NT);// we do not need a gemetry factory here tb 2019-05-10
-
-        assertEquals("latitude_tx", reader.getLatitudeVariableName());
-    }
-
-    @Test
     public void testSubsampleTimes() {
         final long[] full_times = {12L, 13L, 14L, 15L, 16L, 17L};
         final long[] subs_times = {12L, 14L, 16L};

@@ -18,10 +18,10 @@ public class SlstrReaderConfigTest {
 
     @Test
     public void testLoadAndGet_usePixelGeoCoding() {
-        final String useCaseXml = "<slstr-reader-config>" +
+        final String configXml = "<slstr-reader-config>" +
                 "    <use-pixel-geocoding>true</use-pixel-geocoding>" +
                 "</slstr-reader-config>";
-        final ByteArrayInputStream inputStream = new ByteArrayInputStream(useCaseXml.getBytes());
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(configXml.getBytes());
 
         final SlstrReaderConfig config = SlstrReaderConfig.load(inputStream);
 

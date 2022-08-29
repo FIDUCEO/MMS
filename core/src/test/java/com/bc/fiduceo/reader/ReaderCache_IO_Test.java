@@ -30,7 +30,8 @@ public class ReaderCache_IO_Test {
     @Before
     public void setUp() {
         final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
-        readerFactory = ReaderFactory.create(geometryFactory, null, null);    // we don't need temp file support here tb 2018-01-23
+        // we don't need temp file support, archive or configDir here tb 2018-01-23
+        readerFactory = ReaderFactory.create(geometryFactory, null, null, null);
         readerCache = new ReaderCache(2, readerFactory, null);
     }
 

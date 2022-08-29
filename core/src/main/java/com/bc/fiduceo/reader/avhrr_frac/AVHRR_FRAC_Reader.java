@@ -67,7 +67,7 @@ public class AVHRR_FRAC_Reader extends SNAP_Reader {
     }
 
     @Override
-    public PixelLocator getSubScenePixelLocator(Polygon sceneGeometry) {
+    public PixelLocator getSubScenePixelLocator(Polygon sceneGeometry) throws IOException {
         return getPixelLocator();   // SNAP does not support region-specific geolocations tb 2019-01-17
     }
 
@@ -86,7 +86,7 @@ public class AVHRR_FRAC_Reader extends SNAP_Reader {
         final String yearString = doyToken.substring(1, 3);
         final int year = Integer.parseInt(yearString) + 2000; // name format skips 2k tb 2020-09-07
 
-        final String doyString = doyToken.substring(3, doyToken.length());
+        final String doyString = doyToken.substring(3);
         final int doy = Integer.parseInt(doyString);
 
         final Calendar calendar = ProductData.UTC.createCalendar();

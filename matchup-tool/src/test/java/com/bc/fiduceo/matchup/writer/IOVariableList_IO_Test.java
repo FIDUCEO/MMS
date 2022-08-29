@@ -56,7 +56,7 @@ public class IOVariableList_IO_Test {
 
         noaa17Path = Paths.get(absolutePath);
 
-        final ReaderFactory readerFactory = ReaderFactory.create(new GeometryFactory(GeometryFactory.Type.S2), null, null); // we don't need temp file support here tb 2018-01-23
+        final ReaderFactory readerFactory = ReaderFactory.create(new GeometryFactory(GeometryFactory.Type.S2), null, null, null); // we don't need temp file support here tb 2018-01-23
         ioVariablesList = new IOVariablesList(readerFactory);
 
         variablesConfiguration = new VariablesConfiguration();

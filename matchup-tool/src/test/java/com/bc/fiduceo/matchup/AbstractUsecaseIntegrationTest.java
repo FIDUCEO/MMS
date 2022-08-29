@@ -93,7 +93,7 @@ abstract class AbstractUsecaseIntegrationTest {
      * @throws IOException on disk acces failures
      */
     SatelliteObservation readSatelliteObservation(String sensorKey, String relativePath, String version) throws IOException {
-        final ReaderFactory readerFactory = ReaderFactory.create(geometryFactory, new TempFileUtils(), TestUtil.getArchive());
+        final ReaderFactory readerFactory = ReaderFactory.create(geometryFactory, new TempFileUtils(), TestUtil.getArchive(), "./config");
         final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativePath;
         try (Reader reader = readerFactory.getReader(sensorKey)) {
             reader.open(new File(absolutePath));

@@ -31,6 +31,11 @@ public class ReaderContext {
     private GeometryFactory geometryFactory;
     private TempFileUtils tempFileUtils;
     private Archive archive;
+    private String configDir;
+
+    public ReaderContext() {
+        configDir = "./config";
+    }
 
     public GeometryFactory getGeometryFactory() {
         return geometryFactory;
@@ -62,5 +67,13 @@ public class ReaderContext {
 
     public void setArchive(Archive archive) {
         this.archive = archive;
+    }
+
+    public void setConfigDir(String configDir) {
+        this.configDir = configDir;
+    }
+
+    public String getConfigDir() {
+        return configDir;
     }
 }
