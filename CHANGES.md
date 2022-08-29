@@ -1,10 +1,12 @@
 ### Updates from version 1.5.5 to 1.5.6
-* added support for SLSTR regridded subseted data in safe format 
-* corrected TAI 1993 to UTC conversion for MODIS data
-* updated H2 database driver
-* added support for MODIS MxD035 cloud data
-* added option for IngestionTool to update already existing entries
+* added support for SLSTR subset data processed by UoR
 * updated to use SNAP 9.0.0
+* corrected TAI 1993 to UTC conversion for MODIS data
+* added support for MODIS MxD035 cloud data
+* updated H2 database driver
+* added option for IngestionTool to update already existing entries
+* changed database to use relative archive paths and added migration tool
+* updated SLSTR reader to allow switching geo-coding source between tie-point/pixel
 
 ### Updates from version 1.5.4 to 1.5.5
 * updated to use SNAP version 8.0.9 / S3TBX version 8.0.6
