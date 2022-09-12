@@ -17,7 +17,7 @@ export MMS_ENV_NAME=mms-env.sh
 export MMS_JAVA_EXEC='/gws/nopw/j04/esacci_sst/mms_new/software/jdk1.8.0_202/bin/java'
 
 export PM_EXE_DIR=/gws/nopw/j04/esacci_sst/mms_new/bin
-export PM_PYTHON_EXEC='/gws/nopw/j04/fiduceo/Software/miniconda/miniconda3/envs/fiduceo_mms/bin/python'
+export PM_PYTHON_EXEC='/gws/nopw/j04/esacci_sst/mms_new/software/conda_envs/sst-cci-mms/bin/python'
 
 export PATH=${PM_EXE_DIR}:$PATH
 
