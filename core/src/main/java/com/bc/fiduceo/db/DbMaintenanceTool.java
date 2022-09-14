@@ -240,7 +240,7 @@ class DbMaintenanceTool {
         final SystemConfig systemConfig = SystemConfig.loadFrom(confDirPath.toFile());
         final GeometryFactory geometryFactory = new GeometryFactory(systemConfig.getGeometryLibraryType());
 
-        storage = Storage.create(databaseConfig.getDataSource(), geometryFactory);
+        storage = Storage.create(databaseConfig, geometryFactory);
         if (!storage.isInitialized()) {
             storage.initialize();
         }

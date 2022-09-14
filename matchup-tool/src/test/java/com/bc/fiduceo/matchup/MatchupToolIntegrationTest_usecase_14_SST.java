@@ -27,6 +27,7 @@ import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
+import com.bc.fiduceo.db.DatabaseConfig;
 import com.bc.fiduceo.db.DbAndIOTestRunner;
 import com.bc.fiduceo.db.Storage;
 import com.bc.fiduceo.geometry.GeometryFactory;
@@ -64,7 +65,9 @@ public class MatchupToolIntegrationTest_usecase_14_SST extends AbstractUsecaseIn
 
         geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
 
-        storage = Storage.create(TestUtil.getDataSource_MongoDb(), geometryFactory);
+        final DatabaseConfig databaseConfig = new DatabaseConfig();
+        databaseConfig.setDataSource(TestUtil.getDataSource_MongoDb());
+        storage = Storage.create(databaseConfig, geometryFactory);
         storage.clear();
         storage.initialize();
     }

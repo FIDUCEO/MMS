@@ -31,10 +31,9 @@ import org.junit.runner.RunWith;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.SQLException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 @RunWith(IOTestRunner.class)
 public class DatabaseConfigTest {
@@ -54,7 +53,7 @@ public class DatabaseConfigTest {
     }
 
     @Test
-    public void testLoadAndGetDataSource() throws IOException {
+    public void testLoadAndGetDataSource() throws IOException, SQLException {
         final File databaseConfigFile = TestUtil.createFileInTestDir("database.properties");
 
         final PrintWriter printWriter = new PrintWriter(databaseConfigFile);
@@ -75,6 +74,35 @@ public class DatabaseConfigTest {
     }
 
     @Test
+    public void testLoadAndGetTimeout() throws IOException {
+        final File databaseConfigFile = TestUtil.createFileInTestDir("database.properties");
+
+        final PrintWriter printWriter = new PrintWriter(databaseConfigFile);
+        printWriter.write("timeout = 654");
+        printWriter.close();
+
+        databaseConfig.loadFrom(testDirectory);
+
+        assertEquals(654, databaseConfig.getTimeoutInSeconds());
+    }
+
+    @Test
+    public void testLoadAndGetTimeout_default() throws IOException {
+        final File databaseConfigFile = TestUtil.createFileInTestDir("database.properties");
+
+        final PrintWriter printWriter = new PrintWriter(databaseConfigFile);
+        printWriter.write("driverClassName = driver-class\n");
+        printWriter.write("url = database-url\n");
+        printWriter.write("username = user-name\n");
+        printWriter.write("password = pass-word");
+        printWriter.close();
+
+        databaseConfig.loadFrom(testDirectory);
+
+        assertEquals(120, databaseConfig.getTimeoutInSeconds());
+    }
+
+    @Test
     public void testLoad_throwsWhenFileNotPresent() throws IOException {
         try {
             databaseConfig.loadFrom(testDirectory);
@@ -84,7 +112,7 @@ public class DatabaseConfigTest {
     }
 
     @Test
-    public void testGetDatasource_throwsWhenNotLoaded() {
+    public void testGetDatasource_throwsWhenNotLoaded() throws SQLException {
         try {
             databaseConfig.getDataSource();
             fail("RuntimeException expected");

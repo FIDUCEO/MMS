@@ -30,12 +30,10 @@ import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.util.TimeUtils;
-import org.apache.commons.dbcp2.BasicDataSource;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Date;
@@ -45,7 +43,7 @@ import static org.junit.Assert.*;
 
 public abstract class StorageTest_SatelliteObservation {
 
-    BasicDataSource dataSource;
+    DatabaseConfig databaseConfig;
 
     private GeometryFactory geometryFactory;
     private Storage storage;
@@ -53,7 +51,7 @@ public abstract class StorageTest_SatelliteObservation {
     @Before
     public void setUp() throws SQLException, IOException {
         geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
-        storage = Storage.create(dataSource, geometryFactory);
+        storage = Storage.create(databaseConfig, geometryFactory);
         storage.initialize();
     }
 

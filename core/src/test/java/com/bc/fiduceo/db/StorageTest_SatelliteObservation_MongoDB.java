@@ -31,6 +31,7 @@ public class StorageTest_SatelliteObservation_MongoDB extends StorageTest_Satell
     // in the datasource description below. tb 2016-02-08
 
     public StorageTest_SatelliteObservation_MongoDB() {
-        dataSource = TestUtil.getDataSource_MongoDb();
+        databaseConfig = new DatabaseConfig();
+        databaseConfig.setDataSource(TestUtil.getDataSource_MongoDb());
     }
 }

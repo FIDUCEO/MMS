@@ -21,10 +21,12 @@
 package com.bc.fiduceo.db;
 
 import org.apache.commons.dbcp2.BasicDataSource;
+import org.esa.snap.core.util.StringUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Properties;
 
 public class DatabaseConfig {
@@ -59,5 +61,27 @@ public class DatabaseConfig {
         dataSource.setPassword(properties.getProperty("password"));
 
         return dataSource;
+    }
+
+    public void setDataSource(BasicDataSource dataSource) {
+        final String driverClassName = dataSource.getDriverClassName();
+        final String url = dataSource.getUrl();
+        final String username = dataSource.getUsername();
+        final String password = dataSource.getPassword();
+        if (StringUtils.isNullOrEmpty(driverClassName) |
+                StringUtils.isNullOrEmpty(url) |
+                StringUtils.isNullOrEmpty(username) |
+                password == null) {
+            throw new IllegalArgumentException("incomplete database configuration");
+        }
+        properties.setProperty("driverClassName", driverClassName);
+        properties.setProperty("url", url);
+        properties.setProperty("username", username);
+        properties.setProperty("password", password);
+    }
+
+    public int getTimeoutInSeconds() {
+        final String timeout = properties.getProperty("timeout", "120");
+        return Integer.parseInt(timeout);
     }
 }

@@ -25,7 +25,6 @@ package com.bc.fiduceo.db;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.geometry.GeometryFactory;
-import org.apache.commons.dbcp2.BasicDataSource;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -42,7 +41,7 @@ public interface Driver {
 
     void setGeometryFactory(GeometryFactory geometryFactory);
 
-    void open(BasicDataSource dataSource) throws SQLException;
+    void open(DatabaseConfig databaseConfig) throws SQLException;
 
     boolean isInitialized() throws SQLException;
 
@@ -55,7 +54,7 @@ public interface Driver {
     void insert(SatelliteObservation satelliteObservation) throws SQLException;
 
     void update(SatelliteObservation satelliteObservation) throws SQLException;
-    
+
     AbstractBatch updatePathBatch(SatelliteObservation satelliteObservation, String newPath, AbstractBatch batch) throws SQLException;
 
     void commitBatch(AbstractBatch batch) throws SQLException;
