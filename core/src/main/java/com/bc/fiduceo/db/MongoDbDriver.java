@@ -66,15 +66,18 @@ public class MongoDbDriver extends AbstractDriver {
     }
 
     @Override
-    public void open(BasicDataSource dataSource) {
+    public void open(DatabaseConfig databaseConfig) throws SQLException {
+        final BasicDataSource dataSource = databaseConfig.getDataSource();
         final String address = parseAddress(dataSource.getUrl());
         final String port = parsePort(dataSource.getUrl());
         final ServerAddress serverAddress = new ServerAddress(address, Integer.parseInt(port));
 
+        final int timeoutInMillis = databaseConfig.getTimeoutInSeconds() * 1000;
+
         final MongoClientOptions clientOptions = MongoClientOptions.builder().
-                connectTimeout(120000).
-                socketTimeout(120000).
-                serverSelectionTimeout(120000).build();
+                connectTimeout(timeoutInMillis).
+                socketTimeout(timeoutInMillis).
+                serverSelectionTimeout(timeoutInMillis).build();
 
         final String username = dataSource.getUsername();
         final String password = dataSource.getPassword();

@@ -21,7 +21,6 @@
 package com.bc.fiduceo.db;
 
 import com.bc.fiduceo.TestUtil;
-import org.apache.commons.dbcp2.BasicDataSource;
 import org.junit.runner.RunWith;
 
 @RunWith(DatabaseTestRunner.class)
@@ -32,6 +31,7 @@ public class StorageTest_SatelliteObservation_PostGIS extends StorageTest_Satell
     // uses the connection credentials stored in the datasource description below. tb 2015-08-31
 
     public StorageTest_SatelliteObservation_PostGIS() {
-        dataSource = TestUtil.getDataSource_Postgres();
+        databaseConfig = new DatabaseConfig();
+        databaseConfig.setDataSource(TestUtil.getDataSource_Postgres());
     }
 }

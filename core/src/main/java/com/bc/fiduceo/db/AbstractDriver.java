@@ -43,7 +43,8 @@ abstract class AbstractDriver implements Driver {
     Connection connection;
 
     @Override
-    public void open(BasicDataSource dataSource) throws SQLException {
+    public void open(DatabaseConfig databaseConfig) throws SQLException {
+        final BasicDataSource dataSource = databaseConfig.getDataSource();
         try {
             final java.sql.Driver driverClass = (java.sql.Driver) Class.forName(dataSource.getDriverClassName()).newInstance();
             DriverManager.registerDriver(driverClass);

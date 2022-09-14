@@ -32,10 +32,12 @@ public class StorageTest_PostGIS extends StorageTest {
     // uses the connection credentials stored in the datasource description below. tb 2016-11-29
 
     public StorageTest_PostGIS() {
-        dataSource = new BasicDataSource();
+        databaseConfig = new DatabaseConfig();
+        final BasicDataSource dataSource = new BasicDataSource();
         dataSource.setDriverClassName("org.postgresql.Driver");
         dataSource.setUrl("jdbc:postgresql://localhost:5432/test");
         dataSource.setUsername("fiduceo");
         dataSource.setPassword("oecudif");
+        databaseConfig.setDataSource(dataSource);
     }
 }

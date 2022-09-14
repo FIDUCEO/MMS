@@ -32,6 +32,7 @@ public class StorageTest_MongoDb extends StorageTest {
     // in the datasource description below. tb 2016-02-18
 
     public StorageTest_MongoDb() {
-        dataSource = TestUtil.getDataSource_MongoDb();
+        databaseConfig = new DatabaseConfig();
+        databaseConfig.setDataSource(TestUtil.getDataSource_MongoDb());
     }
 }

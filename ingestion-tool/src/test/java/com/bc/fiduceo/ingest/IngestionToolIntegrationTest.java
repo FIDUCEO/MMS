@@ -26,6 +26,7 @@ import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.SystemConfig;
 import com.bc.fiduceo.core.UseCaseConfig;
+import com.bc.fiduceo.db.DatabaseConfig;
 import com.bc.fiduceo.db.DbAndIOTestRunner;
 import com.bc.fiduceo.db.Storage;
 import com.bc.fiduceo.geometry.*;
@@ -69,7 +70,9 @@ public class IngestionToolIntegrationTest {
         }
 
         geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
-        storage = Storage.create(TestUtil.getDataSource_MongoDb(), geometryFactory);
+        final DatabaseConfig databaseConfig = new DatabaseConfig();
+        databaseConfig.setDataSource(TestUtil.getDataSource_MongoDb());
+        storage = Storage.create(databaseConfig, geometryFactory);
         //storage = Storage.create(TestUtil.getDataSource_Postgres(), geometryFactory);
 
         TestUtil.writeMmdWriterConfig(configDir);

@@ -31,7 +31,7 @@ import static org.junit.Assert.*;
 
 public abstract class StorageTest {
 
-    BasicDataSource dataSource;
+    DatabaseConfig databaseConfig;
 
     private final GeometryFactory geometryFactory;
 
@@ -41,7 +41,7 @@ public abstract class StorageTest {
 
     @Test
     public void testCreate_and_close() throws SQLException {
-        final Storage storage = Storage.create(dataSource, geometryFactory);
+        final Storage storage = Storage.create(databaseConfig, geometryFactory);
         assertNotNull(storage);
 
         storage.close();
@@ -49,7 +49,7 @@ public abstract class StorageTest {
 
     @Test
     public void testCallingCloseTwice_noExceptionThrown() throws SQLException {
-        final Storage storage = Storage.create(dataSource, geometryFactory);
+        final Storage storage = Storage.create(databaseConfig, geometryFactory);
 
         storage.close();
         storage.close();
@@ -57,11 +57,15 @@ public abstract class StorageTest {
 
     @Test
     public void testInitWithUnregisteredDriverUrlThrows() throws SQLException {
+        final DatabaseConfig dbConfig = new DatabaseConfig();
+
         final BasicDataSource weirdDataSource = new BasicDataSource();
         weirdDataSource.setUrl("stupid:unregistered:data_base:driver");
 
         try {
-            Storage.create(weirdDataSource, geometryFactory);
+            dbConfig.setDataSource(weirdDataSource);
+
+            Storage.create(dbConfig, geometryFactory);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException expected) {
         }
@@ -69,7 +73,7 @@ public abstract class StorageTest {
 
     @Test
     public void testIsInitialized_storageClosed() throws SQLException {
-        final Storage storage = Storage.create(dataSource, geometryFactory);
+        final Storage storage = Storage.create(databaseConfig, geometryFactory);
 
         storage.clear();
         storage.close();
@@ -79,7 +83,7 @@ public abstract class StorageTest {
 
     @Test
     public void testIsInitialized_storageCleared() throws SQLException {
-        final Storage storage = Storage.create(dataSource, geometryFactory);
+        final Storage storage = Storage.create(databaseConfig, geometryFactory);
 
         storage.clear();
 
@@ -88,7 +92,7 @@ public abstract class StorageTest {
 
     @Test
     public void testIsInitialized_initialized() throws SQLException {
-        final Storage storage = Storage.create(dataSource, geometryFactory);
+        final Storage storage = Storage.create(databaseConfig, geometryFactory);
         try {
             storage.initialize();
 

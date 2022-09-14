@@ -52,7 +52,8 @@ public class PostGISDriver extends AbstractDriver {
     }
 
     @Override
-    public void open(BasicDataSource dataSource) throws SQLException {
+    public void open(DatabaseConfig databaseConfig) throws SQLException {
+        final BasicDataSource dataSource = databaseConfig.getDataSource();
         try {
             final java.sql.Driver driverClass = (java.sql.Driver) Class.forName(dataSource.getDriverClassName()).newInstance();
             DriverManager.registerDriver(driverClass);
@@ -64,8 +65,8 @@ public class PostGISDriver extends AbstractDriver {
         final Properties properties = new Properties();
         properties.put("user", dataSource.getUsername());
         properties.put("password", dataSource.getPassword());
-        properties.put("loginTimeout", "120");
-        properties.put("connectTimeout", "120");
+        properties.put("loginTimeout", databaseConfig.getTimeoutInSeconds());
+        properties.put("connectTimeout", databaseConfig.getTimeoutInSeconds());
 
         connection = DriverManager.getConnection(url, properties);
         connection.setAutoCommit(false);

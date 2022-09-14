@@ -29,6 +29,7 @@ import org.junit.runner.RunWith;
 public class StorageTest_SatelliteObservation_H2 extends StorageTest_SatelliteObservation {
 
     public StorageTest_SatelliteObservation_H2() {
-        dataSource = TestUtil.getDatasource_H2();
+        databaseConfig = new DatabaseConfig();
+        databaseConfig.setDataSource(TestUtil.getDatasource_H2());
     }
 }

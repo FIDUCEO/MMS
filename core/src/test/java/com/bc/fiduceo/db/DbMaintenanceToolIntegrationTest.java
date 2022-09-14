@@ -6,7 +6,6 @@ import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.dbcp2.BasicDataSource;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -92,125 +91,125 @@ public class DbMaintenanceToolIntegrationTest {
 
     @Test
     public void testCorrectPaths_MongoDb_alterNoPath() throws IOException, ParseException, SQLException {
-        final BasicDataSource dataSource = setUpMongoDb();
+        final DatabaseConfig databaseConfig = setUpMongoDb();
 
-        runTest_alterNoPath(dataSource);
+        runTest_alterNoPath(databaseConfig);
     }
 
     @Test
     public void testCorrectPaths_Postgres_alterNoPath() throws IOException, ParseException, SQLException {
-        final BasicDataSource dataSource = setUpPostgresDb();
+        final DatabaseConfig databaseConfig = setUpPostgresDb();
 
-        runTest_alterNoPath(dataSource);
+        runTest_alterNoPath(databaseConfig);
     }
 
     @Test
     public void testCorrectPaths_H2_alterNoPath() throws IOException, ParseException, SQLException {
-        final BasicDataSource dataSource = setUpH2Db();
+        final DatabaseConfig databaseConfig = setUpH2Db();
 
-        runTest_alterNoPath(dataSource);
+        runTest_alterNoPath(databaseConfig);
     }
 
     @Test
     public void testCorrectPaths_MongoDb_alterSomePaths() throws IOException, ParseException, SQLException {
-        final BasicDataSource dataSource = setUpMongoDb();
+        final DatabaseConfig databaseConfig = setUpMongoDb();
 
-        runTest_alterSomePaths(dataSource);
+        runTest_alterSomePaths(databaseConfig);
     }
 
     @Test
     public void testCorrectPaths_Postgres_alterSomePaths() throws IOException, ParseException, SQLException {
-        final BasicDataSource dataSource = setUpPostgresDb();
+        final DatabaseConfig databaseConfig = setUpPostgresDb();
 
-        runTest_alterSomePaths(dataSource);
+        runTest_alterSomePaths(databaseConfig);
     }
 
     @Test
     public void testTruncatePaths_MongoDb_alterSomePaths() throws IOException, ParseException, SQLException {
-        final BasicDataSource dataSource = setUpMongoDb();
+        final DatabaseConfig databaseConfig = setUpMongoDb();
 
-        runTest_truncatePath(dataSource);
+        runTest_truncatePath(databaseConfig);
     }
 
     @Test
     public void testTruncatePaths_Postgres_alterSomePaths() throws IOException, ParseException, SQLException {
-        final BasicDataSource dataSource = setUpPostgresDb();
+        final DatabaseConfig databaseConfig = setUpPostgresDb();
 
-        runTest_truncatePath(dataSource);
+        runTest_truncatePath(databaseConfig);
     }
 
     @Test
     public void testTruncatePaths_H2_alterSomePaths() throws IOException, ParseException, SQLException {
-        final BasicDataSource dataSource = setUpH2Db();
+        final DatabaseConfig databaseConfig = setUpH2Db();
 
-        runTest_truncatePath(dataSource);
+        runTest_truncatePath(databaseConfig);
     }
 
     @Test
     public void testTruncatePaths_MongoDb_innerSegment() throws IOException, ParseException, SQLException {
-        final BasicDataSource dataSource =  setUpMongoDb();
+        final DatabaseConfig databaseConfig = setUpMongoDb();
 
-        runTest_truncatePath_innerSegment(dataSource);
+        runTest_truncatePath_innerSegment(databaseConfig);
     }
 
     @Test
     public void testTruncatePaths_Postgres_innerSegment() throws IOException, ParseException, SQLException {
-        final BasicDataSource dataSource = setUpPostgresDb();
+        final DatabaseConfig databaseConfig = setUpPostgresDb();
 
-        runTest_truncatePath_innerSegment(dataSource);
+        runTest_truncatePath_innerSegment(databaseConfig);
     }
 
     @Test
     public void testTruncatePaths_H2_innerSegment() throws IOException, ParseException, SQLException {
-        final BasicDataSource dataSource = setUpH2Db();
+        final DatabaseConfig databaseConfig = setUpH2Db();
 
-        runTest_truncatePath_innerSegment(dataSource);
+        runTest_truncatePath_innerSegment(databaseConfig);
     }
 
     @Test
     public void testDryRun_MongoDb_correctPaths() throws IOException, ParseException, SQLException {
-        final BasicDataSource dataSource = setUpMongoDb();
+        final DatabaseConfig databaseConfig = setUpMongoDb();
 
-        runTest_dryRun_allOk(dataSource);
+        runTest_dryRun_allOk(databaseConfig);
     }
 
     @Test
     public void testDryRun_Postgres_correctPaths() throws IOException, ParseException, SQLException {
-        final BasicDataSource dataSource = setUpPostgresDb();
+        final DatabaseConfig databaseConfig = setUpPostgresDb();
 
-        runTest_dryRun_allOk(dataSource);
+        runTest_dryRun_allOk(databaseConfig);
     }
 
     @Test
     public void testDryRun_H2_correctPaths() throws IOException, ParseException, SQLException {
-        final BasicDataSource dataSource = setUpH2Db();
+        final DatabaseConfig databaseConfig = setUpH2Db();
 
-        runTest_dryRun_allOk(dataSource);
+        runTest_dryRun_allOk(databaseConfig);
     }
 
     @Test
     public void testDryRun_MongoDb_someIncorrectPaths() throws IOException, ParseException, SQLException {
-        final BasicDataSource dataSource = setUpMongoDb();
+        final DatabaseConfig databaseConfig = setUpMongoDb();
 
-        runTest_dryRun_someNotOk(dataSource);
+        runTest_dryRun_someNotOk(databaseConfig);
     }
 
     @Test
     public void testDryRun_Postgres_someIncorrectPaths() throws IOException, ParseException, SQLException {
-        final BasicDataSource dataSource = setUpPostgresDb();
+        final DatabaseConfig databaseConfig = setUpPostgresDb();
 
-        runTest_dryRun_someNotOk(dataSource);
+        runTest_dryRun_someNotOk(databaseConfig);
     }
 
     @Test
     public void testDryRun_H2_someIncorrectPaths() throws IOException, ParseException, SQLException {
-        final BasicDataSource dataSource = setUpH2Db();
+        final DatabaseConfig databaseConfig = setUpH2Db();
 
-        runTest_dryRun_someNotOk(dataSource);
+        runTest_dryRun_someNotOk(databaseConfig);
     }
 
-    private void runTest_alterNoPath(BasicDataSource dataSource) throws SQLException, ParseException {
-        final Storage storage = initializeStorage(dataSource);
+    private void runTest_alterNoPath(DatabaseConfig databaseConfig) throws SQLException, ParseException {
+        final Storage storage = initializeStorage(databaseConfig);
 
         for (int i = 0; i < 12; i++) {
             final SatelliteObservation observation = TestData.createSatelliteObservation(geometryFactory);
@@ -240,8 +239,8 @@ public class DbMaintenanceToolIntegrationTest {
         }
     }
 
-    private void runTest_alterSomePaths(BasicDataSource dataSource) throws SQLException, ParseException {
-        final Storage storage = initializeStorage(dataSource);
+    private void runTest_alterSomePaths(DatabaseConfig databaseConfig) throws SQLException, ParseException {
+        final Storage storage = initializeStorage(databaseConfig);
 
         for (int i = 0; i < 16; i++) {
             final SatelliteObservation observation = TestData.createSatelliteObservation(geometryFactory);
@@ -274,8 +273,8 @@ public class DbMaintenanceToolIntegrationTest {
         }
     }
 
-    private void runTest_truncatePath(BasicDataSource dataSource) throws SQLException, ParseException {
-        final Storage storage = initializeStorage(dataSource);
+    private void runTest_truncatePath(DatabaseConfig databaseConfig) throws SQLException, ParseException {
+        final Storage storage = initializeStorage(databaseConfig);
 
         for (int i = 0; i < 12; i++) {
             final SatelliteObservation observation = TestData.createSatelliteObservation(geometryFactory);
@@ -304,8 +303,8 @@ public class DbMaintenanceToolIntegrationTest {
         }
     }
 
-    private void runTest_truncatePath_innerSegment(BasicDataSource dataSource) throws SQLException, ParseException {
-        final Storage storage = initializeStorage(dataSource);
+    private void runTest_truncatePath_innerSegment(DatabaseConfig databaseConfig) throws SQLException, ParseException {
+        final Storage storage = initializeStorage(databaseConfig);
 
         for (int i = 0; i < 12; i++) {
             final SatelliteObservation observation = TestData.createSatelliteObservation(geometryFactory);
@@ -334,9 +333,9 @@ public class DbMaintenanceToolIntegrationTest {
         }
     }
 
-    private void runTest_dryRun_allOk(BasicDataSource dataSource) throws SQLException, ParseException {
+    private void runTest_dryRun_allOk(DatabaseConfig databaseConfig) throws SQLException, ParseException {
         final String sep = System.lineSeparator();
-        final Storage storage = initializeStorage(dataSource);
+        final Storage storage = initializeStorage(databaseConfig);
 
         for (int i = 0; i < 12; i++) {
             final SatelliteObservation observation = TestData.createSatelliteObservation(geometryFactory);
@@ -374,9 +373,9 @@ public class DbMaintenanceToolIntegrationTest {
         }
     }
 
-    private void runTest_dryRun_someNotOk(BasicDataSource dataSource) throws SQLException, ParseException {
+    private void runTest_dryRun_someNotOk(DatabaseConfig databaseConfig) throws SQLException, ParseException {
         final String sep = System.lineSeparator();
-        final Storage storage = initializeStorage(dataSource);
+        final Storage storage = initializeStorage(databaseConfig);
 
         for (int i = 0; i < 12; i++) {
             final SatelliteObservation observation = TestData.createSatelliteObservation(geometryFactory);
@@ -423,8 +422,8 @@ public class DbMaintenanceToolIntegrationTest {
         }
     }
 
-    private Storage initializeStorage(BasicDataSource dataSource) throws SQLException {
-        final Storage storage = Storage.create(dataSource, geometryFactory);
+    private Storage initializeStorage(DatabaseConfig databaseConfig) throws SQLException {
+        final Storage storage = Storage.create(databaseConfig, geometryFactory);
 
         if (!storage.isInitialized()) {
             storage.initialize();
@@ -435,22 +434,34 @@ public class DbMaintenanceToolIntegrationTest {
         return storage;
     }
 
-    private BasicDataSource setUpMongoDb() throws IOException {
+    private DatabaseConfig setUpMongoDb() throws IOException {
         TestUtil.writeDatabaseProperties_MongoDb(configDir);
         TestUtil.writeSystemConfig(configDir);
 
-        return TestUtil.getDataSource_MongoDb();
+        final DatabaseConfig databaseConfig = new DatabaseConfig();
+        databaseConfig.loadFrom(configDir);
+        // final BasicDataSource dataSource_mongoDb = TestUtil.getDataSource_MongoDb();
+        //final DatabaseConfig databaseConfig = databaseConfig1;
+        //databaseConfig.setDataSource
+        return databaseConfig;
     }
 
-    private BasicDataSource setUpPostgresDb() throws IOException {
+    private DatabaseConfig setUpPostgresDb() throws IOException {
         TestUtil.writeDatabaseProperties_Postgres(configDir);
         TestUtil.writeSystemConfig(configDir);
-        return TestUtil.getDataSource_Postgres();
+
+        final DatabaseConfig databaseConfig = new DatabaseConfig();
+        databaseConfig.loadFrom(configDir);
+        return databaseConfig;
+        // return TestUtil.getDataSource_Postgres();
     }
 
-    private BasicDataSource setUpH2Db() throws IOException {
+    private DatabaseConfig setUpH2Db() throws IOException {
         TestUtil.writeDatabaseProperties_H2(configDir);
         TestUtil.writeSystemConfig(configDir);
-        return TestUtil.getDatasource_H2();
+        final DatabaseConfig databaseConfig = new DatabaseConfig();
+        databaseConfig.loadFrom(configDir);
+        return databaseConfig;
+        //return TestUtil.getDatasource_H2();
     }
 }

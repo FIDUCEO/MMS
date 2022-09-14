@@ -24,19 +24,15 @@ import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
+import com.bc.fiduceo.db.DatabaseConfig;
 import com.bc.fiduceo.db.Storage;
 import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.GeometryUtil;
 import com.bc.fiduceo.matchup.writer.MmdWriterFactory;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderFactory;
 import com.bc.fiduceo.util.TempFileUtils;
 import com.bc.fiduceo.util.TimeUtils;
-import com.bc.geometry.s2.S2WKTWriter;
-import com.vividsolutions.jts.io.WKTReader;
-import com.vividsolutions.jts.io.WKTWriter;
-import org.esa.snap.core.util.GeoUtils;
 import org.junit.After;
 import org.junit.Before;
 
@@ -64,7 +60,9 @@ abstract class AbstractUsecaseIntegrationTest {
 
         geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
 
-        storage = Storage.create(TestUtil.getDataSource_MongoDb(), geometryFactory);
+        final DatabaseConfig databaseConfig = new DatabaseConfig();
+        databaseConfig.setDataSource(TestUtil.getDataSource_MongoDb());
+        storage = Storage.create(databaseConfig, geometryFactory);
         storage.clear();
         storage.initialize();
 
@@ -85,10 +83,9 @@ abstract class AbstractUsecaseIntegrationTest {
     }
 
     /**
-     *
-     * @param sensorKey sensor key
+     * @param sensorKey    sensor key
      * @param relativePath relative path or archive root
-     * @param version data version
+     * @param version      data version
      * @return a satellite observation ready to ingest into database
      * @throws IOException on disk acces failures
      */

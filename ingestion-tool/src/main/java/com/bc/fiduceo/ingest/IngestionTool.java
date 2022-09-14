@@ -238,7 +238,7 @@ class IngestionTool {
                 archive, confDirPath.toString());
         context.setReaderFactory(readerFactory);
 
-        final Storage storage = Storage.create(databaseConfig.getDataSource(), geometryFactory);
+        final Storage storage = Storage.create(databaseConfig, geometryFactory);
         if (!storage.isInitialized()) {
             storage.initialize();
         }

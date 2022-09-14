@@ -371,7 +371,7 @@ class MatchupTool {
                 archive, configValue);
         context.setReaderFactory(readerFactory);
 
-        final Storage storage = Storage.create(databaseConfig.getDataSource(), geometryFactory);
+        final Storage storage = Storage.create(databaseConfig, geometryFactory);
         context.setStorage(storage);
 
         logger.info("Success loading configuration.");
