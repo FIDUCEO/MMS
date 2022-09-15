@@ -7,7 +7,7 @@ import com.bc.fiduceo.reader.ReaderPlugin;
 
 public class SmosL1CDailyGriddedReaderPlugin implements ReaderPlugin {
 
-    private static String[] SENSOR_KEYS = new String[]{"miras-smos-daily-gridded"};
+    private static final String[] SENSOR_KEYS = new String[]{"miras-smos-CDF3TD", "miras-smos-CDF3TA"};
 
     @Override
     public Reader createReader(ReaderContext readerContext) {

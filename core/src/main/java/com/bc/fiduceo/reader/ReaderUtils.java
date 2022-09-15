@@ -111,7 +111,7 @@ public class ReaderUtils {
 
     public static boolean isCompressed(File file) {
         final String extension = FileUtils.getExtension(file);
-        return extension.equalsIgnoreCase(".gz") || extension.equalsIgnoreCase(".zip");
+        return extension.equalsIgnoreCase(".gz") || extension.equalsIgnoreCase(".tgz")|| extension.equalsIgnoreCase(".zip");
     }
 
     /**

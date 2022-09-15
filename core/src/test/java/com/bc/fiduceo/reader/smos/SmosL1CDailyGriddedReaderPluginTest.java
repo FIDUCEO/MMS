@@ -19,8 +19,9 @@ public class SmosL1CDailyGriddedReaderPluginTest {
     @Test
     public void testGetSupportedSensorKeys() {
         final String[] keys = plugin.getSupportedSensorKeys();
-        assertEquals(1, keys.length);
-        assertEquals("miras-smos-daily-gridded", keys[0]);
+        assertEquals(2, keys.length);
+        assertEquals("miras-smos-CDF3TD", keys[0]);
+        assertEquals("miras-smos-CDF3TA", keys[1]);
     }
 
     @Test
