@@ -316,7 +316,7 @@ public class MxD06_Reader extends NetCDFReader {
     }
 
     private void createPixelLocator() throws IOException {
-        pixelLocator = new BowTiePixelLocator(arrayCache.get(GEOLOCATION_GROUP, LONGITUDE_VAR_NAME), arrayCache.get(GEOLOCATION_GROUP, LATITUDE_VAR_NAME), geometryFactory);
+         pixelLocator = new BowTiePixelLocator(arrayCache.get(GEOLOCATION_GROUP, LONGITUDE_VAR_NAME), arrayCache.get(GEOLOCATION_GROUP, LATITUDE_VAR_NAME), geometryFactory);
     }
 
     private Array readRaw1km(int centerX, int centerY, Interval interval, Array array, Number fillValue) throws IOException, InvalidRangeException {

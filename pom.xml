@@ -7,10 +7,10 @@
     <groupId>com.bc.fiduceo</groupId>
     <artifactId>fiduceo-master</artifactId>
     <packaging>pom</packaging>
-    <version>1.5.5</version>
+    <version>1.5.6</version>
 
     <properties>
-       <mms.version>1.5.5</mms.version>
+       <mms.version>1.5.6</mms.version>
     </properties>
 
     <modules>
@@ -27,31 +27,31 @@
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-core</artifactId>
-                <version>8.0.5</version>
+                <version>9.0.0</version>
             </dependency>
 
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-engine-utilities</artifactId>
-                <version>8.0.5</version>
+                <version>9.0.0</version>
             </dependency>
 
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-envisat-reader</artifactId>
-                <version>8.0.5</version>
+                <version>9.0.0</version>
             </dependency>
 
             <dependency>
                 <groupId>org.esa.s3tbx</groupId>
                 <artifactId>s3tbx-avhrr-reader</artifactId>
-                <version>8.0.3</version>
+                <version>9.0.0</version>
             </dependency>
 
             <dependency>
                 <groupId>org.esa.s3tbx</groupId>
                 <artifactId>s3tbx-sentinel3-reader</artifactId>
-                <version>8.0.3</version>
+                <version>9.0.0</version>
                 <!--<exclusions>-->
                     <!--<exclusion>-->
                         <!--<groupId>edu.ucar</groupId>-->
@@ -69,7 +69,7 @@
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-dbcp2</artifactId>
-                <version>2.7.0</version>
+                <version>2.9.0</version>
             </dependency>
 
             <dependency>
@@ -81,7 +81,7 @@
             <dependency>
                 <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>
-                <version>42.2.23</version>
+                <version>42.3.3</version>
             </dependency>
             <dependency>
                 <groupId>net.postgis</groupId>
@@ -92,24 +92,24 @@
             <dependency>
                 <groupId>com.h2database</groupId>
                 <artifactId>h2</artifactId>
-                <version>1.4.196</version>
+                <version>2.1.210</version>
             </dependency>
 
             <dependency>
                 <groupId>org.mongodb</groupId>
                 <artifactId>mongo-java-driver</artifactId>
-                <version>3.11.2</version>
+                <version>3.12.10</version>
             </dependency>
             <dependency>
                 <groupId>org.mongodb</groupId>
                 <artifactId>bson</artifactId>
-                <version>3.11.2</version>
+                <version>3.12.10</version>
             </dependency>
 
             <dependency>
                 <groupId>edu.ucar</groupId>
                 <artifactId>netcdfAll</artifactId>
-                <version>5.3.1</version>
+                <version>5.3.3</version>
             </dependency>
             <!--<dependency>-->
                 <!--<groupId>edu.ucar</groupId>-->
@@ -127,7 +127,7 @@
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>4.13.1</version>
+                <version>4.13.2</version>
                 <scope>test</scope>
             </dependency>
 
@@ -141,7 +141,7 @@
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
-                <version>2.25.1</version>
+                <version>4.4.0</version>
                 <scope>test</scope>
             </dependency>
 
@@ -173,7 +173,7 @@
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
+                <version>3.10.1</version>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
@@ -210,7 +210,8 @@
             </snapshots>
             <id>maven-central</id>
             <name>Maven central repository</name>
-            <url>https://repo1.maven.org/maven2/</url>
+<!--            <url>https://repo1.maven.org/maven2/</url>-->
+            <url>https://repo.maven.apache.org/maven2/</url>
         </repository>
         <repository>
             <id>snap-repo-public</id>

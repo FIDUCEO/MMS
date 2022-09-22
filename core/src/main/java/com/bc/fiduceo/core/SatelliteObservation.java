@@ -30,6 +30,7 @@ import java.util.Date;
 
 public class SatelliteObservation {
 
+    private int id;
     private Date startTime;
     private Date stopTime;
     private Geometry geoBounds;
@@ -41,6 +42,7 @@ public class SatelliteObservation {
 
     public SatelliteObservation() {
         nodeType = NodeType.UNDEFINED;
+        id = -1;
     }
 
     public Geometry getGeoBounds() {
@@ -105,5 +107,13 @@ public class SatelliteObservation {
 
     public String getVersion() {
         return version;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }

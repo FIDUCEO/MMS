@@ -49,7 +49,7 @@ import static org.junit.Assert.assertTrue;
 public class MatchupToolIntegrationTest_useCase_02 extends AbstractUsecaseIntegrationTest {
 
     @Test
-    public void testMatchup_noMatchups_timeDeltaTooSmall_noResultsFromDb() throws IOException, ParseException, SQLException, InvalidRangeException {
+    public void testMatchup_noMatchups_timeDeltaTooSmall_noResultsFromDb() throws IOException, ParseException, SQLException {
         final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
                 .withTimeDeltaSeconds(22, null)
                 .createConfig();
@@ -127,7 +127,7 @@ public class MatchupToolIntegrationTest_useCase_02 extends AbstractUsecaseIntegr
     }
 
     @Test
-    public void testMatchup_overlappingSensingTimes_tooLargeTimedelta_noTimeOverlap() throws IOException, ParseException, SQLException, InvalidRangeException {
+    public void testMatchup_overlappingSensingTimes_tooLargeTimedelta_noTimeOverlap() throws IOException, ParseException, SQLException {
         final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
                 .withTimeDeltaSeconds(300, null)   // 5 minutes, just too small to have an overlapping time interval
                 .createConfig();
@@ -148,8 +148,7 @@ public class MatchupToolIntegrationTest_useCase_02 extends AbstractUsecaseIntegr
         final String processingVersion = "v01.3";
         final String sensorKey = "avhrr-n11";
         final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{sensorKey, processingVersion, "1991", "05", "09", "19910509075100-ESACCI-L1C-AVHRR11_G-fv01.0.nc"}, true);
-        final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
-        final SatelliteObservation observation = readSatelliteObservation(sensorKey, absolutePath, processingVersion);
+        final SatelliteObservation observation = readSatelliteObservation(sensorKey, relativeArchivePath, processingVersion);
         storage.insert(observation);
     }
 
@@ -157,8 +156,7 @@ public class MatchupToolIntegrationTest_useCase_02 extends AbstractUsecaseIntegr
         final String processingVersion = "v01.3";
         final String sensorKey = "avhrr-n10";
         final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{sensorKey, processingVersion, "1991", "05", "09", "19910509045700-ESACCI-L1C-AVHRR10_G-fv01.0.nc"}, true);
-        final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
-        final SatelliteObservation observation = readSatelliteObservation(sensorKey, absolutePath, processingVersion);
+        final SatelliteObservation observation = readSatelliteObservation(sensorKey, relativeArchivePath, processingVersion);
         storage.insert(observation);
     }
 

@@ -1,5 +1,6 @@
 package com.bc.fiduceo.reader.slstr;
 
+import com.bc.fiduceo.reader.slstr.utility.Transform;
 import com.bc.fiduceo.reader.snap.SNAP_PixelLocator;
 import org.esa.snap.core.datamodel.GeoCoding;
 
@@ -9,7 +10,7 @@ public class SlstrPixelLocator extends SNAP_PixelLocator {
 
     private final Transform transform;
 
-    SlstrPixelLocator(GeoCoding geoCoding, Transform transform) {
+    public SlstrPixelLocator(GeoCoding geoCoding, Transform transform) {
         super(geoCoding);
 
         this.transform = transform;
@@ -27,9 +28,9 @@ public class SlstrPixelLocator extends SNAP_PixelLocator {
         final Point2D[] pixelLocations = super.getPixelLocation(lon, lat);
         for (final Point2D point : pixelLocations) {
             final double mappedX = transform.inverseCoordinate_X(point.getX());
-            final double mappedy = transform.inverseCoordinate_Y(point.getY());
+            final double mappedY = transform.inverseCoordinate_Y(point.getY());
 
-            point.setLocation(mappedX + 0.5, mappedy + 0.5);
+            point.setLocation(mappedX + 0.5, mappedY + 0.5);
         }
         return pixelLocations;
     }

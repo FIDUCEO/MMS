@@ -26,6 +26,7 @@ import com.bc.fiduceo.TestUtil;
 public class StorageTest_H2 extends StorageTest {
 
     public StorageTest_H2() {
-        dataSource = TestUtil.getDatasource_H2();
+        databaseConfig = new DatabaseConfig();
+        databaseConfig.setDataSource(TestUtil.getDatasource_H2());
     }
 }

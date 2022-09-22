@@ -93,18 +93,16 @@ public class MatchupToolIntegrationTest_AVHRR_SIRDS extends AbstractUsecaseInteg
     private void insert_SIRDS() throws IOException, SQLException {
         final String sensorKey = "ship-sirds";
         final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{"insitu", "sirds", "v1.0", "SSTCCI2_refdata_ship_201910.nc"}, true);
-        final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
 
-        final SatelliteObservation satelliteObservation = readSatelliteObservation(sensorKey, absolutePath, "v1.0");
+        final SatelliteObservation satelliteObservation = readSatelliteObservation(sensorKey, relativeArchivePath, "v1.0");
         storage.insert(satelliteObservation);
     }
 
     private void insert_AVHRR_FRAC_MA() throws IOException, SQLException {
         final String sensorKey = "avhrr-frac-ma";
         final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{sensorKey, "v1", "2019", "10", "03", "NSS.FRAC.M2.D19276.S0249.E0432.B6721920.SV"}, true);
-        final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
 
-        final SatelliteObservation satelliteObservation = readSatelliteObservation(sensorKey, absolutePath, "v1");
+        final SatelliteObservation satelliteObservation = readSatelliteObservation(sensorKey, relativeArchivePath, "v1");
         storage.insert(satelliteObservation);
     }
 

@@ -201,6 +201,31 @@ public class NetCDFUtilsTest {
     }
 
     @Test
+    public void testGetGlobalAttributeDouble() {
+        final NetcdfFile netcdfFile = mock(NetcdfFile.class);
+        final Attribute attribute = mock(Attribute.class);
+
+        when(attribute.getNumericValue()).thenReturn(23.56);
+        when(netcdfFile.findGlobalAttribute("the_attribute")).thenReturn(attribute);
+
+        final double doubleValue = NetCDFUtils.getGlobalAttributeDouble("the_attribute", netcdfFile);
+        assertEquals(23.56, doubleValue, 1e-8);
+    }
+
+    @Test
+    public void testGetGlobalAttributeDouble_missingAttribute() {
+        final NetcdfFile netcdfFile = mock(NetcdfFile.class);
+
+        when(netcdfFile.findGlobalAttribute("the_attribute")).thenReturn(null);
+
+        try {
+            NetCDFUtils.getGlobalAttributeDouble("the_attribute", netcdfFile);
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+    }
+
+    @Test
     public void testGetFillValue_fromAttribute() {
         final Variable variable = mock(Variable.class);
         final Attribute attribute = mock(Attribute.class);
@@ -572,7 +597,7 @@ public class NetCDFUtilsTest {
         when(attribute.getNumericValue()).thenReturn(30.8);
 
         final Variable variable = mock(Variable.class);
-        when(variable.findAttribute(CF_OFFSET_NAME)).thenReturn(attribute);
+        when(variable.findAttribute(CF_ADD_OFFSET_NAME)).thenReturn(attribute);
 
         final double offset = NetCDFUtils.getOffset(variable);
         assertEquals(30.8, offset, 1e-8);

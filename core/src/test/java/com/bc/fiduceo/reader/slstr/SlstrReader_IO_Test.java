@@ -10,8 +10,8 @@ import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
-import com.bc.fiduceo.reader.time.TimeLocator;
 import com.bc.fiduceo.reader.snap.SNAP_PixelLocator;
+import com.bc.fiduceo.reader.time.TimeLocator;
 import com.bc.fiduceo.util.TempFileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -35,10 +35,11 @@ public class SlstrReader_IO_Test {
 
     private SlstrReader reader;
     private TempFileUtils tempFileUtils;
+    private ReaderContext readerContext;
 
     @Before
     public void setUp() throws IOException {
-        final ReaderContext readerContext = new ReaderContext();
+        readerContext = new ReaderContext();
         readerContext.setGeometryFactory(new GeometryFactory(GeometryFactory.Type.S2));
         tempFileUtils = new TempFileUtils();
         readerContext.setTempFileUtils(tempFileUtils);
@@ -410,12 +411,12 @@ public class SlstrReader_IO_Test {
             reader.open(file);
 
             final Interval interval = new Interval(5, 5);
-            final Array array = reader.readScaled(0, 318, interval, "S7_exception_in");
+            final Array array = reader.readRaw(0, 318, interval, "S7_exception_in");
             NCTestUtils.assertValueAt(-1, 0, 1, array);
             NCTestUtils.assertValueAt(-1, 1, 1, array);
-            NCTestUtils.assertValueAt(128, 2, 1, array);
-            NCTestUtils.assertValueAt(128, 3, 1, array);
-            NCTestUtils.assertValueAt(128, 4, 1, array);
+            NCTestUtils.assertValueAt(-128, 2, 1, array);
+            NCTestUtils.assertValueAt(-128, 3, 1, array);
+            NCTestUtils.assertValueAt(-128, 4, 1, array);
         } finally {
             reader.close();
         }
@@ -848,6 +849,52 @@ public class SlstrReader_IO_Test {
     }
 
     @Test
+    public void testGetPixelLocator_pixelGeolocator() throws IOException {
+        final File testDir = TestUtil.getTestDir();
+        if (!testDir.mkdirs()) {
+            fail("unable to create test directory");
+        }
+
+        final File file = getS3AFile();
+        writePixelGeocodingConfig(testDir);
+        readerContext.setConfigDir(testDir.getAbsolutePath());
+
+        try (SlstrReader slstrReader = new SlstrReader(readerContext, ProductType.ALL)) {
+            slstrReader.open(file);
+
+            final PixelLocator pixelLocator = slstrReader.getPixelLocator();
+            assertNotNull(pixelLocator);
+
+            Point2D geoLocation = pixelLocator.getGeoLocation(144.5, 1044.5, null);
+            assertEquals(175.59443199999998, geoLocation.getX(), 1e-8);
+            assertEquals(74.645382, geoLocation.getY(), 1e-8);
+
+            Point2D[] pixelLocation = pixelLocator.getPixelLocation(175.59443199999998, 74.645382);
+            assertEquals(1, pixelLocation.length);
+            assertEquals(144.5, pixelLocation[0].getX(), 1e-8);
+            assertEquals(1044.5, pixelLocation[0].getY(), 1e-8);
+
+            geoLocation = pixelLocator.getGeoLocation(667.5, 804.5, null);
+            assertEquals(-164.61012499999998, geoLocation.getX(), 1e-8);
+            assertEquals(75.488541, geoLocation.getY(), 1e-8);
+
+            geoLocation = pixelLocator.getGeoLocation(1000.5, 850.5, null);
+            assertEquals(-155.514771, geoLocation.getX(), 1e-8);
+            assertEquals(73.684906, geoLocation.getY(), 1e-8);
+
+            pixelLocation = pixelLocator.getPixelLocation(-155.514771, 73.684906);
+            assertEquals(1, pixelLocation.length);
+            assertEquals(1000.5, pixelLocation[0].getX(), 1e-8);
+            assertEquals(850.5, pixelLocation[0].getY(), 1e-8);
+
+            pixelLocation = pixelLocator.getPixelLocation(1723, -88);
+            assertEquals(0, pixelLocation.length);
+        } finally {
+            TestUtil.deleteTestDirectory();
+        }
+    }
+
+    @Test
     public void testPixelLocatorConsistentWithLonLatBands() throws IOException {
         final File file = getS3AFile();
 
@@ -885,13 +932,54 @@ public class SlstrReader_IO_Test {
         try {
             reader.open(file);
 
-            // polygon is supplied just for interface compatibility ... is ignored in this reasder tb 2019-06-04
+            // polygon is supplied just for interface compatibility ... is ignored in this reader tb 2019-06-04
             final PixelLocator pixelLocator = reader.getSubScenePixelLocator(polygon);
             assertNotNull(pixelLocator);
             assertTrue(pixelLocator instanceof SNAP_PixelLocator);
         } finally {
             reader.close();
         }
+    }
+
+    @Test
+    public void testGetLatLonVariableName() {
+        final SlstrReader reader = new SlstrReader(new ReaderContext(), ProductType.NR);
+
+        assertEquals("longitude_tx", reader.getLongitudeVariableName());
+        assertEquals("latitude_tx", reader.getLatitudeVariableName());
+    }
+
+    @Test
+    public void testGetLatLonVariableName_pixelCoding() throws IOException {
+        final File testDir = TestUtil.getTestDir();
+        if (!testDir.mkdirs()) {
+            fail("unable to create test directory");
+        }
+
+        try {
+            writePixelGeocodingConfig(testDir);
+            final ReaderContext readerContext = new ReaderContext();
+            readerContext.setConfigDir(testDir.getAbsolutePath());
+
+            final SlstrReader reader = new SlstrReader(readerContext, ProductType.NR);
+
+            assertEquals("longitude_in", reader.getLongitudeVariableName());
+            assertEquals("latitude_in", reader.getLatitudeVariableName());
+        } finally {
+            TestUtil.deleteTestDirectory();
+        }
+    }
+
+    private void writePixelGeocodingConfig(File testDir) throws IOException {
+        final String configXml = "<slstr-reader-config>" +
+                "    <use-pixel-geocoding>true</use-pixel-geocoding>" +
+                "</slstr-reader-config>";
+        final File configFile = new File(testDir, "slstr-reader-config.xml");
+        if (!configFile.createNewFile()) {
+            fail("unable to create test file");
+        }
+
+        TestUtil.writeStringTo(configFile, configXml);
     }
 
     private File getS3AFile() throws IOException {

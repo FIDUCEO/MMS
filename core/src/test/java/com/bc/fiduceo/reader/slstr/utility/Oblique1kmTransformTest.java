@@ -1,61 +1,62 @@
-package com.bc.fiduceo.reader.slstr;
+package com.bc.fiduceo.reader.slstr.utility;
 
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
+import com.bc.fiduceo.reader.slstr.utility.Oblique1kmTransform;
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.junit.Test;
 import ucar.ma2.Array;
 
 import static org.junit.Assert.assertEquals;
 
-public class Nadir1kmTransformTest {
+public class Oblique1kmTransformTest {
 
     @Test
     public void testGetRasterSize() {
-        final Nadir1kmTransform transform = new Nadir1kmTransform(200, 180);
+        final Oblique1kmTransform transform = new Oblique1kmTransform(2000, 1800, 256);
 
         final Dimension rasterSize = transform.getRasterSize();
-        assertEquals(100, rasterSize.getNx());
-        assertEquals(90, rasterSize.getNy());
+        assertEquals(400, rasterSize.getNx());
+        assertEquals(900, rasterSize.getNy());
     }
 
     @Test
     public void testMapCoordinate_XY() {
-        final Nadir1kmTransform transform = new Nadir1kmTransform(200, 180);
+        final Oblique1kmTransform transform = new Oblique1kmTransform(2000, 1800, 548);
 
-        assertEquals(123, transform.mapCoordinate_X(123), 1e-8);
+        assertEquals(-425, transform.mapCoordinate_X(123), 1e-8);
         assertEquals(4000, transform.mapCoordinate_Y(4000), 1e-8);
     }
 
     @Test
     public void testInverseCoordinate_XY() {
-        final Nadir1kmTransform transform = new Nadir1kmTransform(200, 180);
+        final Oblique1kmTransform transform = new Oblique1kmTransform(2000, 1800, 548);
 
-        assertEquals(123, transform.inverseCoordinate_X(123), 1e-8);
-        assertEquals(4000, transform.inverseCoordinate_X(4000), 1e-8);
+        assertEquals(123, transform.inverseCoordinate_X(-425), 1e-8);
+        assertEquals(4000, transform.inverseCoordinate_Y(4000), 1e-8);
     }
 
     @Test
     public void testGetOffset() {
-        final Nadir1kmTransform transform = new Nadir1kmTransform(201, 181);
+        final Oblique1kmTransform transform = new Oblique1kmTransform(202, 182, 549);
 
         assertEquals(0, transform.getOffset());
     }
 
     @Test
     public void testMapInterval() {
-        final Nadir1kmTransform transform = new Nadir1kmTransform(201, 181);
+        final Oblique1kmTransform transform = new Oblique1kmTransform(203, 183, 550);
 
-        final Interval interval = new Interval(5, 3);
+        final Interval interval = new Interval(3, 5);
         final Interval mapped = transform.mapInterval(interval);
 
-        assertEquals(5, mapped.getX());
-        assertEquals(3, mapped.getY());
+        assertEquals(3, mapped.getX());
+        assertEquals(5, mapped.getY());
     }
 
     @Test
     public void testProcess() {
-        final Nadir1kmTransform transform = new Nadir1kmTransform(201, 181);
+        final Oblique1kmTransform transform = new Oblique1kmTransform(204, 184, 551);
         final float[] data = new float[]{0.f, 1.f, 2.f, 3.f, 4.f, 5.f};
 
         final Array array = NetCDFUtils.create(data);
@@ -68,7 +69,7 @@ public class Nadir1kmTransformTest {
 
     @Test
     public void testProcessFlags()  {
-        final Nadir1kmTransform transform = new Nadir1kmTransform(202, 182);
+        final Oblique1kmTransform transform = new Oblique1kmTransform(205, 185, 552);
         final int[] data = new int[]{0, 1, 2, 4, 8, 16};
 
         final Array array = NetCDFUtils.create(data);

@@ -1,9 +1,10 @@
 package com.bc.fiduceo.post.plugin.era5;
 
-import com.bc.fiduceo.util.NetCDFUtils;
 import org.esa.snap.core.util.StringUtils;
 
-class SatelliteFieldsConfiguration {
+class SatelliteFieldsConfiguration extends FieldsConfiguration {
+
+    private static final String SENSOR_REF = "{sensor-ref}";
 
     private String an_q_name;
     private String an_t_name;
@@ -31,6 +32,8 @@ class SatelliteFieldsConfiguration {
     private String latitude_variable_name;
     private String time_variable_name;
 
+    private String sensorRef;
+
     SatelliteFieldsConfiguration() {
         an_q_name = "nwp_q";
         an_t_name = "nwp_t";
@@ -46,13 +49,15 @@ class SatelliteFieldsConfiguration {
         an_tcc_name = "nwp_tcc";
         an_tcwv_name = "nwp_tcwv";
 
+        sensorRef = null;
+
         x_dim = -1;
         y_dim = -1;
         z_dim = -1;
     }
 
     String get_an_q_name() {
-        return an_q_name;
+        return expand(an_q_name);
     }
 
     void set_an_q_name(String an_q_name) {
@@ -60,7 +65,7 @@ class SatelliteFieldsConfiguration {
     }
 
     String get_an_t_name() {
-        return an_t_name;
+        return expand(an_t_name);
     }
 
     void set_an_t_name(String an_t_name) {
@@ -68,7 +73,7 @@ class SatelliteFieldsConfiguration {
     }
 
     String get_an_o3_name() {
-        return an_o3_name;
+        return expand(an_o3_name);
     }
 
     void set_an_o3_name(String an_o3_name) {
@@ -76,7 +81,7 @@ class SatelliteFieldsConfiguration {
     }
 
     String get_an_lnsp_name() {
-        return an_lnsp_name;
+        return expand(an_lnsp_name);
     }
 
     void set_an_lnsp_name(String an_lnsp_name) {
@@ -84,7 +89,7 @@ class SatelliteFieldsConfiguration {
     }
 
     String get_an_t2m_name() {
-        return an_t2m_name;
+        return expand(an_t2m_name);
     }
 
     void set_an_t2m_name(String an_t2m_name) {
@@ -92,7 +97,7 @@ class SatelliteFieldsConfiguration {
     }
 
     String get_an_siconc_name() {
-        return an_siconc_name;
+        return expand(an_siconc_name);
     }
 
     void set_an_siconc_name(String an_siconc_name) {
@@ -100,7 +105,7 @@ class SatelliteFieldsConfiguration {
     }
 
     String get_an_u10_name() {
-        return an_u10_name;
+        return expand(an_u10_name);
     }
 
     void set_an_u10_name(String an_u10_name) {
@@ -108,7 +113,7 @@ class SatelliteFieldsConfiguration {
     }
 
     String get_an_v10_name() {
-        return an_v10_name;
+        return expand(an_v10_name);
     }
 
     void set_an_v10_name(String an_v10_name) {
@@ -116,7 +121,7 @@ class SatelliteFieldsConfiguration {
     }
 
     String get_an_msl_name() {
-        return an_msl_name;
+        return expand(an_msl_name);
     }
 
     void set_an_msl_name(String an_msl_name) {
@@ -124,7 +129,7 @@ class SatelliteFieldsConfiguration {
     }
 
     String get_an_skt_name() {
-        return an_skt_name;
+        return expand(an_skt_name);
     }
 
     void set_an_skt_name(String an_skt_name) {
@@ -132,7 +137,7 @@ class SatelliteFieldsConfiguration {
     }
 
     String get_an_sst_name() {
-        return an_sst_name;
+        return expand(an_sst_name);
     }
 
     void set_an_sst_name(String an_sst_name) {
@@ -140,7 +145,7 @@ class SatelliteFieldsConfiguration {
     }
 
     String get_an_tcc_name() {
-        return an_tcc_name;
+        return expand(an_tcc_name);
     }
 
     void set_an_tcc_name(String an_tcc_name) {
@@ -148,7 +153,7 @@ class SatelliteFieldsConfiguration {
     }
 
     String get_an_tcwv_name() {
-        return an_tcwv_name;
+        return expand(an_tcwv_name);
     }
 
     void set_an_tcwv_name(String an_tcwv_name) {
@@ -204,23 +209,23 @@ class SatelliteFieldsConfiguration {
     }
 
     String get_nwp_time_variable_name() {
-        return nwp_time_variable_name;
+        return expand(nwp_time_variable_name);
     }
 
     void set_nwp_time_variable_name(String nwp_time_variable_name) {
-        this.nwp_time_variable_name =nwp_time_variable_name;
+        this.nwp_time_variable_name = nwp_time_variable_name;
     }
 
     String get_time_variable_name() {
-        return time_variable_name;
+        return expand(time_variable_name);
     }
-    
+
     void set_time_variable_name(String time_variable_name) {
         this.time_variable_name = time_variable_name;
     }
 
     String get_longitude_variable_name() {
-        return longitude_variable_name;
+        return expand(longitude_variable_name);
     }
 
     void set_longitude_variable_name(String longitude_variable_name) {
@@ -228,13 +233,20 @@ class SatelliteFieldsConfiguration {
     }
 
     String get_latitude_variable_name() {
-        return latitude_variable_name;
+        return expand(latitude_variable_name);
     }
 
     void set_latitude_variable_name(String latitude_variable_name) {
         this.latitude_variable_name = latitude_variable_name;
     }
 
+    public String getSensorRef() {
+        return sensorRef;
+    }
+
+    public void setSensorRef(String sensorRef) {
+        this.sensorRef = sensorRef;
+    }
 
     void verify() {
         if (x_dim < 1 || y_dim < 1) {
@@ -269,5 +281,9 @@ class SatelliteFieldsConfiguration {
         if (StringUtils.isNullOrEmpty(latitude_variable_name)) {
             throw new IllegalArgumentException("satellite lat variable name not configured");
         }
+    }
+
+    private String expand(String variableName) {
+        return expand(variableName, SENSOR_REF, sensorRef);
     }
 }

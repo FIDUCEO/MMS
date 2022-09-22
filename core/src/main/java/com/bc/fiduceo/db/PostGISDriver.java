@@ -52,7 +52,8 @@ public class PostGISDriver extends AbstractDriver {
     }
 
     @Override
-    public void open(BasicDataSource dataSource) throws SQLException {
+    public void open(DatabaseConfig databaseConfig) throws SQLException {
+        final BasicDataSource dataSource = databaseConfig.getDataSource();
         try {
             final java.sql.Driver driverClass = (java.sql.Driver) Class.forName(dataSource.getDriverClassName()).newInstance();
             DriverManager.registerDriver(driverClass);
@@ -64,10 +65,11 @@ public class PostGISDriver extends AbstractDriver {
         final Properties properties = new Properties();
         properties.put("user", dataSource.getUsername());
         properties.put("password", dataSource.getPassword());
-        properties.put("loginTimeout", "120");
-        properties.put("connectTimeout", "120");
+        properties.put("loginTimeout", databaseConfig.getTimeoutInSeconds());
+        properties.put("connectTimeout", databaseConfig.getTimeoutInSeconds());
 
         connection = DriverManager.getConnection(url, properties);
+        connection.setAutoCommit(false);
     }
 
     @Override
@@ -108,6 +110,8 @@ public class PostGISDriver extends AbstractDriver {
 
         statement = connection.createStatement();
         statement.execute("CREATE INDEX OBSERVATION_ID ON TIMEAXIS(ObservationId)");
+
+        connection.commit();
     }
 
     @Override
@@ -147,36 +151,31 @@ public class PostGISDriver extends AbstractDriver {
                 preparedStatement.executeUpdate();
             }
         }
-//        else {
-//            preparedStatement = connection.prepareStatement("INSERT INTO TIMEAXIS VALUES(default, ?, ?, ?, ?)");
-//            preparedStatement.setInt(1, observationId);
-//            preparedStatement.setNull(2, Types.OTHER);
-//            preparedStatement.setTimestamp(3, TimeUtils.toTimestamp(observation.getStartTime()));
-//            preparedStatement.setTimestamp(4, TimeUtils.toTimestamp(observation.getStopTime()));
-//            preparedStatement.executeUpdate();
-//        }
+
+        connection.commit();
     }
 
     @Override
-    public void updatePath(SatelliteObservation satelliteObservation, String newPath) throws SQLException {
-        final QueryParameter queryParameter = new QueryParameter();
-        queryParameter.setStartTime(satelliteObservation.getStartTime());
-        queryParameter.setStopTime(satelliteObservation.getStopTime());
-        queryParameter.setSensorName(satelliteObservation.getSensor().getName());
-        queryParameter.setVersion(satelliteObservation.getVersion());
-        queryParameter.setPath(satelliteObservation.getDataFilePath().toString());
+    public AbstractBatch updatePathBatch(SatelliteObservation satelliteObservation, String newPath, AbstractBatch batch) throws SQLException {
+        if (batch == null) {
+            final PreparedStatement preparedStatement = connection.prepareStatement("UPDATE SATELLITE_OBSERVATION SET DataFile = ? WHERE ID = ?");
+            batch = new JdbcBatch(preparedStatement);
+        }
 
-        final StringBuilder sql = new StringBuilder();
-        sql.append("UPDATE SATELLITE_OBSERVATION AS obs SET DataFile = '");
-        sql.append(newPath);
-        sql.append("' ");
-        sql.append("FROM SENSOR AS sen"); //ON obs.SensorId = sen.ID
+        final PreparedStatement preparedStatement = (PreparedStatement) batch.getStatement();
+        preparedStatement.setString(1, newPath);
+        preparedStatement.setInt(2, satelliteObservation.getId());
+        preparedStatement.addBatch();
 
-        appendWhereClause(queryParameter, sql);
-        sql.append(" AND obs.SensorId = sen.ID");
+        return batch;
+    }
 
-        final PreparedStatement preparedStatement = connection.prepareStatement(sql.toString());
-        preparedStatement.executeUpdate();
+    @Override
+    public void commitBatch(AbstractBatch batch) throws SQLException {
+        final PreparedStatement preparedStatement = (PreparedStatement) batch.getStatement();
+        preparedStatement.executeBatch();
+
+        connection.commit();
     }
 
     @Override
@@ -205,6 +204,7 @@ public class PostGISDriver extends AbstractDriver {
 
                 currentId = observationId;
                 currentObservation = new SatelliteObservation();
+                currentObservation.setId(currentId);
 
                 final Timestamp startDate = resultSet.getTimestamp("StartDate");
                 currentObservation.setStartTime(TimeUtils.toDate(startDate));
@@ -250,6 +250,8 @@ public class PostGISDriver extends AbstractDriver {
             timeAxesList.clear();
         }
 
+        connection.commit();
+
         return resultList;
     }
 
@@ -269,6 +271,9 @@ public class PostGISDriver extends AbstractDriver {
         final ResultSet resultSet = statement.executeQuery(sql.toString());
         resultSet.next();
         final int numValues = resultSet.getInt(1);
+
+        connection.commit();
+
         return numValues > 0;
     }
 

@@ -6,7 +6,7 @@ import datetime
 __author__ = "Martin Böttcher, Brockmann Consult GmbH"
 __copyright__ = "Copyright 2016, Brockmann Consult GmbH"
 __license__ = "For use with Calvalus processing systems"
-__version__ = "1.9"
+__version__ = "1.12"
 __email__ = "info@brockmann-consult.de"
 __status__ = "Production"
 
@@ -30,6 +30,12 @@ __status__ = "Production"
 # fix simulation in case of async request submission
 # changes in 1.9
 # use utf-8 encoding in communication with sub-processes
+# changes in 1.10
+# include polling and retry pending requests also in wait_for_idle for ingestion of offline products from DHuS
+# changes in 1.11
+# synchronize access to _running for combinations of RMonitor with async steps
+# changes in 1.12
+# handle cases of duplicate status inquiry in case of slow backend and drop second event instead of raising an exception
 
 import glob
 import os
@@ -182,7 +188,7 @@ class PMonitor(object):
         cache: directory where working directories are created for steps, defaults to None for no working dir creation
         logdir: directory for step log files
         simulation: switch to skip actual execution of step, defaults to False
-        delay: milliseconds to wait after step scheduling to avoid races between concurrent steps, defaults to None for no waiting
+        delay: seconds to wait after step scheduling to avoid races between concurrent steps, defaults to None for no waiting, can be fraction, 0.01
         fair: handles steps in sequence of their generation (and avoids looking through complete list of steps), defaults to True
         script: generic step execution script to be used as prefix of each command line, defaults to None for the different steps being executable scripts themselves
         polling: generic status polling script called with a list of external request identifiers to inquire the status in form of CSV <id>,<state>[,<msg>]\n
@@ -339,6 +345,11 @@ class PMonitor(object):
         if not self._backlog_condition:
             self._backlog_condition = threading.Condition()
             time.sleep(1)
+        first_iteration = True
+        if self._polling or self._retrycode:
+            timeout = self._period
+        else:
+            timeout = None
         while True:
             #print '... mutex 3 acquiring'
             with self._mutex:
@@ -358,12 +369,17 @@ class PMonitor(object):
                 if not in_backlog:
                     #print "no more backlog, return from waiting"
                     break;
+                if not first_iteration and self._polling:
+                    self._inquire_status()
+                elif self._retrycode and self._retry_timestamp and datetime.datetime.now() >= self._retry_timestamp:
+                    self._retry_pending()
                 #print "waiting for " + in_backlog
             #print '... mutex 3 released'
             with self._backlog_condition:
                 #print '... backlog condition wait'
-                self._backlog_condition.wait()
+                self._backlog_condition.wait(timeout)
                 #print '... backlog condition resume'
+            first_iteration = False
 
 
     def current_load(self, calls):
@@ -473,9 +489,9 @@ class PMonitor(object):
                 self._observe_step(call, inputs, outputs, parameters, 0)
             elif command in self._running and isinstance(self._running[command], str) and not self._simulation:
                 # async running request, mark as to be inquired
-                self._running[command] = PMonitor.Args(call, task_id, parameters, inputs, outputs, host, log_prefix, async_, external_id=self._running[command])
-                sys.__stdout__.write('reconsidering {0}\n'.format(command))
                 with self._mutex:
+                    self._running[command] = PMonitor.Args(call, task_id, parameters, inputs, outputs, host, log_prefix, async_, external_id=self._running[command])
+                    sys.__stdout__.write('reconsidering {0}\n'.format(command))
                     self._release_constraint(call, host, hostOnly=True)
                     self._check_for_mature_tasks()
                     self._write_status()
@@ -488,20 +504,20 @@ class PMonitor(object):
                     code = 0
                 if async_ and code == 0 and not self._simulation:
                     # async submission succeeded, memorise external ID
-                    self._running[command] = PMonitor.Args(call, task_id, parameters, inputs, outputs, host, log_prefix, async_, external_id=output_paths[0])
                     with self._mutex:
+                        self._running[command] = PMonitor.Args(call, task_id, parameters, inputs, outputs, host, log_prefix, async_, external_id=output_paths[0])
                         self._release_constraint(call, host, hostOnly=True)
                         self._check_for_mature_tasks()
                 elif async_ and not self._simulation:
                     # async submission failed, mark as pending
-                    self._running[command] = PMonitor.Args(call, task_id, parameters, inputs, outputs, host, log_prefix, async_, external_id='pending')
                     with self._mutex:
+                        self._running[command] = PMonitor.Args(call, task_id, parameters, inputs, outputs, host, log_prefix, async_, external_id='pending')
                         self._release_constraint(call, host, hostOnly=True)
                         self._check_for_mature_tasks()
                 elif code == self._retrycode:
                     # sync execution temporarily failed, mark as pending
-                    self._running[command] = PMonitor.Args(call, task_id, parameters, inputs, outputs, host, log_prefix, async_, external_id='pending')
                     with self._mutex:
+                        self._running[command] = PMonitor.Args(call, task_id, parameters, inputs, outputs, host, log_prefix, async_, external_id='pending')
                         if not self._retry_timestamp:
                             self._retry_timestamp = datetime.datetime.now() + datetime.timedelta(seconds=self._period)
                         self._release_constraint(call, host, hostOnly=True)
@@ -590,7 +606,7 @@ class PMonitor(object):
         inquiry = {}
         # retrieve status with polling script
         if external_ids:
-            # print('retrieving status with ' + self._polling + ' ' + ' '.join(external_ids))
+            print('retrieving status with ' + self._polling + ' ' + ' '.join(external_ids))
             process = subprocess.Popen(self._polling + ' ' + ' '.join(external_ids),
                                        shell=True, bufsize=1, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             for l in process.stdout:
@@ -620,13 +636,25 @@ class PMonitor(object):
                     wd = self._cache + '/' + self._request + '/' + '{0:04d}'.format(args.task_id)
                     if 'cache' in wd:
                         subprocess.call(['rm', '-rf', wd])
-                self._finalise_step(args.call, 0, command, args.host, [], args.outputs, typeOnly=True)
-                self._observe_step(args.call, args.inputs, args.outputs, args.parameters, 0)
-                some_final_steps = True
+                try:
+                    self._finalise_step(args.call, 0, command, args.host, [], args.outputs, typeOnly=True)
+                    self._observe_step(args.call, args.inputs, args.outputs, args.parameters, 0)
+                    some_final_steps = True
+                except KeyError as e:
+                    if command in self._running:
+                        raise e
+                    print('status of ' + command + ' handled before. ignoring')
+                    return
             elif status == PMonitor.State.FAILED or status == PMonitor.State.CANCELLED:
-                self._finalise_step(args.call, 1, command, args.host, [], args.outputs, typeOnly=True)
-                self._observe_step(args.call, args.inputs, args.outputs, args.parameters, 1)
-                some_final_steps = True
+                try:
+                    self._finalise_step(args.call, 1, command, args.host, [], args.outputs, typeOnly=True)
+                    self._observe_step(args.call, args.inputs, args.outputs, args.parameters, 1)
+                    some_final_steps = True
+                except KeyError as e:
+                    if command in self._running:
+                        raise e
+                    print('status of ' + command + ' handled before. ignoring')
+                    return
             elif status == PMonitor.State.DROPPED or status == PMonitor.State.NOT_FOUND or status == PMonitor.State._LOST:
                 with self._mutex:
                     # release and re-schedule request

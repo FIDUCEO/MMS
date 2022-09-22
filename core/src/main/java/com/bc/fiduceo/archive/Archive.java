@@ -26,6 +26,7 @@ import com.bc.fiduceo.util.TimeUtils;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -43,9 +44,11 @@ public class Archive {
     private final String[] defaultPath;
 
     private final Path rootPath;
+    private ArrayList<String> rootSegments;
 
     public Archive(ArchiveConfig config) {
         rootPath = config.getRootPath();
+        rootSegments = null;
         log = FiduceoLogger.getLogger();
         pathMaps = new HashMap<>();
 
@@ -69,23 +72,15 @@ public class Archive {
     }
 
     // package access for testing only tb 2020-06-03
-
-    static String[] relativeElements(Path archivePath, Path rootPath) {
+    String[] relativeElements(Path archivePath) {
         final Path absolutArchivePath = archivePath.toAbsolutePath().normalize();
-        final Path absoluteRootPath = rootPath.toAbsolutePath().normalize();
 
         final ArrayList<String> archiveSegments = new ArrayList<>();
-        Iterator<Path> iterator = absolutArchivePath.iterator();
-        while (iterator.hasNext()) {
-            archiveSegments.add(iterator.next().toString());
+        for (final Path path : absolutArchivePath) {
+            archiveSegments.add(path.toString());
         }
 
-        final ArrayList<String> rootSegments = new ArrayList<>();
-        iterator = absoluteRootPath.iterator();
-        while (iterator.hasNext()) {
-            rootSegments.add(iterator.next().toString());
-        }
-
+        final ArrayList<String> rootSegments = getRootSegments();
         int splitIndex = -1;
         for (int i = 0; i < rootSegments.size(); i++) {
             if (rootSegments.get(i).equals(archiveSegments.get(i))) {
@@ -103,6 +98,25 @@ public class Archive {
         }
 
         return resultTokens.toArray(new String[]{});
+    }
+
+    public Path toRelative(Path absolutePath) throws IOException {
+        final String[] relativeElements = relativeElements(absolutePath);
+
+        if (relativeElements.length == 0) {
+            throw new IOException("requested path is not part of the archive: " + absolutePath);
+        }
+
+        Path path = Paths.get(relativeElements[0]);
+        for (int i = 1; i < relativeElements.length; i++) {
+            path = path.resolve(relativeElements[i]);
+        }
+
+        return path;
+    }
+
+    public Path toAbsolute(Path relativePath) {
+        return Paths.get(rootPath.toString(), relativePath.toString());
     }
 
     public Path[] get(Date startDate, Date endDate, String processingVersion, String sensorType) throws IOException {
@@ -150,7 +164,7 @@ public class Archive {
     }
 
     public String getVersion(String sensorType, Path archivePath) {
-        final String[] pathTokens = relativeElements(archivePath, rootPath);
+        final String[] pathTokens = relativeElements(archivePath);
         final String[] pathElements = getPathElements(sensorType);
 
         for (int i = 0; i < pathElements.length; i++) {
@@ -175,5 +189,17 @@ public class Archive {
     // for testing only tb 2016-11-01
     Path getRootPath() {
         return rootPath;
+    }
+
+    private ArrayList<String> getRootSegments() {
+        if (rootSegments == null) {
+            rootSegments = new ArrayList<>();
+
+            final Path absoluteRootPath = rootPath.toAbsolutePath().normalize();
+            for (final Path path : absoluteRootPath) {
+                rootSegments.add(path.toString());
+            }
+        }
+        return rootSegments;
     }
 }

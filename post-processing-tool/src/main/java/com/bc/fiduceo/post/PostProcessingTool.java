@@ -101,7 +101,8 @@ class PostProcessingTool {
         context.setArchive(archive);
 
         final String geometryLibraryType = systemConfig.getGeometryLibraryType();
-        final ReaderFactory readerFactory = ReaderFactory.create(new GeometryFactory(geometryLibraryType), context.getTempFileUtils(), archive);
+        final ReaderFactory readerFactory = ReaderFactory.create(new GeometryFactory(geometryLibraryType), context.getTempFileUtils(),
+                archive, configValue);
         context.setReaderFactory(readerFactory);
 
         logger.info("Success loading configuration.");

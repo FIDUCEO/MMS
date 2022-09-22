@@ -69,11 +69,11 @@ public class AbstractMmdWriterTest {
         final String useCaseAttributeName = "use-case-configuration";
         final String expectedCommentText = "This MMD file is created based on the use case configuration " +
                 "documented in the attribute '" + useCaseAttributeName + "'.";
-        verify(mockWriter).addGroupAttribute(isNull(Group.class), eq(new Attribute("comment", expectedCommentText)));
+        verify(mockWriter).addGroupAttribute(isNull(), eq(new Attribute("comment", expectedCommentText)));
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         useCaseConfig.store(outputStream);
-        verify(mockWriter).addGroupAttribute(isNull(Group.class), eq(new Attribute(useCaseAttributeName, outputStream.toString())));
-        verify(mockWriter).addGroupAttribute(isNull(Group.class), eq(new Attribute("sensor-names", "SensorName2,SensorName1,SensorName3")));
+        verify(mockWriter).addGroupAttribute(isNull(), eq(new Attribute(useCaseAttributeName, outputStream.toString())));
+        verify(mockWriter).addGroupAttribute(isNull(), eq(new Attribute("sensor-names", "SensorName2,SensorName1,SensorName3")));
         verifyNoMoreInteractions(mockWriter);
     }
 

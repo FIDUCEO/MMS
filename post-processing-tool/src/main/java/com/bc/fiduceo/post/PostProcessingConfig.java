@@ -41,7 +41,7 @@ public class PostProcessingConfig {
     static final String TAG_NAME_OUTPUT_DIR = "output-directory";
     static final String TAG_NAME_OVERWRITE = "overwrite";
 
-    transient private Document document;
+    final transient private Document document;
     private boolean newFiles;
     private String outputDirectory;
     private boolean overwrite;

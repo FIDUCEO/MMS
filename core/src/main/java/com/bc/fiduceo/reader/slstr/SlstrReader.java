@@ -8,19 +8,25 @@ import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.ReaderUtils;
-import com.bc.fiduceo.reader.time.TimeLocator;
+import com.bc.fiduceo.reader.slstr.utility.Transform;
+import com.bc.fiduceo.reader.slstr.utility.TransformFactory;
+import com.bc.fiduceo.reader.snap.SNAP_PixelLocator;
 import com.bc.fiduceo.reader.snap.SNAP_Reader;
 import com.bc.fiduceo.reader.snap.VariableProxy;
+import com.bc.fiduceo.reader.time.TimeLocator;
 import com.bc.fiduceo.reader.time.TimeLocator_MicrosSince2000;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
+import org.esa.snap.core.dataio.geocoding.*;
+import org.esa.snap.core.dataio.geocoding.forward.PixelForward;
+import org.esa.snap.core.dataio.geocoding.inverse.PixelQuadTreeInverse;
+import org.esa.snap.core.dataio.geocoding.util.RasterUtils;
 import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.engine_utilities.util.ZipUtils;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
-import ucar.ma2.Index;
 import ucar.nc2.Variable;
 
 import java.io.File;
@@ -30,6 +36,7 @@ import java.util.List;
 
 import static com.bc.fiduceo.reader.slstr.VariableType.NADIR_1km;
 import static com.bc.fiduceo.reader.slstr.VariableType.NADIR_500m;
+import static com.bc.fiduceo.reader.slstr.utility.ManifestUtil.getObliqueGridOffset;
 import static ucar.ma2.DataType.INT;
 
 public class SlstrReader extends SNAP_Reader {
@@ -46,6 +53,8 @@ public class SlstrReader extends SNAP_Reader {
     private long[] subs_times;
     private TransformFactory transformFactory;
     private File productDir;
+    private SlstrReaderConfig config;
+    private PixelLocator pixelLocator;
 
     SlstrReader(ReaderContext readerContext, ProductType productType) {
         super(readerContext);
@@ -62,6 +71,12 @@ public class SlstrReader extends SNAP_Reader {
             this.regEx = REGEX_NT;
         } else {
             throw new IllegalArgumentException("Unsupported product type");
+        }
+
+        try {
+            config = SlstrReaderConfig.loadFrom(new File(readerContext.getConfigDir()));
+        } catch (IOException e) {
+            throw new RuntimeException(e.getMessage());
         }
     }
 
@@ -116,7 +131,7 @@ public class SlstrReader extends SNAP_Reader {
         }
         openCached(manifestFile, "Sen3");
 
-        final int obliqueGridOffset = getObliqueGridOffset();
+        final int obliqueGridOffset = getObliqueGridOffset(product.getMetadataRoot());
         transformFactory = new TransformFactory(product.getSceneRasterWidth(),
                 product.getSceneRasterHeight(),
                 obliqueGridOffset);
@@ -131,6 +146,7 @@ public class SlstrReader extends SNAP_Reader {
             productDir = null;
         }
         transformFactory = null;
+        pixelLocator = null;
     }
 
     @Override
@@ -148,12 +164,41 @@ public class SlstrReader extends SNAP_Reader {
     }
 
     @Override
-    public PixelLocator getPixelLocator() {
-        return new SlstrPixelLocator(product.getSceneGeoCoding(), transformFactory.get(NADIR_500m));
+    public PixelLocator getPixelLocator() throws IOException {
+        if (pixelLocator == null) {
+            if (config.usePixelGeoCoding()) {
+                final String longitudeVariableName = getLongitudeVariableName();
+                final RasterDataNode lonBand = product.getRasterDataNode(longitudeVariableName);
+                final double[] longitudes = RasterUtils.loadGeoData(lonBand);
+
+                final String latitudeVariableName = getLatitudeVariableName();
+                final RasterDataNode latBand = product.getRasterDataNode(latitudeVariableName);
+                final double[] latitudes = RasterUtils.loadGeoData(latBand);
+
+                final Dimension productSize = getProductSize();
+                final GeoRaster geoRaster = new GeoRaster(longitudes, latitudes,
+                        longitudeVariableName, latitudeVariableName,
+                        productSize.getNx(), productSize.getNx(), productSize.getNx(), productSize.getNy(),
+                        1.0, 0.5, 0.5, 1.0, 1.0);
+
+                final ForwardCoding forward = ComponentFactory.getForward(PixelForward.KEY);
+                final InverseCoding inverse = ComponentFactory.getInverse(PixelQuadTreeInverse.KEY);
+                final ComponentGeoCoding componentGeoCoding = new ComponentGeoCoding(geoRaster, forward, inverse, GeoChecks.ANTIMERIDIAN);
+                componentGeoCoding.initialize();
+
+                pixelLocator = new SNAP_PixelLocator(componentGeoCoding);
+            } else {
+                pixelLocator = new SlstrPixelLocator(product.getSceneGeoCoding(), transformFactory.get(NADIR_500m));
+            }
+        }
+        return pixelLocator;
+    }
+
+    private void etLatitudeVariableName() {
     }
 
     @Override
-    public PixelLocator getSubScenePixelLocator(Polygon sceneGeometry) {
+    public PixelLocator getSubScenePixelLocator(Polygon sceneGeometry) throws IOException {
         return getPixelLocator();
     }
 
@@ -213,7 +258,6 @@ public class SlstrReader extends SNAP_Reader {
 
         final VariableType variableType = variableNames.getVariableType(variableName);
         final Transform transform = transformFactory.get(variableType);
-        final Dimension rasterSize = transform.getRasterSize();
 
         final RasterDataNode dataNode = getRasterDataNode(variableName);
 
@@ -225,7 +269,6 @@ public class SlstrReader extends SNAP_Reader {
         final int height = mappedInterval.getY();
         final int[] shape = getShape(mappedInterval);
         final Array readArray = Array.factory(targetDataType, shape);
-        final Array targetArray = NetCDFUtils.create(targetDataType, shape, noDataValue);
 
         final int mappedX = (int) (transform.mapCoordinate_X(centerX) + 0.5);
         final int mappedY = (int) (transform.mapCoordinate_Y(centerY) + 0.5);
@@ -234,21 +277,6 @@ public class SlstrReader extends SNAP_Reader {
         final int yOffset = mappedY - height / 2 + transform.getOffset();
 
         readRawProductData(dataNode, readArray, width, height, xOffset, yOffset);
-
-//        final Index index = targetArray.getIndex();
-//        int readIndex = 0;
-//        for (int y = 0; y < width; y++) {
-//            final int currentY = yOffset + y;
-//            for (int x = 0; x < height; x++) {
-//                final int currentX = xOffset + x;
-//
-//                if (currentX >= 0 && currentX < rasterSize.getNx() && currentY >= 0 && currentY < rasterSize.getNy()) {
-//                    index.set(y, x);
-//                    targetArray.setObject(index, readArray.getObject(readIndex));
-//                    ++readIndex;
-//                }
-//            }
-//        }
 
         if (variableNames.isFlagVariable(variableName)) {
             return transform.processFlags(readArray, (int) noDataValue);
@@ -321,12 +349,20 @@ public class SlstrReader extends SNAP_Reader {
 
     @Override
     public String getLongitudeVariableName() {
-        return "longitude_tx";
+        if (config.usePixelGeoCoding()) {
+            return "longitude_in";
+        } else {
+            return "longitude_tx";
+        }
     }
 
     @Override
     public String getLatitudeVariableName() {
-        return "latitude_tx";
+        if (config.usePixelGeoCoding()) {
+            return "latitude_in";
+        } else {
+            return "latitude_tx";
+        }
     }
 
     protected void readProductData(RasterDataNode dataNode, Array targetArray, int width, int height, int xOffset, int yOffset) throws IOException {
@@ -367,43 +403,6 @@ public class SlstrReader extends SNAP_Reader {
                 }
             }
         }
-    }
-
-    private int getObliqueGridOffset() {
-        final MetadataElement metadataRoot = product.getMetadataRoot();
-        final MetadataElement manifestElement = metadataRoot.getElement("Manifest");
-        final MetadataElement metadataElement = manifestElement.getElement("metadataSection");
-        final MetadataElement productInformationElement = metadataElement.getElement("slstrProductInformation");
-
-        int nadirTrackOffset = -1;
-        int obliqueTrackOffset = -1;
-        final MetadataElement[] elements = productInformationElement.getElements();
-        for (final MetadataElement element : elements) {
-            if (element.getName().equalsIgnoreCase("nadirImageSize")) {
-                final MetadataAttribute grid = element.getAttribute("grid");
-                if (grid.getData().getElemString().equalsIgnoreCase("1 km")) {
-                    nadirTrackOffset = extractTrackOffset(element);
-                }
-            }
-            if (element.getName().equalsIgnoreCase("obliqueImageSize")) {
-                final MetadataAttribute grid = element.getAttribute("grid");
-                if (grid.getData().getElemString().equalsIgnoreCase("1 km")) {
-                    obliqueTrackOffset = extractTrackOffset(element);
-                }
-            }
-        }
-
-        if (nadirTrackOffset < 0 | obliqueTrackOffset < 0) {
-            throw new RuntimeException("Unable to extract raster offsets from metadata.");
-        }
-
-        return nadirTrackOffset - obliqueTrackOffset;
-    }
-
-    private int extractTrackOffset(MetadataElement element) {
-        final MetadataAttribute trackOffset = element.getAttribute("trackOffset");
-        final String trackOffsetString = trackOffset.getData().getElemString();
-        return Integer.parseInt(trackOffsetString);
     }
 
     private void ensureTimingVector() {

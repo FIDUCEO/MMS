@@ -63,6 +63,11 @@ public class Era5PostProcessingPlugin implements PostProcessingPlugin {
                 }
             }
 
+            final Element sensorRefElement = satelliteFieldsElement.getChild("sensor-ref");
+            if (sensorRefElement != null) {
+                satelliteFieldsConfiguration.setSensorRef(sensorRefElement.getValue());
+            }
+
             final Element humidityElement = satelliteFieldsElement.getChild("an_ml_q");
             if (humidityElement != null) {
                 satelliteFieldsConfiguration.set_an_q_name(getElementValueTrimmed(humidityElement));
@@ -156,6 +161,11 @@ public class Era5PostProcessingPlugin implements PostProcessingPlugin {
         final Element matchupFieldsElements = rootElement.getChild("matchup-fields");
         if (matchupFieldsElements != null) {
             final MatchupFieldsConfiguration matchupFieldsConfiguration = new MatchupFieldsConfiguration();
+
+            final Element insituRefElment = matchupFieldsElements.getChild("insitu-ref");
+            if (insituRefElment != null) {
+                matchupFieldsConfiguration.setInsituRef(insituRefElment.getValue());
+            }
 
             final Element windUElement = matchupFieldsElements.getChild("an_sfc_u10");
             if (windUElement != null) {

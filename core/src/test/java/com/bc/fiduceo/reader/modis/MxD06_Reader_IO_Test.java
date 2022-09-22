@@ -139,7 +139,7 @@ public class MxD06_Reader_IO_Test {
 
         final Dimension psze = reader.getProductSize();
         final PixelLocator pixelLocator = reader.getPixelLocator();
-        final Point2D centerLoc = pixelLocator.getGeoLocation(psze.getNx() / 2, psze.getNy() / 2, null);
+        final Point2D centerLoc = pixelLocator.getGeoLocation(psze.getNx() * 0.5, psze.getNy() * 0.5, null);
         final Geometry intersection = boundingGeometry.getIntersection(geometryFactory.createPoint(centerLoc.getX(), centerLoc.getY()));
         assertNotNull(intersection);
         assertFalse(intersection.isEmpty());
@@ -181,11 +181,11 @@ public class MxD06_Reader_IO_Test {
 
         reader.open(file);
         final TimeLocator timeLocator = reader.getTimeLocator();
-        assertEquals(1360161273778L, timeLocator.getTimeFor(0, 0));
-        assertEquals(1360161273778L, timeLocator.getTimeFor(269, 0));
+        assertEquals(1360161300778L, timeLocator.getTimeFor(0, 0));
+        assertEquals(1360161300778L, timeLocator.getTimeFor(269, 0));
 
-        assertEquals(1360161422969L, timeLocator.getTimeFor(76, 203));
-        assertEquals(1360161572161L, timeLocator.getTimeFor(145, 405));
+        assertEquals(1360161449969L, timeLocator.getTimeFor(76, 203));
+        assertEquals(1360161599161L, timeLocator.getTimeFor(145, 405));
     }
 
     @Test
@@ -194,11 +194,11 @@ public class MxD06_Reader_IO_Test {
 
         reader.open(file);
         final TimeLocator timeLocator = reader.getTimeLocator();
-        assertEquals(1242210874206L, timeLocator.getTimeFor(4, 0));
-        assertEquals(1242210874206L, timeLocator.getTimeFor(223, 0));
+        assertEquals(1242210901206L, timeLocator.getTimeFor(4, 0));
+        assertEquals(1242210901206L, timeLocator.getTimeFor(223, 0));
 
-        assertEquals(1242211023395L, timeLocator.getTimeFor(21, 202));
-        assertEquals(1242211172583L, timeLocator.getTimeFor(147, 405));
+        assertEquals(1242211050395L, timeLocator.getTimeFor(21, 202));
+        assertEquals(1242211199583L, timeLocator.getTimeFor(147, 405));
     }
 
     @Test
@@ -275,16 +275,16 @@ public class MxD06_Reader_IO_Test {
         assertEquals(15, acquisitionTime.getSize());
 
         // one scan
-        NCTestUtils.assertValueAt(1360161352, 0, 0, acquisitionTime);
-        NCTestUtils.assertValueAt(1360161352, 1, 0, acquisitionTime);
-        NCTestUtils.assertValueAt(1360161352, 1, 1, acquisitionTime);
-        NCTestUtils.assertValueAt(1360161352, 2, 1, acquisitionTime);
+        NCTestUtils.assertValueAt(1360161379, 0, 0, acquisitionTime);
+        NCTestUtils.assertValueAt(1360161379, 1, 0, acquisitionTime);
+        NCTestUtils.assertValueAt(1360161379, 1, 1, acquisitionTime);
+        NCTestUtils.assertValueAt(1360161379, 2, 1, acquisitionTime);
 
         // next scan
-        NCTestUtils.assertValueAt(1360161353, 1, 2, acquisitionTime);
-        NCTestUtils.assertValueAt(1360161353, 2, 2, acquisitionTime);
-        NCTestUtils.assertValueAt(1360161353, 1, 3, acquisitionTime);
-        NCTestUtils.assertValueAt(1360161353, 2, 3, acquisitionTime);
+        NCTestUtils.assertValueAt(1360161380, 1, 2, acquisitionTime);
+        NCTestUtils.assertValueAt(1360161380, 2, 2, acquisitionTime);
+        NCTestUtils.assertValueAt(1360161380, 1, 3, acquisitionTime);
+        NCTestUtils.assertValueAt(1360161380, 2, 3, acquisitionTime);
     }
 
     @Test
@@ -303,14 +303,14 @@ public class MxD06_Reader_IO_Test {
         NCTestUtils.assertValueAt(fillValue, 1, 0, acquisitionTime);
 
         // next scan
-        NCTestUtils.assertValueAt(1360161273, 1, 1, acquisitionTime);
-        NCTestUtils.assertValueAt(1360161273, 2, 1, acquisitionTime);
-        NCTestUtils.assertValueAt(1360161273, 1, 2, acquisitionTime);
-        NCTestUtils.assertValueAt(1360161273, 2, 2, acquisitionTime);
+        NCTestUtils.assertValueAt(1360161300, 1, 1, acquisitionTime);
+        NCTestUtils.assertValueAt(1360161300, 2, 1, acquisitionTime);
+        NCTestUtils.assertValueAt(1360161300, 1, 2, acquisitionTime);
+        NCTestUtils.assertValueAt(1360161300, 2, 2, acquisitionTime);
 
         // next scan
-        NCTestUtils.assertValueAt(1360161275, 1, 3, acquisitionTime);
-        NCTestUtils.assertValueAt(1360161275, 2, 3, acquisitionTime);
+        NCTestUtils.assertValueAt(1360161302, 1, 3, acquisitionTime);
+        NCTestUtils.assertValueAt(1360161302, 2, 3, acquisitionTime);
     }
 
     @Test
@@ -326,20 +326,20 @@ public class MxD06_Reader_IO_Test {
         assertEquals(25, acquisitionTime.getSize());
 
         // first line
-        NCTestUtils.assertValueAt(1360161570, 0, 0, acquisitionTime);
-        NCTestUtils.assertValueAt(1360161570, 1, 0, acquisitionTime);
+        NCTestUtils.assertValueAt(1360161597, 0, 0, acquisitionTime);
+        NCTestUtils.assertValueAt(1360161597, 1, 0, acquisitionTime);
 
         // second line
-        NCTestUtils.assertValueAt(1360161570, 1, 1, acquisitionTime);
-        NCTestUtils.assertValueAt(1360161570, 2, 1, acquisitionTime);
+        NCTestUtils.assertValueAt(1360161597, 1, 1, acquisitionTime);
+        NCTestUtils.assertValueAt(1360161597, 2, 1, acquisitionTime);
 
         // third line
-        NCTestUtils.assertValueAt(1360161572, 2, 2, acquisitionTime);
-        NCTestUtils.assertValueAt(1360161572, 3, 2, acquisitionTime);
+        NCTestUtils.assertValueAt(1360161599, 2, 2, acquisitionTime);
+        NCTestUtils.assertValueAt(1360161599, 3, 2, acquisitionTime);
 
         // fourth line
-        NCTestUtils.assertValueAt(1360161572, 3, 3, acquisitionTime);
-        NCTestUtils.assertValueAt(1360161572, 4, 3, acquisitionTime);
+        NCTestUtils.assertValueAt(1360161599, 3, 3, acquisitionTime);
+        NCTestUtils.assertValueAt(1360161599, 4, 3, acquisitionTime);
 
         // fifth line
         NCTestUtils.assertValueAt(fillValue, 3, 4, acquisitionTime);
@@ -355,18 +355,18 @@ public class MxD06_Reader_IO_Test {
         assertEquals(25, acquisitionTime.getSize());
 
         // first scan
-        NCTestUtils.assertValueAt(1242211027, 0, 0, acquisitionTime);
-        NCTestUtils.assertValueAt(1242211027, 1, 0, acquisitionTime);
+        NCTestUtils.assertValueAt(1242211054, 0, 0, acquisitionTime);
+        NCTestUtils.assertValueAt(1242211054, 1, 0, acquisitionTime);
 
         // next scan
-        NCTestUtils.assertValueAt(1242211029, 1, 1, acquisitionTime);
-        NCTestUtils.assertValueAt(1242211029, 2, 1, acquisitionTime);
-        NCTestUtils.assertValueAt(1242211029, 1, 2, acquisitionTime);
-        NCTestUtils.assertValueAt(1242211029, 2, 2, acquisitionTime);
+        NCTestUtils.assertValueAt(1242211056, 1, 1, acquisitionTime);
+        NCTestUtils.assertValueAt(1242211056, 2, 1, acquisitionTime);
+        NCTestUtils.assertValueAt(1242211056, 1, 2, acquisitionTime);
+        NCTestUtils.assertValueAt(1242211056, 2, 2, acquisitionTime);
 
         // next scan
-        NCTestUtils.assertValueAt(1242211030, 1, 3, acquisitionTime);
-        NCTestUtils.assertValueAt(1242211030, 2, 3, acquisitionTime);
+        NCTestUtils.assertValueAt(1242211057, 1, 3, acquisitionTime);
+        NCTestUtils.assertValueAt(1242211057, 2, 3, acquisitionTime);
     }
 
     @Test
@@ -385,14 +385,14 @@ public class MxD06_Reader_IO_Test {
         NCTestUtils.assertValueAt(fillValue, 1, 0, acquisitionTime);
 
         // next scan
-        NCTestUtils.assertValueAt(1242210874, 1, 1, acquisitionTime);
-        NCTestUtils.assertValueAt(1242210874, 2, 1, acquisitionTime);
-        NCTestUtils.assertValueAt(1242210874, 1, 2, acquisitionTime);
-        NCTestUtils.assertValueAt(1242210874, 2, 2, acquisitionTime);
+        NCTestUtils.assertValueAt(1242210901, 1, 1, acquisitionTime);
+        NCTestUtils.assertValueAt(1242210901, 2, 1, acquisitionTime);
+        NCTestUtils.assertValueAt(1242210901, 1, 2, acquisitionTime);
+        NCTestUtils.assertValueAt(1242210901, 2, 2, acquisitionTime);
 
         // next scan
-        NCTestUtils.assertValueAt(1242210875, 1, 3, acquisitionTime);
-        NCTestUtils.assertValueAt(1242210875, 2, 3, acquisitionTime);
+        NCTestUtils.assertValueAt(1242210902, 1, 3, acquisitionTime);
+        NCTestUtils.assertValueAt(1242210902, 2, 3, acquisitionTime);
     }
 
     @Test
@@ -408,20 +408,20 @@ public class MxD06_Reader_IO_Test {
         assertEquals(25, acquisitionTime.getSize());
 
         // first line
-        NCTestUtils.assertValueAt(1242211171, 0, 0, acquisitionTime);
-        NCTestUtils.assertValueAt(1242211171, 1, 0, acquisitionTime);
+        NCTestUtils.assertValueAt(1242211198, 0, 0, acquisitionTime);
+        NCTestUtils.assertValueAt(1242211198, 1, 0, acquisitionTime);
 
         // second line
-        NCTestUtils.assertValueAt(1242211171, 1, 1, acquisitionTime);
-        NCTestUtils.assertValueAt(1242211171, 2, 1, acquisitionTime);
+        NCTestUtils.assertValueAt(1242211198, 1, 1, acquisitionTime);
+        NCTestUtils.assertValueAt(1242211198, 2, 1, acquisitionTime);
 
         // third line
-        NCTestUtils.assertValueAt(1242211172, 2, 2, acquisitionTime);
-        NCTestUtils.assertValueAt(1242211172, 3, 2, acquisitionTime);
+        NCTestUtils.assertValueAt(1242211199, 2, 2, acquisitionTime);
+        NCTestUtils.assertValueAt(1242211199, 3, 2, acquisitionTime);
 
         // fourth line
-        NCTestUtils.assertValueAt(1242211172, 3, 3, acquisitionTime);
-        NCTestUtils.assertValueAt(1242211172, 4, 3, acquisitionTime);
+        NCTestUtils.assertValueAt(1242211199, 3, 3, acquisitionTime);
+        NCTestUtils.assertValueAt(1242211199, 4, 3, acquisitionTime);
 
         // fifth line
         NCTestUtils.assertValueAt(fillValue, 3, 4, acquisitionTime);
@@ -913,8 +913,8 @@ public class MxD06_Reader_IO_Test {
 
         Point2D[] pixelLocation = pixelLocator.getPixelLocation(-42.03668401988397, 40.738407135009766);
         assertEquals(1, pixelLocation.length);
-        assertEquals(263.3933236158191, pixelLocation[0].getX(), 1e-8);
-        assertEquals(89.73207714460095, pixelLocation[0].getY(), 1e-8);
+        assertEquals(263.5, pixelLocation[0].getX(), 0.25);
+        assertEquals(91.5, pixelLocation[0].getY(), 1.77);
 
         pixelLocation = pixelLocator.getPixelLocation(-58.31618534674704, 35.175201416015625);
         assertEquals(1, pixelLocation.length);

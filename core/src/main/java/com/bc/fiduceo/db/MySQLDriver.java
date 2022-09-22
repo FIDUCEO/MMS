@@ -77,7 +77,17 @@ public class MySQLDriver extends AbstractDriver {
     }
 
     @Override
-    public void updatePath(SatelliteObservation satelliteObservation, String newPath) throws SQLException {
+    public void update(SatelliteObservation satelliteObservation) throws SQLException {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
+    public AbstractBatch updatePathBatch(SatelliteObservation satelliteObservation, String newPath, AbstractBatch batch) throws SQLException {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
+    public void commitBatch(AbstractBatch batch) throws SQLException {
         throw new RuntimeException("not implemented");
     }
 

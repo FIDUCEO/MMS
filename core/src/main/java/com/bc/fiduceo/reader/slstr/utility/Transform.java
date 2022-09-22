@@ -1,4 +1,4 @@
-package com.bc.fiduceo.reader.slstr;
+package com.bc.fiduceo.reader.slstr.utility;
 
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
@@ -6,7 +6,7 @@ import ucar.ma2.Array;
 
 import java.io.IOException;
 
-interface Transform {
+public interface Transform {
 
     Dimension getRasterSize();
 

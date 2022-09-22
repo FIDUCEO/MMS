@@ -1,16 +1,17 @@
-package com.bc.fiduceo.reader.slstr;
+package com.bc.fiduceo.reader.slstr.utility;
 
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
+import ucar.ma2.Array;
 
-class Nadir500mTransform extends Abstract500mTransform {
+class Nadir1kmTransform implements Transform {
 
     private final int rasterWidth;
     private final int rasterHeight;
 
-    Nadir500mTransform(int rasterWidth, int rasterHeight) {
-        this.rasterWidth = rasterWidth;
-        this.rasterHeight = rasterHeight;
+    Nadir1kmTransform(int rasterWidth, int rasterHeight) {
+        this.rasterWidth = rasterWidth / 2;
+        this.rasterHeight = rasterHeight / 2;
     }
 
     @Override
@@ -20,33 +21,41 @@ class Nadir500mTransform extends Abstract500mTransform {
 
     @Override
     public double mapCoordinate_X(double coordinate) {
-        return 2.0 * coordinate;
+        return coordinate;
     }
 
     @Override
     public double mapCoordinate_Y(double coordinate) {
-        return 2.0 * coordinate;
+        return coordinate;
     }
 
     @Override
     public double inverseCoordinate_X(double coordinate) {
-        return coordinate * 0.5;
+        return coordinate;
     }
 
     @Override
     public double inverseCoordinate_Y(double coordinate) {
-        return coordinate * 0.5;
+        return coordinate;
     }
 
     @Override
     public int getOffset() {
-        return 1;
+        return 0;
     }
 
     @Override
     public Interval mapInterval(Interval interval) {
-        final int width = interval.getX() * 2;
-        final int height = interval.getY() * 2;
-        return new Interval(width, height);
+        return interval;
+    }
+
+    @Override
+    public Array process(Array array, double noDataValue) {
+        return array;
+    }
+
+    @Override
+    public Array processFlags(Array array, int noDataValue) {
+        return array;
     }
 }

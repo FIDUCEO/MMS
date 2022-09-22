@@ -24,6 +24,7 @@ import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.core.UseCaseConfig;
+import com.bc.fiduceo.db.DatabaseConfig;
 import com.bc.fiduceo.db.Storage;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.matchup.writer.MmdWriterFactory;
@@ -59,7 +60,9 @@ abstract class AbstractUsecaseIntegrationTest {
 
         geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
 
-        storage = Storage.create(TestUtil.getDataSource_MongoDb(), geometryFactory);
+        final DatabaseConfig databaseConfig = new DatabaseConfig();
+        databaseConfig.setDataSource(TestUtil.getDataSource_MongoDb());
+        storage = Storage.create(databaseConfig, geometryFactory);
         storage.clear();
         storage.initialize();
 
@@ -79,8 +82,16 @@ abstract class AbstractUsecaseIntegrationTest {
         TestUtil.deleteTestDirectory();
     }
 
-    SatelliteObservation readSatelliteObservation(String sensorKey, String absolutePath, String version) throws IOException {
-        final ReaderFactory readerFactory = ReaderFactory.create(geometryFactory, new TempFileUtils(), null);
+    /**
+     * @param sensorKey    sensor key
+     * @param relativePath relative path or archive root
+     * @param version      data version
+     * @return a satellite observation ready to ingest into database
+     * @throws IOException on disk acces failures
+     */
+    SatelliteObservation readSatelliteObservation(String sensorKey, String relativePath, String version) throws IOException {
+        final ReaderFactory readerFactory = ReaderFactory.create(geometryFactory, new TempFileUtils(), TestUtil.getArchive(), "./config");
+        final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativePath;
         try (Reader reader = readerFactory.getReader(sensorKey)) {
             reader.open(new File(absolutePath));
             final AcquisitionInfo acquisitionInfo = reader.read();
@@ -88,7 +99,7 @@ abstract class AbstractUsecaseIntegrationTest {
             satelliteObservation.setSensor(new Sensor(sensorKey));
             satelliteObservation.setStartTime(acquisitionInfo.getSensingStart());
             satelliteObservation.setStopTime(acquisitionInfo.getSensingStop());
-            satelliteObservation.setDataFilePath(absolutePath);
+            satelliteObservation.setDataFilePath(relativePath);
             satelliteObservation.setGeoBounds(acquisitionInfo.getBoundingGeometry());
             satelliteObservation.setTimeAxes(acquisitionInfo.getTimeAxes());
             satelliteObservation.setNodeType(acquisitionInfo.getNodeType());

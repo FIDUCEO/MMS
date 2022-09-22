@@ -90,9 +90,8 @@ public class MatchupToolIntegrationTest_CIRCAS_points extends AbstractUsecaseInt
     private void insert_MOD06_Terra() throws IOException, SQLException {
         final String sensorKey = "mod06-te";
         final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{sensorKey, "v006", "2013", "037", "MOD06_L2.A2013037.1435.006.2015066015540.hdf"}, true);
-        final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
 
-        final SatelliteObservation satelliteObservation = readSatelliteObservation(sensorKey, absolutePath, "v006");
+        final SatelliteObservation satelliteObservation = readSatelliteObservation(sensorKey, relativeArchivePath, "v006");
         storage.insert(satelliteObservation);
     }
 

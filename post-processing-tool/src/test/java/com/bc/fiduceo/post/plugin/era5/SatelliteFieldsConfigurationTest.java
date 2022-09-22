@@ -3,9 +3,7 @@ package com.bc.fiduceo.post.plugin.era5;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class SatelliteFieldsConfigurationTest {
 
@@ -42,6 +40,7 @@ public class SatelliteFieldsConfigurationTest {
         assertNull(config.get_time_variable_name());
         assertNull(config.get_longitude_variable_name());
         assertNull(config.get_latitude_variable_name());
+        assertNull(config.getSensorRef());
     }
 
     @Test
@@ -159,6 +158,68 @@ public class SatelliteFieldsConfigurationTest {
     }
 
     @Test
+    public void testSetGetSensorRef() {
+        config.setSensorRef("radiometer");
+        assertEquals("radiometer", config.getSensorRef());
+    }
+
+    @Test
+    public void testGetVariablesWithReplacement() {
+        config.setSensorRef("avhrr-n14");
+
+        config.set_nwp_time_variable_name("{sensor-ref}_nwp_time");
+        assertEquals("avhrr-n14_nwp_time", config.get_nwp_time_variable_name());
+
+        config.set_longitude_variable_name("{sensor-ref}_nwp_lon");
+        assertEquals("avhrr-n14_nwp_lon", config.get_longitude_variable_name());
+
+        config.set_latitude_variable_name("{sensor-ref}_nwp_lat");
+        assertEquals("avhrr-n14_nwp_lat", config.get_latitude_variable_name());
+
+        config.set_time_variable_name("{sensor-ref}_acquisition-time");
+        assertEquals("avhrr-n14_acquisition-time", config.get_time_variable_name());
+
+        config.set_an_q_name("a_{sensor-ref}_n_q");
+        assertEquals("a_avhrr-n14_n_q", config.get_an_q_name());
+
+        config.set_an_t_name("an_{sensor-ref}_t");
+        assertEquals("an_avhrr-n14_t", config.get_an_t_name());
+
+        config.set_an_o3_name("{sensor-ref}_o3");
+        assertEquals("avhrr-n14_o3", config.get_an_o3_name());
+
+        config.set_an_lnsp_name("{sensor-ref}_lnsp");
+        assertEquals("avhrr-n14_lnsp", config.get_an_lnsp_name());
+
+        config.set_an_t2m_name("{sensor-ref}_t2m");
+        assertEquals("avhrr-n14_t2m", config.get_an_t2m_name());
+
+        config.set_an_siconc_name("{sensor-ref}_siconc");
+        assertEquals("avhrr-n14_siconc", config.get_an_siconc_name());
+
+        config.set_an_u10_name("{sensor-ref}_u10");
+        assertEquals("avhrr-n14_u10", config.get_an_u10_name());
+
+        config.set_an_v10_name("{sensor-ref}_v10");
+        assertEquals("avhrr-n14_v10", config.get_an_v10_name());
+
+        config.set_an_msl_name("{sensor-ref}_msl");
+        assertEquals("avhrr-n14_msl", config.get_an_msl_name());
+
+        config.set_an_skt_name("{sensor-ref}_skt");
+        assertEquals("avhrr-n14_skt", config.get_an_skt_name());
+
+        config.set_an_sst_name("{sensor-ref}_sst");
+        assertEquals("avhrr-n14_sst", config.get_an_sst_name());
+
+        config.set_an_tcc_name("{sensor-ref}_tcc");
+        assertEquals("avhrr-n14_tcc", config.get_an_tcc_name());
+
+        config.set_an_tcwv_name("{sensor-ref}_tcwv");
+        assertEquals("avhrr-n14_tcwv", config.get_an_tcwv_name());
+    }
+
+    @Test
     public void testVerify() {
         prepareConfig();
 
@@ -186,7 +247,7 @@ public class SatelliteFieldsConfigurationTest {
         try {
             config.verify();
             fail("IllegalArgumentException expected");
-        } catch(IllegalArgumentException expected) {
+        } catch (IllegalArgumentException expected) {
         }
     }
 
@@ -198,7 +259,7 @@ public class SatelliteFieldsConfigurationTest {
         try {
             config.verify();
             fail("IllegalArgumentException expected");
-        } catch(IllegalArgumentException expected) {
+        } catch (IllegalArgumentException expected) {
         }
     }
 
@@ -210,7 +271,7 @@ public class SatelliteFieldsConfigurationTest {
         try {
             config.verify();
             fail("IllegalArgumentException expected");
-        } catch(IllegalArgumentException expected) {
+        } catch (IllegalArgumentException expected) {
         }
     }
 
@@ -222,7 +283,7 @@ public class SatelliteFieldsConfigurationTest {
         try {
             config.verify();
             fail("IllegalArgumentException expected");
-        } catch(IllegalArgumentException expected) {
+        } catch (IllegalArgumentException expected) {
         }
     }
 
@@ -234,7 +295,7 @@ public class SatelliteFieldsConfigurationTest {
         try {
             config.verify();
             fail("IllegalArgumentException expected");
-        } catch(IllegalArgumentException expected) {
+        } catch (IllegalArgumentException expected) {
         }
     }
 
@@ -246,7 +307,7 @@ public class SatelliteFieldsConfigurationTest {
         try {
             config.verify();
             fail("IllegalArgumentException expected");
-        } catch(IllegalArgumentException expected) {
+        } catch (IllegalArgumentException expected) {
         }
     }
 
@@ -258,7 +319,7 @@ public class SatelliteFieldsConfigurationTest {
         try {
             config.verify();
             fail("IllegalArgumentException expected");
-        } catch(IllegalArgumentException expected) {
+        } catch (IllegalArgumentException expected) {
         }
     }
 
@@ -270,7 +331,7 @@ public class SatelliteFieldsConfigurationTest {
         try {
             config.verify();
             fail("IllegalArgumentException expected");
-        } catch(IllegalArgumentException expected) {
+        } catch (IllegalArgumentException expected) {
         }
     }
 
@@ -282,7 +343,7 @@ public class SatelliteFieldsConfigurationTest {
         try {
             config.verify();
             fail("IllegalArgumentException expected");
-        } catch(IllegalArgumentException expected) {
+        } catch (IllegalArgumentException expected) {
         }
     }
 

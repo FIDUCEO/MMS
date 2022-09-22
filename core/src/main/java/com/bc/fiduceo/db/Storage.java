@@ -34,8 +34,8 @@ public class Storage {
 
     private Driver driver;
 
-    public static Storage create(BasicDataSource dataSource, GeometryFactory geometryFactory) throws SQLException {
-        return new Storage(dataSource, geometryFactory);
+    public static Storage create(DatabaseConfig databaseConfig, GeometryFactory geometryFactory) throws SQLException {
+        return new Storage(databaseConfig, geometryFactory);
     }
 
     public void close() throws SQLException {
@@ -64,8 +64,16 @@ public class Storage {
         driver.insert(satelliteObservation);
     }
 
-    public void updatePath(SatelliteObservation satelliteObservation, String newPath) throws SQLException {
-        driver.updatePath(satelliteObservation, newPath);
+    public void update(SatelliteObservation satelliteObservation) throws SQLException {
+        driver.update(satelliteObservation);
+    }
+
+    public AbstractBatch updatePathBatch(SatelliteObservation satelliteObservation, String newPath, AbstractBatch batch) throws SQLException{
+        return driver.updatePathBatch(satelliteObservation, newPath, batch);
+    }
+
+    public void commitBatch(AbstractBatch batch) throws SQLException {
+        driver.commitBatch(batch);
     }
 
     public List<SatelliteObservation> get() throws SQLException {
@@ -80,10 +88,10 @@ public class Storage {
         return driver.insert(sensor);
     }
 
-    private Storage(BasicDataSource dataSource, GeometryFactory geometryFactory) throws SQLException {
-        driver = createDriver(dataSource);
+    private Storage(DatabaseConfig databaseConfig, GeometryFactory geometryFactory) throws SQLException {
+        driver = createDriver(databaseConfig.getDataSource());
         driver.setGeometryFactory(geometryFactory);
-        driver.open(dataSource);
+        driver.open(databaseConfig);
     }
 
     public boolean isAlreadyRegistered(QueryParameter queryParameter) throws SQLException {

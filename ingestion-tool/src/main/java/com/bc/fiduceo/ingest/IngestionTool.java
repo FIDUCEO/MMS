@@ -72,6 +72,7 @@ class IngestionTool {
 
         final String sensorType = commandLine.getOptionValue("s");
         final String processingVersion = commandLine.getOptionValue("v");
+        final boolean update = commandLine.hasOption("u");
 
         final ToolContext context = initializeContext(commandLine, confDirPath);
 
@@ -80,14 +81,14 @@ class IngestionTool {
         Runtime.getRuntime().addShutdownHook(new ShutdownHook(context));
 
         try {
-            ingestMetadata(context, sensorType, processingVersion);
+            ingestMetadata(context, sensorType, processingVersion, update);
         } finally {
             context.getStorage().close();
             context.getTempFileUtils().cleanup();
         }
     }
 
-    private void ingestMetadata(ToolContext context, String sensorType, String processingVersion) throws SQLException, IOException {
+    private void ingestMetadata(ToolContext context, String sensorType, String processingVersion, boolean update) throws SQLException, IOException {
         final ReaderFactory readerFactory = context.getReaderFactory();
         final Reader reader = readerFactory.getReader(sensorType);
 
@@ -110,9 +111,11 @@ class IngestionTool {
                 continue;
             }
 
-            queryParameter.setPath(dataFilePath);
+            final Path relativePath = archive.toRelative(Paths.get(dataFilePath));
+            queryParameter.setPath(relativePath.toString());
+
             boolean registered = storage.isAlreadyRegistered(queryParameter);
-            if (registered) {
+            if (registered && !update) {
                 logger.info("The file '" + dataFilePath + "' is already registered to the database. Skipping");
                 continue;
             }
@@ -127,12 +130,16 @@ class IngestionTool {
                 satelliteObservation.setSensor(new Sensor(sensorType));
                 satelliteObservation.setStartTime(acquisitionInfo.getSensingStart());
                 satelliteObservation.setStopTime(acquisitionInfo.getSensingStop());
-                satelliteObservation.setDataFilePath(dataFilePath);
+                satelliteObservation.setDataFilePath(relativePath.toString());
                 satelliteObservation.setGeoBounds(acquisitionInfo.getBoundingGeometry());
                 satelliteObservation.setTimeAxes(acquisitionInfo.getTimeAxes());
                 satelliteObservation.setNodeType(acquisitionInfo.getNodeType());
                 satelliteObservation.setVersion(processingVersion);
-                storage.insert(satelliteObservation);
+                if (update) {
+                    storage.update(satelliteObservation);
+                } else {
+                    storage.insert(satelliteObservation);
+                }
             } catch (Exception e) {
                 logger.severe("Unable to register the file '" + dataFilePath + "'");
                 logger.severe("Cause: " + e.getMessage());
@@ -181,6 +188,9 @@ class IngestionTool {
         final Option versionOption = new Option("v", "version", true, "Define the sensor data processing version.");
         options.addOption(versionOption);
 
+        final Option updateOption = new Option("u", "update", false, "Update database entries if already existing.");
+        options.addOption(updateOption);
+
         return options;
     }
 
@@ -224,10 +234,11 @@ class IngestionTool {
         final ArchiveConfig archiveConfig = systemConfig.getArchiveConfig();
         final Archive archive = new Archive(archiveConfig);
         context.setArchive(archive);
-        final ReaderFactory readerFactory = ReaderFactory.create(geometryFactory, context.getTempFileUtils(), archive);
+        final ReaderFactory readerFactory = ReaderFactory.create(geometryFactory, context.getTempFileUtils(),
+                archive, confDirPath.toString());
         context.setReaderFactory(readerFactory);
 
-        final Storage storage = Storage.create(databaseConfig.getDataSource(), geometryFactory);
+        final Storage storage = Storage.create(databaseConfig, geometryFactory);
         if (!storage.isInitialized()) {
             storage.initialize();
         }

@@ -7,15 +7,17 @@ General stuff
 - only check code to Github when the tests run green. The procedure should always be
   - git pull github master
   - mvn clean install
-  - git push github master (only if all tests have run successfully
+  - git push github master (only if all tests have run successfully)
+
+- crosscheck after a push that also the buildserver executes correctly: http://buildserver:8111/
 
 - when adding a feature or changing software configuration - document it!
   - add all tasks done for the current version to CHANGES.md
-  - document it in the manual (/fs1/projects/ongoing/Fiduceo/docs/wp3)
+  - document it in the manual (fs1:/projects/ongoing/CCI+SST/MMS)
 
 
- Reader implementation:
-************************
+Reader implementation
+---------------------
     Any implemented reader should return variables and attributes as close as possible to the original.
 
     For example:
@@ -25,3 +27,12 @@ General stuff
             added to the variable.
           o If the original variable already have an fill value assigned, but with a NOT CF conform
             name, the attribute must be duplicated and the CF conform name must be set.
+
+    A reader is identified by a signature string, the so-called sensor key. A reader can support multiple sensor keys
+    (e.g. AVHRR from different platforms). A sensor key must always be composed like:
+       <SENSOR>-<PLATFORM>-<OTHER_STUFF>
+    where
+    - SENSOR: the sensor short name, e.g. olci
+    - PLATFORM: a platform abbreviation, e.g. s3b
+    - OTHER_STUFF: any additional information required to distinguish the reader from others in the system.
+    Example: hirs-n10-fcdr

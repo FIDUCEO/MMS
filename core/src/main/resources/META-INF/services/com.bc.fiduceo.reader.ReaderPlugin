@@ -10,6 +10,7 @@ com.bc.fiduceo.reader.amsr.amsr2.AMSR2_ReaderPlugin
 com.bc.fiduceo.reader.ssmt2.SSMT2_ReaderPlugin
 com.bc.fiduceo.reader.modis.MxD06_ReaderPlugin
 com.bc.fiduceo.reader.modis.MxD021KM_ReaderPlugin
+com.bc.fiduceo.reader.modis.MxD35_ReaderPlugin
 com.bc.fiduceo.reader.caliop.CALIOP_L2_VFM_ReaderPlugin
 com.bc.fiduceo.reader.caliop.CALIOP_SST_WP100_CLay_ReaderPlugin
 com.bc.fiduceo.reader.insitu.sst_cci.SSTInsituReaderPlugin
@@ -20,6 +21,7 @@ com.bc.fiduceo.reader.fiduceo_fcdr.HIRS_FCDR_ReaderPlugin
 com.bc.fiduceo.reader.slstr.SlstrReaderPlugin
 com.bc.fiduceo.reader.slstr.SlstrNRReaderPlugin
 com.bc.fiduceo.reader.slstr.SlstrNTReaderPlugin
+com.bc.fiduceo.reader.slstr_subset.SlstrRegriddedSubsetReaderPlugin
 com.bc.fiduceo.reader.insitu.sirds_sst.SirdsAnimalInsituReaderPlugin
 com.bc.fiduceo.reader.insitu.sirds_sst.SirdsArgoInsituReaderPlugin
 com.bc.fiduceo.reader.insitu.sirds_sst.SirdsArgosurfInsituReaderPlugin

@@ -13,6 +13,7 @@ import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.time.TimeLocator;
 import com.bc.fiduceo.util.NetCDFUtils;
+import com.bc.fiduceo.util.TimeUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -78,8 +79,9 @@ public class MxD021KM_Reader_IO_Test {
         assertTrue(boundingGeometry instanceof Polygon);
         final Point[] coordinates = boundingGeometry.getCoordinates();
         assertEquals(31, coordinates.length);
-        assertEquals(-119.84687042236328, coordinates[0].getLon(), 1e-8);
-        assertEquals(-67.26568603515625, coordinates[0].getLat(), 1e-8);
+        final Point cornerUpperLeft = coordinates[0];
+        assertEquals(-119.84687042236328, cornerUpperLeft.getLon(), 1e-8);
+        assertEquals(-67.26568603515625, cornerUpperLeft.getLat(), 1e-8);
 
         assertEquals(-50.65733337402344, coordinates[24].getLon(), 1e-8);
         assertEquals(-77.25603485107422, coordinates[24].getLat(), 1e-8);
@@ -161,11 +163,14 @@ public class MxD021KM_Reader_IO_Test {
 
         reader.open(file);
         final TimeLocator timeLocator = reader.getTimeLocator();
-        assertEquals(1053614674728L, timeLocator.getTimeFor(0, 0));
-        assertEquals(1053614674728L, timeLocator.getTimeFor(269, 0));
+        assertEquals(1053614701728L, timeLocator.getTimeFor(0, 0));
+        assertEquals(1053614701728L, timeLocator.getTimeFor(269, 0));
 
-        assertEquals(1053614704271L, timeLocator.getTimeFor(76, 203));
-        assertEquals(1053614733814L, timeLocator.getTimeFor(145, 405));
+        final Date utcStart = TimeUtils.create(timeLocator.getTimeFor(0, 0));
+        TestUtil.assertCorrectUTCDate(2003, 5, 22, 14, 45, 1, 728, utcStart);
+
+        assertEquals(1053614731271L, timeLocator.getTimeFor(76, 203));
+        assertEquals(1053614760814L, timeLocator.getTimeFor(145, 405));
     }
 
     @Test
@@ -174,11 +179,14 @@ public class MxD021KM_Reader_IO_Test {
 
         reader.open(file);
         final TimeLocator timeLocator = reader.getTimeLocator();
-        assertEquals(1308348573820L, timeLocator.getTimeFor(1, 1));
-        assertEquals(1308348573820L, timeLocator.getTimeFor(270, 1));
+        assertEquals(1308348600820L, timeLocator.getTimeFor(1, 1));
+        assertEquals(1308348600820L, timeLocator.getTimeFor(270, 1));
 
-        assertEquals(1308348603362L, timeLocator.getTimeFor(76, 204));
-        assertEquals(1308348632905L, timeLocator.getTimeFor(145, 406));
+        final Date utcStart = TimeUtils.create(timeLocator.getTimeFor(0, 0));
+        TestUtil.assertCorrectUTCDate(2011, 6, 17, 22, 10, 0, 820, utcStart);
+
+        assertEquals(1308348630362L, timeLocator.getTimeFor(76, 204));
+        assertEquals(1308348659905L, timeLocator.getTimeFor(145, 406));
     }
 
     @Test
@@ -369,14 +377,14 @@ public class MxD021KM_Reader_IO_Test {
         assertEquals(15, acquisitionTime.getSize());
 
         // one scan
-        NCTestUtils.assertValueAt(1053614689, 0, 0, acquisitionTime);
-        NCTestUtils.assertValueAt(1053614689, 1, 0, acquisitionTime);
-        NCTestUtils.assertValueAt(1053614689, 1, 1, acquisitionTime);
+        NCTestUtils.assertValueAt(1053614716, 0, 0, acquisitionTime);
+        NCTestUtils.assertValueAt(1053614716, 1, 0, acquisitionTime);
+        NCTestUtils.assertValueAt(1053614716, 1, 1, acquisitionTime);
 
         // next scan
-        NCTestUtils.assertValueAt(1053614690, 1, 3, acquisitionTime);
-        NCTestUtils.assertValueAt(1053614690, 2, 3, acquisitionTime);
-        NCTestUtils.assertValueAt(1053614690, 1, 4, acquisitionTime);
+        NCTestUtils.assertValueAt(1053614717, 1, 3, acquisitionTime);
+        NCTestUtils.assertValueAt(1053614717, 2, 3, acquisitionTime);
+        NCTestUtils.assertValueAt(1053614717, 1, 4, acquisitionTime);
     }
 
     @Test
@@ -388,14 +396,14 @@ public class MxD021KM_Reader_IO_Test {
         assertEquals(15, acquisitionTime.getSize());
 
         // one scan
-        NCTestUtils.assertValueAt(1308348590, 0, 0, acquisitionTime);
-        NCTestUtils.assertValueAt(1308348590, 1, 0, acquisitionTime);
-        NCTestUtils.assertValueAt(1308348590, 1, 1, acquisitionTime);
+        NCTestUtils.assertValueAt(1308348617, 0, 0, acquisitionTime);
+        NCTestUtils.assertValueAt(1308348617, 1, 0, acquisitionTime);
+        NCTestUtils.assertValueAt(1308348617, 1, 1, acquisitionTime);
 
         // next scan
-        NCTestUtils.assertValueAt(1308348591, 1, 3, acquisitionTime);
-        NCTestUtils.assertValueAt(1308348591, 2, 3, acquisitionTime);
-        NCTestUtils.assertValueAt(1308348591, 1, 4, acquisitionTime);
+        NCTestUtils.assertValueAt(1308348618, 1, 3, acquisitionTime);
+        NCTestUtils.assertValueAt(1308348618, 2, 3, acquisitionTime);
+        NCTestUtils.assertValueAt(1308348618, 1, 4, acquisitionTime);
     }
 
     @Test
@@ -415,9 +423,9 @@ public class MxD021KM_Reader_IO_Test {
         NCTestUtils.assertValueAt(fillValue, 2, 5, acquisitionTime);
 
         // first scan
-        NCTestUtils.assertValueAt(1053614674, 0, 6, acquisitionTime);
-        NCTestUtils.assertValueAt(1053614674, 1, 12, acquisitionTime);
-        NCTestUtils.assertValueAt(1053614674, 2, 14, acquisitionTime);
+        NCTestUtils.assertValueAt(1053614701, 0, 6, acquisitionTime);
+        NCTestUtils.assertValueAt(1053614701, 1, 12, acquisitionTime);
+        NCTestUtils.assertValueAt(1053614701, 2, 14, acquisitionTime);
     }
 
     @Test
@@ -433,8 +441,8 @@ public class MxD021KM_Reader_IO_Test {
         assertEquals(25, acquisitionTime.getSize());
 
         // last scan
-        NCTestUtils.assertValueAt(1308348872, 3, 3, acquisitionTime);
-        NCTestUtils.assertValueAt(1308348872, 4, 3, acquisitionTime);
+        NCTestUtils.assertValueAt(1308348899, 3, 3, acquisitionTime);
+        NCTestUtils.assertValueAt(1308348899, 4, 3, acquisitionTime);
 
         // outside
         NCTestUtils.assertValueAt(fillValue, 3, 4, acquisitionTime);

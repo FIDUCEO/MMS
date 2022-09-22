@@ -18,8 +18,8 @@ public class TimeLocator_TAI1993Test {
 
         final TimeLocator_TAI1993 timeLocator = new TimeLocator_TAI1993(timeDataArray);
 
-        assertEquals(725846374800L, timeLocator.getTimeFor(0, 0));
-        assertEquals(725846376100L, timeLocator.getTimeFor(2, 1));
-        assertEquals(725846377400L, timeLocator.getTimeFor(3, 2));
+        assertEquals(725846401800L, timeLocator.getTimeFor(0, 0));
+        assertEquals(725846403100L, timeLocator.getTimeFor(2, 1));
+        assertEquals(725846404400L, timeLocator.getTimeFor(3, 2));
     }
 }

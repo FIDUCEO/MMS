@@ -3,7 +3,7 @@
 The build command for Maven for the MS does execute a large number of unit-level and integration tests.
 We have made a tradeoff between build speed and test-coverage by excluding time-consuming test from the
 standard test set. To execute these tests, which cover intensive IO operations and exhaustive database
-test on all supported vendors, the Java VM has to be equipped with parameters that explicitely switch these tests on.
+test on all supported vendors, the Java VM has to be equipped with parameters that explicitly switch these tests on.
 
 -Dcom.bc.fiduceo.db.tests.execute=true
 Enables the database test suite. Requires a MongoDB and a PostGIS db-server to be accessible from the tests.
@@ -19,7 +19,39 @@ When enabling these tests, the VM needs substantially more RAM, please allow 8GB
  Test files:
 *************
 You can find needed test files at:
-	fs1:\projects\ongoing\Fiduceo\data\TestData
+    EOdata (\\BCSERVER2):\related\MMS\testData
 
 Interested external developers please contact Brockmann-Consult to receive a copy of the test data.
 
+To make the test data available to the test suite, you need to create a configuration file.
+A template file can be found in the module "core" in the test resources, Please create a copy of
+"dataDirectory_example.properties" and rename it to "dataDirectory.properties". Edit the renamed file
+and update the property "dataDirectory" to point to the test data root directory on your system.
+
+
+MongoDB  preparation for test execution
+=======================================
+Given:
+   MongoDB is installed, up and running.
+   MongoDB command line is started.
+
+Notice!
+°°°°°°°°
+The unit level tests require that a user is set up with the username and password listed below.
+Otherwise some unit level tests will fail.
+For operational use, it is strongly recommended to use a different username and password.
+
+>>> use FIDUCEO
+>>> db.myNewCollection111.insertOne({x:"A"})
+>>>
+>>> use admin
+>>> db.createUser(
+        {
+            user: 'fiduceo',
+            pwd: 'oecudif',
+            roles: [
+                { role: 'readWrite', db: 'FIDUCEO' },
+                { role: 'dbAdmin', db: 'FIDUCEO' }
+            ]
+        }
+    )

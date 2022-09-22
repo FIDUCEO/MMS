@@ -1,14 +1,16 @@
-package com.bc.fiduceo.reader.slstr;
+package com.bc.fiduceo.reader.slstr.utility;
+
+import com.bc.fiduceo.reader.slstr.VariableType;
 
 import static com.bc.fiduceo.reader.slstr.VariableType.*;
 
-class TransformFactory {
+public class TransformFactory {
 
     private final int rasterWidth;
     private final int rasterHeight;
     private final int obliqueRasterOffset;
 
-    TransformFactory(int rasterWidth, int rasterHeight, int obliqueRasterOffset) {
+    public TransformFactory(int rasterWidth, int rasterHeight, int obliqueRasterOffset) {
         this.rasterWidth = rasterWidth;
         this.rasterHeight = rasterHeight;
         this.obliqueRasterOffset = obliqueRasterOffset;

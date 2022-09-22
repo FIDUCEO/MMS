@@ -45,7 +45,7 @@ public class MatchupStrategyFactoryTest {
         sensors = new ArrayList<>();
         useCaseConfig.setSensors(sensors);
 
-        ReaderFactory.create(new GeometryFactory(GeometryFactory.Type.S2),  null, null);  // we dont need temp file handling here tb 2018-01-23
+        ReaderFactory.create(new GeometryFactory(GeometryFactory.Type.S2),  null, null, null);  // we dont need temp file handling here tb 2018-01-23
     }
 
     @Test

@@ -34,10 +34,13 @@ public class StorageTest_SatelliteObservation_MySQL extends StorageTest_Satellit
     // in the datasource description below. tb 2015-08-10
 
     public StorageTest_SatelliteObservation_MySQL() {
-        dataSource = new BasicDataSource();
+        databaseConfig = new DatabaseConfig();
+        final BasicDataSource dataSource = new BasicDataSource();
         dataSource.setDriverClassName("com.mysql.jdbc.Driver");
         dataSource.setUrl("jdbc:mysql://localhost:3306/test");
         dataSource.setUsername("fiduceo");
         dataSource.setPassword("oecudif");
+
+        databaseConfig.setDataSource(dataSource);
     }
 }

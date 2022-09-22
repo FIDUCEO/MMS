@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.bc.fiduceo.util.NetCDFUtils.CF_OFFSET_NAME;
+import static com.bc.fiduceo.util.NetCDFUtils.CF_ADD_OFFSET_NAME;
 import static com.bc.fiduceo.util.NetCDFUtils.CF_SCALE_FACTOR_NAME;
 
 class HIRS_FCDR_Reader extends FCDR_Reader {
@@ -99,7 +99,7 @@ class HIRS_FCDR_Reader extends FCDR_Reader {
         if (timeLocator == null) {
             final Array time = arrayCache.get("time");
             final double scale_factor = (double) arrayCache.getNumberAttributeValue(CF_SCALE_FACTOR_NAME, "time");
-            final double offset = (double) arrayCache.getNumberAttributeValue(CF_OFFSET_NAME, "time");
+            final double offset = (double) arrayCache.getNumberAttributeValue(CF_ADD_OFFSET_NAME, "time");
 
             timeLocator = new HIRS_FCDR_TimeLocator(time, scale_factor, offset);
         }

@@ -59,7 +59,7 @@ public class IngestionToolTest {
 
         ingestionTool.printUsageTo(outputStream);
 
-        assertEquals("ingestion-tool version 1.5.5" + ls +
+        assertEquals("ingestion-tool version 1.5.6" + ls +
                 ls +
                 "usage: ingestion-tool <options>" + ls +
                 "Valid options are:" + ls +
@@ -68,6 +68,7 @@ public class IngestionToolTest {
                 "   -h,--help                    Prints the tool usage." + ls +
                 "   -s,--sensor <arg>            Defines the sensor to be ingested." + ls +
                 "   -start,--start-time <Date>   Define the starting time of products to inject." + ls +
+                "   -u,--update                  Update database entries if already existing." + ls +
                 "   -v,--version <arg>           Define the sensor data processing version." + ls, outputStream.toString());
     }
 
@@ -104,7 +105,6 @@ public class IngestionToolTest {
         assertEquals("Define the starting time of products to inject.", startTime.getDescription());
         assertTrue(startTime.hasArg());
 
-
         final Option endTime = options.getOption("end-time");
         assertNotNull(endTime);
         assertEquals("end", endTime.getOpt());
@@ -112,13 +112,19 @@ public class IngestionToolTest {
         assertEquals("Define the ending time of products to inject.", endTime.getDescription());
         assertTrue(endTime.hasArg());
 
-
         final Option version = options.getOption("version");
         assertNotNull(version);
         assertEquals("v", version.getOpt());
         assertEquals("version", version.getLongOpt());
         assertEquals("Define the sensor data processing version.", version.getDescription());
         assertTrue(version.hasArg());
+
+        final Option update = options.getOption("update");
+        assertNotNull(update);
+        assertEquals("u", update.getOpt());
+        assertEquals("update", update.getLongOpt());
+        assertEquals("Update database entries if already existing.", update.getDescription());
+        assertFalse(update.hasArg());
     }
 
     @Test

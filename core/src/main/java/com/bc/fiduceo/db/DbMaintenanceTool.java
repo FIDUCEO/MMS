@@ -8,6 +8,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -25,6 +26,7 @@ class DbMaintenanceTool {
     private static final int PAGE_SIZE = 512;
     private final Logger logger;
     private Storage storage;
+    private PathAccumulator accumulator;
 
     DbMaintenanceTool() {
         this.logger = FiduceoLogger.getLogger();
@@ -40,11 +42,20 @@ class DbMaintenanceTool {
         final Option configOption = new Option("c", "config", true, "Defines the configuration directory. Defaults to './config'.");
         options.addOption(configOption);
 
-        final Option pathOption = new Option("p", "path", true, "Observation path segment to be replaced.");
+        final Option dryRunOption = new Option("d", "dryrun", false, "Defines 'dryrun' status, i.e. just test the replacement and report problems.");
+        options.addOption(dryRunOption);
+
+        final Option pathOption = new Option("p", "path", true, "Observation path segment to be replaced or truncated.");
         options.addOption(pathOption);
 
         final Option replaceOption = new Option("r", "replace", true, "Observation path segment replacement.");
         options.addOption(replaceOption);
+
+        final Option truncateOption = new Option("t", "truncate", false, "Command to truncate path segment.");
+        options.addOption(truncateOption);
+
+        final Option segmentsOption = new Option("s", "segments", true, "Number of segments to consider for paths missing the search expression (default: 4)");
+        options.addOption(segmentsOption);
 
         return options;
     }
@@ -57,7 +68,7 @@ class DbMaintenanceTool {
         writer.write(ls + ls);
 
         final HelpFormatter helpFormatter = new HelpFormatter();
-        helpFormatter.printHelp(writer, 120, "db-maintenance-tool <options>", "Valid options are:", getOptions(), 3, 3, "");
+        helpFormatter.printHelp(writer, 120, "db_maintenance <options>", "Valid options are:", getOptions(), 3, 3, "");
 
         writer.flush();
     }
@@ -71,13 +82,86 @@ class DbMaintenanceTool {
         final String oldPathSegment = commandLine.getOptionValue("path");
         final String newPathSegment = commandLine.getOptionValue("replace");
 
-        logger.info("Replacing paths  old: " + oldPathSegment +  "  new: " + newPathSegment);
+        final QueryParameter queryParameter = new QueryParameter();
+        queryParameter.setOffset(0);
+        queryParameter.setPageSize(PAGE_SIZE);
 
+        boolean dryrun = commandLine.hasOption("dryrun");
+
+        if (dryrun) {
+            int numPathSegments = 4;
+            final boolean segments = commandLine.hasOption("segments");
+            if (segments) {
+                final String numSegmentsString = commandLine.getOptionValue("segments");
+                numPathSegments = Integer.parseInt(numSegmentsString);
+            }
+            logger.info("Dryrun checking paths  old: " + oldPathSegment + "  new: " + newPathSegment);
+            accumulator = new PathAccumulator(oldPathSegment, numPathSegments);
+            executeDryrun(oldPathSegment, queryParameter);
+        } else {
+            final boolean truncate = commandLine.hasOption("truncate");
+
+            if (truncate) {
+                logger.info("Removing path segment: " + oldPathSegment);
+                processTruncate(oldPathSegment, queryParameter);
+            } else {
+                logger.info("Replacing paths - old: " + oldPathSegment + "  new: " + newPathSegment);
+                processUpdate(oldPathSegment, newPathSegment, queryParameter);
+            }
+        }
+    }
+
+    private void executeDryrun(String oldPathSegment, QueryParameter queryParameter) throws SQLException {
+        int total_count = 0;
+
+        List<SatelliteObservation> satelliteObservations = storage.get(queryParameter);
+        while (satelliteObservations.size() > 0) {
+            checkPaths(oldPathSegment, satelliteObservations);
+
+            total_count += satelliteObservations.size();
+            logger.info("processed " + total_count + " datasets");
+
+            final int newOffset = queryParameter.getOffset() + PAGE_SIZE;
+            queryParameter.setOffset(newOffset);
+            satelliteObservations = storage.get(queryParameter);
+        }
+
+        System.out.println("Datasets checked: " + total_count);
+
+        final PathCount matches = accumulator.getMatches();
+        System.out.println("Datasets ok to convert: " + matches.count);
+
+        final List<PathCount> misses = accumulator.getMisses();
+        if (misses.size() > 0) {
+            System.out.println("Datasets with deviating path:");
+            for (final PathCount miss : misses) {
+                System.out.println("- " + miss.getPath() + ": " + miss.getCount());
+            }
+        }
+    }
+
+    private void processTruncate(String oldPathSegment, QueryParameter queryParameter) throws SQLException {
         try {
-            final QueryParameter queryParameter = new QueryParameter();
-            queryParameter.setOffset(0);
-            queryParameter.setPageSize(PAGE_SIZE);
+            int total_count = 0;
 
+            List<SatelliteObservation> satelliteObservations = storage.get(queryParameter);
+            while (satelliteObservations.size() > 0) {
+                truncatePaths(oldPathSegment, satelliteObservations);
+
+                total_count += satelliteObservations.size();
+                logger.info("processed " + total_count + " datasets");
+
+                final int newOffset = queryParameter.getOffset() + PAGE_SIZE;
+                queryParameter.setOffset(newOffset);
+                satelliteObservations = storage.get(queryParameter);
+            }
+        } finally {
+            cleanup();
+        }
+    }
+
+    private void processUpdate(String oldPathSegment, String newPathSegment, QueryParameter queryParameter) throws SQLException {
+        try {
             int total_count = 0;
 
             List<SatelliteObservation> satelliteObservations = storage.get(queryParameter);
@@ -96,12 +180,46 @@ class DbMaintenanceTool {
         }
     }
 
+    private void truncatePaths(String oldPathSegment, List<SatelliteObservation> satelliteObservations) throws SQLException {
+        AbstractBatch batch = null;
+
+        for (final SatelliteObservation observation : satelliteObservations) {
+            final String oldPath = observation.getDataFilePath().toString();
+            final int start = oldPath.indexOf(oldPath);
+            if (start >= 0) {
+                final String newPath = StringUtils.remove(oldPath, oldPathSegment);
+                batch = storage.updatePathBatch(observation, newPath, batch);
+            }
+        }
+
+        if (batch != null) {
+            storage.commitBatch(batch);
+        }
+    }
+
     private void updatePaths(String oldPathSegment, String newPathSegment, List<SatelliteObservation> satelliteObservations) throws SQLException {
+        AbstractBatch batch = null;
+
         for (final SatelliteObservation observation : satelliteObservations) {
             final String oldPath = observation.getDataFilePath().toString();
             if (oldPath.contains(oldPathSegment)) {
                 final String newPath = oldPath.replace(oldPathSegment, newPathSegment);
-                storage.updatePath(observation, newPath);
+                batch = storage.updatePathBatch(observation, newPath, batch);
+            }
+        }
+
+        if (batch != null) {
+            storage.commitBatch(batch);
+        }
+    }
+
+    private void checkPaths(String oldPathSegment, List<SatelliteObservation> satelliteObservations) {
+        for (final SatelliteObservation observation : satelliteObservations) {
+            final String oldPath = observation.getDataFilePath().toString();
+            if (oldPath.contains(oldPathSegment)) {
+                accumulator.addMatch();
+            } else {
+                accumulator.addMiss(oldPath);
             }
         }
     }
@@ -122,7 +240,7 @@ class DbMaintenanceTool {
         final SystemConfig systemConfig = SystemConfig.loadFrom(confDirPath.toFile());
         final GeometryFactory geometryFactory = new GeometryFactory(systemConfig.getGeometryLibraryType());
 
-        storage = Storage.create(databaseConfig.getDataSource(), geometryFactory);
+        storage = Storage.create(databaseConfig, geometryFactory);
         if (!storage.isInitialized()) {
             storage.initialize();
         }

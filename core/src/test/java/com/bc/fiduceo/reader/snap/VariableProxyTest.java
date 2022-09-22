@@ -20,7 +20,6 @@
 
 package com.bc.fiduceo.reader.snap;
 
-import com.bc.fiduceo.reader.snap.VariableProxy;
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.ProductData;
@@ -32,7 +31,7 @@ import ucar.nc2.Attribute;
 import java.util.List;
 
 import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
-import static com.bc.fiduceo.util.NetCDFUtils.CF_OFFSET_NAME;
+import static com.bc.fiduceo.util.NetCDFUtils.CF_ADD_OFFSET_NAME;
 import static com.bc.fiduceo.util.NetCDFUtils.CF_SCALE_FACTOR_NAME;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -106,7 +105,7 @@ public class VariableProxyTest {
         assertEquals(1.23, attribute.getNumericValue().doubleValue(), 1e-8);
 
         attribute = attributes.get(1);
-        assertEquals(CF_OFFSET_NAME, attribute.getShortName());
+        assertEquals(CF_ADD_OFFSET_NAME, attribute.getShortName());
         assertEquals(0.86, attribute.getNumericValue().doubleValue(), 1e-8);
 
         final Class dataType = proxy.getDataType().getPrimitiveClassType();
@@ -144,7 +143,7 @@ public class VariableProxyTest {
         assertEquals(2, attributes.size());
 
         final Attribute attribute = attributes.get(0);
-        assertEquals(CF_OFFSET_NAME, attribute.getShortName());
+        assertEquals(CF_ADD_OFFSET_NAME, attribute.getShortName());
         assertEquals(273.15, attribute.getNumericValue().doubleValue(), 1e-8);
 
         final Class dataType = proxy.getDataType().getPrimitiveClassType();

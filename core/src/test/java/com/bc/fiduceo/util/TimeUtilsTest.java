@@ -183,22 +183,22 @@ public class TimeUtilsTest {
     @Test
     public void testTai1993ToUtc() {
         Date utc = TimeUtils.tai1993ToUtc(0.0);
-        TestUtil.assertCorrectUTCDate(1992, 12, 31, 23, 59, 33, 0, utc);
+        TestUtil.assertCorrectUTCDate(1993, 1, 1, 0, 0, 0, 0, utc);
 
         utc = TimeUtils.tai1993ToUtc(64533786.0);
-        TestUtil.assertCorrectUTCDate(1995, 1, 17, 22, 2, 37, 0, utc);
+        TestUtil.assertCorrectUTCDate(1995, 1, 17, 22, 3, 4, 0, utc);
 
         utc = TimeUtils.tai1993ToUtc(3.8277217110737616e8);
-        TestUtil.assertCorrectUTCDate(2005, 2, 17, 5, 35, 39, 107, utc);
+        TestUtil.assertCorrectUTCDate(2005, 2, 17, 5, 36, 6, 107, utc);
     }
 
     @Test
     public void testGetTaiToUtcOffset() {
-        assertEquals(27L, TimeUtils.getTaiToUtcOffset(709948804));
-        assertEquals(28L, TimeUtils.getTaiToUtcOffset(741484805));
-        assertEquals(29L, TimeUtils.getTaiToUtcOffset(773020806));
-        assertEquals(34L, TimeUtils.getTaiToUtcOffset(1230768007));
-        assertEquals(37L, TimeUtils.getTaiToUtcOffset(1483228808));
+        assertEquals(0L, TimeUtils.getTaiToUtcOffset(709948804));
+        assertEquals(1L, TimeUtils.getTaiToUtcOffset(741484805));
+        assertEquals(2L, TimeUtils.getTaiToUtcOffset(773020806));
+        assertEquals(7L, TimeUtils.getTaiToUtcOffset(1230768007));
+        assertEquals(10L, TimeUtils.getTaiToUtcOffset(1483228808));
     }
 
     @Test
@@ -248,9 +248,9 @@ public class TimeUtilsTest {
         assertEquals(3, shape[0]);
         assertEquals(2, shape[1]);
 
-        assertEquals(1262907297, unixEpoch.getInt(0));
-        assertEquals(1262907351, unixEpoch.getInt(2));
-        assertEquals(1262907404, unixEpoch.getInt(4));
+        assertEquals(1262907324, unixEpoch.getInt(0));
+        assertEquals(1262907378, unixEpoch.getInt(2));
+        assertEquals(1262907431, unixEpoch.getInt(4));
     }
 
     @Test
@@ -266,8 +266,8 @@ public class TimeUtilsTest {
         assertEquals(3, shape[0]);
         assertEquals(2, shape[1]);
 
-        assertEquals(1262907297, unixEpoch.getInt(0));
+        assertEquals(1262907324, unixEpoch.getInt(0));
         assertEquals(-11, unixEpoch.getInt(3));
-        assertEquals(1262907404, unixEpoch.getInt(4));
+        assertEquals(1262907431, unixEpoch.getInt(4));
     }
 }

@@ -30,15 +30,16 @@ import ucar.nc2.*;
 import ucar.nc2.iosp.netcdf3.N3iosp;
 import ucar.unidata.io.RandomAccessFile;
 
-import javax.xml.crypto.Data;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class NetCDFUtils {
 
     public static final String CF_FILL_VALUE_NAME = "_FillValue";
     public static final String CF_UNSIGNED = "_Unsigned";
     public static final String CF_SCALE_FACTOR_NAME = "scale_factor";
-    public static final String CF_OFFSET_NAME = "add_offset";
+    public static final String CF_ADD_OFFSET_NAME = "add_offset";
+    public static final String CF_VALID_RANGE_NAME = "valid_range";
     public static final String CF_UNITS_NAME = "units";
     public static final String CF_STANDARD_NAME = "standard_name";
     public static final String CF_LONG_NAME = "long_name";
@@ -168,6 +169,11 @@ public class NetCDFUtils {
     public static int getGlobalAttributeInt(String attributeName, NetcdfFile netcdfFile) {
         final Attribute attribute = getGlobalAttributeSafe(attributeName, netcdfFile);
         return attribute.getNumericValue().intValue();
+    }
+
+    public static double getGlobalAttributeDouble(String attributeName, NetcdfFile netcdfFile) {
+        final Attribute attribute = getGlobalAttributeSafe(attributeName, netcdfFile);
+        return attribute.getNumericValue().doubleValue();
     }
 
     public static int getAttributeInt(Variable variable, String name, int defaultValue) {
@@ -342,9 +348,9 @@ public class NetCDFUtils {
         return array;
     }
 
-    public static Array readAndScaleIfNecessary(Variable angleVariable) throws IOException {
-        final Array longitudes = angleVariable.read();
-        return scaleIfNecessary(angleVariable, longitudes);
+    public static Array readAndScaleIfNecessary(Variable variable) throws IOException {
+        final Array dataArray = variable.read();
+        return scaleIfNecessary(variable, dataArray);
     }
 
     public static Array scaleIfNecessary(Variable variable, Array array) {
@@ -365,6 +371,37 @@ public class NetCDFUtils {
         return globalAttribute;
     }
 
+    // @todo 2 tb/** write tests for this method 2022-07-18
+    public static ArrayList<Attribute> getAttributes(Variable variable) {
+        final AttributeContainer inAtts = variable.attributes();
+        final double scaling = inAtts.findAttributeDouble(CF_SCALE_FACTOR_NAME, 1.0);
+        final double offset = inAtts.findAttributeDouble(CF_ADD_OFFSET_NAME, 0.0);
+        final Attribute fillAtt = inAtts.findAttribute(CF_FILL_VALUE_NAME);
+        final Number newFill;
+        if (fillAtt != null && (scaling != 1.0 || offset != 0.0)) {
+            final Number value = fillAtt.getNumericValue();
+            newFill = value.doubleValue() * scaling + offset;
+        } else {
+            newFill = null;
+        }
+
+        final ArrayList<Attribute> attributes = new ArrayList<>();
+        inAtts.forEach(attribute -> {
+            final String name = attribute.getShortName();
+            if (CF_SCALE_FACTOR_NAME.equals(name)) {
+                attributes.add(new Attribute(CF_SCALE_FACTOR_NAME, 1.0F));
+            } else if (CF_ADD_OFFSET_NAME.equals(name)) {
+                attributes.add(new Attribute(CF_ADD_OFFSET_NAME, 0.0F));
+            } else if (newFill != null && CF_FILL_VALUE_NAME.equals(name)) {
+                attributes.add(new Attribute(CF_FILL_VALUE_NAME, newFill.floatValue()));
+            } else if (!(name.contains("_Swath_Sampling") || CF_VALID_RANGE_NAME.equals(name))) {
+                attributes.add(attribute);
+            }
+        });
+        return attributes;
+    }
+
+
     public static double getScaleFactor(Variable variable) {
         double scaleFactor = NetCDFUtils.getAttributeDouble(variable, NetCDFUtils.CF_SCALE_FACTOR_NAME, Double.NaN);
         if (Double.isNaN(scaleFactor)) {
@@ -377,7 +414,7 @@ public class NetCDFUtils {
     }
 
     public static double getOffset(Variable variable) {
-        double scaleFactor = NetCDFUtils.getAttributeDouble(variable, NetCDFUtils.CF_OFFSET_NAME, Double.NaN);
+        double scaleFactor = NetCDFUtils.getAttributeDouble(variable, NetCDFUtils.CF_ADD_OFFSET_NAME, Double.NaN);
         if (Double.isNaN(scaleFactor)) {
             return 0.f;
         }

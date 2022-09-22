@@ -1,8 +1,22 @@
+### Updates from version 1.5.5 to 1.5.6
+* added support for SLSTR subset data processed by UoR
+* updated to use SNAP 9.0.0
+* corrected TAI 1993 to UTC conversion for MODIS data
+* added support for MODIS MxD035 cloud data
+* updated H2 database driver
+* added option for IngestionTool to update already existing entries
+* changed database to use relative archive paths and added migration tool
+* updated SLSTR reader to allow switching geo-coding source between tie-point/pixel
+* added database timeout to configuration
+* Updated ERA5 post-processing - simplify configuration
+
 ### Updates from version 1.5.4 to 1.5.5
+* updated to use SNAP version 8.0.9 / S3TBX version 8.0.6
+* updated to use Apache Commons DBCP2 2.9.0, postgres jdbc 42.3.3, MongoDB jdbc and bson 3.12.10, JUnit 4.13.2, Mockito 4.4.0
 * added shutdown hook for resource cleanup on hard shutdowns 
 * corrected fill value handling for time-variable in ERA-5 post processing
 * corrected ERA-5 raster position calculations
-corrected interpolation error in ERA-5 post processing
+* corrected interpolation error in ERA-5 post processing
 
 ### Updates from version 1.5.3 to 1.5.4
 * updated to use SNAP version 8.0.5 / S3TBX version 8.0.3

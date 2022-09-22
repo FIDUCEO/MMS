@@ -10,6 +10,7 @@ import org.junit.Test;
 import java.io.File;
 import java.io.IOException;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -22,6 +23,11 @@ public class ReaderContextTest {
     @Before
     public void setUp() {
         readerContext = new ReaderContext();
+    }
+
+    @Test
+    public void testConstruction() {
+        assertEquals("./config", readerContext.getConfigDir());
     }
 
     @Test
@@ -51,5 +57,11 @@ public class ReaderContextTest {
 
         readerContext.setArchive(archive);
         assertSame(archive, readerContext.getArchive());
+    }
+
+    @Test
+    public void testSetGetConfigDir() {
+        readerContext.setConfigDir("/the/secret/path");
+        assertEquals("/the/secret/path", readerContext.getConfigDir());
     }
 }

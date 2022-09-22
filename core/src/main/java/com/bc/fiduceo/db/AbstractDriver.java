@@ -38,12 +38,13 @@ import java.util.List;
 
 abstract class AbstractDriver implements Driver {
 
-    private static final String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss.S";
+    static final String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss.S";
 
     Connection connection;
 
     @Override
-    public void open(BasicDataSource dataSource) throws SQLException {
+    public void open(DatabaseConfig databaseConfig) throws SQLException {
+        final BasicDataSource dataSource = databaseConfig.getDataSource();
         try {
             final java.sql.Driver driverClass = (java.sql.Driver) Class.forName(dataSource.getDriverClassName()).newInstance();
             DriverManager.registerDriver(driverClass);
@@ -53,6 +54,8 @@ abstract class AbstractDriver implements Driver {
         connection = DriverManager.getConnection(dataSource.getUrl(),
                 dataSource.getUsername(),
                 dataSource.getPassword());
+
+        connection.setAutoCommit(false);
     }
 
     @Override
@@ -90,6 +93,8 @@ abstract class AbstractDriver implements Driver {
 
         connection.createStatement();
         statement.execute("DROP TABLE IF EXISTS SENSOR");
+
+        connection.commit();
     }
 
     @Override
@@ -108,6 +113,21 @@ abstract class AbstractDriver implements Driver {
             return generatedKeys.getInt(1);
         }
         return -1;
+    }
+
+    @Override
+    public void update(SatelliteObservation observation) throws SQLException {
+        final QueryParameter queryParameter = new QueryParameter();
+        final String path = observation.getDataFilePath().toString();
+        queryParameter.setPath(path);
+
+        final List<SatelliteObservation> observations = get(queryParameter);
+        if (observations.size() >= 1) {
+            final PreparedStatement preparedStatement = connection.prepareStatement("DELETE from SATELLITE_OBSERVATION AS obs where obs.DataFile = '" + path + "'");
+            preparedStatement.executeUpdate();
+
+            insert(observation);
+        }
     }
 
     @Override
@@ -131,6 +151,8 @@ abstract class AbstractDriver implements Driver {
     Integer getSensorId(String sensorName) throws SQLException {
         final Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
         final ResultSet resultSet = statement.executeQuery("SELECT ID FROM SENSOR WHERE NAME = '" + sensorName + "'");
+
+        connection.commit();
 
         if (resultSet.first()) {
             return resultSet.getInt("ID");

@@ -27,8 +27,6 @@ import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.geometry.LineString;
 import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.util.TimeUtils;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.io.WKTWriter;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -39,7 +37,6 @@ import java.util.List;
 public class H2Driver extends AbstractDriver {
 
     private GeometryFactory geometryFactory;
-    private WKTWriter wktWriter;
 
     @Override
     public String getUrlPattern() {
@@ -49,7 +46,6 @@ public class H2Driver extends AbstractDriver {
     @Override
     public void setGeometryFactory(GeometryFactory geometryFactory) {
         this.geometryFactory = geometryFactory;
-        wktWriter = new WKTWriter();
     }
 
     @Override
@@ -66,7 +62,7 @@ public class H2Driver extends AbstractDriver {
             sensorId = insert(sensor);
         }
 
-        PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO SATELLITE_OBSERVATION VALUES(default, ?, ?, ?, ?, ?, ?, ?)");
+        PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO SATELLITE_OBSERVATION VALUES(default, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
         preparedStatement.setTimestamp(1, TimeUtils.toTimestamp(observation.getStartTime()));
         preparedStatement.setTimestamp(2, TimeUtils.toTimestamp(observation.getStopTime()));
         preparedStatement.setByte(3, (byte) observation.getNodeType().toId());
@@ -109,29 +105,31 @@ public class H2Driver extends AbstractDriver {
             preparedStatement.setTimestamp(4, TimeUtils.toTimestamp(observation.getStopTime()));
             preparedStatement.executeUpdate();
         }
+
+        connection.commit();
     }
 
     @Override
-    public void updatePath(SatelliteObservation satelliteObservation, String newPath) throws SQLException {
-        final QueryParameter queryParameter = new QueryParameter();
-        queryParameter.setStartTime(satelliteObservation.getStartTime());
-        queryParameter.setStopTime(satelliteObservation.getStopTime());
-        queryParameter.setVersion(satelliteObservation.getVersion());
-        queryParameter.setPath(satelliteObservation.getDataFilePath().toString());
+    public AbstractBatch updatePathBatch(SatelliteObservation satelliteObservation, String newPath, AbstractBatch batch) throws SQLException {
+        if (batch == null) {
+            final PreparedStatement preparedStatement = connection.prepareStatement("UPDATE SATELLITE_OBSERVATION SET DataFile = ?  WHERE ID = ? ");
+            batch = new JdbcBatch(preparedStatement);
+        }
 
-        final Integer sensorId = getSensorId(satelliteObservation.getSensor().getName());
+        final PreparedStatement preparedStatement = (PreparedStatement) batch.getStatement();
+        preparedStatement.setString(1, newPath);
+        preparedStatement.setInt(2, satelliteObservation.getId());
+        preparedStatement.addBatch();
 
-        final StringBuilder sql = new StringBuilder();
-        sql.append("UPDATE SATELLITE_OBSERVATION AS obs SET DataFile = '");
-        sql.append(newPath);
-        sql.append("' ");
+        return batch;
+    }
 
-        appendWhereClause(queryParameter, sql);
-        sql.append(" AND obs.SensorId = ");
-        sql.append(sensorId);
+    @Override
+    public void commitBatch(AbstractBatch batch) throws SQLException {
+        final PreparedStatement preparedStatement = (PreparedStatement) batch.getStatement();
+        preparedStatement.executeBatch();
 
-        final PreparedStatement preparedStatement = connection.prepareStatement(sql.toString());
-        preparedStatement.executeUpdate();
+        connection.commit();
     }
 
     @Override
@@ -141,9 +139,6 @@ public class H2Driver extends AbstractDriver {
 
     @Override
     public List<SatelliteObservation> get(QueryParameter parameter) throws SQLException {
-
-        //org.h2.tools.Server.startWebServer(connection);
-
         final Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
         final String sql = createSql(parameter);
         final ResultSet resultSet = statement.executeQuery(sql);
@@ -156,6 +151,7 @@ public class H2Driver extends AbstractDriver {
             final SatelliteObservation observation = new SatelliteObservation();
 
             final int observationId = resultSet.getInt("id");
+            observation.setId(observationId);
 
             final Timestamp startDate = resultSet.getTimestamp("StartDate");
             observation.setStartTime(TimeUtils.toDate(startDate));
@@ -166,9 +162,9 @@ public class H2Driver extends AbstractDriver {
             final int nodeTypeId = resultSet.getInt("NodeType");
             observation.setNodeType(NodeType.fromId(nodeTypeId));
 
-            final Geometry geoBounds = (Geometry) resultSet.getObject("GeoBounds");
+            final Object geoBounds = resultSet.getObject("GeoBounds");
             if (geoBounds != null) {
-                final String geoBoundsWkt = wktWriter.write(geoBounds);
+                final String geoBoundsWkt = geoBounds.toString();
                 final com.bc.fiduceo.geometry.Geometry geometry = geometryFactory.fromStorageFormat(geoBoundsWkt.getBytes());
                 observation.setGeoBounds(geometry);
             }
@@ -201,17 +197,15 @@ public class H2Driver extends AbstractDriver {
             resultList.add(observation);
         }
 
-        //org.h2.tools.Server.startWebServer(connection);
-
         return resultList;
     }
 
     private TimeAxis getTimeAxis(ResultSet resultSet) throws SQLException {
-        final Geometry axis = (Geometry) resultSet.getObject("Axis");
+        final Object axis = resultSet.getObject("Axis");
         if (axis == null) {
             return null;
         }
-        final String axisWkt = wktWriter.write(axis);
+        final String axisWkt = axis.toString();
         final LineString axisGeometry = (LineString) geometryFactory.fromStorageFormat(axisWkt.getBytes());
 
         final Timestamp startTime = resultSet.getTimestamp("StartTime");

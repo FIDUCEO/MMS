@@ -27,24 +27,11 @@ import org.jdom.output.XMLOutputter;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
-import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -73,31 +60,27 @@ public class PostProcessingConfigTest {
     }
 
     @Test
-    public void testStore() {
-
+    public void testStore() throws Exception {
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        try {
-            getConfig().store(outputStream);
-            final StringWriter sw = new StringWriter();
-            final PrintWriter pw = new PrintWriter(sw);
-            pw.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-            pw.println("<post-processing-config>");
-            pw.println("  <create-new-files>");
-            pw.println("    <output-directory>An_Output_Directory</output-directory>");
-            pw.println("  </create-new-files>");
-            pw.println("  <post-processings>");
-            pw.println("        <" + DUMMY_NAME + ">A</" + DUMMY_NAME + ">");
-            pw.println("        <" + DUMMY_NAME + ">B</" + DUMMY_NAME + ">");
-            pw.println("        <" + DUMMY_NAME + ">C</" + DUMMY_NAME + ">");
-            pw.println("  </post-processings>");
-            pw.println("</post-processing-config>");
-            pw.flush();
+        getConfig().store(outputStream);
 
-            assertThat(sw.toString(), equalToIgnoringWhiteSpace(outputStream.toString()));
+        final StringWriter sw = new StringWriter();
+        final PrintWriter pw = new PrintWriter(sw);
+        pw.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+        pw.println("<post-processing-config>");
+        pw.println("  <create-new-files>");
+        pw.println("    <output-directory>An_Output_Directory</output-directory>");
+        pw.println("  </create-new-files>");
+        pw.println("  <post-processings>");
+        pw.println("    <" + DUMMY_NAME + ">A</" + DUMMY_NAME + ">");
+        pw.println("    <" + DUMMY_NAME + ">B</" + DUMMY_NAME + ">");
+        pw.println("    <" + DUMMY_NAME + ">C</" + DUMMY_NAME + ">");
+        pw.println("  </post-processings>");
+        pw.println("</post-processing-config>");
+//        pw.println();
+        pw.flush();
 
-        } catch (Exception e) {
-            fail("should never come here");
-        }
+        assertEquals(sw.toString().replaceAll("\\s+",""), outputStream.toString().replaceAll("\\s+",""));
     }
 
     @Test
@@ -130,20 +113,20 @@ public class PostProcessingConfigTest {
     public void testLoad_createNewFiles() throws Exception {
         final PostProcessingConfig config = getConfig();
 
-        assertThat(config.isNewFiles(), equalTo(true));
-        assertThat(config.getOutputDirectory(), equalTo("An_Output_Directory"));
+        assertTrue(config.isNewFiles());
+        assertEquals("An_Output_Directory", config.getOutputDirectory());
     }
 
     @Test
-    public void testLoad_override() throws Exception {
+    public void testLoad_overwrite() throws Exception {
         root.removeChild(NEW_FILES);
         root.addContent(new Element(OVERWRITE));
 
         final PostProcessingConfig config = getConfig();
 
-        assertThat(config.isOverwrite(), equalTo(true));
-        assertThat(config.isNewFiles(), equalTo(false));
-        assertThat(config.getOutputDirectory(), equalTo(null));
+        assertTrue(config.isOverwrite());
+        assertFalse(config.isNewFiles());
+        assertNull(config.getOutputDirectory());
     }
 
     @Test
@@ -155,8 +138,8 @@ public class PostProcessingConfigTest {
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
             final String message = expected.getMessage();
-            assertThat(message, startsWith("Unable to initialize post processing configuration: "));
-            assertThat(message, containsString("Tag <" + NEW_FILES + "> and <" + OVERWRITE + "> is not allowed at the same time."));
+            assertTrue(message.startsWith("Unable to initialize post processing configuration: "));
+            assertTrue(message.contains("Tag <" + NEW_FILES + "> and <" + OVERWRITE + "> is not allowed at the same time."));
         }
     }
 
@@ -169,8 +152,8 @@ public class PostProcessingConfigTest {
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
             final String message = expected.getMessage();
-            assertThat(message, startsWith("Unable to initialize post processing configuration: "));
-            assertThat(message, containsString("Either <" + NEW_FILES + "> or <" + OVERWRITE + "> must be configured."));
+            assertTrue(message.startsWith("Unable to initialize post processing configuration: "));
+            assertTrue(message.contains("Either <" + NEW_FILES + "> or <" + OVERWRITE + "> must be configured."));
         }
     }
 
@@ -182,13 +165,13 @@ public class PostProcessingConfigTest {
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
             final String message = expected.getMessage();
-            assertThat(message, startsWith("Unable to initialize post processing configuration: "));
-            assertThat(message, containsString("Empty list of post processings."));
+            assertTrue(message.startsWith("Unable to initialize post processing configuration: "));
+            assertTrue(message.contains("Empty list of post processings."));
         }
     }
 
     @Test
-    public void testLoad_CauseIsJDOMParseException() throws Exception {
+    public void testLoad_CauseIsJDOMParseException() {
         final InputStream inputStream = new ByteArrayInputStream("<?xml version=\"1.0\" encoding=\"UTF-8\"?><post-processing-".getBytes());
         try {
             PostProcessingConfig.load(inputStream);
@@ -200,7 +183,7 @@ public class PostProcessingConfigTest {
     }
 
     @Test
-    public void testLoad_CauseIsRuntimeException() throws Exception {
+    public void testLoad_CauseIsRuntimeException() {
         final InputStream inputStream = new ByteArrayInputStream("<?xml version=\"1.0\" encoding=\"UTF-8\"?><post-processing-config/>".getBytes());
         try {
             PostProcessingConfig.load(inputStream);

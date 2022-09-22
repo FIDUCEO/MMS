@@ -164,22 +164,19 @@ public class MatchupToolIntegrationTest_useCase_01 extends AbstractUsecaseIntegr
     private void insert_AVHRR_GAC_NOAA18_v013() throws IOException, SQLException {
         final String dataVersion = "v01.3";
         final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n18", dataVersion, "2006", "02", "15", "20060215060600-ESACCI-L1C-AVHRR18_G-fv01.0.nc"}, true);
-        final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
-        final SatelliteObservation noaa18 = readSatelliteObservation("avhrr-n18", absolutePath, dataVersion);
+        final SatelliteObservation noaa18 = readSatelliteObservation("avhrr-n18", relativeArchivePath, dataVersion);
         storage.insert(noaa18);
 
     }private void insert_AVHRR_GAC_NOAA18_v014_CSPP() throws IOException, SQLException {
         final String dataVersion = "v01.4-cspp";
         final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{"avhrr-n18", dataVersion, "2006", "02", "15", "20060215060600-ESACCI-L1C-AVHRR18_G-fv01.0.nc"}, true);
-        final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
-        final SatelliteObservation noaa18 = readSatelliteObservation("avhrr-n18", absolutePath, dataVersion);
+        final SatelliteObservation noaa18 = readSatelliteObservation("avhrr-n18", relativeArchivePath, dataVersion);
         storage.insert(noaa18);
     }
 
     private void insert_AATSR() throws IOException, SQLException {
         final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{"aatsr-en", "v3", "2006", "02", "15", "ATS_TOA_1PUUPA20060215_070852_000065272045_00120_20715_4282.N1"}, true);
-        final String absolutePath = TestUtil.getTestDataDirectory().getAbsolutePath() + relativeArchivePath;
-        final SatelliteObservation aatsr = readSatelliteObservation("aatsr-en", absolutePath, "v3");
+        final SatelliteObservation aatsr = readSatelliteObservation("aatsr-en", relativeArchivePath, "v3");
         storage.insert(aatsr);
     }
 
