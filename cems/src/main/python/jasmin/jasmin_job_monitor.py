@@ -37,7 +37,7 @@ class JasminJobMonitor:
 
             return 0
         except (RuntimeError, ValueError) as e:
-            sys.stderr.write(e)
+            sys.stderr.write(str(e))
             return 1
 
     @staticmethod
@@ -220,7 +220,8 @@ class SLURMInterface:
     def _extract_id_and_status(self, line):
         tokens = line.split()
 
-        if len(tokens) < 8:
+        # seven tokens are used for canceled jobs, 8 is standard tb 2022-09-21
+        if len(tokens) < 7:
             raise ValueError("unable to handle 'squeue' result: " + line)
 
         status_code = self._status_to_enum(tokens[4])

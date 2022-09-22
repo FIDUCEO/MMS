@@ -158,7 +158,7 @@ class Workflow:
                 try:
                     sensor_pair = SensorPair(p, p, self.get_production_period())
                     sensor_pairs.add(sensor_pair)
-                except exceptions.ValueError:
+                except ValueError:
                     pass
         return sorted(list(sensor_pairs), reverse=True)
 
@@ -203,7 +203,7 @@ class Workflow:
         sensors = self._get_primary_sensors()
         for sensor in sensors:
             sensor_period = sensor.get_period()
-            date = sensor_period.get_start_date()- datetime.timedelta(days=1)
+            date = sensor_period.get_start_date() - datetime.timedelta(days=1)
             while date < sensor_period.get_end_date():
                 chunk = self._get_next_period(date)
                 if chunk is None:
