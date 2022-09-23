@@ -2,8 +2,9 @@ package com.bc.fiduceo.post.plugin.era5;
 
 import org.esa.snap.core.util.StringUtils;
 
-class MatchupFieldsConfiguration {
+class MatchupFieldsConfiguration extends FieldsConfiguration {
 
+    public static final String INSITU_REF = "{insitu-ref}";
     private String an_u10_name;
     private String an_v10_name;
     private String an_siconc_name;
@@ -22,6 +23,7 @@ class MatchupFieldsConfiguration {
     private String longitude_variable_name;
     private String latitude_variable_name;
     private String nwp_time_variable_name;
+    private String insituRef;
 
     MatchupFieldsConfiguration() {
         an_u10_name = "nwp_mu_u10";
@@ -42,10 +44,11 @@ class MatchupFieldsConfiguration {
         longitude_variable_name = null;
         latitude_variable_name = null;
         nwp_time_variable_name = null;
+        insituRef = null;
     }
 
     String get_an_u10_name() {
-        return an_u10_name;
+        return expand(an_u10_name);
     }
 
     void set_an_u10_name(String an_u10_name) {
@@ -53,7 +56,7 @@ class MatchupFieldsConfiguration {
     }
 
     String get_an_v10_name() {
-        return an_v10_name;
+        return expand(an_v10_name);
     }
 
     void set_an_v10_name(String an_v10_name) {
@@ -61,7 +64,7 @@ class MatchupFieldsConfiguration {
     }
 
     String get_an_siconc_name() {
-        return an_siconc_name;
+        return expand(an_siconc_name);
     }
 
     void set_an_siconc_name(String an_siconc_name) {
@@ -69,7 +72,7 @@ class MatchupFieldsConfiguration {
     }
 
     String get_an_sst_name() {
-        return an_sst_name;
+        return expand(an_sst_name);
     }
 
     void set_an_sst_name(String an_sst_name) {
@@ -77,7 +80,7 @@ class MatchupFieldsConfiguration {
     }
 
     String get_fc_metss_name() {
-        return fc_metss_name;
+        return expand(fc_metss_name);
     }
 
     void set_fc_metss_name(String fc_metss_name) {
@@ -85,7 +88,7 @@ class MatchupFieldsConfiguration {
     }
 
     String get_fc_mntss_name() {
-        return fc_mntss_name;
+        return expand(fc_mntss_name);
     }
 
     void set_fc_mntss_name(String fc_mntss_name) {
@@ -93,7 +96,7 @@ class MatchupFieldsConfiguration {
     }
 
     String get_fc_mslhf_name() {
-        return fc_mslhf_name;
+        return expand(fc_mslhf_name);
     }
 
     void set_fc_mslhf_name(String fc_mslhf_name) {
@@ -101,7 +104,7 @@ class MatchupFieldsConfiguration {
     }
 
     String get_fc_msnlwrf_name() {
-        return fc_msnlwrf_name;
+        return expand(fc_msnlwrf_name);
     }
 
     void set_fc_msnlwrf_name(String fc_msnlwrf_name) {
@@ -109,7 +112,7 @@ class MatchupFieldsConfiguration {
     }
 
     String get_fc_msnswrf_name() {
-        return fc_msnswrf_name;
+        return expand(fc_msnswrf_name);
     }
 
     void set_fc_msnswrf_name(String fc_msnswrf_name) {
@@ -117,7 +120,7 @@ class MatchupFieldsConfiguration {
     }
 
     String get_fc_msshf_name() {
-        return fc_msshf_name;
+        return expand(fc_msshf_name);
     }
 
     void set_fc_msshf_name(String fc_msshf_name) {
@@ -149,7 +152,7 @@ class MatchupFieldsConfiguration {
     }
 
     String get_time_variable_name() {
-        return time_variable_name;
+        return expand(time_variable_name);
     }
 
     void set_time_variable_name(String time_variable_name) {
@@ -157,7 +160,7 @@ class MatchupFieldsConfiguration {
     }
 
     String get_longitude_variable_name() {
-        return longitude_variable_name;
+        return expand(longitude_variable_name);
     }
 
     void set_longitude_variable_name(String longitude_variable_name) {
@@ -165,7 +168,7 @@ class MatchupFieldsConfiguration {
     }
 
     String get_latitude_variable_name() {
-        return latitude_variable_name;
+        return expand(latitude_variable_name);
     }
 
     void set_latitude_variable_name(String latitude_variable_name) {
@@ -173,11 +176,19 @@ class MatchupFieldsConfiguration {
     }
 
     String get_nwp_time_variable_name() {
-        return nwp_time_variable_name;
+        return expand(nwp_time_variable_name);
     }
 
     void set_nwp_time_variable_name(String nwp_time_variable_name) {
         this.nwp_time_variable_name = nwp_time_variable_name;
+    }
+
+    public String getInsituRef() {
+        return insituRef;
+    }
+
+    public void setInsituRef(String insituRef) {
+        this.insituRef = insituRef;
     }
 
     boolean verify() {
@@ -203,5 +214,9 @@ class MatchupFieldsConfiguration {
             throw new IllegalArgumentException("nwp time variable name not configured");
         }
         return true;
+    }
+
+    private String expand(String variableName) {
+        return expand(variableName, INSITU_REF, insituRef);
     }
 }

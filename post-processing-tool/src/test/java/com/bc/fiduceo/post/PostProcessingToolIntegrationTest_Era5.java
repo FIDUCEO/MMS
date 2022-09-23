@@ -34,7 +34,10 @@ import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFiles;
 import ucar.nc2.Variable;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 import static org.junit.Assert.*;
 
@@ -247,6 +250,61 @@ public class PostProcessingToolIntegrationTest_Era5 {
         }
     }
 
+    @Test
+    public void testAddEra5Variables_coo1_using_sensorRef() throws IOException, InvalidRangeException {
+        final File inputDir = getInputDirectory_coo1();
+
+        writeConfiguration_coo1_with_sensorRef();
+
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-start", "2008-149", "-end", "2008-155",
+                "-i", inputDir.getAbsolutePath(), "-j", "post-processing-config.xml"};
+
+        PostProcessingToolMain.main(args);
+
+        final File targetFile = new File(testDirectory, "coo_1_slstr-s3a-nt_avhrr-frac-ma_2008-149_2008-155.nc");
+        assertTrue(targetFile.isFile());
+
+        try (NetcdfFile mmd = NetcdfFiles.open(targetFile.getAbsolutePath())) {
+            NCTestUtils.assertGlobalAttribute(mmd, "era5-collection", "ERA_5");
+
+            Variable variable = NCTestUtils.getVariable("avhrr-frac-ma_delta_azimuth", mmd, false);
+            NCTestUtils.assert3DValueDouble(0, 0, 0, 11.972550392150879, variable);
+            NCTestUtils.assert3DValueDouble(1, 0, 0, 11.975187301635742, variable);
+
+            NCTestUtils.assertDimension(FiduceoConstants.MATCHUP_COUNT, 1, mmd);
+
+            // satellite fields
+            NCTestUtils.assertDimension("slstr.s3a.nt_nwp_x", 1, mmd);
+            NCTestUtils.assertDimension("slstr.s3a.nt_nwp_y", 1, mmd);
+            NCTestUtils.assertDimension("slstr.s3a.nt_nwp_z", 137, mmd);
+
+            variable = NCTestUtils.getVariable("nwp_lnsp", mmd);
+            NCTestUtils.assertAttribute(variable, "units", "~");
+            NCTestUtils.assert3DVariable(variable.getFullName(), 0, 0, 0, 11.525882720947266, mmd);
+
+            variable = NCTestUtils.getVariable("nwp_o3", mmd);
+            NCTestUtils.assertAttribute(variable, "units", "kg kg**-1");
+            NCTestUtils.assert4DVariable(variable.getFullName(), 0, 0, 0, 0, 1.9407424645123683E-7, mmd);
+            NCTestUtils.assert4DVariable(variable.getFullName(), 0, 0, 10, 0, 3.718567541000084E-6, mmd);
+            NCTestUtils.assert4DVariable(variable.getFullName(), 0, 0, 20, 0, 9.952551408787258E-6, mmd);
+
+            variable = NCTestUtils.getVariable("nwp_u10", mmd);
+            assertNull(variable.findAttribute("standard_name"));
+            NCTestUtils.assert3DValueDouble(0, 0, 0, -0.9742769598960876, variable);
+
+            variable = NCTestUtils.getVariable("nwp_skt", mmd);
+            NCTestUtils.assertAttribute(variable, "long_name", "Skin temperature");
+            NCTestUtils.assert3DValueDouble(0, 0, 0, 301.2406311035156, variable);
+
+            variable = NCTestUtils.getVariable("slstr-s3a-nt.blowVert", mmd);
+            NCTestUtils.assertAttribute(variable, "long_name", "10 metre V wind component");
+            NCTestUtils.assert3DValueDouble(0, 0, 0, 3.4361371994018555, variable);
+
+            variable = NCTestUtils.getVariable("slstr-s3a-nt_nwp_time", mmd);
+            NCTestUtils.assert1DValueLong(0, 1212400800, variable);
+        }
+    }
+
     private void writeConfiguration_mmd15() throws IOException {
         final File testDataDirectory = TestUtil.getTestDataDirectory();
         final File era5Dir = new File(testDataDirectory, "era-5/v1");
@@ -317,7 +375,7 @@ public class PostProcessingToolIntegrationTest_Era5 {
         configBuffer.append("                <z_dim name='slstr.s3a.nt_nwp_z' />");
         configBuffer.append("                <era5_time_variable>slstr.s3ant_nwp_time</era5_time_variable>");
         configBuffer.append("                <time_variable>slstr-s3a-nt_acquisition_time</time_variable>");
-        configBuffer.append("                <longitude_variable>slstr-s3a-nt_longitude_tx</longitude_variable>" );
+        configBuffer.append("                <longitude_variable>slstr-s3a-nt_longitude_tx</longitude_variable>");
         configBuffer.append("                <latitude_variable>slstr-s3a-nt_latitude_tx</latitude_variable>");
         configBuffer.append("                <an_sfc_v10>slstr.s3a.blowVert</an_sfc_v10>");
         configBuffer.append("            </satellite-fields>");
@@ -330,6 +388,43 @@ public class PostProcessingToolIntegrationTest_Era5 {
             fail("unable to create test file");
         }
         TestUtil.writeStringTo(postProcessingConfigFile, configBuffer.toString());
+    }
+
+    private void writeConfiguration_coo1_with_sensorRef() throws IOException {
+        final File testDataDirectory = TestUtil.getTestDataDirectory();
+        final File era5Dir = new File(testDataDirectory, "era-5/v1");
+
+        String configBuffer = "<post-processing-config>\n" +
+                "    <create-new-files>\n" +
+                "        <output-directory>\n" +
+                testDirectory.getAbsolutePath() +
+                "        </output-directory>\n" +
+                "    </create-new-files>\n" +
+                "    <post-processings>\n" +
+                "        <era5>\n" +
+                "            <nwp-aux-dir>\n" +
+                era5Dir.getAbsolutePath() +
+                "            </nwp-aux-dir>\n" +
+                "            <satellite-fields>" +
+                "                <sensor-ref>slstr-s3a-nt</sensor-ref>" +
+                "                <x_dim name='slstr.s3a.nt_nwp_x' length='1' />" +
+                "                <y_dim name='slstr.s3a.nt_nwp_y' length='1' />" +
+                "                <z_dim name='slstr.s3a.nt_nwp_z' />" +
+                "                <era5_time_variable>{sensor-ref}_nwp_time</era5_time_variable>" +
+                "                <time_variable>{sensor-ref}_acquisition_time</time_variable>" +
+                "                <longitude_variable>{sensor-ref}_longitude_tx</longitude_variable>" +
+                "                <latitude_variable>{sensor-ref}_latitude_tx</latitude_variable>" +
+                "                <an_sfc_v10>{sensor-ref}.blowVert</an_sfc_v10>" +
+                "            </satellite-fields>" +
+                "        </era5>\n" +
+                "    </post-processings>\n" +
+                "</post-processing-config>";
+
+        final File postProcessingConfigFile = new File(configDir, "post-processing-config.xml");
+        if (!postProcessingConfigFile.createNewFile()) {
+            fail("unable to create test file");
+        }
+        TestUtil.writeStringTo(postProcessingConfigFile, configBuffer);
     }
 
     private File getInputDirectory_mmd15() throws IOException {
@@ -348,9 +443,9 @@ public class PostProcessingToolIntegrationTest_Era5 {
         if (inputFiles == null) {
             throw new IOException("invalid directory path: " + inputDir.getAbsolutePath());
         }
-        final  byte[] buffer = new byte[32768];
+        final byte[] buffer = new byte[32768];
 
-        for (final File inputFile: inputFiles) {
+        for (final File inputFile : inputFiles) {
             final String filename = FileUtils.getFilenameFromPath(inputFile.toString());
             final File targetFile = new File(outputDir, filename);
 

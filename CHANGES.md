@@ -8,6 +8,7 @@
 * changed database to use relative archive paths and added migration tool
 * updated SLSTR reader to allow switching geo-coding source between tie-point/pixel
 * added database timeout to configuration
+* Updated ERA5 post-processing - simplify configuration
 
 ### Updates from version 1.5.4 to 1.5.5
 * updated to use SNAP version 8.0.9 / S3TBX version 8.0.6

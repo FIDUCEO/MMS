@@ -30,6 +30,7 @@ public class MatchupFieldsConfigurationTest {
 
         assertEquals(-1, config.get_time_steps_past());
         assertEquals(-1, config.get_time_steps_future());
+        assertNull(config.getInsituRef());
     }
 
     @Test
@@ -132,6 +133,59 @@ public class MatchupFieldsConfigurationTest {
     public void testSetGet_nwp_time_variable_name() {
         config.set_nwp_time_variable_name("the_time");
         assertEquals("the_time", config.get_nwp_time_variable_name());
+    }
+
+    @Test
+    public void testSetGetInsituRef() {
+        config.setInsituRef("the_buoy");
+        assertEquals("the_buoy", config.getInsituRef());
+    }
+
+    @Test
+    public void testGetVariablesWithReplacement() {
+        config.setInsituRef("A-ship-track");
+
+        config.set_latitude_variable_name("{insitu-ref}_insitu.lat");
+        assertEquals("A-ship-track_insitu.lat", config.get_latitude_variable_name());
+
+        config.set_longitude_variable_name("{insitu-ref}_insitu.lon");
+        assertEquals("A-ship-track_insitu.lon", config.get_longitude_variable_name());
+
+        config.set_nwp_time_variable_name("tick-tack");
+        assertEquals("tick-tack", config.get_nwp_time_variable_name());
+
+        config.set_time_variable_name("once{insitu-ref}inbetween");
+        assertEquals("onceA-ship-trackinbetween", config.get_time_variable_name());
+
+        config.set_an_u10_name("{insitu-ref}_insitu.u10");
+        assertEquals("A-ship-track_insitu.u10", config.get_an_u10_name());
+
+        config.set_an_v10_name("{insitu-ref}_insitu.v10");
+        assertEquals("A-ship-track_insitu.v10", config.get_an_v10_name());
+
+        config.set_an_siconc_name("an_{insitu-ref}_insitu.siconc");
+        assertEquals("an_A-ship-track_insitu.siconc", config.get_an_siconc_name());
+
+        config.set_an_sst_name("an_{insitu-ref}_insitu.sst");
+        assertEquals("an_A-ship-track_insitu.sst", config.get_an_sst_name());
+
+        config.set_fc_metss_name("fc_{insitu-ref}_insitu.metss");
+        assertEquals("fc_A-ship-track_insitu.metss", config.get_fc_metss_name());
+
+        config.set_fc_mntss_name("{insitu-ref}_insitu.mntss");
+        assertEquals("A-ship-track_insitu.mntss", config.get_fc_mntss_name());
+
+        config.set_fc_mslhf_name("{insitu-ref}_insitu.mslhf");
+        assertEquals("A-ship-track_insitu.mslhf", config.get_fc_mslhf_name());
+
+        config.set_fc_msnlwrf_name("{insitu-ref}_insitu.msnlwrf");
+        assertEquals("A-ship-track_insitu.msnlwrf", config.get_fc_msnlwrf_name());
+
+        config.set_fc_msnswrf_name("{insitu-ref}_insitu.msnswrf");
+        assertEquals("A-ship-track_insitu.msnswrf", config.get_fc_msnswrf_name());
+
+        config.set_fc_msshf_name("{insitu-ref}_insitu.msshf");
+        assertEquals("A-ship-track_insitu.msshf", config.get_fc_msshf_name());
     }
 
     @Test

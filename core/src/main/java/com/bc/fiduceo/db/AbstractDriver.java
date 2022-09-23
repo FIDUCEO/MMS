@@ -152,6 +152,8 @@ abstract class AbstractDriver implements Driver {
         final Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
         final ResultSet resultSet = statement.executeQuery("SELECT ID FROM SENSOR WHERE NAME = '" + sensorName + "'");
 
+        connection.commit();
+
         if (resultSet.first()) {
             return resultSet.getInt("ID");
         } else {
