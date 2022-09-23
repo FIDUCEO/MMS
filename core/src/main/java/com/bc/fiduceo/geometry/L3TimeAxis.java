@@ -8,10 +8,12 @@ public class L3TimeAxis implements TimeAxis {
 
     private final Date startDate;
     private final Date stopDate;
+    private final Geometry geometry;
 
-    public L3TimeAxis(Date startDate, Date stopDate) {
+    public L3TimeAxis(Date startDate, Date stopDate, Geometry geometry) {
         this.startDate = startDate;
         this.stopDate = stopDate;
+        this.geometry = geometry;
     }
 
     @Override
@@ -26,7 +28,9 @@ public class L3TimeAxis implements TimeAxis {
 
     @Override
     public Date getTime(Point coordinate) {
-        return null;
+        final long avgTime = (stopDate.getTime() + startDate.getTime()) / 2;
+
+        return new Date(avgTime);
     }
 
     @Override
@@ -41,7 +45,7 @@ public class L3TimeAxis implements TimeAxis {
 
     @Override
     public Geometry getGeometry() {
-        return null;
+        return geometry;
     }
 
     @Override

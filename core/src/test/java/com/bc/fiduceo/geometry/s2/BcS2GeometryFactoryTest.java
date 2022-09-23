@@ -65,12 +65,28 @@ public class BcS2GeometryFactoryTest {
         assertNotNull(geometry);
         assertTrue(geometry instanceof BcS2LineString);
 
-        Point[] coordinates = geometry.getCoordinates();
+        final Point[] coordinates = geometry.getCoordinates();
+        assertEquals(4, coordinates.length);
         assertEquals(coordinates[0].getLon(), 1.9999999999999996, 1e-8);
         assertEquals(coordinates[0].getLat(), 1.0, 1e-8);
 
         assertEquals(coordinates[3].getLon(), 5.0, 1e-8);
         assertEquals(coordinates[3].getLat(), 4.0, 1e-8);
+    }
+
+    @Test
+    public void testMultiLineString() {
+        final Geometry geometry = factory.parse("MULTILINESTRING((0 1, 1 1), (1 4, 3 4))");
+        assertNotNull(geometry);
+        assertTrue(geometry instanceof BcS2MultiLineString);
+
+        Point[] coordinates = geometry.getCoordinates();
+        assertEquals(4, coordinates.length);
+        assertEquals(0.0, coordinates[0].getLon(), 1e-8);
+        assertEquals( 1.0, coordinates[0].getLat(),1e-8);
+
+        assertEquals( 3.0, coordinates[3].getLon(),1e-8);
+        assertEquals( 4.0, coordinates[3].getLat(),1e-8);
     }
 
     @Test

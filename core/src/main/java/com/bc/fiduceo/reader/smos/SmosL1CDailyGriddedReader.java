@@ -22,6 +22,7 @@ import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -72,46 +73,9 @@ class SmosL1CDailyGriddedReader extends NetCDFReader {
         final Polygon polygon = extractPolygonFromMinMax(longitudes, latitudes, readerContext.getGeometryFactory());
         acquisitionInfo.setBoundingGeometry(polygon);
 
-        final String location = netcdfFile.getLocation();
-        final String filename = FileUtils.getFilenameFromPath(location);
-        final int[] ymd = extractYearMonthDayFromFilename(filename);
-        final Calendar utcCalendar = TimeUtils.getUTCCalendar();
-        utcCalendar.set(Calendar.YEAR, ymd[0]);
-        utcCalendar.set(Calendar.MONTH, ymd[1] - 1);    // month is zero-based tb 2022-09-15
-        utcCalendar.set(Calendar.DAY_OF_MONTH, ymd[2]);
-
-        acquisitionInfo.setSensingStart(utcCalendar.getTime());
-
-        utcCalendar.set(Calendar.HOUR, 23);
-        utcCalendar.set(Calendar.MINUTE, 59);
-        utcCalendar.set(Calendar.SECOND, 59);
-
-        acquisitionInfo.setSensingStop(utcCalendar.getTime());
+        setSensingTimes(acquisitionInfo);
 
         return acquisitionInfo;
-    }
-
-    // package access for testing only tb 2022-09-15
-    static Polygon extractPolygonFromMinMax(Array longitudes, Array latitudes, GeometryFactory geometryFactory) {
-        int size = (int) longitudes.getSize();
-        final double lonMin = longitudes.getDouble(0);
-        final double lonMax = longitudes.getDouble(size - 1);
-
-        size = (int) latitudes.getSize();
-        final double latMin = latitudes.getDouble(0);
-        final double latMax = latitudes.getDouble(size - 1);
-
-        final Point ll = geometryFactory.createPoint(lonMin, latMin);
-        final Point ul = geometryFactory.createPoint(lonMin, latMax);
-        final Point ur = geometryFactory.createPoint(lonMax, latMax);
-        final Point lr = geometryFactory.createPoint(lonMax, latMin);
-        final ArrayList<Point> polygonPoints = new ArrayList<>();
-        polygonPoints.add(ll);
-        polygonPoints.add(ul);
-        polygonPoints.add(ur);
-        polygonPoints.add(lr);
-        polygonPoints.add(ll);
-        return geometryFactory.createPolygon(polygonPoints);
     }
 
     @Override
@@ -185,7 +149,7 @@ class SmosL1CDailyGriddedReader extends NetCDFReader {
         final int oneMb = 1024 * 1024;
 
         try {
-            final BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(file));
+            final BufferedInputStream inputStream = new BufferedInputStream(Files.newInputStream(file.toPath()));
             final GzipCompressorInputStream gzipIn = new GzipCompressorInputStream(inputStream);
             tarIn = new TarArchiveInputStream(gzipIn);
 
@@ -213,5 +177,47 @@ class SmosL1CDailyGriddedReader extends NetCDFReader {
                 tarIn.close();
             }
         }
+    }
+
+    private void setSensingTimes(AcquisitionInfo acquisitionInfo) {
+        final String location = netcdfFile.getLocation();
+        final String filename = FileUtils.getFilenameFromPath(location);
+        final int[] ymd = extractYearMonthDayFromFilename(filename);
+
+        final Calendar utcCalendar = TimeUtils.getUTCCalendar();
+        utcCalendar.set(Calendar.YEAR, ymd[0]);
+        utcCalendar.set(Calendar.MONTH, ymd[1] - 1);    // month is zero-based tb 2022-09-15
+        utcCalendar.set(Calendar.DAY_OF_MONTH, ymd[2]);
+
+        acquisitionInfo.setSensingStart(utcCalendar.getTime());
+
+        utcCalendar.set(Calendar.HOUR, 23);
+        utcCalendar.set(Calendar.MINUTE, 59);
+        utcCalendar.set(Calendar.SECOND, 59);
+
+        acquisitionInfo.setSensingStop(utcCalendar.getTime());
+    }
+
+    // package access for testing only tb 2022-09-15
+    static Polygon extractPolygonFromMinMax(Array longitudes, Array latitudes, GeometryFactory geometryFactory) {
+        int size = (int) longitudes.getSize();
+        final double lonMin = longitudes.getDouble(0);
+        final double lonMax = longitudes.getDouble(size - 1);
+
+        size = (int) latitudes.getSize();
+        final double latMin = latitudes.getDouble(0);
+        final double latMax = latitudes.getDouble(size - 1);
+
+        final Point ll = geometryFactory.createPoint(lonMin, latMin);
+        final Point ul = geometryFactory.createPoint(lonMin, latMax);
+        final Point ur = geometryFactory.createPoint(lonMax, latMax);
+        final Point lr = geometryFactory.createPoint(lonMax, latMin);
+        final ArrayList<Point> polygonPoints = new ArrayList<>();
+        polygonPoints.add(ll);
+        polygonPoints.add(ul);
+        polygonPoints.add(ur);
+        polygonPoints.add(lr);
+        polygonPoints.add(ll);
+        return geometryFactory.createPolygon(polygonPoints);
     }
 }

@@ -9,16 +9,20 @@ import org.junit.Test;
 import java.util.Date;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class L3TimeAxisTest {
 
     private L3TimeAxis timeAxis;
 
     @Before
-    public void setUp(){
+    public void setUp() {
         final Date startDate = TimeUtils.parse("20190107T000000", "yyyyMMdd'T'HHmmss");
         final Date stopDate = TimeUtils.parse("20190107T235959", "yyyyMMdd'T'HHmmss");
-        timeAxis = new L3TimeAxis(startDate, stopDate);
+
+        final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
+        final Geometry multiLineString = geometryFactory.parse("MULTILINESTRING((-180 0, 180 0), (0 -90, 0 90))");
+        timeAxis = new L3TimeAxis(startDate, stopDate, multiLineString);
     }
 
     @Test
@@ -50,6 +54,17 @@ public class L3TimeAxisTest {
     @Test
     public void testGetDurationInMillis() {
         assertEquals(86399000, timeAxis.getDurationInMillis());
+    }
 
+    @Test
+    public void testGetTime() {
+        final Date time = timeAxis.getTime(null);// the location is not important tb 2022-09-23
+        TestUtil.assertCorrectUTCDate(2019, 1, 7, 11, 59, 59, 500, time);
+    }
+
+    @Test
+    public void testGetGeometry()  {
+        final Geometry geometry = timeAxis.getGeometry();
+        assertTrue(geometry instanceof MultiLineString);
     }
 }
