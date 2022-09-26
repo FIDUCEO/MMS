@@ -75,7 +75,7 @@ public class BcS2GeometryFactoryTest {
     }
 
     @Test
-    public void testMultiLineString() {
+    public void testParseMultiLineString() {
         final Geometry geometry = factory.parse("MULTILINESTRING((0 1, 1 1), (1 4, 3 4))");
         assertNotNull(geometry);
         assertTrue(geometry instanceof BcS2MultiLineString);
@@ -221,6 +221,16 @@ public class BcS2GeometryFactoryTest {
         assertEquals(8.0, coordinates[0].getLat(), 1e-8);
         assertEquals(-109.3, coordinates[2].getLon(), 1e-8);
         assertEquals(8.7, coordinates[2].getLat(), 1e-8);
+    }
+
+    @Test
+    public void testCreateMultiLineStringFromLineStrings() {
+        final List<LineString> lineStrings = new ArrayList<>();
+        lineStrings.add((LineString) factory.parse("LINESTRING(2 1, 3 2)"));
+        lineStrings.add((LineString) factory.parse("LINESTRING(3 2, 2 3)"));
+
+        final MultiLineString multiLineString = factory.createMultiLineString(lineStrings);
+        assertEquals("MULTILINESTRING((1.9999999999999996 1.0,3.0000000000000004 2.0),(3.0000000000000004 2.0,1.9999999999999996 3.0000000000000004))", factory.format(multiLineString));
     }
 
     @Test

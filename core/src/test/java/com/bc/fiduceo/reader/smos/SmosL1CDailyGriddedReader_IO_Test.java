@@ -2,10 +2,8 @@ package com.bc.fiduceo.reader.smos;
 
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.Point;
-import com.bc.fiduceo.geometry.Polygon;
+import com.bc.fiduceo.core.NodeType;
+import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.util.TempFileUtils;
@@ -56,7 +54,7 @@ public class SmosL1CDailyGriddedReader_IO_Test {
             final Geometry boundingGeometry = acquisitionInfo.getBoundingGeometry();
             assertTrue(boundingGeometry instanceof Polygon);
 
-            final Point[] coordinates = boundingGeometry.getCoordinates();
+            Point[] coordinates = boundingGeometry.getCoordinates();
             assertEquals(5, coordinates.length);
             assertEquals(-179.8703155517578, coordinates[0].getLon(), 1e-8);
             assertEquals(-83.51713562011719, coordinates[0].getLat(), 1e-8);
@@ -68,6 +66,23 @@ public class SmosL1CDailyGriddedReader_IO_Test {
 
             final Date sensingStop = acquisitionInfo.getSensingStop();
             TestUtil.assertCorrectUTCDate(2016, 6, 10, 23, 59, 59, sensingStop);
+
+            final TimeAxis[] timeAxes = acquisitionInfo.getTimeAxes();
+            assertEquals(1, timeAxes.length);
+            final TimeAxis timeAxis = timeAxes[0];
+            assertTrue(timeAxis instanceof L3TimeAxis);
+            final Geometry geometry = timeAxis.getGeometry();
+            coordinates = geometry.getCoordinates();
+            assertEquals(4, coordinates.length);
+            assertEquals(-179.8703155517578, coordinates[0].getLon(), 1e-8);
+            assertEquals(0.0, coordinates[0].getLat(), 1e-8);
+            assertEquals(0.0, coordinates[3].getLon(), 1e-8);
+            assertEquals(-83.51713562011719, coordinates[3].getLat(), 1e-8);
+
+            TestUtil.assertCorrectUTCDate(2016, 6, 10, 0, 0, 0, timeAxis.getStartTime());
+            TestUtil.assertCorrectUTCDate(2016, 6, 10, 23, 59, 59, timeAxis.getEndTime());
+
+            assertEquals(NodeType.UNDEFINED, acquisitionInfo.getNodeType());
         } finally {
             reader.close();
         }

@@ -35,9 +35,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class JTSGeometryFactoryTest {
 
@@ -322,6 +320,15 @@ public class JTSGeometryFactoryTest {
     }
 
     @Test
+    public void testParseMultiLineString() {
+        final Geometry geometry = factory.parse("MULTILINESTRING((4 1, 4 2), (4 3, 4 4))");
+        assertNotNull(geometry);
+        assertTrue(geometry instanceof JTSMultiLineString);
+
+        assertEquals("MULTILINESTRING ((4 1, 4 2), (4 3, 4 4))", geometry.toString());
+    }
+
+    @Test
     public void testParsePoint() {
         final Geometry geometry = factory.parse("POINT(4 0)");
         assertNotNull(geometry);
@@ -333,4 +340,21 @@ public class JTSGeometryFactoryTest {
         assertEquals(0.0, point.getLat(), 1e-8);
     }
 
+    @Test
+    public void testParseUnsupported() {
+        try {
+            factory.parse("MULTIPOINT((4 0), (5 1))");
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+    }
+
+    @Test
+    public void testParseInvalid() {
+        try {
+            factory.parse("Razupaltuff");
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+    }
 }
