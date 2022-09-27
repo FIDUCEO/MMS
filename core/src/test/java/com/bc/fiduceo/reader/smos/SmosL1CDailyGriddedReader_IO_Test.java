@@ -2,6 +2,7 @@ package com.bc.fiduceo.reader.smos;
 
 import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.reader.AcquisitionInfo;
@@ -18,15 +19,15 @@ import java.util.Date;
 
 import static org.junit.Assert.*;
 
+@SuppressWarnings("NewClassNamingConvention")
 @RunWith(IOTestRunner.class)
 public class SmosL1CDailyGriddedReader_IO_Test {
 
     private SmosL1CDailyGriddedReader reader;
-    private ReaderContext readerContext;
 
     @Before
     public void setUp() throws IOException {
-        readerContext = new ReaderContext();
+        final ReaderContext readerContext = new ReaderContext();
         readerContext.setGeometryFactory(new GeometryFactory(GeometryFactory.Type.S2));
 
         final File testDir = TestUtil.getTestDir();
@@ -88,8 +89,28 @@ public class SmosL1CDailyGriddedReader_IO_Test {
         }
     }
 
+    @Test
+    public void testGetProductSize_CDF3TD() throws IOException {
+        final File file = getCDF3TDFile();
+        try {
+            reader.open(file);
+
+            final Dimension productSize = reader.getProductSize();
+            assertNotNull(productSize);
+            assertEquals(1388, productSize.getNx());
+            assertEquals(584, productSize.getNy());
+        } finally {
+            reader.close();
+        }
+    }
+
     private File getCDF3TAFile() throws IOException {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"miras-smos-CDF3TA", "re07", "2016", "162", "SM_RE07_MIR_CDF3TA_20160610T000000_20160610T235959_330_001_7.tgz"}, false);
+        return TestUtil.getTestDataFileAsserted(testFilePath);
+    }
+
+    private File getCDF3TDFile() throws IOException {
+        final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"miras-smos-CDF3TD", "re07", "2017", "324", "SM_RE07_MIR_CDF3TD_20171120T000000_20171120T235959_330_001_7.tgz"}, false);
         return TestUtil.getTestDataFileAsserted(testFilePath);
     }
 }

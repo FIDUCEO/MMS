@@ -138,7 +138,10 @@ class SmosL1CDailyGriddedReader extends NetCDFReader {
 
     @Override
     public Dimension getProductSize() throws IOException {
-        throw new IllegalStateException("not implemented");
+        final Array longitudes = arrayCache.get("lon");
+        final Array latitudes = arrayCache.get("lat");
+
+        return new Dimension("size", (int) longitudes.getSize(), (int) latitudes.getSize());
     }
 
     @Override
@@ -150,7 +153,6 @@ class SmosL1CDailyGriddedReader extends NetCDFReader {
     public String getLatitudeVariableName() {
         return "lat";
     }
-
 
     private File extractFromTar(File file) throws IOException {
         TarArchiveInputStream tarIn = null;
@@ -240,7 +242,7 @@ class SmosL1CDailyGriddedReader extends NetCDFReader {
      * package access for testing only tb 2022-09-26
      *
      * @param longitudes longitude data
-     * @param latitudes latitude data
+     * @param latitudes  latitude data
      * @return array with the extreme values
      */
     static double[] extractMinMax(Array longitudes, Array latitudes) {
