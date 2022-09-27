@@ -289,6 +289,8 @@ public class MongoDbDriver extends AbstractDriver {
             return convertGeometryCollection(geoDocument);
         } else if ("LineString".equals(type)) {
             return convertLineString(geoDocument);
+        } else if ("MultiLineString".equals(type)) {
+            return convertMultiLineString(geoDocument);
         }
         throw new RuntimeException("Geometry type support not implemented yet: " + type);
     }
@@ -303,13 +305,13 @@ public class MongoDbDriver extends AbstractDriver {
     }
 
     private Geometry convertMultiPolygon(Document geoDocument) {
-        List<Polygon> polygonList = new ArrayList<>();
-        ArrayList polycoordinates = (ArrayList) geoDocument.get("coordinates");
-        for (Object polycoordinate : polycoordinates) {
+        final List<Polygon> polygonList = new ArrayList<>();
+        final ArrayList polyCoordinates = (ArrayList) geoDocument.get("coordinates");
+        for (Object polycoordinate : polyCoordinates) {
             final ArrayList coordinates = (ArrayList) polycoordinate;
             for (Object coordinate : coordinates) {
                 final ArrayList<Double> point = (ArrayList<Double>) coordinate;
-                List<Point> pointList = new ArrayList<>();
+                final List<Point> pointList = new ArrayList<>();
                 for (Object object : point) {
                     ArrayList<Double> m = (ArrayList<Double>) object;
                     pointList.add(geometryFactory.createPoint(m.get(0), m.get(1)));
@@ -344,6 +346,21 @@ public class MongoDbDriver extends AbstractDriver {
         return geometryFactory.createLineString(lineStringPoints);
     }
 
+    private Geometry convertMultiLineString(Document geoDocument) {
+        final List<LineString> lineStrings = new ArrayList<>();
+
+        final List<List<List<Double>>> coordinates = (List<List<List<Double>>>) geoDocument.get("coordinates");
+        for (final List<List<Double>> positionList : coordinates) {
+            final ArrayList<Point> lineStringPoints = new ArrayList<>();
+            for (final List<Double> position : positionList) {
+                final Point point = geometryFactory.createPoint(position.get(0), position.get(1));
+                lineStringPoints.add(point);
+            }
+            lineStrings.add(geometryFactory.createLineString(lineStringPoints));
+        }
+        return geometryFactory.createMultiLineString(lineStrings);
+    }
+
     // @todo 2 tb/** make static and add tests 2016-04-21
     TimeAxis[] convertToTimeAxes(Document jsonTimeAxes) {
         final List<Document> timeAxesDocuments = (List<Document>) jsonTimeAxes.get("timeAxes");
@@ -352,8 +369,16 @@ public class MongoDbDriver extends AbstractDriver {
             final Document timeAxisDocument = timeAxesDocuments.get(i);
             final Date startTime = timeAxisDocument.getDate("startTime");
             final Date endTime = timeAxisDocument.getDate("endTime");
-            final LineString geometry = (LineString) convertToGeometry((Document) timeAxisDocument.get("geometry"));
-            timeAxes[i] = geometryFactory.createTimeAxis(geometry, startTime, endTime);
+            // check geometry type and either create standard time axis or the L3 thing
+            final Document geoDocument = (Document) timeAxisDocument.get("geometry");
+            final String type = (String) geoDocument.get("type");
+            if (type.equals("MultiLineString")) {
+                final MultiLineString geometry = (MultiLineString) convertToGeometry(geoDocument);
+                timeAxes[i] = new L3TimeAxis(startTime, endTime, geometry);
+            } else {
+                final LineString geometry = (LineString) convertToGeometry(geoDocument);
+                timeAxes[i] = geometryFactory.createTimeAxis(geometry, startTime, endTime);
+            }
         }
         return timeAxes;
     }
@@ -412,7 +437,9 @@ public class MongoDbDriver extends AbstractDriver {
     // static access for testing only tb 2016-02-09
     @SuppressWarnings("unchecked")
     static com.mongodb.client.model.geojson.Geometry convertToGeoJSON(Geometry geometry) {
-        if (geometry instanceof GeometryCollection) {
+        if (geometry instanceof MultiLineString) {
+            return convertMultiLineStringToGeoJSON((MultiLineString) geometry);
+        } else if (geometry instanceof GeometryCollection) {
             return convertGeometryCollectionToGeoJSON((GeometryCollection) geometry);
         }
 
@@ -459,6 +486,24 @@ public class MongoDbDriver extends AbstractDriver {
             geometryList.add(convertToGeoJSON(geometry));
         }
         return new com.mongodb.client.model.geojson.GeometryCollection(geometryList);
+    }
+
+    private static com.mongodb.client.model.geojson.Geometry convertMultiLineStringToGeoJSON(MultiLineString multiLineString) {
+        final Geometry[] geometries = multiLineString.getGeometries();
+        if (geometries.length == 1) {
+            return convertToGeoJSON(geometries[0]);
+        }
+
+        final List<List<Position>> multiList = new ArrayList<>();
+        for (final Geometry geometry : geometries) {
+            final List<Position> lineStringPoints = new ArrayList<>();
+            final Point[] coordinates = geometry.getCoordinates();
+            for (final Point point : coordinates) {
+                lineStringPoints.add(new Position(point.getLon(), point.getLat()));
+            }
+            multiList.add(lineStringPoints);
+        }
+        return new com.mongodb.client.model.geojson.MultiLineString(multiList);
     }
 
     private static ArrayList<Position> extractPointsFromGeometry(Point[] coordinates) {

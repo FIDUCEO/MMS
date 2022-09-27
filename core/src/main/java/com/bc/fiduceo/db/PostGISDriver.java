@@ -23,10 +23,7 @@ package com.bc.fiduceo.db;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.LineString;
-import com.bc.fiduceo.geometry.TimeAxis;
+import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.util.TimeUtils;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.esa.snap.core.util.StringUtils;
@@ -282,13 +279,19 @@ public class PostGISDriver extends AbstractDriver {
         if (axis == null) {
             return null;
         }
-        final String axisWkt = axis.getValue();
-        final LineString axisGeometry = (LineString) geometryFactory.fromStorageFormat(axisWkt.getBytes());
 
         final Timestamp startTime = resultSet.getTimestamp("StartTime");
         final java.util.Date axisStartTime = TimeUtils.toDate(startTime);
         final Timestamp endTime = resultSet.getTimestamp("StopTime");
         final java.util.Date axisEndTime = TimeUtils.toDate(endTime);
-        return geometryFactory.createTimeAxis(axisGeometry, axisStartTime, axisEndTime);
+
+        final String axisWkt = axis.getValue();
+        final Geometry geometry = geometryFactory.fromStorageFormat(axisWkt.getBytes());
+        if (geometry instanceof MultiLineString) {
+            return new L3TimeAxis(axisStartTime, axisEndTime, geometry);
+        } else {
+            final LineString axisGeometry = (LineString) geometry;
+            return geometryFactory.createTimeAxis(axisGeometry, axisStartTime, axisEndTime);
+        }
     }
 }

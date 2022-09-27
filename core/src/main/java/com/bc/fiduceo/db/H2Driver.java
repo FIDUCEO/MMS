@@ -23,9 +23,7 @@ package com.bc.fiduceo.db;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
-import com.bc.fiduceo.geometry.GeometryFactory;
-import com.bc.fiduceo.geometry.LineString;
-import com.bc.fiduceo.geometry.TimeAxis;
+import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.util.TimeUtils;
 
 import java.sql.*;
@@ -192,7 +190,7 @@ public class H2Driver extends AbstractDriver {
             }
             resultSet.previous();   // need to rewind one result because the while loop runs one result too far tb 2016-09-23
 
-            observation.setTimeAxes(timeAxesList.toArray(new TimeAxis[timeAxesList.size()]));
+            observation.setTimeAxes(timeAxesList.toArray(new TimeAxis[0]));
 
             resultList.add(observation);
         }
@@ -205,13 +203,19 @@ public class H2Driver extends AbstractDriver {
         if (axis == null) {
             return null;
         }
-        final String axisWkt = axis.toString();
-        final LineString axisGeometry = (LineString) geometryFactory.fromStorageFormat(axisWkt.getBytes());
 
         final Timestamp startTime = resultSet.getTimestamp("StartTime");
         final Date axisStartTime = TimeUtils.toDate(startTime);
         final Timestamp endTime = resultSet.getTimestamp("StopTime");
         final Date axisEndTime = TimeUtils.toDate(endTime);
-        return geometryFactory.createTimeAxis(axisGeometry, axisStartTime, axisEndTime);
+
+        final String axisWkt = axis.toString();
+        final Geometry geometry = geometryFactory.fromStorageFormat(axisWkt.getBytes());
+        if (geometry instanceof MultiLineString) {
+            return new L3TimeAxis(axisStartTime, axisEndTime, geometry);
+        } else {
+            final LineString axisGeometry = (LineString) geometry;
+            return geometryFactory.createTimeAxis(axisGeometry, axisStartTime, axisEndTime);
+        }
     }
 }

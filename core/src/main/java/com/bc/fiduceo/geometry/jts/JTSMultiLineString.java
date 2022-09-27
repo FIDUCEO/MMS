@@ -13,6 +13,16 @@ public class JTSMultiLineString implements MultiLineString {
     }
 
     @Override
+    public Geometry[] getGeometries() {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
+    public void setGeometries(Geometry[] geometries) {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
     public Geometry getIntersection(Geometry other) {
         throw new RuntimeException("not implemented");
     }

@@ -28,6 +28,7 @@ import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.core.Sensor;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.L3TimeAxis;
 import com.bc.fiduceo.geometry.TimeAxis;
 import com.bc.fiduceo.util.TimeUtils;
 import org.junit.After;
@@ -210,6 +211,33 @@ public abstract class StorageTest_SatelliteObservation {
         TestUtil.assertCorrectUTCDate(2015, 4, 25, 22, 30, 0, 0, timeAxesFromDb[0].getEndTime());
         final Geometry geometry = timeAxesFromDb[0].getGeometry();
         assertEquals("LINESTRING(0.9999999999999997 4.999999999999998,0.9999999999999997 6.0,0.9999999999999997 6.999999999999999)", geometryFactory.format(geometry));
+    }
+
+    @Test
+    public void testInsert_andGet_L3TimeAxis() throws SQLException {
+        final SatelliteObservation observation = TestData.createSatelliteObservation(geometryFactory);
+
+
+        final Geometry multiLineString = geometryFactory.parse("MULTILINESTRING((-2 3, -1 5), (-56 3, 56 4))");
+        final L3TimeAxis l3TimeAxis = new L3TimeAxis(TimeUtils.create(1440000000000L), TimeUtils.create(1450000000000L), multiLineString);
+        final TimeAxis[] timeAxes = new TimeAxis[] {l3TimeAxis};
+        observation.setTimeAxes(timeAxes);
+
+        storage.insert(observation);
+
+        final List<SatelliteObservation> result = storage.get();
+        assertNotNull(result);
+        assertEquals(1, result.size());
+
+        final SatelliteObservation observationFromDb = result.get(0);
+
+        final TimeAxis[] timeAxesFromDb = observationFromDb.getTimeAxes();
+        assertEquals(1, timeAxesFromDb.length);
+
+        TestUtil.assertCorrectUTCDate(2015, 8, 19, 16, 0, 0, 0, timeAxesFromDb[0].getStartTime());
+        TestUtil.assertCorrectUTCDate(2015, 12, 13, 9, 46, 40, 0, timeAxesFromDb[0].getEndTime());
+        final Geometry geometry = timeAxesFromDb[0].getGeometry();
+        assertEquals("MULTILINESTRING((-1.9999999999999993 3.000000000000001,-0.9999999999999997 4.999999999999998),(-56.00000000000001 3.000000000000001,56.0 4.0))", geometryFactory.format(geometry));
     }
 
     @Test

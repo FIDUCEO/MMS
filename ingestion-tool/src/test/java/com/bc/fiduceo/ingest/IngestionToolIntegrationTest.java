@@ -1170,9 +1170,8 @@ public class IngestionToolIntegrationTest {
             assertEquals("POLYGON((-179.8703155517578 -83.51713562011719,-179.8703155517578 83.51713562011719,179.8703155517578 83.51713562011719,179.8703155517578 -83.51713562011719,-179.8703155517578 -83.51713562011719))",
                     geometryFactory.format(geoBounds));
             final TimeAxis timeAxis = observation.getTimeAxes()[0];
-            // @todo 1 tb/tb reactivate these assertions! 2022-09-26
-            // assertTrue(timeAxis instanceof L3TimeAxis);
-            // assertEquals("TestData.AVHRR_FRAC_MB_AXIS_GEOMETRY", geometryFactory.format(timeAxis.getGeometry()));
+            assertTrue(timeAxis instanceof L3TimeAxis);
+            assertEquals("MULTILINESTRING((-179.8703155517578 0.0,179.8703155517578 0.0),(0.0 83.51713562011719,0.0 -83.51713562011719))", geometryFactory.format(timeAxis.getGeometry()));
         } finally {
             storage.clear();
             storage.close();

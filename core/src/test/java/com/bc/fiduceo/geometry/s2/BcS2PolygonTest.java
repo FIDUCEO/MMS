@@ -222,7 +222,7 @@ public class BcS2PolygonTest {
         final BcS2MultiLineString multiLineString = createBcS2MultiLineString("MULTILINESTRING((-20 -5, 20 -5), (-20 5, 30 5))");
 
         final Geometry intersection = polygon.getIntersection(multiLineString);
-        assertTrue(intersection instanceof LineString);
+        assertTrue(intersection instanceof MultiLineString);
         final Point[] coordinates = intersection.getCoordinates();
         assertEquals(4, coordinates.length);
         assertEquals("POINT(-9.999999999999998 -5.238747270748654)", coordinates[0].toString());
@@ -259,7 +259,7 @@ public class BcS2PolygonTest {
         final BcS2LineString lineString = createBcS2LineString("LINESTRING(-12 4, -4 14, 8 -12)");
 
         final Geometry intersection = polygon.getIntersection(lineString);
-        assertTrue(intersection instanceof LineString);
+        assertTrue(intersection instanceof MultiLineString);
         final Point[] coordinates = intersection.getCoordinates();
         assertEquals(4, coordinates.length);
         assertEquals("POINT(-9.999999999999998 6.5625763293836314)", coordinates[0].toString());

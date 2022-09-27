@@ -283,6 +283,25 @@ public class BcS2MultiLineStringTest {
         assertEquals("POINT(49.398705354995535 40.94888983446224)", geometries[1].toString());
     }
 
+    @Test
+    public void testSetGetGeometries() {
+        final BcS2MultiLineString multiLineString = getCreateBcS2MultiLineString("LINESTRING(10 10, 10 11, 11 12)",
+                "LINESTRING(2 3, 3 5, 3.5 7)");
+
+        final Geometry[] geometries = multiLineString.getGeometries();
+        assertEquals(2, geometries.length);
+        assertEquals("LINESTRING(9.999999999999998 10.0,10.0 11.000000000000002,11.0 12.000000000000002)", geometries[0].toString());
+        assertEquals("LINESTRING(1.9999999999999996 3.0000000000000004,3.0000000000000004 4.999999999999999,3.5 7.0)", geometries[1].toString());
+
+        final Geometry[] newGeometries = new Geometry[2];
+        newGeometries[0] = bcS2GeometryFactory.parse("LINESTRING(1 1, 1 2)");
+        newGeometries[1] = bcS2GeometryFactory.parse("LINESTRING(5 4, 6 3)");
+
+        multiLineString.setGeometries(newGeometries);
+
+        assertEquals("MULTILINESTRING((0.9999999999999998 1.0,0.9999999999999998 2.0),(5.0 4.0,6.0 3.0000000000000004))", bcS2GeometryFactory.format(multiLineString));
+    }
+
     private BcS2MultiLineString getCreateBcS2MultiLineString(String firstWkt, String secondWkt) {
         final BcS2LineString lineString_1 = (BcS2LineString) bcS2GeometryFactory.parse(firstWkt);
         final BcS2LineString lineString_2 = (BcS2LineString) bcS2GeometryFactory.parse(secondWkt);
@@ -294,8 +313,8 @@ public class BcS2MultiLineStringTest {
     }
 
     private BcS2MultiLineString createS2Polyline(String wkt) {
-        S2WKTReader reader = new S2WKTReader();
-        List<S2Polyline> read = (List<S2Polyline>) reader.read(wkt);
+        final S2WKTReader reader = new S2WKTReader();
+        final List<S2Polyline> read = (List<S2Polyline>) reader.read(wkt);
         return new BcS2MultiLineString(read);
     }
 }
