@@ -5,6 +5,7 @@ import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.*;
+import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.util.TempFileUtils;
@@ -13,6 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
@@ -92,6 +94,7 @@ public class SmosL1CDailyGriddedReader_IO_Test {
     @Test
     public void testGetProductSize_CDF3TD() throws IOException {
         final File file = getCDF3TDFile();
+
         try {
             reader.open(file);
 
@@ -99,6 +102,77 @@ public class SmosL1CDailyGriddedReader_IO_Test {
             assertNotNull(productSize);
             assertEquals(1388, productSize.getNx());
             assertEquals(584, productSize.getNy());
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetPixelLocator_CDF3TA() throws IOException {
+        final File file = getCDF3TAFile();
+
+        try {
+            reader.open(file);
+
+            final PixelLocator pixelLocator = reader.getPixelLocator();
+            assertNotNull(pixelLocator);
+
+            Point2D geoLocation = pixelLocator.getGeoLocation(0.5, 0.5, null);
+            assertEquals(-179.8703155517578, geoLocation.getX(), 1e-8);
+            assertEquals(-83.51713562011719, geoLocation.getY(), 1e-8);
+
+            Point2D[] pixelLocations = pixelLocator.getPixelLocation(-179.8703155517578, -83.51713562011719);
+            assertEquals(1, pixelLocations.length);
+            assertEquals(0.5, pixelLocations[0].getX(), 1e-8);
+            assertEquals(0.5, pixelLocations[0].getY(), 1e-8);
+
+            geoLocation = pixelLocator.getGeoLocation(762.5, 404.5, null);
+            assertEquals(17.766571044921875, geoLocation.getX(), 1e-8);
+            assertEquals(22.638275146484375, geoLocation.getY(), 1e-8);
+
+            pixelLocations = pixelLocator.getPixelLocation(17.766571044921875, 22.638275146484375);
+            assertEquals(1, pixelLocations.length);
+            assertEquals(762.5, pixelLocations[0].getX(), 1e-8);
+            assertEquals(404.5, pixelLocations[0].getY(), 1e-8);
+
+            geoLocation = pixelLocator.getGeoLocation(1387.5, 583.5, null);
+            assertEquals(179.8703155517578, geoLocation.getX(), 1e-8);
+            assertEquals(83.51713562011719, geoLocation.getY(), 1e-8);
+
+            pixelLocations = pixelLocator.getPixelLocation(179.9, 83.6);
+            assertEquals(1, pixelLocations.length);
+            assertEquals(1387.5, pixelLocations[0].getX(), 1e-8);
+            assertEquals(583.5, pixelLocations[0].getY(), 1e-8);
+
+            // check outside locations
+            geoLocation = pixelLocator.getGeoLocation(-1, 0.5, null);
+            assertNull(geoLocation);
+
+            geoLocation = pixelLocator.getGeoLocation(22.5, 685.5, null);
+            assertNull(geoLocation);
+
+            pixelLocations = pixelLocator.getPixelLocation(116.7, -89.6);
+            assertEquals(0, pixelLocations.length);
+
+            pixelLocations = pixelLocator.getPixelLocation(116.7, 89.6);
+            assertEquals(0, pixelLocations.length);
+
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetSubScenePixelLocator_CDF3TD() throws IOException {
+        final File file = getCDF3TDFile();
+
+        try {
+            reader.open(file);
+
+            final PixelLocator subScenePixelLocator = reader.getSubScenePixelLocator(null);// geometry is not used here tb 2022-09-29
+            final PixelLocator pixelLocator = reader.getPixelLocator();
+
+            assertSame(pixelLocator, subScenePixelLocator);
         } finally {
             reader.close();
         }

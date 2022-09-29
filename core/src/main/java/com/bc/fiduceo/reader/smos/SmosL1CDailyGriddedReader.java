@@ -17,9 +17,11 @@ import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.esa.snap.core.util.io.FileUtils;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
+import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 
+import java.awt.geom.Rectangle2D;
 import java.io.*;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -29,11 +31,14 @@ import java.util.List;
 class SmosL1CDailyGriddedReader extends NetCDFReader {
 
     private final ReaderContext readerContext;
+    private final Rectangle2D.Float boundary;
 
     private File productDir;
+    private PixelLocator pixelLocator;
 
     SmosL1CDailyGriddedReader(ReaderContext readerContext) {
         this.readerContext = readerContext;
+        this.boundary = new Rectangle2D.Float(-180.f, -86.72f, 360.f, 173.44f);
     }
 
     @Override
@@ -57,6 +62,8 @@ class SmosL1CDailyGriddedReader extends NetCDFReader {
     @Override
     public void close() throws IOException {
         super.close();
+
+        pixelLocator = null;
         if (productDir != null) {
             readerContext.deleteTempFile(productDir);
             productDir = null;
@@ -93,12 +100,21 @@ class SmosL1CDailyGriddedReader extends NetCDFReader {
 
     @Override
     public PixelLocator getPixelLocator() throws IOException {
-        throw new IllegalStateException("not implemented");
+        if (pixelLocator == null) {
+            final Array longitudes = arrayCache.get("lon");
+            final Array latitudes = arrayCache.get("lat");
+
+            pixelLocator = new RasterPixelLocator((float[]) longitudes.get1DJavaArray(DataType.FLOAT),
+                    (float[]) latitudes.get1DJavaArray(DataType.FLOAT),
+                    boundary);
+        }
+
+        return pixelLocator;
     }
 
     @Override
     public PixelLocator getSubScenePixelLocator(Polygon sceneGeometry) throws IOException {
-        throw new IllegalStateException("not implemented");
+        return getPixelLocator();   // no distinction between pixel locators tb 2022-09-29
     }
 
     @Override
