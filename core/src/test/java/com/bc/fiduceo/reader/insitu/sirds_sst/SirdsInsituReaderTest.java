@@ -33,12 +33,12 @@ public class SirdsInsituReaderTest {
     @Test
     public void testGetRegEx_argosurf() {
         final SirdsInsituReader insituReader = new SirdsInsituReader("argosurf-sirds");
-        final String expected = "SSTCCI2_refdata_argo_surf_\\d{6}.nc";
+        final String expected = "SSTCCI2_refdata_argosurf_\\d{6}.nc";
 
         assertEquals(expected, insituReader.getRegEx());
         final Pattern pattern = java.util.regex.Pattern.compile(expected);
 
-        Matcher matcher = pattern.matcher("SSTCCI2_refdata_argo_surf_202005.nc");
+        Matcher matcher = pattern.matcher("SSTCCI2_refdata_argosurf_202005.nc");
         assertTrue(matcher.matches());
 
         matcher = pattern.matcher("SSTCCI2_refdata_bottle_198904.nc");
@@ -85,7 +85,7 @@ public class SirdsInsituReaderTest {
     @Test
     public void testToRegExPart() {
         assertEquals("argo", SirdsInsituReader.toRegExPart("argo-sirds"));
-        assertEquals("argo_surf", SirdsInsituReader.toRegExPart("argosurf-sirds"));
+        assertEquals("argosurf", SirdsInsituReader.toRegExPart("argosurf-sirds"));
         assertEquals("drifter", SirdsInsituReader.toRegExPart("drifter-sirds"));
         assertEquals("drifter_cmems", SirdsInsituReader.toRegExPart("driftercmems-sirds"));
     }
