@@ -26,6 +26,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 class SmosL1CDailyGriddedReader extends NetCDFReader {
@@ -299,5 +300,24 @@ class SmosL1CDailyGriddedReader extends NetCDFReader {
         lines.add(ns);
 
         return geometryFactory.createMultiLineString(lines);
+    }
+
+    // package access for testing only tb 2022-09-29
+    static Date cfiDateToUtc(int days, long seconds, long microseconds) {
+        final Calendar calendar = TimeUtils.getUTCCalendar();
+
+        calendar.set(Calendar.YEAR, 2000);
+        calendar.set(Calendar.MONTH, 0);
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+
+        calendar.add(Calendar.DATE, days);
+        calendar.add(Calendar.SECOND, (int) seconds);
+        calendar.add(Calendar.MILLISECOND, (int) (microseconds * 0.001));
+
+        return calendar.getTime();
     }
 }

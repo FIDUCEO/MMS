@@ -5,14 +5,17 @@ import com.bc.fiduceo.geometry.MultiLineString;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.util.TimeUtils;
 import org.junit.Test;
 import ucar.ma2.Array;
 
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.junit.Assert.*;
 
+@SuppressWarnings("resource")
 public class SmosL1cDailyGriddedReaderTest {
 
     @Test
@@ -115,5 +118,22 @@ public class SmosL1cDailyGriddedReaderTest {
         assertEquals("POINT(172.0 0.0)", coordinates[1].toString());
         assertEquals("POINT(0.0 87.0)", coordinates[2].toString());
         assertEquals("POINT(0.0 -78.0)", coordinates[3].toString());
+    }
+
+    @Test
+    public void testCfiDateToUtc() {
+        Date date = SmosL1CDailyGriddedReader.cfiDateToUtc(0, 0, 0);
+        assertEquals("01-Jan-2000 00:00:00", TimeUtils.format(date));
+
+        date = SmosL1CDailyGriddedReader.cfiDateToUtc(1, 0, 0);
+        assertEquals("02-Jan-2000 00:00:00", TimeUtils.format(date));
+
+        date = SmosL1CDailyGriddedReader.cfiDateToUtc(1, 10, 0);
+        long timeWithoutMillis = date.getTime();
+        assertEquals("02-Jan-2000 00:00:10", TimeUtils.format(date));
+
+        date = SmosL1CDailyGriddedReader.cfiDateToUtc(1, 10, 100000);    // last argument is microsecond, date can only handle millis ...
+        assertEquals("02-Jan-2000 00:00:10", TimeUtils.format(date));
+        assertEquals(timeWithoutMillis + 100, date.getTime());
     }
 }
