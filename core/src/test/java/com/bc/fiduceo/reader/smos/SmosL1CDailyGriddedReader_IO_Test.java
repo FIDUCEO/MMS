@@ -8,6 +8,7 @@ import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
+import com.bc.fiduceo.reader.time.TimeLocator;
 import com.bc.fiduceo.util.TempFileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -173,6 +174,28 @@ public class SmosL1CDailyGriddedReader_IO_Test {
             final PixelLocator pixelLocator = reader.getPixelLocator();
 
             assertSame(pixelLocator, subScenePixelLocator);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetTimeLocator_CDF3TA() throws IOException {
+        final File file = getCDF3TAFile();
+
+        try {
+            reader.open(file);
+
+            final TimeLocator timeLocator = reader.getTimeLocator();
+            assertEquals(1465599546734L, timeLocator.getTimeFor(0, 0));
+            assertEquals(1465576328309L, timeLocator.getTimeFor(100, 100));
+            assertEquals(1465570699654L, timeLocator.getTimeFor(200, 200));
+            assertEquals(-1L, timeLocator.getTimeFor(300, 300));
+            assertEquals(-1L, timeLocator.getTimeFor(340, 300));
+            assertEquals(-1L, timeLocator.getTimeFor(341, 300));
+            assertEquals(1465559087142L, timeLocator.getTimeFor(342, 300));
+            assertEquals(1465559079942L, timeLocator.getTimeFor(343, 300));
+            assertEquals(1465559037942L, timeLocator.getTimeFor(350, 300));
         } finally {
             reader.close();
         }

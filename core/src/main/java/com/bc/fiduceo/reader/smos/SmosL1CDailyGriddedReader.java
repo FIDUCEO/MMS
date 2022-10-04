@@ -36,6 +36,7 @@ class SmosL1CDailyGriddedReader extends NetCDFReader {
 
     private File productDir;
     private PixelLocator pixelLocator;
+    private TimeLocator timeLocator;
 
     SmosL1CDailyGriddedReader(ReaderContext readerContext) {
         this.readerContext = readerContext;
@@ -65,6 +66,7 @@ class SmosL1CDailyGriddedReader extends NetCDFReader {
         super.close();
 
         pixelLocator = null;
+        timeLocator = null;
         if (productDir != null) {
             readerContext.deleteTempFile(productDir);
             productDir = null;
@@ -120,7 +122,27 @@ class SmosL1CDailyGriddedReader extends NetCDFReader {
 
     @Override
     public TimeLocator getTimeLocator() throws IOException {
-        throw new IllegalStateException("not implemented");
+        if (timeLocator == null) {
+            final Array days = arrayCache.get("Days");
+            final Array seconds = arrayCache.get("UTC_Seconds");
+            final Array micros = arrayCache.get("UTC_Microseconds");
+
+            // get layer at index 8 which is the 40deg observation angle bin
+            int layerIndex = 8;
+            int[] offset = {layerIndex, 0, 0};
+            int[] shape = days.getShape();
+            shape[0] = 1; // just one z-layer
+            try {
+                final Array daysLayer = days.section(offset, shape);
+                final Array secondsLayer = seconds.section(offset, shape);
+                final Array microsLayer = micros.section(offset, shape);
+
+                timeLocator = new SmosL1CTimeLocator(daysLayer, secondsLayer, microsLayer);
+            } catch (InvalidRangeException e) {
+                throw new IOException(e);
+            }
+        }
+        return timeLocator;
     }
 
     @Override
