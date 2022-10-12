@@ -221,8 +221,8 @@ class SatelliteFields extends FieldsProcessor {
                 nwpShape[0] = 1;
 
                 // get a subset of one matchup layer and convert to 2D dataset
-                final Array lonLayer = lonArray.sectionNoReduce(nwpOffset, nwpShape, nwpStride).reduce(0);
-                final Array latLayer = latArray.sectionNoReduce(nwpOffset, nwpShape, nwpStride).reduce(0);
+                final Array lonLayer = lonArray.sectionNoReduce(nwpOffset, nwpShape, nwpStride).reduce(0).copy();
+                final Array latLayer = latArray.sectionNoReduce(nwpOffset, nwpShape, nwpStride).reduce(0).copy();
 
                 final int[] shape = lonLayer.getShape();
                 final int width = shape[1];

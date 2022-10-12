@@ -131,27 +131,27 @@ public class PostProcessingToolIntegrationTest_Era5 {
 
             variable = NCTestUtils.getVariable("nwp_mu_u10", mmd);
             NCTestUtils.assertAttribute(variable, "units", "m s**-1");
-            NCTestUtils.assert2DValueFloat(4, 3, 1.5901726484298706f, variable);
-            NCTestUtils.assert2DValueFloat(5, 3, 1.4782710075378418f, variable);
-            NCTestUtils.assert2DValueFloat(6, 3, 1.315316915512085f, variable);
+            NCTestUtils.assert2DValueFloat(4, 3, 1.5980221033096313f, variable);
+            NCTestUtils.assert2DValueFloat(5, 3, 1.4887735843658447f, variable);
+            NCTestUtils.assert2DValueFloat(6, 3, 1.3267265558242798f, variable);
 
             variable = NCTestUtils.getVariable("nwp_mu_sst", mmd);
             NCTestUtils.assertAttribute(variable, "long_name", "Sea surface temperature");
-            NCTestUtils.assert2DValueFloat(7, 4, 275.3016662597656f, variable);
-            NCTestUtils.assert2DValueFloat(8, 4, 275.30181884765625f, variable);
-            NCTestUtils.assert2DValueFloat(9, 4, 275.30181884765625f, variable);
+            NCTestUtils.assert2DValueFloat(7, 4, 284.4002990722656f, variable);
+            NCTestUtils.assert2DValueFloat(8, 4, 284.400390625f, variable);
+            NCTestUtils.assert2DValueFloat(9, 4, 284.4002380371094f, variable);
 
             variable = NCTestUtils.getVariable("nwp_mu_mslhf", mmd);
             assertNull(variable.findAttribute("standard_name"));
-            NCTestUtils.assert2DValueFloat(10, 5, -28.066068649291992f, variable);
-            NCTestUtils.assert2DValueFloat(11, 5, -25.100168228149414f, variable);
-            NCTestUtils.assert2DValueFloat(12, 5, -23.159440994262695f, variable);
+            NCTestUtils.assert2DValueFloat(10, 5, -83.63811492919922f, variable);
+            NCTestUtils.assert2DValueFloat(11, 5, -85.87189483642578f, variable);
+            NCTestUtils.assert2DValueFloat(12, 5, -87.71128845214844f, variable);
 
             variable = NCTestUtils.getVariable("nwp_mu_msshf", mmd);
             NCTestUtils.assertAttribute(variable, "_FillValue", "9.969209968386869E36");
-            NCTestUtils.assert2DValueFloat(13, 6, 12.113265037536621f, variable);
-            NCTestUtils.assert2DValueFloat(14, 6, 13.183022499084473f, variable);
-            NCTestUtils.assert2DValueFloat(15, 6, 13.555000305175781f, variable);
+            NCTestUtils.assert2DValueFloat(13, 6, -8.905862808227539f, variable);
+            NCTestUtils.assert2DValueFloat(14, 6, -9.198946952819824f, variable);
+            NCTestUtils.assert2DValueFloat(15, 6, -10.215385437011719f, variable);
         }
     }
 

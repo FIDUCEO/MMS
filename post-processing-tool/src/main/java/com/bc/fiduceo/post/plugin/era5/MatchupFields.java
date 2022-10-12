@@ -110,8 +110,8 @@ class MatchupFields extends FieldsProcessor {
                 for (int m = 0; m < numMatches; m++) {
                     nwpOffset[0] = m;
 
-                    final Array lonLayer = lonArray.section(nwpOffset, nwpShape);
-                    final Array latLayer = latArray.section(nwpOffset, nwpShape);
+                    final Array lonLayer = lonArray.section(nwpOffset, nwpShape).copy();
+                    final Array latLayer = latArray.section(nwpOffset, nwpShape).copy();
 
                     final InterpolationContext interpolationContext = Era5PostProcessing.getInterpolationContext(lonLayer, latLayer);
                     final Rectangle layerRegion = interpolationContext.getEra5Region();
