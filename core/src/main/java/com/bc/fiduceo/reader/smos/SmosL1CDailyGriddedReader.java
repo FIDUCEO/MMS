@@ -33,14 +33,27 @@ class SmosL1CDailyGriddedReader extends NetCDFReader {
 
     private final ReaderContext readerContext;
     private final Rectangle2D.Float boundary;
+    private final List<String> variablesToSkip;
+    private final List<String> variables2D;
 
     private File productDir;
     private PixelLocator pixelLocator;
     private TimeLocator timeLocator;
 
+
     SmosL1CDailyGriddedReader(ReaderContext readerContext) {
         this.readerContext = readerContext;
         this.boundary = new Rectangle2D.Float(-180.f, -86.72f, 360.f, 173.44f);
+
+        variablesToSkip = new ArrayList<>();
+        variablesToSkip.add("lat");
+        variablesToSkip.add("lon");
+        variablesToSkip.add("inc");
+        variablesToSkip.add("dinc");
+
+        variables2D = new ArrayList<>();
+        variables2D.add("X_Swath");
+        variables2D.add("Grid_Point_Mask");
     }
 
     @Override
@@ -172,7 +185,26 @@ class SmosL1CDailyGriddedReader extends NetCDFReader {
 
     @Override
     public List<Variable> getVariables() throws InvalidRangeException, IOException {
-        throw new IllegalStateException("not implemented");
+        final List<Variable> variablesInFile = netcdfFile.getVariables();
+        final ArrayList<Variable> exportVariables = new ArrayList<>();
+
+        for (Variable variable : variablesInFile) {
+            final String variableName = variable.getShortName();
+            if (variablesToSkip.contains(variableName)) {
+                continue;
+            }
+            if (variables2D.contains(variableName)) {
+                exportVariables.add(variable);
+                continue;
+            }
+
+            // the remainder is 3d with 15 angle layers tb 2022-10-12
+            final ArrayList<Variable> bandVariables = new ArrayList<>();
+            addLayered3DVariables(bandVariables, variable, 15, 0);
+            exportVariables.addAll(bandVariables);
+        }
+
+        return exportVariables;
     }
 
     @Override

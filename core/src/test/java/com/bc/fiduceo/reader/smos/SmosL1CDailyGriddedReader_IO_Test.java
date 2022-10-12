@@ -1,6 +1,7 @@
 package com.bc.fiduceo.reader.smos;
 
 import com.bc.fiduceo.IOTestRunner;
+import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.NodeType;
@@ -14,11 +15,14 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import ucar.ma2.InvalidRangeException;
+import ucar.nc2.Variable;
 
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -158,6 +162,57 @@ public class SmosL1CDailyGriddedReader_IO_Test {
             pixelLocations = pixelLocator.getPixelLocation(116.7, 89.6);
             assertEquals(0, pixelLocations.length);
 
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetVariables_CDF3TD() throws IOException, InvalidRangeException {
+        // X_Swath, Grid_Point_Mask
+        // BT_H(15), BT_V(15), BT_3(15), BT_4(15),
+        // Pixel_Radiometric_Accuracy_H(15), Pixel_Radiometric_Accuracy_V(15), Pixel_Radiometric_Accuracy_3(15), Pixel_Radiometric_Accuracy_4(15)
+        // Pixel_BT_Standard_Deviation_H(15), Pixel_BT_Standard_Deviation_V(15), Pixel_BT_Standard_Deviation_3(15), Pixel_BT_Standard_Deviation_4(15)
+        // Incidence_Angle(15), Azimuth_Angle(15), Footprint_Axis1(15), Footprint_Axis2(15),
+        // Xi(15), Eta(15), Nviews(15), Nb_RFI_Flags(15), Nb_SUN_Flags(15)
+        // Days(15), UTC_Seconds(15), UTC_Microseconds(15)
+        // 362 variables total
+
+        final File file = getCDF3TAFile();
+
+        try {
+            reader.open(file);
+
+            final List<Variable> variables = reader.getVariables();
+            assertEquals(362, variables.size());
+
+            Variable variable = variables.get(0);
+            assertEquals("X_Swath", variable.getShortName());
+            NCTestUtils.assertAttribute(variable, "_FillValue", "9.96921E36");
+
+            variable = variables.get(3);
+            assertEquals("BT_H_ch02", variable.getShortName());
+            NCTestUtils.assertAttribute(variable, "_FillValue", "-32768");
+
+            variable = variables.get(38);
+            assertEquals("BT_3_ch07", variable.getShortName());
+            NCTestUtils.assertAttribute(variable, "_FillValue", "-32768");
+
+            variable = variables.get(175);
+            assertEquals("Pixel_BT_Standard_Deviation_4_ch09", variable.getShortName());
+            NCTestUtils.assertAttribute(variable, "_FillValue", "-32768");
+
+            variable = variables.get(219);
+            assertEquals("Footprint_Axis1_ch08", variable.getShortName());
+            NCTestUtils.assertAttribute(variable, "_FillValue", "-32768");
+
+            variable = variables.get(305);
+            assertEquals("Nb_SUN_Flags_ch04", variable.getShortName());
+            NCTestUtils.assertAttribute(variable, "_FillValue", "-32768");
+
+            variable = variables.get(361);
+            assertEquals("UTC_Microseconds_ch15", variable.getShortName());
+            NCTestUtils.assertAttribute(variable, "_FillValue", "-2147483647");
         } finally {
             reader.close();
         }
