@@ -181,7 +181,11 @@ public abstract class NetCDFReader implements Reader {
                 lineTimeInSeconds = acquisitionTimeFillValue;
             } else {
                 final long lineTime = timeLocator.getTimeFor(0, yRead);
-                lineTimeInSeconds = (int) (lineTime / 1000);
+                if (lineTime < 0) {
+                    lineTimeInSeconds = acquisitionTimeFillValue;
+                } else {
+                    lineTimeInSeconds = (int) (lineTime / 1000);
+                }
             }
 
             for (int xa = 0; xa < width; xa++) {

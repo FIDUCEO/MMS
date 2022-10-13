@@ -152,6 +152,8 @@ public class NCTestUtils {
             assertEquals(expected, attribute.getStringValue());
         } else if (dataType == DataType.FLOAT) {
             assertEquals(Float.parseFloat(expected), attribute.getNumericValue().floatValue(), 1e-8);
+        }else if (dataType == DataType.DOUBLE) {
+            assertEquals(Double.parseDouble(expected), attribute.getNumericValue().doubleValue(), 1e-8);
         } else if (dataType == DataType.INT) {
             assertEquals(Integer.parseInt(expected), attribute.getNumericValue().intValue(), 1e-8);
         } else if (dataType == DataType.SHORT) {

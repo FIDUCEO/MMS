@@ -4,6 +4,7 @@ import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
+import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
@@ -15,6 +16,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import ucar.ma2.ArrayInt;
+import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 
@@ -188,31 +191,60 @@ public class SmosL1CDailyGriddedReader_IO_Test {
 
             Variable variable = variables.get(0);
             assertEquals("X_Swath", variable.getShortName());
+            assertEquals(DataType.FLOAT, variable.getDataType());
             NCTestUtils.assertAttribute(variable, "_FillValue", "9.96921E36");
+            NCTestUtils.assertAttribute(variable, "units", "m");
+            NCTestUtils.assertAttribute(variable, "long_name", "Minimum distance of grid point to the sub satellite point track");
 
             variable = variables.get(3);
             assertEquals("BT_H_ch02", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
             NCTestUtils.assertAttribute(variable, "_FillValue", "-32768");
+            NCTestUtils.assertAttribute(variable, "units", "K");
+            NCTestUtils.assertAttribute(variable, "long_name", "Angle class averaged Brightness temperature in H-pol over current Earth fixed grid point, obtained by polarisation rotation from L1c data");
+            NCTestUtils.assertAttribute(variable, "add_offset", "200.0");
+            NCTestUtils.assertAttribute(variable, "scale_factor", "0.0061037018951994385");
 
             variable = variables.get(38);
             assertEquals("BT_3_ch07", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
             NCTestUtils.assertAttribute(variable, "_FillValue", "-32768");
+            NCTestUtils.assertAttribute(variable, "units", "K");
+            NCTestUtils.assertAttribute(variable, "long_name", "Angle class averaged Brightness temperature 3rd Stokes parameter over current Earth fixed grid point, obtained by polarisation rotation from L1c data");
+            NCTestUtils.assertAttribute(variable, "add_offset", "0.0");
+            NCTestUtils.assertAttribute(variable, "scale_factor", "0.0015259254737998596");
 
             variable = variables.get(175);
             assertEquals("Pixel_BT_Standard_Deviation_4_ch09", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
             NCTestUtils.assertAttribute(variable, "_FillValue", "-32768");
+            NCTestUtils.assertAttribute(variable, "units", "K");
+            NCTestUtils.assertAttribute(variable, "long_name", "Angle class BT standard deviation in the Brightness Temperature presented in the previous field, extracted in the direction of the pixel ");
+            NCTestUtils.assertAttribute(variable, "add_offset", "25.0");
+            NCTestUtils.assertAttribute(variable, "scale_factor", "7.629627368999298E-4");
 
             variable = variables.get(219);
             assertEquals("Footprint_Axis1_ch08", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
             NCTestUtils.assertAttribute(variable, "_FillValue", "-32768");
+            NCTestUtils.assertAttribute(variable, "units", "km");
+            NCTestUtils.assertAttribute(variable, "long_name", "Angle class averaged Elliptical footprint major semi-axis value");
+            NCTestUtils.assertAttribute(variable, "add_offset", "50.0");
+            NCTestUtils.assertAttribute(variable, "scale_factor", "0.0015259254737998596");
 
             variable = variables.get(305);
             assertEquals("Nb_SUN_Flags_ch04", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
             NCTestUtils.assertAttribute(variable, "_FillValue", "-32768");
+            NCTestUtils.assertAttribute(variable, "units", "NA");
+            NCTestUtils.assertAttribute(variable, "long_name", "Number of views flagged as potentially contaminated by Sun used to compute Angle class averages");
 
             variable = variables.get(361);
             assertEquals("UTC_Microseconds_ch15", variable.getShortName());
+            assertEquals(DataType.INT, variable.getDataType());
             NCTestUtils.assertAttribute(variable, "_FillValue", "-2147483647");
+            NCTestUtils.assertAttribute(variable, "units", "10-6s");
+            NCTestUtils.assertAttribute(variable, "long_name", "UTC Time at which the averaged BT was taken, in EE CFI transport time format. Microseconds");
         } finally {
             reader.close();
         }
@@ -251,6 +283,26 @@ public class SmosL1CDailyGriddedReader_IO_Test {
             assertEquals(1465559087142L, timeLocator.getTimeFor(342, 300));
             assertEquals(1465559079942L, timeLocator.getTimeFor(343, 300));
             assertEquals(1465559037942L, timeLocator.getTimeFor(350, 300));
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadAcquisitionTime_CDF3TD() throws IOException, InvalidRangeException {
+        final File file = getCDF3TDFile();
+
+        try {
+            reader.open(file);
+            final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(166, 67, new Interval(5, 3));
+            assertEquals(15, acquisitionTime.getSize());
+
+            // run over a section that covers a swath border tb 2022-10-13
+            NCTestUtils.assertValueAt(-2147483647, 0, 1, acquisitionTime);
+            NCTestUtils.assertValueAt(-2147483647, 1, 1, acquisitionTime);
+            NCTestUtils.assertValueAt(1511142933, 2, 1, acquisitionTime);
+            NCTestUtils.assertValueAt(1511142929, 3, 1, acquisitionTime);
+            NCTestUtils.assertValueAt(1511142923, 4, 1, acquisitionTime);
         } finally {
             reader.close();
         }

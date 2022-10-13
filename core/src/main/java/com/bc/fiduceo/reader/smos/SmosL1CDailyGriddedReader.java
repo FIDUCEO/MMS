@@ -15,10 +15,7 @@ import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.esa.snap.core.util.io.FileUtils;
-import ucar.ma2.Array;
-import ucar.ma2.ArrayInt;
-import ucar.ma2.DataType;
-import ucar.ma2.InvalidRangeException;
+import ucar.ma2.*;
 import ucar.nc2.Variable;
 
 import java.awt.geom.Rectangle2D;
@@ -28,6 +25,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+
+import static com.bc.fiduceo.util.NetCDFUtils.getDefaultFillValue;
 
 class SmosL1CDailyGriddedReader extends NetCDFReader {
 
@@ -180,7 +179,45 @@ class SmosL1CDailyGriddedReader extends NetCDFReader {
 
     @Override
     public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException {
-        throw new IllegalStateException("not implemented");
+        final int height = interval.getY();
+        final int width = interval.getX();
+        final int x_offset = x - width / 2;
+        final int y_offset = y - height / 2;
+        int[] shape = new int[]{height, width};
+
+        final Dimension productSize = getProductSize();
+        final int pWidth = productSize.getNx();
+        final int pHeight = productSize.getNy();
+
+        final TimeLocator timeLocator = getTimeLocator();
+        final int acquisitionTimeFillValue = getDefaultFillValue(int.class).intValue();
+
+        final ArrayInt.D2 acquisitionTime = (ArrayInt.D2) Array.factory(DataType.INT, shape);
+        final Index index = acquisitionTime.getIndex();
+
+        for (int ya = 0; ya < height; ya++) {
+            final int yRead = y_offset + ya;
+
+            for (int xa = 0; xa < width; xa++) {
+                final int xRead = x_offset + xa;
+
+                int acTime;
+                if (xRead < 0 || xRead >= pWidth || yRead < 0 || yRead >= pHeight) {
+                    acTime = acquisitionTimeFillValue;
+                } else {
+                    final long pxTime = timeLocator.getTimeFor(xRead, yRead);
+                    if (pxTime < 0) {
+                        acTime = acquisitionTimeFillValue;
+                    } else {
+                        acTime = (int) (pxTime / 1000);
+                    }
+                }
+                index.set(ya, xa);
+                acquisitionTime.setInt(index, acTime);
+            }
+        }
+
+        return acquisitionTime;
     }
 
     @Override
