@@ -115,8 +115,6 @@ class MatchupFields extends FieldsProcessor {
 
                     final InterpolationContext interpolationContext = Era5PostProcessing.getInterpolationContext(lonLayer, latLayer);
                     final Rectangle layerRegion = interpolationContext.getEra5Region();
-                    final int[] offset = new int[]{layerRegion.y, layerRegion.x};
-                    final int[] shape = new int[]{layerRegion.height, layerRegion.width};
 
                     // iterate over time stamps
                     for (int t = 0; t < numTimeSteps; t++) {
@@ -132,8 +130,7 @@ class MatchupFields extends FieldsProcessor {
                         VariableCache.CacheEntry cacheEntry = variableCache.get(variableKey, timeStamp);
 
                         // read and get rid of fake z-dimension
-                        Array subset = cacheEntry.array.section(offset, shape);
-                        subset = NetCDFUtils.scaleIfNecessary(cacheEntry.variable, subset);
+                        final Array subset = readSubset(1, layerRegion, cacheEntry);
                         final Index subsetIndex = subset.getIndex();
                         final BilinearInterpolator bilinearInterpolator = interpolationContext.get(0, 0);
                         if (bilinearInterpolator == null) {
