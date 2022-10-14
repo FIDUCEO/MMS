@@ -15,9 +15,9 @@ public class ModisL1EmissiveExtension implements LayerExtension {
         final int chIndex = index + CHANNEL_OFFSET;
 
         if (chIndex < 26) {
-            return CHANNEL_INDEX_FORMAT.format(chIndex);
+            return "_ch" + CHANNEL_INDEX_FORMAT.format(chIndex);
         } else if (chIndex <= 35) {
-            return CHANNEL_INDEX_FORMAT.format(chIndex + 1);
+            return "_ch" + CHANNEL_INDEX_FORMAT.format(chIndex + 1);
         }
 
         throw new IllegalArgumentException("unsupportes channel index");

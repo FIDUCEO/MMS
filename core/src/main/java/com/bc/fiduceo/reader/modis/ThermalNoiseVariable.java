@@ -2,7 +2,6 @@ package com.bc.fiduceo.reader.modis;
 
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.VariablePrototype;
-import org.esa.snap.core.util.SystemUtils;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
@@ -32,7 +31,7 @@ class ThermalNoiseVariable extends VariablePrototype {
     @Override
     public String getShortName() {
         final String variableName = originalVariable.getShortName();
-        return variableName + "_ch" + nameExtension.getExtension(layerIndex);
+        return variableName + nameExtension.getExtension(layerIndex);
     }
 
     @Override
@@ -44,7 +43,7 @@ class ThermalNoiseVariable extends VariablePrototype {
         final Array originalData = originalVariable.read();
         final int[] shape = originalData.getShape();
         shape[0] = 1;
-        final int[] origin = new int[] {layerIndex, 0};
+        final int[] origin = new int[]{layerIndex, 0};
 
         final Array section;
         try {
@@ -57,7 +56,7 @@ class ThermalNoiseVariable extends VariablePrototype {
         final int numScans = productHeight / 10;
         final byte[] targetData = new byte[productHeight];
         for (int i = 0; i < numScans; i++) {
-            System.arraycopy(sensorData, 0, targetData, 10 *i, 10);
+            System.arraycopy(sensorData, 0, targetData, 10 * i, 10);
         }
 
         return NetCDFUtils.create(targetData);

@@ -225,6 +225,8 @@ class SmosL1CDailyGriddedReader extends NetCDFReader {
         final List<Variable> variablesInFile = netcdfFile.getVariables();
         final ArrayList<Variable> exportVariables = new ArrayList<>();
 
+        final SmosAngleExtension layerExtension = new SmosAngleExtension();
+
         for (Variable variable : variablesInFile) {
             final String variableName = variable.getShortName();
             if (variablesToSkip.contains(variableName)) {
@@ -235,9 +237,10 @@ class SmosL1CDailyGriddedReader extends NetCDFReader {
                 continue;
             }
 
-            // the remainder is 3d with 15 angle layers tb 2022-10-12
+            // the remainder is 3d with 14 angle layers tb 2022-10-12
             final ArrayList<Variable> bandVariables = new ArrayList<>();
-            addLayered3DVariables(bandVariables, variable, 15, 0);
+            final int[] origin = {0, 0, 0};
+            addChannelVariables(bandVariables, variable, 14, 0, origin, variableName, layerExtension);
             exportVariables.addAll(bandVariables);
         }
 

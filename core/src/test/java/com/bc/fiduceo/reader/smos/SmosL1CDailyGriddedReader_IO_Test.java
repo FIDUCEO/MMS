@@ -187,7 +187,7 @@ public class SmosL1CDailyGriddedReader_IO_Test {
             reader.open(file);
 
             final List<Variable> variables = reader.getVariables();
-            assertEquals(362, variables.size());
+            assertEquals(338, variables.size());
 
             Variable variable = variables.get(0);
             assertEquals("X_Swath", variable.getShortName());
@@ -197,7 +197,7 @@ public class SmosL1CDailyGriddedReader_IO_Test {
             NCTestUtils.assertAttribute(variable, "long_name", "Minimum distance of grid point to the sub satellite point track");
 
             variable = variables.get(3);
-            assertEquals("BT_H_ch02", variable.getShortName());
+            assertEquals("BT_H_075", variable.getShortName());
             assertEquals(DataType.SHORT, variable.getDataType());
             NCTestUtils.assertAttribute(variable, "_FillValue", "-32768");
             NCTestUtils.assertAttribute(variable, "units", "K");
@@ -206,7 +206,7 @@ public class SmosL1CDailyGriddedReader_IO_Test {
             NCTestUtils.assertAttribute(variable, "scale_factor", "0.0061037018951994385");
 
             variable = variables.get(38);
-            assertEquals("BT_3_ch07", variable.getShortName());
+            assertEquals("BT_3_400", variable.getShortName());
             assertEquals(DataType.SHORT, variable.getDataType());
             NCTestUtils.assertAttribute(variable, "_FillValue", "-32768");
             NCTestUtils.assertAttribute(variable, "units", "K");
@@ -214,8 +214,8 @@ public class SmosL1CDailyGriddedReader_IO_Test {
             NCTestUtils.assertAttribute(variable, "add_offset", "0.0");
             NCTestUtils.assertAttribute(variable, "scale_factor", "0.0015259254737998596");
 
-            variable = variables.get(175);
-            assertEquals("Pixel_BT_Standard_Deviation_4_ch09", variable.getShortName());
+            variable = variables.get(165);
+            assertEquals("Pixel_BT_Standard_Deviation_4_425", variable.getShortName());
             assertEquals(DataType.SHORT, variable.getDataType());
             NCTestUtils.assertAttribute(variable, "_FillValue", "-32768");
             NCTestUtils.assertAttribute(variable, "units", "K");
@@ -223,8 +223,8 @@ public class SmosL1CDailyGriddedReader_IO_Test {
             NCTestUtils.assertAttribute(variable, "add_offset", "25.0");
             NCTestUtils.assertAttribute(variable, "scale_factor", "7.629627368999298E-4");
 
-            variable = variables.get(219);
-            assertEquals("Footprint_Axis1_ch08", variable.getShortName());
+            variable = variables.get(210);
+            assertEquals("Footprint_Axis1_575", variable.getShortName());
             assertEquals(DataType.SHORT, variable.getDataType());
             NCTestUtils.assertAttribute(variable, "_FillValue", "-32768");
             NCTestUtils.assertAttribute(variable, "units", "km");
@@ -232,15 +232,15 @@ public class SmosL1CDailyGriddedReader_IO_Test {
             NCTestUtils.assertAttribute(variable, "add_offset", "50.0");
             NCTestUtils.assertAttribute(variable, "scale_factor", "0.0015259254737998596");
 
-            variable = variables.get(305);
-            assertEquals("Nb_SUN_Flags_ch04", variable.getShortName());
+            variable = variables.get(290);
+            assertEquals("Nb_SUN_Flags_400", variable.getShortName());
             assertEquals(DataType.SHORT, variable.getDataType());
             NCTestUtils.assertAttribute(variable, "_FillValue", "-32768");
             NCTestUtils.assertAttribute(variable, "units", "NA");
             NCTestUtils.assertAttribute(variable, "long_name", "Number of views flagged as potentially contaminated by Sun used to compute Angle class averages");
 
-            variable = variables.get(361);
-            assertEquals("UTC_Microseconds_ch15", variable.getShortName());
+            variable = variables.get(337);
+            assertEquals("UTC_Microseconds_625", variable.getShortName());
             assertEquals(DataType.INT, variable.getDataType());
             NCTestUtils.assertAttribute(variable, "_FillValue", "-2147483647");
             NCTestUtils.assertAttribute(variable, "units", "10-6s");
