@@ -1167,7 +1167,7 @@ public class IngestionToolIntegrationTest {
             assertEquals("re07", observation.getVersion());
 
             final Geometry geoBounds = observation.getGeoBounds();
-            assertEquals("POLYGON((-179.8703155517578 -83.51713562011719,-179.8703155517578 83.51713562011719,179.8703155517578 83.51713562011719,179.8703155517578 -83.51713562011719,-179.8703155517578 -83.51713562011719))",
+            assertEquals("POLYGON((-179.8703155517578 -83.51713562011719,179.8703155517578 -83.51713562011719,179.8703155517578 83.51713562011719,-179.8703155517578 83.51713562011719,-179.8703155517578 -83.51713562011719))",
                     geometryFactory.format(geoBounds));
             final TimeAxis timeAxis = observation.getTimeAxes()[0];
             assertTrue(timeAxis instanceof L3TimeAxis);

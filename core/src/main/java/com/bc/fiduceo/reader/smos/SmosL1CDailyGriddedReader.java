@@ -346,13 +346,13 @@ class SmosL1CDailyGriddedReader extends NetCDFReader {
         utcCalendar.set(Calendar.MONTH, ymd[1] - 1);    // month is zero-based tb 2022-09-15
         utcCalendar.set(Calendar.DAY_OF_MONTH, ymd[2]);
 
-        utcCalendar.set(Calendar.HOUR, 0);
+        utcCalendar.set(Calendar.HOUR_OF_DAY, 0);
         utcCalendar.set(Calendar.MINUTE, 0);
         utcCalendar.set(Calendar.SECOND, 0);
 
         acquisitionInfo.setSensingStart(utcCalendar.getTime());
 
-        utcCalendar.set(Calendar.HOUR, 23);
+        utcCalendar.set(Calendar.HOUR_OF_DAY, 23);
         utcCalendar.set(Calendar.MINUTE, 59);
         utcCalendar.set(Calendar.SECOND, 59);
 
@@ -372,9 +372,9 @@ class SmosL1CDailyGriddedReader extends NetCDFReader {
         final Point lr = geometryFactory.createPoint(lonMax, latMin);
         final ArrayList<Point> polygonPoints = new ArrayList<>();
         polygonPoints.add(ll);
-        polygonPoints.add(ul);
-        polygonPoints.add(ur);
         polygonPoints.add(lr);
+        polygonPoints.add(ur);
+        polygonPoints.add(ul);
         polygonPoints.add(ll);
         return geometryFactory.createPolygon(polygonPoints);
     }

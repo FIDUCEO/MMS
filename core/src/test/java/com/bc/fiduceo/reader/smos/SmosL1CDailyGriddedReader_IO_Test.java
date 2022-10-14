@@ -70,8 +70,8 @@ public class SmosL1CDailyGriddedReader_IO_Test {
             assertEquals(5, coordinates.length);
             assertEquals(-179.8703155517578, coordinates[0].getLon(), 1e-8);
             assertEquals(-83.51713562011719, coordinates[0].getLat(), 1e-8);
-            assertEquals(-179.8703155517578, coordinates[1].getLon(), 1e-8);
-            assertEquals(83.51713562011719, coordinates[1].getLat(), 1e-8);
+            assertEquals(179.8703155517578, coordinates[1].getLon(), 1e-8);
+            assertEquals(-83.51713562011719, coordinates[1].getLat(), 1e-8);
 
             final Date sensingStart = acquisitionInfo.getSensingStart();
             TestUtil.assertCorrectUTCDate(2016, 6, 10, 0, 0, 0, sensingStart);
