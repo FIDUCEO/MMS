@@ -37,4 +37,26 @@ public class SmosAngleExtensionTest {
         } catch (RuntimeException expected) {
         }
     }
+
+    @Test
+    public void testGetIndex() {
+        assertEquals(0, extension.getIndex("_025"));
+        assertEquals(5, extension.getIndex("_275"));
+        assertEquals(11, extension.getIndex("_525"));
+    }
+
+    @Test
+    public void testGetIndex_invalid() {
+        try {
+            extension.getIndex("heffalump");
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+
+        try {
+            extension.getIndex("");
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
+        }
+    }
 }

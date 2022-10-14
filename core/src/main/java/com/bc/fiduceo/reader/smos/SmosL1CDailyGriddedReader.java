@@ -6,10 +6,12 @@ import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.RawDataReader;
 import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.ReaderUtils;
 import com.bc.fiduceo.reader.netcdf.NetCDFReader;
 import com.bc.fiduceo.reader.time.TimeLocator;
+import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
@@ -34,6 +36,7 @@ class SmosL1CDailyGriddedReader extends NetCDFReader {
     private final Rectangle2D.Float boundary;
     private final List<String> variablesToSkip;
     private final List<String> variables2D;
+    private final SmosAngleExtension layerExtension;
 
     private File productDir;
     private PixelLocator pixelLocator;
@@ -53,6 +56,7 @@ class SmosL1CDailyGriddedReader extends NetCDFReader {
         variables2D = new ArrayList<>();
         variables2D.add("X_Swath");
         variables2D.add("Grid_Point_Mask");
+        layerExtension = new SmosAngleExtension();
     }
 
     @Override
@@ -169,12 +173,46 @@ class SmosL1CDailyGriddedReader extends NetCDFReader {
 
     @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
-        throw new IllegalStateException("not implemented");
+        if (variables2D.contains(variableName)) {
+            final Array array = arrayCache.get(variableName);
+            final Number fillValue = arrayCache.getNumberAttributeValue(NetCDFUtils.CF_FILL_VALUE_NAME, variableName);
+            return RawDataReader.read(centerX, centerY, interval, fillValue, array, getProductSize());
+        } else {
+            final int extensionIdx = variableName.lastIndexOf("_");
+            final int layerIndex = layerExtension.getIndex(variableName.substring(extensionIdx));
+            final String ncVariableName =  variableName.substring(0, extensionIdx);
+
+            final Array array = arrayCache.get(ncVariableName);
+            final Number fillValue = arrayCache.getNumberAttributeValue(NetCDFUtils.CF_FILL_VALUE_NAME, ncVariableName);
+
+            final int[] shape = array.getShape();
+            shape[0] = 1;   // we only want one z-layer
+            final int[] offsets = {layerIndex, 0, 0};
+
+            final Array angleLayer = NetCDFUtils.section(array, offsets, shape);
+            return RawDataReader.read(centerX, centerY, interval, fillValue, angleLayer, getProductSize());
+        }
     }
 
     @Override
     public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
-        throw new IllegalStateException("not implemented");
+        final Array rawArray = readRaw(centerX, centerY, interval, variableName);
+
+        final String ncVariableName;
+        if (variables2D.contains(variableName)) {
+            ncVariableName = variableName;
+        } else {
+            final int extensionIdx = variableName.lastIndexOf("_");
+            ncVariableName = variableName.substring(0, extensionIdx);
+        }
+        double scaleFactor = arrayCache.getNumberAttributeValue("scale_factor", ncVariableName).doubleValue();
+        double offset = arrayCache.getNumberAttributeValue("add_offset", ncVariableName).doubleValue();
+        if (ReaderUtils.mustScale(scaleFactor, offset)) {
+            final MAMath.ScaleOffset scaleOffset = new MAMath.ScaleOffset(scaleFactor, offset);
+            return MAMath.convert2Unpacked(rawArray, scaleOffset);
+        }
+
+        return rawArray;
     }
 
     @Override
@@ -224,8 +262,6 @@ class SmosL1CDailyGriddedReader extends NetCDFReader {
     public List<Variable> getVariables() throws InvalidRangeException, IOException {
         final List<Variable> variablesInFile = netcdfFile.getVariables();
         final ArrayList<Variable> exportVariables = new ArrayList<>();
-
-        final SmosAngleExtension layerExtension = new SmosAngleExtension();
 
         for (Variable variable : variablesInFile) {
             final String variableName = variable.getShortName();

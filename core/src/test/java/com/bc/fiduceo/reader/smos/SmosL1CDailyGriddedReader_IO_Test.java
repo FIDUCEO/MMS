@@ -16,6 +16,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
@@ -303,6 +304,124 @@ public class SmosL1CDailyGriddedReader_IO_Test {
             NCTestUtils.assertValueAt(1511142933, 2, 1, acquisitionTime);
             NCTestUtils.assertValueAt(1511142929, 3, 1, acquisitionTime);
             NCTestUtils.assertValueAt(1511142923, 4, 1, acquisitionTime);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadAcquisitionTime_CDF3TA_outsideTop() throws IOException, InvalidRangeException {
+        final File file = getCDF3TAFile();
+
+        try {
+            reader.open(file);
+            final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(416, 0, new Interval(3, 5));
+            assertEquals(15, acquisitionTime.getSize());
+
+            NCTestUtils.assertValueAt(-2147483647, 1, 0, acquisitionTime);
+            NCTestUtils.assertValueAt(-2147483647, 1, 1, acquisitionTime);
+            NCTestUtils.assertValueAt(1465575514, 1, 2, acquisitionTime);
+            NCTestUtils.assertValueAt(1465575510, 1, 3, acquisitionTime);
+            NCTestUtils.assertValueAt(1465569571, 1, 4, acquisitionTime);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_2D_CDF3TD() throws IOException, InvalidRangeException {
+        final File file = getCDF3TDFile();
+
+        try {
+            reader.open(file);
+
+            final Array array = reader.readRaw(962, 175, new Interval(3, 3), "X_Swath");
+            NCTestUtils.assertValueAt(495649.46875, 0, 0, array);
+            NCTestUtils.assertValueAt(521634.0625, 1, 0, array);
+            NCTestUtils.assertValueAt(517200.75, 1, 1, array);
+            NCTestUtils.assertValueAt(543231.25, 2, 1, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_3D_CDF3TD() throws IOException, InvalidRangeException {
+        final File file = getCDF3TDFile();
+
+        try {
+            reader.open(file);
+
+            final Array array = reader.readRaw(963, 284, new Interval(3, 3), "BT_H_025");
+            NCTestUtils.assertValueAt(-16530, 0, 1, array);
+            NCTestUtils.assertValueAt(-16831, 1, 1, array);
+            NCTestUtils.assertValueAt(-32768, 2, 1, array);
+            NCTestUtils.assertValueAt(-17140, 0, 2, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_2D_CDF3TA_outsideRight() throws IOException, InvalidRangeException {
+        final File file = getCDF3TAFile();
+
+        try {
+            reader.open(file);
+
+            final Array array = reader.readRaw(1387, 112, new Interval(3, 3), "Grid_Point_Mask");
+            NCTestUtils.assertValueAt(25, 0, 1, array);
+            NCTestUtils.assertValueAt(9, 1, 1, array);
+            NCTestUtils.assertValueAt(0, 2, 1, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_3D_CDF3TA_outsideBottom() throws IOException, InvalidRangeException {
+        final File file = getCDF3TAFile();
+
+        try {
+            reader.open(file);
+
+            final Array array = reader.readRaw(849, 583, new Interval(3, 3), "Pixel_Radiometric_Accuracy_V_175");
+            NCTestUtils.assertValueAt(-28288, 1, 0, array);
+            NCTestUtils.assertValueAt(-26149, 1, 1, array);
+            NCTestUtils.assertValueAt(-32768, 1, 2, array);
+            NCTestUtils.assertValueAt(-28250, 2, 0, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadScaled_3D_CDF3TD() throws IOException, InvalidRangeException {
+        final File file = getCDF3TDFile();
+
+        try {
+            reader.open(file);
+
+            final Array array = reader.readScaled(673, 310, new Interval(3, 3), "Pixel_BT_Standard_Deviation_3_225");
+            NCTestUtils.assertValueAt(4.222235786004212, 0, 1, array);
+            NCTestUtils.assertValueAt(2.3056733909115863, 1, 1, array);
+            NCTestUtils.assertValueAt(2.92062135685293, 2, 1, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadScaled_3D_CDF3TA_outsideLeft() throws IOException, InvalidRangeException {
+        final File file = getCDF3TAFile();
+
+        try {
+            reader.open(file);
+
+            final Array array = reader.readScaled(0, 225, new Interval(3, 3), "Incidence_Angle_275");
+            NCTestUtils.assertValueAt(-0.0013733329264198346, 0, 1, array);
+            NCTestUtils.assertValueAt(28.25907162694174, 1, 1, array);
+            NCTestUtils.assertValueAt(29.65300454725791, 2, 1, array);
         } finally {
             reader.close();
         }

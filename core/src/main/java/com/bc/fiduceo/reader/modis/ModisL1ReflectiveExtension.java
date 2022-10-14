@@ -31,4 +31,9 @@ class ModisL1ReflectiveExtension implements LayerExtension {
 
         throw new IllegalStateException("unsupported index");
     }
+
+    @Override
+    public int getIndex(String extension) {
+        throw new RuntimeException("not implemented");
+    }
 }

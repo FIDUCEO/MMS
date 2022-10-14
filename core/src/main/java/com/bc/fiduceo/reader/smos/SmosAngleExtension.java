@@ -14,4 +14,15 @@ class SmosAngleExtension implements LayerExtension {
             throw new RuntimeException("invalid layer index");
         }
     }
+
+    @Override
+    public int getIndex(String extension) {
+        for (int i = 0; i < EXTENSIONS.length; i++) {
+            if (extension.equals(EXTENSIONS[i])) {
+                return i;
+            }
+        }
+
+        throw new RuntimeException("invalid extension string: " + extension);
+    }
 }

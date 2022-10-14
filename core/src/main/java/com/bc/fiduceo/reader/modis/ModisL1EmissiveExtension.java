@@ -20,6 +20,11 @@ public class ModisL1EmissiveExtension implements LayerExtension {
             return "_ch" + CHANNEL_INDEX_FORMAT.format(chIndex + 1);
         }
 
-        throw new IllegalArgumentException("unsupportes channel index");
+        throw new IllegalArgumentException("unsupported channel index");
+    }
+
+    @Override
+    public int getIndex(String extension) {
+        throw new RuntimeException("not implemented");
     }
 }

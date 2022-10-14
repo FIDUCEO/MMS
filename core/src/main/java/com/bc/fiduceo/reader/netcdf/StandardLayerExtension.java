@@ -21,4 +21,9 @@ public class StandardLayerExtension implements LayerExtension {
     public String getExtension(int index) {
         return "_ch" + CHANNEL_INDEX_FORMAT.format(index + offset + 1);
     }
+
+    @Override
+    public int getIndex(String extension) {
+        throw new RuntimeException("not implemented");
+    }
 }
