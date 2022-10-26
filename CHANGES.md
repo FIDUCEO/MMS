@@ -1,6 +1,6 @@
 ### Updates from version 1.5.5 to 1.5.6
 * added support for SLSTR subset data processed by UoR
-* updated to use SNAP 9.0.0
+* updated to use SNAP 9.0.2 / S3TBX 9.0.3
 * corrected TAI 1993 to UTC conversion for MODIS data
 * added support for MODIS MxD035 cloud data
 * updated H2 database driver
