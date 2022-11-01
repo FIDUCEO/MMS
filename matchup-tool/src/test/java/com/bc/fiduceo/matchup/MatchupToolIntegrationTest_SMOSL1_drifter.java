@@ -77,6 +77,8 @@ public class MatchupToolIntegrationTest_SMOSL1_drifter extends AbstractUsecaseIn
             NCTestUtils.assert3DVariable("miras-smos-CDF3TD_Nb_SUN_Flags_525", 2, 0, 11, 0, mmd);
             NCTestUtils.assert3DVariable("miras-smos-CDF3TD_Nviews_575", 0, 1, 12, 14, mmd);
             NCTestUtils.assert3DVariable("miras-smos-CDF3TD_Pixel_BT_Standard_Deviation_3_625", 1, 1, 13, -32768, mmd);
+            NCTestUtils.assert3DVariable("miras-smos-CDF3TD_lon", 2, 1, 13, -48.37175750732422, mmd);
+            NCTestUtils.assert3DVariable("miras-smos-CDF3TD_lat", 0, 2, 14, 36.3758544921875, mmd);
         }
     }
 

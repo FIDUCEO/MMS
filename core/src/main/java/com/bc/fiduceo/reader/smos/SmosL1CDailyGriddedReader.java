@@ -13,11 +13,13 @@ import com.bc.fiduceo.reader.netcdf.NetCDFReader;
 import com.bc.fiduceo.reader.time.TimeLocator;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
+import com.bc.fiduceo.util.VariableProxy;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.esa.snap.core.util.io.FileUtils;
 import ucar.ma2.*;
+import ucar.nc2.Attribute;
 import ucar.nc2.Variable;
 
 import java.awt.geom.Rectangle2D;
@@ -28,6 +30,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import static com.bc.fiduceo.reader.smos.GeolocationHandler.LATITUDE;
+import static com.bc.fiduceo.reader.smos.GeolocationHandler.LONGITUDE;
 import static com.bc.fiduceo.util.NetCDFUtils.getDefaultFillValue;
 
 class SmosL1CDailyGriddedReader extends NetCDFReader {
@@ -41,6 +45,7 @@ class SmosL1CDailyGriddedReader extends NetCDFReader {
     private File productDir;
     private PixelLocator pixelLocator;
     private TimeLocator timeLocator;
+    private GeolocationHandler geolocationHandler;
 
 
     SmosL1CDailyGriddedReader(ReaderContext readerContext) {
@@ -83,6 +88,7 @@ class SmosL1CDailyGriddedReader extends NetCDFReader {
 
         pixelLocator = null;
         timeLocator = null;
+        geolocationHandler = null;
         if (productDir != null) {
             readerContext.deleteTempFile(productDir);
             productDir = null;
@@ -173,14 +179,23 @@ class SmosL1CDailyGriddedReader extends NetCDFReader {
 
     @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
-        if (variables2D.contains(variableName)) {
+        if (variableName.equals("lon") || variableName.equals("lat")) {
+            final GeolocationHandler geoHandler = getGeolocationHandler();
+            int type;
+            if (variableName.equals("lon")) {
+                type = LONGITUDE;
+            } else {
+                type = LATITUDE;
+            }
+            return geoHandler.read(centerX, centerY, interval, type);
+        } else if (variables2D.contains(variableName)) {
             final Array array = arrayCache.get(variableName);
             final Number fillValue = arrayCache.getNumberAttributeValue(NetCDFUtils.CF_FILL_VALUE_NAME, variableName);
             return RawDataReader.read(centerX, centerY, interval, fillValue, array, getProductSize());
         } else {
             final int extensionIdx = variableName.lastIndexOf("_");
             final int layerIndex = layerExtension.getIndex(variableName.substring(extensionIdx));
-            final String ncVariableName =  variableName.substring(0, extensionIdx);
+            final String ncVariableName = variableName.substring(0, extensionIdx);
 
             final Array array = arrayCache.get(ncVariableName);
             final Number fillValue = arrayCache.getNumberAttributeValue(NetCDFUtils.CF_FILL_VALUE_NAME, ncVariableName);
@@ -194,9 +209,22 @@ class SmosL1CDailyGriddedReader extends NetCDFReader {
         }
     }
 
+    private GeolocationHandler getGeolocationHandler() throws IOException {
+        if (geolocationHandler == null) {
+            geolocationHandler = new GeolocationHandler(getPixelLocator());
+        }
+
+        return geolocationHandler;
+    }
+
     @Override
     public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
         final Array rawArray = readRaw(centerX, centerY, interval, variableName);
+
+        // we know that these are already scaled tb 2022-11-01
+        if (variableName.equals("lon") || variableName.equals("lat")) {
+            return rawArray;
+        }
 
         final String ncVariableName;
         if (variables2D.contains(variableName)) {
@@ -279,6 +307,19 @@ class SmosL1CDailyGriddedReader extends NetCDFReader {
             addChannelVariables(bandVariables, variable, 14, 0, origin, variableName, layerExtension);
             exportVariables.addAll(bandVariables);
         }
+
+        // add two proxies for the geolocation variables tb 2022-11-01
+        final ArrayList<Attribute> attributes = new ArrayList<>();
+        attributes.add(new Attribute("_FillValue", Float.NaN));
+        attributes.add(new Attribute("units", "degrees_east"));
+        attributes.add(new Attribute("long_name", "longitude"));
+        exportVariables.add(new VariableProxy("lon", DataType.FLOAT, attributes));
+
+        attributes.clear();
+        attributes.add(new Attribute("_FillValue", Float.NaN));
+        attributes.add(new Attribute("units", "degrees_north"));
+        attributes.add(new Attribute("long_name", "latitude"));
+        exportVariables.add(new VariableProxy("lat", DataType.FLOAT, attributes));
 
         return exportVariables;
     }

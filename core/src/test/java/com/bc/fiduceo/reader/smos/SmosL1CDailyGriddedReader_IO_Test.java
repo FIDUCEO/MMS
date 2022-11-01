@@ -173,22 +173,13 @@ public class SmosL1CDailyGriddedReader_IO_Test {
 
     @Test
     public void testGetVariables_CDF3TD() throws IOException, InvalidRangeException {
-        // X_Swath, Grid_Point_Mask
-        // BT_H(15), BT_V(15), BT_3(15), BT_4(15),
-        // Pixel_Radiometric_Accuracy_H(15), Pixel_Radiometric_Accuracy_V(15), Pixel_Radiometric_Accuracy_3(15), Pixel_Radiometric_Accuracy_4(15)
-        // Pixel_BT_Standard_Deviation_H(15), Pixel_BT_Standard_Deviation_V(15), Pixel_BT_Standard_Deviation_3(15), Pixel_BT_Standard_Deviation_4(15)
-        // Incidence_Angle(15), Azimuth_Angle(15), Footprint_Axis1(15), Footprint_Axis2(15),
-        // Xi(15), Eta(15), Nviews(15), Nb_RFI_Flags(15), Nb_SUN_Flags(15)
-        // Days(15), UTC_Seconds(15), UTC_Microseconds(15)
-        // 362 variables total
-
         final File file = getCDF3TAFile();
 
         try {
             reader.open(file);
 
             final List<Variable> variables = reader.getVariables();
-            assertEquals(338, variables.size());
+            assertEquals(340, variables.size());
 
             Variable variable = variables.get(0);
             assertEquals("X_Swath", variable.getShortName());
@@ -246,6 +237,13 @@ public class SmosL1CDailyGriddedReader_IO_Test {
             NCTestUtils.assertAttribute(variable, "_FillValue", "-2147483647");
             NCTestUtils.assertAttribute(variable, "units", "10-6s");
             NCTestUtils.assertAttribute(variable, "long_name", "UTC Time at which the averaged BT was taken, in EE CFI transport time format. Microseconds");
+
+            variable = variables.get(339);
+            assertEquals("lat", variable.getShortName());
+            assertEquals(DataType.FLOAT, variable.getDataType());
+            NCTestUtils.assertAttribute(variable, "_FillValue", "NaN");
+            NCTestUtils.assertAttribute(variable, "units", "degrees_north");
+            NCTestUtils.assertAttribute(variable, "long_name", "latitude");
         } finally {
             reader.close();
         }
@@ -422,6 +420,38 @@ public class SmosL1CDailyGriddedReader_IO_Test {
             NCTestUtils.assertValueAt(-0.0013733329264198346, 0, 1, array);
             NCTestUtils.assertValueAt(28.25907162694174, 1, 1, array);
             NCTestUtils.assertValueAt(29.65300454725791, 2, 1, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_lon_CDF3TD() throws IOException, InvalidRangeException {
+        final File file = getCDF3TDFile();
+
+        try {
+            reader.open(file);
+
+            final Array array = reader.readRaw(674, 311, new Interval(3, 3), "lon");
+            NCTestUtils.assertValueAt(-5.317002773284912, 0, 1, array);
+            NCTestUtils.assertValueAt(-5.057636737823486, 1, 1, array);
+            NCTestUtils.assertValueAt(-4.7982707023620605, 2, 1, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadScaled_lat_CDF3TA() throws IOException, InvalidRangeException {
+        final File file = getCDF3TAFile();
+
+        try {
+            reader.open(file);
+
+            final Array array = reader.readScaled(675, 312, new Interval(3, 3), "lat");
+            NCTestUtils.assertValueAt(3.827965021133423, 1, 0, array);
+            NCTestUtils.assertValueAt(4.024578094482422, 1, 1, array);
+            NCTestUtils.assertValueAt(4.2212371826171875, 1, 2, array);
         } finally {
             reader.close();
         }
