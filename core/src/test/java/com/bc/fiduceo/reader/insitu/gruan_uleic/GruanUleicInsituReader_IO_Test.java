@@ -48,7 +48,7 @@ public class GruanUleicInsituReader_IO_Test {
     }
 
     @Test
-    public void testReadAcquisitionInfo() throws IOException {
+    public void testReadAcquisitionInfo() {
         final AcquisitionInfo info = reader.read();
         assertNotNull(info);
 
