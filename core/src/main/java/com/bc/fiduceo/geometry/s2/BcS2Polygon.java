@@ -24,11 +24,7 @@ package com.bc.fiduceo.geometry.s2;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.Point;
 import com.bc.fiduceo.geometry.Polygon;
-import com.google.common.geometry.S2LatLng;
-import com.google.common.geometry.S2Loop;
-import com.google.common.geometry.S2Point;
-import com.google.common.geometry.S2Polygon;
-import com.google.common.geometry.S2Polyline;
+import com.google.common.geometry.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +37,6 @@ class BcS2Polygon implements Polygon {
         this.googlePolygon = (S2Polygon) geometry;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public Geometry getIntersection(Geometry other) {
         if (other instanceof BcS2Polygon) {
@@ -124,7 +119,7 @@ class BcS2Polygon implements Polygon {
         final List<Point> pointList = extractPoints(googlePolygon);
         // @todo 2 tb/** the S2 loops do not contain the closing point. Check if we need to add this point here.
         // check what happens when the polygon contains more than one loop tb 2016-01-27
-        return pointList.toArray(new Point[pointList.size()]);
+        return pointList.toArray(new Point[0]);
     }
 
     @Override
@@ -181,18 +176,28 @@ class BcS2Polygon implements Polygon {
 
     @SuppressWarnings("unchecked")
     private Geometry intersectMultiLineString(Geometry other) {
-        List<S2Polyline> s2PolylineList = (List<S2Polyline>) other.getInner();
-        List<S2Polyline> intersectionResult = new ArrayList<>();
+        final List<S2Polyline> s2PolylineList = (List<S2Polyline>) other.getInner();
+        final List<S2Polyline> intersectionResult = new ArrayList<>();
         for (final S2Polyline s2Polyline : s2PolylineList) {
-            intersectionResult.addAll(googlePolygon.intersectWithPolyLine(s2Polyline));
+            final List<S2Polyline> polylines = googlePolygon.intersectWithPolyLine(s2Polyline);
+
+            intersectionResult.addAll(polylines);
         }
-        return new BcS2MultiLineString(intersectionResult);
+        if (intersectionResult.size() == 1) {
+            return new BcS2LineString(intersectionResult.get(0));
+        } else {
+            return new BcS2MultiLineString(intersectionResult);
+        }
     }
 
     private Geometry intersectLineString(Geometry other) {
         final S2Polyline s2Polyline = (S2Polyline) other.getInner();
         final List<S2Polyline> intersection = googlePolygon.intersectWithPolyLine(s2Polyline);
-        return new BcS2MultiLineString(intersection);
+        if (intersection.size() == 1) {
+            return new BcS2LineString(intersection.get(0));
+        } else {
+            return new BcS2MultiLineString(intersection);
+        }
     }
 
     @SuppressWarnings("unchecked")

@@ -201,7 +201,7 @@ public class BcS2MultiPolygonTest {
         final Geometry intersection = bcS2MultiPolygon.getIntersection(lineString);
         assertNotNull(intersection);
         assertTrue(intersection.isValid());
-        final BcS2MultiLineString result = (BcS2MultiLineString) intersection;
+        final BcS2LineString result = (BcS2LineString) intersection;
         final Point[] coordinates = result.getCoordinates();
         assertEquals(2, coordinates.length);
         assertEquals("POINT(29.999999999999993 15.39374601204165)", coordinates[0].toString());

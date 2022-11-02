@@ -39,6 +39,8 @@ public interface GeometryFactoryInterface {
 
     LineString createLineString(List<Point> points);
 
+    MultiLineString createMultiLineString(List<LineString> points);
+
     MultiPolygon createMultiPolygon(List<Polygon> polygonList);
 
     TimeAxis createTimeAxis(LineString lineString, Date startTime, Date endTime);

@@ -11,9 +11,9 @@ public class ModisL1EmissiveExtensionTest {
     public void testGetExtension_emissive() {
         final LayerExtension layerExtension = new ModisL1EmissiveExtension();
 
-        assertEquals("20", layerExtension.getExtension(0));
-        assertEquals("25", layerExtension.getExtension(5));
-        assertEquals("27", layerExtension.getExtension(6));
-        assertEquals("36", layerExtension.getExtension(15));
+        assertEquals("_ch20", layerExtension.getExtension(0));
+        assertEquals("_ch25", layerExtension.getExtension(5));
+        assertEquals("_ch27", layerExtension.getExtension(6));
+        assertEquals("_ch36", layerExtension.getExtension(15));
     }
 }

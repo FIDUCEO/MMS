@@ -108,8 +108,8 @@ public class IngestionToolIntegrationTest {
     public void testIngest_errorStopDateBeforeStartDate() throws ParseException, IOException, SQLException {
         final String[] args = new String[]{
                 "-c", configDir.getAbsolutePath(), "-s", "iasi-mb", "-v", "v0-0N",
-                "-start", "2001-02-02",
-                "-end", "2001-01-01"
+                "-start", "2001-004",
+                "-end", "2001-001"
         };
         final CommandLineParser parser = new PosixParser();
         final CommandLine commandLine = parser.parse(IngestionTool.getOptions(), args);
@@ -1139,6 +1139,39 @@ public class IngestionToolIntegrationTest {
             final Geometry geoBounds = observation.getGeoBounds();
             assertEquals(TestData.AVHRR_FRAC_MB_GEOMETRY, geometryFactory.format(geoBounds));
             assertEquals(TestData.AVHRR_FRAC_MB_AXIS_GEOMETRY, geometryFactory.format(observation.getTimeAxes()[0].getGeometry()));
+        } finally {
+            storage.clear();
+            storage.close();
+        }
+    }
+
+    @Test
+    public void testIngest_miras_smos_CDF3TD() throws SQLException, ParseException {
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "miras-smos-CDF3TD", "-start", "2017-324", "-end", "2017-324", "-v", "re07"};
+
+        try {
+            IngestionToolMain.main(args);
+            final List<SatelliteObservation> satelliteObservations = storage.get();
+            assertEquals(1, satelliteObservations.size());
+
+            final SatelliteObservation observation = getSatelliteObservation("SM_RE07_MIR_CDF3TD_20171120T000000_20171120T235959_330_001_7.tgz", satelliteObservations);
+            TestUtil.assertCorrectUTCDate(2017, 11, 20, 0, 0, 0, 0, observation.getStartTime());
+            TestUtil.assertCorrectUTCDate(2017, 11, 20, 23, 59, 59, 0, observation.getStopTime());
+
+            assertEquals("miras-smos-CDF3TD", observation.getSensor().getName());
+
+            final String expectedPath = TestUtil.assembleFileSystemPath(new String[]{"miras-smos-CDF3TD", "re07", "2017", "324", "SM_RE07_MIR_CDF3TD_20171120T000000_20171120T235959_330_001_7.tgz"}, false);
+            assertEquals(expectedPath, observation.getDataFilePath().toString());
+
+            assertEquals(NodeType.UNDEFINED, observation.getNodeType());
+            assertEquals("re07", observation.getVersion());
+
+            final Geometry geoBounds = observation.getGeoBounds();
+            assertEquals("POLYGON((-179.8703155517578 -83.51713562011719,179.8703155517578 -83.51713562011719,179.8703155517578 83.51713562011719,-179.8703155517578 83.51713562011719,-179.8703155517578 -83.51713562011719))",
+                    geometryFactory.format(geoBounds));
+            final TimeAxis timeAxis = observation.getTimeAxes()[0];
+            assertTrue(timeAxis instanceof L3TimeAxis);
+            assertEquals("MULTILINESTRING((-179.8703155517578 0.0,179.8703155517578 0.0),(0.0 83.51713562011719,0.0 -83.51713562011719))", geometryFactory.format(timeAxis.getGeometry()));
         } finally {
             storage.clear();
             storage.close();

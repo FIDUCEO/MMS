@@ -349,7 +349,7 @@ public class IntersectionEngineTest {
         assertEquals(0, timeInfo.getMinimalTimeDelta());
 
         final Geometry geometry = intersectingIntervals[0].getGeometry();
-        assertEquals("MULTILINESTRING((2.5 3.0000729761109572,2.5 4.0))", geometryFactory.format(geometry));
+        assertEquals("LINESTRING(2.5 3.0000729761109572,2.5 4.0)", geometryFactory.format(geometry));
     }
 
     @Test
@@ -389,7 +389,7 @@ public class IntersectionEngineTest {
         assertEquals(333, timeInfo.getMinimalTimeDelta());
 
         final Geometry geometry = intersectingIntervals[0].getGeometry();
-        assertEquals("MULTILINESTRING((2.5 4.0,2.5 3.0000729761109572))", geometryFactory.format(geometry));
+        assertEquals("LINESTRING(2.5 4.0,2.5 3.0000729761109572)", geometryFactory.format(geometry));
     }
 
     @Test
@@ -409,7 +409,7 @@ public class IntersectionEngineTest {
         assertEquals(0, timeInfo.getMinimalTimeDelta());
 
         final Geometry geometry = intersectingIntervals[0].getGeometry();
-        assertEquals("MULTILINESTRING((2.4 4.0,2.3999999999999995 3.0000000000000004,2.3999999999999995 1.9999999999999996,2.4 1.0000365478174977))", geometryFactory.format(geometry));
+        assertEquals("LINESTRING(2.4 4.0,2.3999999999999995 3.0000000000000004,2.3999999999999995 1.9999999999999996,2.4 1.0000365478174977)", geometryFactory.format(geometry));
     }
 
     @Test
@@ -436,10 +436,10 @@ public class IntersectionEngineTest {
         assertEquals(0, timeInfo.getMinimalTimeDelta());
 
         Geometry geometry = intersectingIntervals[0].getGeometry();
-        assertEquals("MULTILINESTRING((2.0000000000000004 3.17019687933719,2.620630927903088 4.0005199239719795))", geometryFactory.format(geometry));
+        assertEquals("LINESTRING(2.0000000000000004 3.17019687933719,2.620630927903088 4.0005199239719795)", geometryFactory.format(geometry));
 
         geometry = intersectingIntervals[1].getGeometry();
-        assertEquals("MULTILINESTRING((2.620630927903088 4.0005199239719795,4.0 5.837617117170999))", geometryFactory.format(geometry));
+        assertEquals("LINESTRING(2.620630927903088 4.0005199239719795,4.0 5.837617117170999)", geometryFactory.format(geometry));
     }
 
     @Test

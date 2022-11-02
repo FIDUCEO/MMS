@@ -78,6 +78,17 @@ public class MongoDbDriverTest {
     }
 
     @Test
+    public void testConvertToGeoJSON_multiLineString() {
+        final Geometry polygon = geometryFactory.parse("MULTILINESTRING((1 2, 2 4), (3 -1, 4 0))");
+
+        final com.mongodb.client.model.geojson.Geometry geoJSON = MongoDbDriver.convertToGeoJSON(polygon);
+        assertNotNull(geoJSON);
+
+        assertEquals("{\"type\": \"MultiLineString\", \"coordinates\": [[[0.9999999999999998, 2.0], [2.0, 4.0]], [[3.0000000000000004, -1.0], [4.0, 0.0]]]}",
+                geoJSON.toJson());
+    }
+
+    @Test
     public void testConvertToGeoJSON_point() {
         final Geometry polygon = geometryFactory.parse("POINT(2 3)");
 
@@ -252,13 +263,26 @@ public class MongoDbDriverTest {
     }
 
     @Test
+    public void testConvertToGeometry_multiLineString() {
+        final double[][] lons = {{-10, -9}, {-5, -4}};
+        final double[][] lats = {{0, 1}, {2, 2}};
+
+        final Document multiLineString = createGeoJsonMultiLineString(lons, lats);
+
+        final Geometry geometry = driver.convertToGeometry(multiLineString);
+        assertTrue(geometry instanceof MultiLineString);
+        assertEquals("MULTILINESTRING((-10.0 0.0,-9.000000000000002 1.0),(-4.999999999999999 2.0,-4.0 2.0))",
+                geometryFactory.format(geometry));
+    }
+
+    @Test
     public void testConvertToGeometry_unsupportedGeometry() {
         final Document bretzelType = new Document("type", "Bretzel");
 
         try {
             driver.convertToGeometry(bretzelType);
-            fail("RuntimeException expecetd");
-        } catch (RuntimeException expecetd) {
+            fail("RuntimeException expected");
+        } catch (RuntimeException expected) {
         }
     }
 
@@ -401,6 +425,24 @@ public class MongoDbDriverTest {
 
         jsonLineString.append("coordinates", pointList);
         return jsonLineString;
+    }
+
+    private Document createGeoJsonMultiLineString(double[][] lons, double[][] lats) {
+        final Document jsonMultiLineString = new Document("type", "MultiLineString");
+        final List<List<List<Double>>> lineStringList = new ArrayList<>();
+
+        for (int i = 0; i < lons.length; i++) {
+            List<List<Double>> lineStringPoints = new ArrayList<>();
+            for (int k = 0; k < lons[i].length; k++) {
+                final double lon = lons[i][k];
+                final double lat = lats[i][k];
+                lineStringPoints.add(createJsonPoint(lon, lat));
+            }
+            lineStringList.add(lineStringPoints);
+        }
+
+        jsonMultiLineString.append("coordinates", lineStringList);
+        return jsonMultiLineString;
     }
 
     private ArrayList<Double> createJsonPoint(double lon, double lat) {

@@ -43,7 +43,7 @@ class BcS2MultiPolygon implements MultiPolygon {
         if (other instanceof BcS2Point) {
             return intersectPoint((BcS2Point) other);
         } else if (other instanceof BcS2MultiLineString) {
-            return intersectLineString((LineString) other);
+            return intersectMultiLineString((MultiLineString) other);
         } else if (other instanceof BcS2LineString) {
             return intersectLineString((LineString) other);
         } else if (other instanceof BcS2Polygon) {
@@ -132,15 +132,48 @@ class BcS2MultiPolygon implements MultiPolygon {
     private Geometry intersectLineString(LineString other) {
         final List<BcS2LineString> lineStrings = new ArrayList<>();
         for (final Polygon polygon : polygonList) {
-            final BcS2MultiLineString intersection = (BcS2MultiLineString) polygon.getIntersection(other);
+            final Geometry intersection = polygon.getIntersection(other);
             if (intersection.isValid()) {
-                final List<S2Polyline> inner = (List<S2Polyline>) intersection.getInner();
-                for (final S2Polyline polyline : inner) {
-                    lineStrings.add(new BcS2LineString(polyline));
+                if (intersection instanceof LineString) {
+                    final S2Polyline inner = (S2Polyline) intersection.getInner();
+                    lineStrings.add(new BcS2LineString(inner));
+                } else {
+                    final List<S2Polyline> inner = (List<S2Polyline>) intersection.getInner();
+                    for (final S2Polyline polyline : inner) {
+                        lineStrings.add(new BcS2LineString(polyline));
+                    }
                 }
             }
         }
-        return BcS2MultiLineString.createFrom(lineStrings);
+        if (lineStrings.size() == 1) {
+            return lineStrings.get(0);
+        } else {
+            return BcS2MultiLineString.createFrom(lineStrings);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private Geometry intersectMultiLineString(MultiLineString other) {
+        final List<BcS2LineString> lineStrings = new ArrayList<>();
+        for (final Polygon polygon : polygonList) {
+            final Geometry intersection = polygon.getIntersection(other);
+            if (intersection.isValid()) {
+                if (intersection instanceof LineString) {
+                    final S2Polyline inner = (S2Polyline) intersection.getInner();
+                    lineStrings.add(new BcS2LineString(inner));
+                } else {
+                    final List<S2Polyline> inner = (List<S2Polyline>) intersection.getInner();
+                    for (final S2Polyline polyline : inner) {
+                        lineStrings.add(new BcS2LineString(polyline));
+                    }
+                }
+            }
+        }
+        if (lineStrings.size() == 1) {
+            return lineStrings.get(0);
+        } else {
+            return BcS2MultiLineString.createFrom(lineStrings);
+        }
     }
 
     private Geometry intersectPolygon(BcS2Polygon other) {

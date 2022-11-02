@@ -140,15 +140,14 @@ public abstract class NetCDFReader implements Reader {
         addChannelVariables(result, variable, numChannels, channel_dimension_index, origin, variableName, layerExtension);
     }
 
-    private void addChannelVariables(List<Variable> result, Variable variable, int numChannels, int channel_dimension_index, int[] origin, String variableName, LayerExtension layerExtension) throws InvalidRangeException {
+    protected void addChannelVariables(List<Variable> result, Variable variable, int numChannels, int channel_dimension_index, int[] origin, String variableName, LayerExtension layerExtension) throws InvalidRangeException {
         final int[] shape = variable.getShape();
         shape[channel_dimension_index] = 1;
 
-        final String variableBaseName = variableName + "_ch";
         for (int channel = 0; channel < numChannels; channel++) {
             final Section section = new Section(origin, shape);
             final Variable channelVariable = variable.section(section);
-            final String channelVariableName = variableBaseName + layerExtension.getExtension(channel);
+            final String channelVariableName = variableName + layerExtension.getExtension(channel);
             channelVariable.setName(channelVariableName);
             splitAttributes(channelVariable, channel, numChannels);
             result.add(channelVariable);
@@ -181,7 +180,11 @@ public abstract class NetCDFReader implements Reader {
                 lineTimeInSeconds = acquisitionTimeFillValue;
             } else {
                 final long lineTime = timeLocator.getTimeFor(0, yRead);
-                lineTimeInSeconds = (int) (lineTime / 1000);
+                if (lineTime < 0) {
+                    lineTimeInSeconds = acquisitionTimeFillValue;
+                } else {
+                    lineTimeInSeconds = (int) (lineTime / 1000);
+                }
             }
 
             for (int xa = 0; xa < width; xa++) {
