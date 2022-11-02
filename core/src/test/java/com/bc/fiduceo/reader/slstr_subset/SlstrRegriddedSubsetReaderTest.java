@@ -31,11 +31,17 @@ public class SlstrRegriddedSubsetReaderTest {
     public void testGetRegEx() {
         final SlstrRegriddedSubsetReader reader = new SlstrRegriddedSubsetReader(null); // this test does not require a context class tb 2022-08-19
 
-        final String expected = "S3[AB]_SL_1_RBT____(\\d{8}T\\d{6}_){3}\\d{4}(_\\d{3}){2}_\\d{4}_LN2_O_NT_\\d{3}(.SEN3|.zip)";
+        final String expected = "S3[AB]_SL_1_RBT____(\\d{8}T\\d{6}_){3}\\d{4}(_\\d{3}){2}_.*_\\d{3}(.SEN3|.zip)";
         assertEquals(expected, reader.getRegEx());
 
         final Pattern pattern = Pattern.compile(expected);
         Matcher matcher = pattern.matcher("S3A_SL_1_RBT____20200522T231202_20200522T231502_20200524T053503_0179_058_286_5580_LN2_O_NT_004.SEN3");
+        assertTrue(matcher.matches());
+
+        matcher = pattern.matcher("S3A_SL_1_RBT____20161112T120208_20161112T120508_20181003T074857_0179_011_023______LR1_R_NT_003.zip");
+        assertTrue(matcher.matches());
+
+        matcher = pattern.matcher("S3A_SL_1_RBT____20220809T000124_20220809T000424_20220810T075621_0179_088_258_5400_PS1_O_NT_004.SEN3");
         assertTrue(matcher.matches());
 
         matcher = pattern.matcher("S3B_SL_1_RBT____20191117T231801_20191117T232101_20191119T035119_0180_032_172_5400_LN2_O_NT_003.SEN3");
