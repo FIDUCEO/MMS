@@ -165,7 +165,7 @@ public class SlstrRegriddedSubsetReader implements Reader {
 
     @Override
     public String getRegEx() {
-        return "S3[AB]_SL_1_RBT____(\\d{8}T\\d{6}_){3}\\d{4}(_\\d{3}){2}_\\d{4}_LN2_O_NT_\\d{3}(.SEN3|.zip)";
+        return "S3[AB]_SL_1_RBT____(\\d{8}T\\d{6}_){3}\\d{4}(_\\d{3}){2}_.*_\\d{3}(.SEN3|.zip)";
     }
 
     @Override
