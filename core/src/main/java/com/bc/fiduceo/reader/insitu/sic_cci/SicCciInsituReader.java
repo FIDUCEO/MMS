@@ -2,6 +2,7 @@ package com.bc.fiduceo.reader.insitu.sic_cci;
 
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
+import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
@@ -16,7 +17,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class SicCciInsituReader implements Reader {
@@ -30,10 +33,18 @@ public class SicCciInsituReader implements Reader {
     public void open(File file) throws IOException {
         fileReader = new FileReader(file);
 
+        readLines();
+    }
+
+    private void readLines() throws IOException {
         linelist = new ArrayList<>();
         final BufferedReader bufferedReader = new BufferedReader(fileReader);
         String line;
         while ((line = bufferedReader.readLine()) != null) {
+            if (line.startsWith("#")) {
+                // skip comment lines tb 2022-11-03
+                continue;
+            }
             linelist.add(line);
         }
     }
@@ -52,7 +63,12 @@ public class SicCciInsituReader implements Reader {
 
     @Override
     public AcquisitionInfo read() throws IOException {
-        throw new RuntimeException("not implemented");
+        final AcquisitionInfo acquisitionInfo = new AcquisitionInfo();
+        acquisitionInfo.setNodeType(NodeType.UNDEFINED);
+
+        parseSensingTimes(acquisitionInfo);
+
+        return acquisitionInfo;
     }
 
     @Override
@@ -113,5 +129,28 @@ public class SicCciInsituReader implements Reader {
     @Override
     public String getLatitudeVariableName() {
         return "latitude";
+    }
+
+    private void parseSensingTimes(AcquisitionInfo acquisitionInfo) throws IOException {
+        Date minDate = new Date(Long.MAX_VALUE);
+        Date maxDate = new Date(0);
+        final ReferenceDataSection referenceDataSection = new ReferenceDataSection();
+        try {
+            for (String line :linelist) {
+                referenceDataSection.parseTime(line);
+                final Date refTime = referenceDataSection.getTime();
+                if (minDate.after(refTime)) {
+                    minDate = refTime;
+                }
+                if (maxDate.before(refTime)){
+                    maxDate = refTime;
+                }
+
+                acquisitionInfo.setSensingStart(minDate);
+                acquisitionInfo.setSensingStop(maxDate);
+            }
+        } catch (ParseException e) {
+            throw new IOException(e.getMessage());
+        }
     }
 }
