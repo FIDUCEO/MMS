@@ -8,6 +8,7 @@ import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.time.TimeLocator;
+import com.bc.fiduceo.reader.time.TimeLocator_MillisSince1970;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.InvalidRangeException;
@@ -24,9 +25,10 @@ import java.util.List;
 
 public class SicCciInsituReader implements Reader {
 
-    private static final String REG_EX = "ASCAT-vs-AMSR2-vs-ERA5-vs-DMISIC0-\\d{4}-[N|S].text";
+    private static final String REG_EX = "ASCAT-vs-AMSR2-vs-ERA5-vs-\\p{Upper}{6}\\d{1}-\\d{4}-[N|S].text";
 
     private FileReader fileReader;
+    private TimeLocator timeLocator;
     private ArrayList<String> linelist;
 
     @Override
@@ -59,6 +61,7 @@ public class SicCciInsituReader implements Reader {
             fileReader.close();
             fileReader = null;
         }
+        timeLocator = null;
     }
 
     @Override
@@ -88,16 +91,33 @@ public class SicCciInsituReader implements Reader {
 
     @Override
     public TimeLocator getTimeLocator() throws IOException {
-        throw new RuntimeException("not implemented");
+        if (timeLocator == null) {
+            long[] timeArray = new long[linelist.size()];
+            try {
+                int i = 0;
+                for (String line : linelist) {
+                    final Date refTime = ReferenceDataSection.parseTime(line);
+                    timeArray[i] = refTime.getTime();
+                    ++i;
+                }
+
+                timeLocator = new TimeLocator_MillisSince1970(timeArray);
+            } catch (ParseException e) {
+                throw new IOException(e.getMessage());
+            }
+        }
+        return timeLocator;
     }
 
     @Override
     public int[] extractYearMonthDayFromFilename(String fileName) {
-        throw new RuntimeException("not implemented");
+        return new int[3];
     }
 
     @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
+        // detect from variable name which section
+        // - all sections have prefix, except for reference data section
         throw new RuntimeException("not implemented");
     }
 
@@ -113,12 +133,18 @@ public class SicCciInsituReader implements Reader {
 
     @Override
     public List<Variable> getVariables() throws InvalidRangeException, IOException {
-        throw new RuntimeException("not implemented");
+        return ReferenceDataSection.getVariables();
     }
 
     @Override
     public Dimension getProductSize() throws IOException {
-        throw new RuntimeException("not implemented");
+        final Dimension productSize = new Dimension();
+
+        productSize.setName("product_size");
+        productSize.setNx(1);
+        productSize.setNy(linelist.size());
+
+        return productSize;
     }
 
     @Override
@@ -134,21 +160,20 @@ public class SicCciInsituReader implements Reader {
     private void parseSensingTimes(AcquisitionInfo acquisitionInfo) throws IOException {
         Date minDate = new Date(Long.MAX_VALUE);
         Date maxDate = new Date(0);
-        final ReferenceDataSection referenceDataSection = new ReferenceDataSection();
         try {
-            for (String line :linelist) {
-                referenceDataSection.parseTime(line);
-                final Date refTime = referenceDataSection.getTime();
+            for (String line : linelist) {
+                final Date refTime = ReferenceDataSection.parseTime(line);
                 if (minDate.after(refTime)) {
                     minDate = refTime;
                 }
-                if (maxDate.before(refTime)){
+                if (maxDate.before(refTime)) {
                     maxDate = refTime;
                 }
-
-                acquisitionInfo.setSensingStart(minDate);
-                acquisitionInfo.setSensingStop(maxDate);
             }
+
+            acquisitionInfo.setSensingStart(minDate);
+            acquisitionInfo.setSensingStop(maxDate);
+
         } catch (ParseException e) {
             throw new IOException(e.getMessage());
         }

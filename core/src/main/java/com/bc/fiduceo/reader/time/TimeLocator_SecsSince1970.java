@@ -7,12 +7,12 @@ import ucar.ma2.InvalidRangeException;
 
 import java.io.IOException;
 
-public class SecsSince1970TimeLocator implements TimeLocator {
+public class TimeLocator_SecsSince1970 implements TimeLocator {
 
     private final Reader reader;
     private final Interval interval;
 
-    public SecsSince1970TimeLocator(Reader reader) {
+    public TimeLocator_SecsSince1970(Reader reader) {
         this.reader = reader;
         interval = new Interval(1, 1);
     }

@@ -28,7 +28,7 @@ import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.time.TimeLocator;
-import com.bc.fiduceo.reader.time.SecsSince1970TimeLocator;
+import com.bc.fiduceo.reader.time.TimeLocator_SecsSince1970;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import com.bc.fiduceo.util.VariableProxy;
@@ -129,7 +129,7 @@ public class OceanRainInsituReader implements Reader {
 
     @Override
     public TimeLocator getTimeLocator() {
-        return new SecsSince1970TimeLocator(this);
+        return new TimeLocator_SecsSince1970(this);
     }
 
     @Override

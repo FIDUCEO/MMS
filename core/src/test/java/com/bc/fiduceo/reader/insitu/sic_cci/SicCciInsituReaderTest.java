@@ -20,7 +20,7 @@ public class SicCciInsituReaderTest {
 
     @Test
     public void testGetRegEx() {
-        final String expected = "ASCAT-vs-AMSR2-vs-ERA5-vs-DMISIC0-\\d{4}-[N|S].text";
+        final String expected = "ASCAT-vs-AMSR2-vs-ERA5-vs-\\p{Upper}{6}\\d{1}-\\d{4}-[N|S].text";
 
         assertEquals(expected, reader.getRegEx());
 
@@ -29,7 +29,7 @@ public class SicCciInsituReaderTest {
         Matcher matcher = pattern.matcher("ASCAT-vs-AMSR2-vs-ERA5-vs-DMISIC0-2017-N.text");
         assertTrue(matcher.matches());
 
-        matcher = pattern.matcher("ASCAT-vs-AMSR2-vs-ERA5-vs-DMISIC0-2018-S.text");
+        matcher = pattern.matcher("ASCAT-vs-AMSR2-vs-ERA5-vs-DTUSIC1-2017-S.text");
         assertTrue(matcher.matches());
 
         matcher = pattern.matcher("insitu_0_WMOID_42531_19960904_19960909.nc");
@@ -47,5 +47,14 @@ public class SicCciInsituReaderTest {
     @Test
     public void testGetLatitudeVariableName() {
         assertEquals("latitude", reader.getLatitudeVariableName());
+    }
+
+    @Test
+    public void testExtractYearMonthDayFromFilename() {
+        int[] ymd = reader.extractYearMonthDayFromFilename("whatever");
+        assertEquals(3, ymd.length);
+        assertEquals(0, ymd[0]);
+        assertEquals(0, ymd[1]);
+        assertEquals(0, ymd[2]);
     }
 }
