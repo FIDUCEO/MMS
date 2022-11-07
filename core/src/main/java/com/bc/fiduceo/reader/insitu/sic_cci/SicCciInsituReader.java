@@ -30,12 +30,20 @@ public class SicCciInsituReader implements Reader {
     private FileReader fileReader;
     private TimeLocator timeLocator;
     private ArrayList<String> linelist;
+    private ReferenceSectionParser referenceSectionParser;
 
     @Override
     public void open(File file) throws IOException {
         fileReader = new FileReader(file);
 
         readLines();
+
+        final String fileName = file.getName();
+        if (fileName.contains("DMISIC0")) {
+            referenceSectionParser = new DMISIC0SectionParser();
+        } else if (fileName.contains("DTUSIC1")) {
+            referenceSectionParser = new DTUSIC1SectionParser();
+        }
     }
 
     private void readLines() throws IOException {
@@ -96,7 +104,7 @@ public class SicCciInsituReader implements Reader {
             try {
                 int i = 0;
                 for (String line : linelist) {
-                    final Date refTime = ReferenceDataSection.parseTime(line);
+                    final Date refTime = referenceSectionParser.parseTime(line);
                     timeArray[i] = refTime.getTime();
                     ++i;
                 }
@@ -133,7 +141,7 @@ public class SicCciInsituReader implements Reader {
 
     @Override
     public List<Variable> getVariables() throws InvalidRangeException, IOException {
-        return ReferenceDataSection.getVariables();
+        return referenceSectionParser.getVariables();
     }
 
     @Override
@@ -162,7 +170,7 @@ public class SicCciInsituReader implements Reader {
         Date maxDate = new Date(0);
         try {
             for (String line : linelist) {
-                final Date refTime = ReferenceDataSection.parseTime(line);
+                final Date refTime = referenceSectionParser.parseTime(line);
                 if (minDate.after(refTime)) {
                     minDate = refTime;
                 }

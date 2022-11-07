@@ -1,6 +1,7 @@
 package com.bc.fiduceo.reader.insitu.sic_cci;
 
 import com.bc.fiduceo.IOTestRunner;
+import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
@@ -23,6 +24,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.bc.fiduceo.util.NetCDFUtils.*;
 import static org.junit.Assert.*;
 
 @RunWith(IOTestRunner.class)
@@ -61,10 +63,37 @@ public class SciCciInsituReader_IO_Test {
             reader.open(testFile);
 
             final List<Variable> variables = reader.getVariables();
+            assertEquals(6, variables.size());
+
+            Variable variable = variables.get(0);
+            assertEquals("longitude", variable.getShortName());
+            NCTestUtils.assertAttribute(variable, CF_FILL_VALUE_NAME, "9.969209968386869E36");
+
+            variable = variables.get(5);
+            assertEquals("areachange", variable.getShortName());
+            assertEquals(DataType.FLOAT, variable.getDataType());
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetVariables_DMISIC0() throws IOException, InvalidRangeException {
+        final File testFile = getDMISIC0();
+
+        try {
+            reader.open(testFile);
+
+            final List<Variable> variables = reader.getVariables();
             assertEquals(5, variables.size());
 
             Variable variable = variables.get(0);
             assertEquals("longitude", variable.getShortName());
+            NCTestUtils.assertAttribute(variable, CF_UNITS_NAME, "degree_east");
+
+            variable = variables.get(4);
+            assertEquals("SIC", variable.getShortName());
+            NCTestUtils.assertAttribute(variable, CF_STANDARD_NAME, "sea_ice_area_fraction");
         } finally {
             reader.close();
         }
