@@ -15,6 +15,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.Array;
+import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
@@ -182,6 +183,36 @@ public class SciCciInsituReader_IO_Test {
             assertArrayEquals(new int[]{1, 1}, array.getShape());
             assertEquals(DataType.FLOAT, array.getDataType());
             assertEquals(71.32252502441406f, array.getFloat(0), 1e-8);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadAcquisitionTime_1x1_DTUSIC1() throws IOException, InvalidRangeException {
+        final File testFile = getDTUSIC1();
+
+        try {
+            reader.open(testFile);
+
+            final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(12, 34, new Interval(1, 1));
+            NCTestUtils.assertValueAt(1490836147, 0, 0, acquisitionTime);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadAcquisitionTime_3x1_DMISIC0() throws IOException, InvalidRangeException {
+        final File testFile = getDMISIC0();
+
+        try {
+            reader.open(testFile);
+
+            final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(13, 35, new Interval(3, 1));
+            NCTestUtils.assertValueAt(-2147483647, 0, 0, acquisitionTime);
+            NCTestUtils.assertValueAt(1451793600, 1, 0, acquisitionTime);
+            NCTestUtils.assertValueAt(-2147483647, 2, 0, acquisitionTime);
         } finally {
             reader.close();
         }

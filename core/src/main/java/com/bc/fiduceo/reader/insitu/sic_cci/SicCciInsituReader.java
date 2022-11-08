@@ -9,8 +9,10 @@ import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.time.TimeLocator;
 import com.bc.fiduceo.reader.time.TimeLocator_MillisSince1970;
+import com.bc.fiduceo.util.NetCDFUtils;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
+import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 
@@ -30,6 +32,7 @@ public class SicCciInsituReader implements Reader {
     private FileReader fileReader;
     private TimeLocator timeLocator;
     private ArrayList<String> linelist;
+    private SectionCache sectionCache;
     private ReferenceSectionParser referenceSectionParser;
 
     @Override
@@ -44,6 +47,8 @@ public class SicCciInsituReader implements Reader {
         } else if (fileName.contains("DTUSIC1")) {
             referenceSectionParser = new DTUSIC1SectionParser();
         }
+
+        sectionCache = new SectionCache(linelist, new AbstractSectionParser[] {referenceSectionParser});
     }
 
     private void readLines() throws IOException {
@@ -61,6 +66,10 @@ public class SicCciInsituReader implements Reader {
 
     @Override
     public void close() throws IOException {
+        if (sectionCache != null) {
+            sectionCache.close();
+            sectionCache = null;
+        }
         if (linelist != null) {
             linelist.clear();
             linelist = null;
@@ -100,19 +109,7 @@ public class SicCciInsituReader implements Reader {
     @Override
     public TimeLocator getTimeLocator() throws IOException {
         if (timeLocator == null) {
-            long[] timeArray = new long[linelist.size()];
-            try {
-                int i = 0;
-                for (String line : linelist) {
-                    final Date refTime = referenceSectionParser.parseTime(line);
-                    timeArray[i] = refTime.getTime();
-                    ++i;
-                }
-
-                timeLocator = new TimeLocator_MillisSince1970(timeArray);
-            } catch (ParseException e) {
-                throw new IOException(e.getMessage());
-            }
+            createTimeLocator();
         }
         return timeLocator;
     }
@@ -136,7 +133,23 @@ public class SicCciInsituReader implements Reader {
 
     @Override
     public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException {
-        throw new RuntimeException("not implemented");
+        final int windowHeight = interval.getY();
+        final int windowWidth = interval.getX();
+        final Array windowArray = NetCDFUtils.create(DataType.INT,
+                new int[]{windowHeight, windowWidth},
+                NetCDFUtils.getDefaultFillValue(DataType.INT, false));
+
+        try {
+            final int windowCenterX = windowWidth / 2;
+            final int windowCenterY = windowHeight / 2;
+
+            final Array timeArray = sectionCache.get("time", y);
+            windowArray.setObject(windowWidth * windowCenterY + windowCenterX, timeArray.getInt(0));
+        } catch (ParseException e) {
+            throw new IOException(e);
+        }
+
+        return (ArrayInt.D2) windowArray;
     }
 
     @Override
@@ -182,6 +195,22 @@ public class SicCciInsituReader implements Reader {
             acquisitionInfo.setSensingStart(minDate);
             acquisitionInfo.setSensingStop(maxDate);
 
+        } catch (ParseException e) {
+            throw new IOException(e.getMessage());
+        }
+    }
+
+    private void createTimeLocator() throws IOException {
+        long[] timeArray = new long[linelist.size()];
+        try {
+            int i = 0;
+            for (String line : linelist) {
+                final Date refTime = referenceSectionParser.parseTime(line);
+                timeArray[i] = refTime.getTime();
+                ++i;
+            }
+
+            timeLocator = new TimeLocator_MillisSince1970(timeArray);
         } catch (ParseException e) {
             throw new IOException(e.getMessage());
         }
