@@ -145,7 +145,7 @@ public class GruanUleicInsituReader implements Reader {
         final int windowCenterX = windowWidth / 2;
         final int windowCenterY = windowHeight / 2;
 
-        final int[] shape = {windowWidth, windowHeight};
+        final int[] shape = {windowHeight, windowWidth};
         final Array windowArray = Array.factory(variable.getDataType(), shape);
         for (int y = 0; y < windowHeight; y++) {
             for (int x = 0; x < windowWidth; x++) {
