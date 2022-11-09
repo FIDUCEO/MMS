@@ -1156,7 +1156,7 @@ public class IngestionToolIntegrationTest {
 
             final SatelliteObservation observation = getSatelliteObservation("SM_RE07_MIR_CDF3TD_20171120T000000_20171120T235959_330_001_7.tgz", satelliteObservations);
             TestUtil.assertCorrectUTCDate(2017, 11, 20, 0, 0, 0, 0, observation.getStartTime());
-            TestUtil.assertCorrectUTCDate(2017, 11, 20, 23, 59, 59, 0, observation.getStopTime());
+            TestUtil.assertCorrectUTCDate(2017, 11, 20, 23, 59, 59, 999, observation.getStopTime());
 
             assertEquals("miras-smos-CDF3TD", observation.getSensor().getName());
 
