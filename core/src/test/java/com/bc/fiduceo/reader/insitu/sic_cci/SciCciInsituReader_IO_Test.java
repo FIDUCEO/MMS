@@ -57,6 +57,24 @@ public class SciCciInsituReader_IO_Test {
     }
 
     @Test
+    public void testReadAcquisitionInfo_ANTXXXI() throws IOException {
+        final File testFile = getANTXXXI();
+
+        try {
+            reader.open(testFile);
+
+            final AcquisitionInfo acquisitionInfo = reader.read();
+            TestUtil.assertCorrectUTCDate(2015, 12, 13, 8, 0, 0, acquisitionInfo.getSensingStart());
+            TestUtil.assertCorrectUTCDate(2016, 2, 8, 17, 0, 0, acquisitionInfo.getSensingStop());
+
+            assertEquals(NodeType.UNDEFINED, acquisitionInfo.getNodeType());
+            assertNull(acquisitionInfo.getBoundingGeometry());
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
     public void testGetVariables_DTUSIC1() throws IOException, InvalidRangeException {
         final File testFile = getDTUSIC1();
 
@@ -95,6 +113,36 @@ public class SciCciInsituReader_IO_Test {
             variable = variables.get(4);
             assertEquals("SIC", variable.getShortName());
             NCTestUtils.assertAttribute(variable, CF_STANDARD_NAME, "sea_ice_area_fraction");
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetVariables_ANTXXXI() throws IOException, InvalidRangeException {
+        final File testFile = getANTXXXI();
+
+        try {
+            reader.open(testFile);
+
+            final List<Variable> variables = reader.getVariables();
+            assertEquals(33, variables.size());
+
+            Variable variable = variables.get(0);
+            assertEquals("longitude", variable.getShortName());
+            NCTestUtils.assertAttribute(variable, CF_UNITS_NAME, "degree_east");
+
+            variable = variables.get(13);
+            assertEquals("Ice-type-secondary", variable.getShortName());
+            NCTestUtils.assertAttribute(variable, CF_LONG_NAME, "Ice-type-secondary ASPeCt code");
+
+            variable = variables.get(25);
+            assertEquals("Snow-depth-tertiary", variable.getShortName());
+            NCTestUtils.assertAttribute(variable, CF_UNITS_NAME, "m");
+
+            variable = variables.get(32);
+            assertEquals("Weather", variable.getShortName());
+            NCTestUtils.assertAttribute(variable, CF_FILL_VALUE_NAME, "-127");
         } finally {
             reader.close();
         }
@@ -171,7 +219,22 @@ public class SciCciInsituReader_IO_Test {
     }
 
     @Test
-    @Ignore
+    public void testGetTimeLocator_ANTXXI() throws IOException {
+        final File testFile = getANTXXXI();
+
+        try {
+            reader.open(testFile);
+
+            final TimeLocator timeLocator = reader.getTimeLocator();
+            assertEquals(1449997200000L, timeLocator.getTimeFor(0, 1));
+            assertEquals(1452020400000L, timeLocator.getTimeFor(11, 246));
+            assertEquals(1454950800000L, timeLocator.getTimeFor(21, 551));
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
     public void testReadRaw_1x1_DMISIC0() throws InvalidRangeException, IOException {
         final File testFile = getDMISIC0();
 
@@ -182,7 +245,7 @@ public class SciCciInsituReader_IO_Test {
             assertNotNull(array);
             assertArrayEquals(new int[]{1, 1}, array.getShape());
             assertEquals(DataType.FLOAT, array.getDataType());
-            assertEquals(71.32252502441406f, array.getFloat(0), 1e-8);
+            assertEquals(63.5f, array.getFloat(0), 1e-8);
         } finally {
             reader.close();
         }
@@ -219,12 +282,17 @@ public class SciCciInsituReader_IO_Test {
     }
 
     private static File getDMISIC0() throws IOException {
-        final String relativePath = TestUtil.assembleFileSystemPath(new String[]{"insitu", "sic-cci", "DMI_SIC0", "v3", "ASCAT-vs-AMSR2-vs-ERA5-vs-DMISIC0-2016-N.text"}, false);
+        final String relativePath = TestUtil.assembleFileSystemPath(new String[]{"insitu", "sic-cci", "DMISIC0-sic-cci", "v3", "ASCAT-vs-AMSR2-vs-ERA5-vs-DMISIC0-2016-N.text"}, false);
         return TestUtil.getTestDataFileAsserted(relativePath);
     }
 
     private static File getDTUSIC1() throws IOException {
-        final String relativePath = TestUtil.assembleFileSystemPath(new String[]{"insitu", "sic-cci", "DTU_SIC1", "v3", "ASCAT-vs-AMSR2-vs-ERA5-vs-DTUSIC1-2017-S.text"}, false);
+        final String relativePath = TestUtil.assembleFileSystemPath(new String[]{"insitu", "sic-cci", "DTUSIC1-sic-cci", "v3", "ASCAT-vs-AMSR2-vs-ERA5-vs-DTUSIC1-2017-S.text"}, false);
+        return TestUtil.getTestDataFileAsserted(relativePath);
+    }
+
+    private static File getANTXXXI() throws IOException {
+        final String relativePath = TestUtil.assembleFileSystemPath(new String[]{"insitu", "sic-cci", "ANTXXXI-sic-cci", "v3", "ASCAT-vs-AMSR2-vs-ERA-vs-ANTXXXI_2_FROSN_SeaIceObservations_reformatted.txt"}, false);
         return TestUtil.getTestDataFileAsserted(relativePath);
     }
 }

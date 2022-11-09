@@ -46,9 +46,11 @@ public class SicCciInsituReader implements Reader {
             referenceSectionParser = new DMISIC0SectionParser();
         } else if (fileName.contains("DTUSIC1")) {
             referenceSectionParser = new DTUSIC1SectionParser();
+        } else if (fileName.contains("ANTXXXI")) {
+            referenceSectionParser = new ANTXXXISectionParser();
         }
 
-        sectionCache = new SectionCache(linelist, new AbstractSectionParser[] {referenceSectionParser});
+        sectionCache = new SectionCache(linelist, new AbstractSectionParser[]{referenceSectionParser});
     }
 
     private void readLines() throws IOException {
@@ -121,9 +123,28 @@ public class SicCciInsituReader implements Reader {
 
     @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
-        // detect from variable name which section
-        // - all sections have prefix, except for reference data section
-        throw new RuntimeException("not implemented");
+        try {
+            final Array insituArray = sectionCache.get(variableName, centerY);
+            final DataType dataType = insituArray.getDataType();
+            if (dataType == DataType.CHAR) {
+                // string data is not patched or padded, just returned tb 2022-11-09
+                return insituArray;
+            }
+
+            final int windowHeight = interval.getY();
+            final int windowWidth = interval.getX();
+            final Array windowArray = NetCDFUtils.create(dataType,
+                    new int[]{windowHeight, windowWidth},
+                    NetCDFUtils.getDefaultFillValue(dataType, false));
+
+            final int windowCenterX = windowWidth / 2;
+            final int windowCenterY = windowHeight / 2;
+            windowArray.setObject(windowWidth * windowCenterY + windowCenterX, insituArray.getObject(0));
+
+            return windowArray;
+        } catch (ParseException e) {
+            throw new IOException(e);
+        }
     }
 
     @Override
@@ -133,23 +154,9 @@ public class SicCciInsituReader implements Reader {
 
     @Override
     public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException {
-        final int windowHeight = interval.getY();
-        final int windowWidth = interval.getX();
-        final Array windowArray = NetCDFUtils.create(DataType.INT,
-                new int[]{windowHeight, windowWidth},
-                NetCDFUtils.getDefaultFillValue(DataType.INT, false));
+        final Array timeArray = readRaw(x, y, interval, "time");
 
-        try {
-            final int windowCenterX = windowWidth / 2;
-            final int windowCenterY = windowHeight / 2;
-
-            final Array timeArray = sectionCache.get("time", y);
-            windowArray.setObject(windowWidth * windowCenterY + windowCenterX, timeArray.getInt(0));
-        } catch (ParseException e) {
-            throw new IOException(e);
-        }
-
-        return (ArrayInt.D2) windowArray;
+        return (ArrayInt.D2) timeArray;
     }
 
     @Override
