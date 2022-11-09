@@ -20,7 +20,7 @@ public class DTUSIC1SectionParser extends ReferenceSectionParser {
     List<Variable> getVariables() {
         final List<Variable> variables = new ArrayList<>();
 
-        createReferenceCommonVariables(variables);
+        createCommonVariables(variables);
 
         List<Attribute> attributes = new ArrayList<>();
         attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(float.class)));

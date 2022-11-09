@@ -28,27 +28,4 @@ abstract class ReferenceSectionParser extends AbstractSectionParser {
         final ProductData.UTC utcTime = ProductData.UTC.parse(timeString, DATE_PATTERN);
         return utcTime.getAsDate();
     }
-
-    static void createReferenceCommonVariables(List<Variable> variables) {
-        List<Attribute> attributes = new ArrayList<>();
-        attributes.add(new Attribute(CF_UNITS_NAME, "degree_east"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(float.class)));
-        attributes.add(new Attribute(CF_STANDARD_NAME, "longitude"));
-        variables.add(new VariableProxy("longitude", DataType.FLOAT, attributes));
-
-        attributes = new ArrayList<>();
-        attributes.add(new Attribute(CF_UNITS_NAME, "degree_north"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(float.class)));
-        attributes.add(new Attribute(CF_STANDARD_NAME, "latitude"));
-        variables.add(new VariableProxy("latitude", DataType.FLOAT, attributes));
-
-        attributes = new ArrayList<>();
-        attributes.add(new Attribute(CF_UNITS_NAME, "seconds since 1970-01-01"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(int.class)));
-        attributes.add(new Attribute(CF_STANDARD_NAME, "time"));
-        variables.add(new VariableProxy("time", DataType.INT, attributes));
-
-        attributes = new ArrayList<>();
-        variables.add(new VariableProxy("reference-id", DataType.CHAR, attributes));
-    }
 }
