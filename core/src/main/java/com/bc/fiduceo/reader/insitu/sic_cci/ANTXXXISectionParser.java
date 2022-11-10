@@ -2,8 +2,6 @@ package com.bc.fiduceo.reader.insitu.sic_cci;
 
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.VariableProxy;
-import org.esa.snap.core.datamodel.ProductData;
-import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
 import ucar.nc2.Variable;
@@ -178,107 +176,47 @@ class ANTXXXISectionParser extends ReferenceSectionParser {
     }
 
     @Override
-    Section parse(String[] tokens) throws ParseException {
+    int getNumVariables() {
+        return 33;
+    }
+
+    @Override
+    Section parse(String[] tokens, int offset) throws ParseException {
         final Section section = new Section();
 
-        final float lat = Float.parseFloat(tokens[0]);
-        section.add("latitude", Array.factory(DataType.FLOAT, SCALAR, new float[]{lat}));
-
-        final float lon = Float.parseFloat(tokens[1]);
-        section.add("longitude", Array.factory(DataType.FLOAT, SCALAR, new float[]{lon}));
-
-        final ProductData.UTC utcTime = ProductData.UTC.parse(tokens[2], DATE_PATTERN);
-        final int utcSeconds = (int) (utcTime.getAsDate().getTime() / 1000);
-        section.add("time", Array.factory(DataType.INT, SCALAR, new int[]{utcSeconds}));
-
-        section.add("reference-id", Array.factory(DataType.CHAR, new int[]{tokens[3].length()}, tokens[3].toCharArray()));
-
-        final byte sic_total = Byte.parseByte(tokens[4]);
-        section.add("SIC-total", Array.factory(DataType.BYTE, SCALAR, new byte[]{sic_total}));
-
-        final byte sic_prim = Byte.parseByte(tokens[5]);
-        section.add("SIC-primary", Array.factory(DataType.BYTE, SCALAR, new byte[]{sic_prim}));
-
-        final byte ice_type_prim = Byte.parseByte(tokens[6]);
-        section.add("Ice-type-primary", Array.factory(DataType.BYTE, SCALAR, new byte[]{ice_type_prim}));
-
-        final float sit_prim = Float.parseFloat(tokens[7]);
-        section.add("SIT-primary", Array.factory(DataType.FLOAT, SCALAR, new float[]{sit_prim}));
-
-        final float rif_prim = Float.parseFloat(tokens[8]);
-        section.add("Ridged-ice-fraction-primary", Array.factory(DataType.FLOAT, SCALAR, new float[]{rif_prim}));
-
-        final float rih_prim = Float.parseFloat(tokens[9]);
-        section.add("Ridged-height-primary", Array.factory(DataType.FLOAT, SCALAR, new float[]{rih_prim}));
-
-        final byte sct_prim = Byte.parseByte(tokens[10]);
-        section.add("Snow-cover-type-primary", Array.factory(DataType.BYTE, SCALAR, new byte[]{sct_prim}));
-
-        final float sd_prim = Float.parseFloat(tokens[11]);
-        section.add("Snow-depth-primary", Array.factory(DataType.FLOAT, SCALAR, new float[]{sd_prim}));
-
-        final byte sic_sec = Byte.parseByte(tokens[12]);
-        section.add("SIC-secondary", Array.factory(DataType.BYTE, SCALAR, new byte[]{sic_sec}));
-
-        final byte ice_type_sec = Byte.parseByte(tokens[13]);
-        section.add("Ice-type-secondary", Array.factory(DataType.BYTE, SCALAR, new byte[]{ice_type_sec}));
-
-        final float sit_sec = Float.parseFloat(tokens[14]);
-        section.add("SIT-secondary", Array.factory(DataType.FLOAT, SCALAR, new float[]{sit_sec}));
-
-        final float rif_sec = Float.parseFloat(tokens[15]);
-        section.add("Ridged-ice-fraction-secondary", Array.factory(DataType.FLOAT, SCALAR, new float[]{rif_sec}));
-
-        final float rih_sec = Float.parseFloat(tokens[16]);
-        section.add("Ridged-height-secondary", Array.factory(DataType.FLOAT, SCALAR, new float[]{rih_sec}));
-
-        final byte sct_sec = Byte.parseByte(tokens[17]);
-        section.add("Snow-cover-type-secondary", Array.factory(DataType.BYTE, SCALAR, new byte[]{sct_sec}));
-
-        final float sd_sec = Float.parseFloat(tokens[18]);
-        section.add("Snow-depth-secondary", Array.factory(DataType.FLOAT, SCALAR, new float[]{sd_sec}));
-
-        final byte sic_ter = Byte.parseByte(tokens[19]);
-        section.add("SIC-tertiary", Array.factory(DataType.BYTE, SCALAR, new byte[]{sic_ter}));
-
-        final byte ice_type_ter = Byte.parseByte(tokens[20]);
-        section.add("Ice-type-tertiary", Array.factory(DataType.BYTE, SCALAR, new byte[]{ice_type_ter}));
-
-        final float sit_ter = Float.parseFloat(tokens[21]);
-        section.add("SIT-tertiary", Array.factory(DataType.FLOAT, SCALAR, new float[]{sit_ter}));
-
-        final float rif_ter = Float.parseFloat(tokens[22]);
-        section.add("Ridged-ice-fraction-tertiary", Array.factory(DataType.FLOAT, SCALAR, new float[]{rif_ter}));
-
-        final float rih_ter = Float.parseFloat(tokens[23]);
-        section.add("Ridged-height-tertiary", Array.factory(DataType.FLOAT, SCALAR, new float[]{rih_ter}));
-
-        final byte sct_ter = Byte.parseByte(tokens[24]);
-        section.add("Snow-cover-type-tertiary", Array.factory(DataType.BYTE, SCALAR, new byte[]{sct_ter}));
-
-        final float sd_ter = Float.parseFloat(tokens[25]);
-        section.add("Snow-depth-tertiary", Array.factory(DataType.FLOAT, SCALAR, new float[]{sd_ter}));
-
-        final float swt = Float.parseFloat(tokens[26]);
-        section.add("Sea-water-temperature", Array.factory(DataType.FLOAT, SCALAR, new float[]{swt}));
-
-        final float at = Float.parseFloat(tokens[27]);
-        section.add("Air-temperature", Array.factory(DataType.FLOAT, SCALAR, new float[]{at}));
-
-        final float ws = Float.parseFloat(tokens[28]);
-        section.add("Wind-speed", Array.factory(DataType.FLOAT, SCALAR, new float[]{ws}));
-
-        final short wd = Short.parseShort(tokens[29]);
-        section.add("Wind-direction", Array.factory(DataType.SHORT, SCALAR, new short[]{wd}));
-
-        final byte vis = Byte.parseByte(tokens[30]);
-        section.add("Visibility", Array.factory(DataType.BYTE, SCALAR, new byte[]{vis}));
-
-        final byte cc = Byte.parseByte(tokens[31]);
-        section.add("Cloud-cover", Array.factory(DataType.BYTE, SCALAR, new byte[]{cc}));
-
-        final byte weather = Byte.parseByte(tokens[32]);
-        section.add("Weather", Array.factory(DataType.BYTE, SCALAR, new byte[]{weather}));
+        section.add("latitude", parseFloat(tokens[offset]));
+        section.add("longitude", parseFloat(tokens[offset + 1]));
+        section.add("time", parseUtcTime(tokens[offset + 2]));
+        section.add("reference-id", parseString(tokens[offset + 3]));
+        section.add("SIC-total", parseByte(tokens[offset + 4]));
+        section.add("SIC-primary", parseByte(tokens[offset + 5]));
+        section.add("Ice-type-primary", parseByte(tokens[offset + 6]));
+        section.add("SIT-primary", parseFloat(tokens[offset + 7]));
+        section.add("Ridged-ice-fraction-primary", parseFloat(tokens[offset + 8]));
+        section.add("Ridged-height-primary", parseFloat(tokens[offset + 9]));
+        section.add("Snow-cover-type-primary", parseByte(tokens[offset + 10]));
+        section.add("Snow-depth-primary", parseFloat(tokens[offset + 11]));
+        section.add("SIC-secondary", parseByte(tokens[offset + 12]));
+        section.add("Ice-type-secondary", parseByte(tokens[offset + 13]));
+        section.add("SIT-secondary", parseFloat(tokens[offset + 14]));
+        section.add("Ridged-ice-fraction-secondary", parseFloat(tokens[offset + 15]));
+        section.add("Ridged-height-secondary", parseFloat(tokens[offset + 16]));
+        section.add("Snow-cover-type-secondary", parseByte(tokens[offset + 17]));
+        section.add("Snow-depth-secondary", parseFloat(tokens[offset + 18]));
+        section.add("SIC-tertiary", parseByte(tokens[offset + 19]));
+        section.add("Ice-type-tertiary", parseByte(tokens[offset + 20]));
+        section.add("SIT-tertiary", parseFloat(tokens[offset + 21]));
+        section.add("Ridged-ice-fraction-tertiary", parseFloat(tokens[offset + 22]));
+        section.add("Ridged-height-tertiary", parseFloat(tokens[offset + 23]));
+        section.add("Snow-cover-type-tertiary", parseByte(tokens[offset + 24]));
+        section.add("Snow-depth-tertiary", parseFloat(tokens[offset + 25]));
+        section.add("Sea-water-temperature", parseFloat(tokens[offset + 26]));
+        section.add("Air-temperature", parseFloat(tokens[offset + 27]));
+        section.add("Wind-speed", parseFloat(tokens[offset + 28]));
+        section.add("Wind-direction", parseShort(tokens[offset + 29]));
+        section.add("Visibility", parseByte(tokens[offset + 30]));
+        section.add("Cloud-cover", parseByte(tokens[offset + 31]));
+        section.add("Weather", parseByte(tokens[offset + 32]));
 
         return section;
     }

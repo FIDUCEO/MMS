@@ -2,6 +2,8 @@ package com.bc.fiduceo.reader.insitu.sic_cci;
 
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.VariableProxy;
+import org.esa.snap.core.datamodel.ProductData;
+import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
 import ucar.nc2.Variable;
@@ -15,10 +17,13 @@ import static com.bc.fiduceo.util.NetCDFUtils.*;
 abstract class AbstractSectionParser {
 
     static final int[] SCALAR = new int[1];
+    static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 
     abstract List<Variable> getVariables();
 
-    abstract Section parse(String[] tokens) throws ParseException;
+    abstract int getNumVariables();
+
+    abstract Section parse(String[] tokens, int offset) throws ParseException;
 
     static void createCommonVariables(List<Variable> variables) {
         createCommonVariables(variables, "");
@@ -45,5 +50,36 @@ abstract class AbstractSectionParser {
 
         attributes = new ArrayList<>();
         variables.add(new VariableProxy(prefix + "reference-id", DataType.CHAR, attributes));
+    }
+
+    static Array parseFloat(String token) {
+        final float floatVal;
+        if (token.equals("noval")) {
+            floatVal = NetCDFUtils.getDefaultFillValue(float.class).floatValue();
+        } else {
+            floatVal = Float.parseFloat(token);
+        }
+
+        return Array.factory(DataType.FLOAT, SCALAR, new float[]{floatVal});
+    }
+
+    static Array parseShort(String token) {
+        final short wd = Short.parseShort(token);
+        return Array.factory(DataType.SHORT, SCALAR, new short[]{wd});
+    }
+
+    static Array parseByte(String token) {
+        final byte sic_total = Byte.parseByte(token);
+        return Array.factory(DataType.BYTE, SCALAR, new byte[]{sic_total});
+    }
+
+    static Array parseUtcTime(String token) throws ParseException {
+        final ProductData.UTC utcTime = ProductData.UTC.parse(token, DATE_PATTERN);
+        final int utcSeconds = (int) (utcTime.getAsDate().getTime() / 1000);
+        return Array.factory(DataType.INT, SCALAR, new int[]{utcSeconds});
+    }
+
+    static Array parseString(String token) {
+        return Array.factory(DataType.CHAR, new int[]{token.length()}, token.toCharArray());
     }
 }

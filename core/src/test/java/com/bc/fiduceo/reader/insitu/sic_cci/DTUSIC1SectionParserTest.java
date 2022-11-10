@@ -35,7 +35,7 @@ public class DTUSIC1SectionParserTest {
     public void testParse() throws ParseException {
         final String[] tokens = new String[]{"-73.000", "-053.143", "2017-03-16T06:57:05Z", "COMPRESSIONCELLS_DTU", "1.0", "0.994"};
 
-        final Section section = parser.parse(tokens);
+        final Section section = parser.parse(tokens, 0);
         assertEquals(-53.143f, section.get("longitude").getFloat(0), 1e-8);
         assertEquals(-73.f, section.get("latitude").getFloat(0), 1e-8);
         assertEquals(1489647425, section.get("time").getInt(0));
@@ -53,6 +53,7 @@ public class DTUSIC1SectionParserTest {
         final List<Variable> variables = parser.getVariables();
 
         assertEquals(6, variables.size());
+        assertEquals(variables.size(), parser.getNumVariables());
 
         Variable variable = variables.get(0);
         assertEquals("longitude", variable.getShortName());

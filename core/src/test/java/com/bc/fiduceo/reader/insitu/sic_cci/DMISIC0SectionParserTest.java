@@ -35,7 +35,7 @@ public class DMISIC0SectionParserTest {
     public void testParse() throws ParseException {
         final String[] tokens = new String[]{"+55.000", "+180.000", "2016-01-02T01:00:00Z", "ICECHART_DMI", "0.0"};
 
-        final Section section = parser.parse(tokens);
+        final Section section = parser.parse(tokens, 0);
         assertEquals(180.f, section.get("longitude").getFloat(0), 1e-8);
         assertEquals(55.f, section.get("latitude").getFloat(0), 1e-8);
         assertEquals(1451696400, section.get("time").getInt(0));
@@ -52,6 +52,7 @@ public class DMISIC0SectionParserTest {
         final List<Variable> variables = parser.getVariables();
 
         assertEquals(5, variables.size());
+        assertEquals(variables.size(), parser.getNumVariables());
 
         Variable variable = variables.get(0);
         assertEquals("longitude", variable.getShortName());

@@ -37,7 +37,7 @@ public class ANTXXXISectionParserTest {
                 "30", "10", "70", "0.9", "0.55", "1.0", "6", "0.20", "10", "70", "0.8", "0.25", "1.0", "6", "0.20", "10", "70",
                 "0.70", "0.15", "1.0", "6", "0.1", "-1.49", "-2.4", "2.7", "267", "97", "8", "2"};
 
-        final Section section = parser.parse(tokens);
+        final Section section = parser.parse(tokens, 0);
         assertEquals(-66.33530f, section.get("latitude").getFloat(0), 1e-8);
         assertEquals(-4.32590f, section.get("longitude").getFloat(0), 1e-8);
         assertEquals(1450209600, section.get("time").getInt(0));
@@ -82,6 +82,7 @@ public class ANTXXXISectionParserTest {
         final List<Variable> variables = parser.getVariables();
 
         assertEquals(33, variables.size());
+        assertEquals(variables.size(), parser.getNumVariables());
 
         Variable variable = variables.get(0);
         assertEquals("longitude", variable.getShortName());

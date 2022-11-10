@@ -9,8 +9,8 @@ import java.util.ArrayList;
 class SectionCache {
 
     private final ArrayList<String> lineList;
+    private final AbstractSectionParser[] parser;
     private Section[] referenceSections;
-    private AbstractSectionParser[] parser;
 
     SectionCache(ArrayList<String> linelist, AbstractSectionParser[] parser) {
         this.lineList = linelist;
@@ -27,7 +27,7 @@ class SectionCache {
         if (referenceSections[y] == null) {
             final String line = lineList.get(y);
             final String[] tokens = line.split(",");
-            referenceSections[y] = parser[0].parse(tokens);
+            referenceSections[y] = parser[0].parse(tokens, 0);
             // @todo 1 tb/tb run over all parsers and store the sections
 
         }
