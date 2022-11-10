@@ -390,12 +390,14 @@ class SmosL1CDailyGriddedReader extends NetCDFReader {
         utcCalendar.set(Calendar.HOUR_OF_DAY, 0);
         utcCalendar.set(Calendar.MINUTE, 0);
         utcCalendar.set(Calendar.SECOND, 0);
+        utcCalendar.set(Calendar.MILLISECOND, 0);
 
         acquisitionInfo.setSensingStart(utcCalendar.getTime());
 
         utcCalendar.set(Calendar.HOUR_OF_DAY, 23);
         utcCalendar.set(Calendar.MINUTE, 59);
         utcCalendar.set(Calendar.SECOND, 59);
+        utcCalendar.set(Calendar.MILLISECOND, 999);
 
         acquisitionInfo.setSensingStop(utcCalendar.getTime());
     }
