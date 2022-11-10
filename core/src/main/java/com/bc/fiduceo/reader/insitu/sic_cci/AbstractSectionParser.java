@@ -23,6 +23,8 @@ abstract class AbstractSectionParser {
 
     abstract int getNumVariables();
 
+    abstract String getNamePrefix();
+
     abstract Section parse(String[] tokens, int offset) throws ParseException;
 
     static void createCommonVariables(List<Variable> variables) {

@@ -74,4 +74,9 @@ public class DMISIC0SectionParserTest {
         assertEquals("SIC", variable.getShortName());
         assertEquals(DataType.FLOAT, variable.getDataType());
     }
+
+    @Test
+    public void testGetNamePrefix()  {
+        assertEquals("REF", parser.getNamePrefix());
+    }
 }

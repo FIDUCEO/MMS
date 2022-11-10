@@ -181,6 +181,11 @@ class ANTXXXISectionParser extends ReferenceSectionParser {
     }
 
     @Override
+    String getNamePrefix() {
+        return "REF";
+    }
+
+    @Override
     Section parse(String[] tokens, int offset) throws ParseException {
         final Section section = new Section();
 

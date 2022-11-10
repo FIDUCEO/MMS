@@ -42,15 +42,29 @@ public class SicCciInsituReader implements Reader {
         readLines();
 
         final String fileName = file.getName();
-        if (fileName.contains("DMISIC0")) {
-            referenceSectionParser = new DMISIC0SectionParser();
-        } else if (fileName.contains("DTUSIC1")) {
-            referenceSectionParser = new DTUSIC1SectionParser();
-        } else if (fileName.contains("ANTXXXI")) {
-            referenceSectionParser = new ANTXXXISectionParser();
+        referenceSectionParser = createReferenceParser(fileName);
+
+        final ArrayList<AbstractSectionParser> parsers = new ArrayList<>();
+        parsers.add(referenceSectionParser);
+        if (fileName.contains("ERA5")) {
+            parsers.add(new ERASectionParser("ERA5"));
+        } else if (fileName.contains("ERA")) {
+            parsers.add(new ERASectionParser("ERA"));
         }
 
-        sectionCache = new SectionCache(linelist, new AbstractSectionParser[]{referenceSectionParser});
+        sectionCache = new SectionCache(linelist, parsers.toArray(new AbstractSectionParser[0]));
+    }
+
+    static ReferenceSectionParser createReferenceParser(String fileName) throws IOException {
+        if (fileName.contains("DMISIC0")) {
+             return new DMISIC0SectionParser();
+        } else if (fileName.contains("DTUSIC1")) {
+             return new DTUSIC1SectionParser();
+        } else if (fileName.contains("ANTXXXI")) {
+            return new ANTXXXISectionParser();
+        }
+
+        throw new IOException("Invalid format, no known reference section found");
     }
 
     private void readLines() throws IOException {

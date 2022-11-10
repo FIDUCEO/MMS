@@ -177,6 +177,11 @@ class ERASectionParser extends AbstractSectionParser {
     }
 
     @Override
+    String getNamePrefix() {
+        return type;
+    }
+
+    @Override
     Section parse(String[] tokens, int offset) throws ParseException {
         final Section section = new Section();
         final String prefix = type + "_";

@@ -230,4 +230,13 @@ public class ERASectionParserTest {
         assertEquals(0.4341f, section.get("ERA_fal").getFloat(0), 1e-8);
         assertEquals(0.6426f, section.get("ERA_siconc").getFloat(0), 1e-8);
     }
+
+    @Test
+    public void testGetNamePrefix()  {
+        final ERASectionParser eraParser = new ERASectionParser("ERA");
+        assertEquals("ERA", eraParser.getNamePrefix());
+
+        final ERASectionParser era5Parser = new ERASectionParser("ERA5");
+        assertEquals("ERA5", era5Parser.getNamePrefix());
+    }
 }

@@ -208,4 +208,9 @@ public class ANTXXXISectionParserTest {
         assertEquals("Weather", variable.getShortName());
         assertEquals(DataType.BYTE, variable.getDataType());
     }
+
+    @Test
+    public void testGetNamePrefix()  {
+        assertEquals("REF", parser.getNamePrefix());
+    }
 }

@@ -11,7 +11,6 @@ import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.time.TimeLocator;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.Array;
@@ -240,12 +239,16 @@ public class SciCciInsituReader_IO_Test {
 
         try {
             reader.open(testFile);
-            final Array array = reader.readRaw(6, 3, new Interval(1, 1), "latitude");
+            Array array = reader.readRaw(6, 3, new Interval(1, 1), "latitude");
 
             assertNotNull(array);
             assertArrayEquals(new int[]{1, 1}, array.getShape());
             assertEquals(DataType.FLOAT, array.getDataType());
             assertEquals(63.5f, array.getFloat(0), 1e-8);
+
+            array = reader.readRaw(5, 27, new Interval(1, 1), "ERA5_msl");
+            assertEquals(DataType.FLOAT, array.getDataType());
+            assertEquals(1032.9f, array.getFloat(0), 1e-8);
         } finally {
             reader.close();
         }

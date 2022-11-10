@@ -33,6 +33,11 @@ class DMISIC0SectionParser extends ReferenceSectionParser {
         return 5;
     }
 
+    @Override
+    String getNamePrefix() {
+        return "REF";
+    }
+
     Section parse(String[] tokens, int offset) throws ParseException {
         final Section section = new Section();
 
