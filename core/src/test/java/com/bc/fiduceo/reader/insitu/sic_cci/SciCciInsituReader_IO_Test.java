@@ -256,6 +256,11 @@ public class SciCciInsituReader_IO_Test {
             array = reader.readRaw(5, 28, new Interval(1, 1), "AMSR2_6.9GHzH");
             assertEquals(DataType.FLOAT, array.getDataType());
             assertEquals(88.62f, array.getFloat(0), 1e-8);
+
+            // ASCAT
+            array = reader.readRaw(5, 29, new Interval(1, 1), "ASCAT_sigma_40");
+            assertEquals(DataType.FLOAT, array.getDataType());
+            assertEquals(-15.76655f, array.getFloat(0), 1e-8);
         } finally {
             reader.close();
         }
@@ -280,6 +285,10 @@ public class SciCciInsituReader_IO_Test {
             // AMSR2
             array = reader.readRaw(7, 6, new Interval(1, 1), "AMSR2_6.9GHzV");
             assertEquals(257.9100036621094f, array.getFloat(0), 1e-8);
+
+            // ASCAT
+            array = reader.readRaw(5, 7, new Interval(1, 1), "ASCAT_sigma_40_mask");
+            assertEquals(-15.17677f, array.getFloat(0), 1e-8);
 
         } finally {
             reader.close();
@@ -311,6 +320,12 @@ public class SciCciInsituReader_IO_Test {
             NCTestUtils.assertValueAt(9.969209968386869E36f, 0, 1, array);
             NCTestUtils.assertValueAt(129.34f, 1, 1, array);
             NCTestUtils.assertValueAt(9.969209968386869E36f, 2, 1, array);
+
+            // ASCAT
+            array = reader.readRaw(7, 8, new Interval(3, 3), "ASCAT_nb_samples");
+            NCTestUtils.assertValueAt(-32767, 0, 1, array);
+            NCTestUtils.assertValueAt(-32767, 1, 1, array);
+            NCTestUtils.assertValueAt(-32767, 2, 1, array);
         } finally {
             reader.close();
         }
@@ -339,6 +354,11 @@ public class SciCciInsituReader_IO_Test {
             array = reader.readScaled(5, 29, new Interval(1, 1), "AMSR2_7.3GHzV");
             assertEquals(DataType.FLOAT, array.getDataType());
             assertEquals(162.24f, array.getFloat(0), 1e-8);
+
+            // ASCAT
+            array = reader.readScaled(5, 30, new Interval(1, 1), "ASCAT_warning");
+            assertEquals(DataType.SHORT, array.getDataType());
+            assertEquals(0, array.getShort(0), 1e-8);
         } finally {
             reader.close();
         }

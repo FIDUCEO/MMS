@@ -54,6 +54,9 @@ public class SicCciInsituReader implements Reader {
         if (fileName.contains("AMSR2")) {
             parsers.add(new AMSR2SectionParser());
         }
+        if (fileName.contains("ASCAT")) {
+            parsers.add(new ASCATSectionParser());
+        }
 
         sectionCache = new SectionCache(linelist, parsers.toArray(new AbstractSectionParser[0]));
     }

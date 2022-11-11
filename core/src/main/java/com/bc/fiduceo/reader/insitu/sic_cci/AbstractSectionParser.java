@@ -66,8 +66,14 @@ abstract class AbstractSectionParser {
     }
 
     static Array parseShort(String token) {
-        final short wd = Short.parseShort(token);
-        return Array.factory(DataType.SHORT, SCALAR, new short[]{wd});
+        final short shortVal;
+
+        if (token.equals("noval")) {
+            shortVal = NetCDFUtils.getDefaultFillValue(short.class).shortValue();
+        } else {
+            shortVal = Short.parseShort(token);
+        }
+        return Array.factory(DataType.SHORT, SCALAR, new short[]{shortVal});
     }
 
     static Array parseByte(String token) {
