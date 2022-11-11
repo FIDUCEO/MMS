@@ -51,6 +51,9 @@ public class SicCciInsituReader implements Reader {
         } else if (fileName.contains("ERA")) {
             parsers.add(new ERASectionParser("ERA"));
         }
+        if (fileName.contains("AMSR2")) {
+            parsers.add(new AMSR2SectionParser());
+        }
 
         sectionCache = new SectionCache(linelist, parsers.toArray(new AbstractSectionParser[0]));
     }
@@ -163,7 +166,8 @@ public class SicCciInsituReader implements Reader {
 
     @Override
     public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
-        throw new RuntimeException("not implemented");
+        // raw data is already in geophysical representation tb 2022-11-11
+        return readRaw(centerX, centerY, interval, variableName);
     }
 
     @Override

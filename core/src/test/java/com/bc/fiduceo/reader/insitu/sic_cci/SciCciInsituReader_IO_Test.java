@@ -239,6 +239,7 @@ public class SciCciInsituReader_IO_Test {
 
         try {
             reader.open(testFile);
+            // reference data
             Array array = reader.readRaw(6, 3, new Interval(1, 1), "latitude");
 
             assertNotNull(array);
@@ -246,9 +247,98 @@ public class SciCciInsituReader_IO_Test {
             assertEquals(DataType.FLOAT, array.getDataType());
             assertEquals(63.5f, array.getFloat(0), 1e-8);
 
+            // ERA5
             array = reader.readRaw(5, 27, new Interval(1, 1), "ERA5_msl");
             assertEquals(DataType.FLOAT, array.getDataType());
             assertEquals(1032.9f, array.getFloat(0), 1e-8);
+
+            // AMSR2
+            array = reader.readRaw(5, 28, new Interval(1, 1), "AMSR2_6.9GHzH");
+            assertEquals(DataType.FLOAT, array.getDataType());
+            assertEquals(88.62f, array.getFloat(0), 1e-8);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_1x1_DTUSIC1() throws InvalidRangeException, IOException {
+        final File testFile = getDTUSIC1();
+
+        try {
+            reader.open(testFile);
+
+            // reference data
+            Array array = reader.readRaw(7, 4, new Interval(1, 1), "reference-id");
+            final char[] valueAsArray = (char[]) array.get1DJavaArray(char.class);
+            assertEquals("COMPRESSIONCELLS_DTU", new String(valueAsArray).trim());
+
+            // ERA5
+            array = reader.readRaw(7, 5, new Interval(1, 1), "ERA5_u10");
+            assertEquals(-3.8f, array.getFloat(0), 1e-8);
+
+            // AMSR2
+            array = reader.readRaw(7, 6, new Interval(1, 1), "AMSR2_6.9GHzV");
+            assertEquals(257.9100036621094f, array.getFloat(0), 1e-8);
+
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_3x3_ANTXXXI() throws InvalidRangeException, IOException {
+        final File testFile = getANTXXXI();
+
+        try {
+            reader.open(testFile);
+
+            // reference data
+            Array array = reader.readRaw(7, 5, new Interval(3, 3), "SIC-total");
+            assertEquals(DataType.BYTE, array.getDataType());
+            NCTestUtils.assertValueAt(-127, 0, 0, array);
+            NCTestUtils.assertValueAt(10, 1, 1, array);
+            NCTestUtils.assertValueAt(-127, 2, 2, array);
+
+            // ERA5
+            array = reader.readRaw(7, 6, new Interval(3, 3), "ERA_v10");
+            NCTestUtils.assertValueAt(9.969209968386869E36f, 0, 1, array);
+            NCTestUtils.assertValueAt(4.17f, 1, 1, array);
+            NCTestUtils.assertValueAt(9.969209968386869E36f, 2, 1, array);
+
+            // AMSR2
+            array = reader.readRaw(7, 7, new Interval(3, 3), "AMSR2_7.3GHzH");
+            NCTestUtils.assertValueAt(9.969209968386869E36f, 0, 1, array);
+            NCTestUtils.assertValueAt(129.34f, 1, 1, array);
+            NCTestUtils.assertValueAt(9.969209968386869E36f, 2, 1, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadScaled_1x1_DMISIC0() throws InvalidRangeException, IOException {
+        final File testFile = getDMISIC0();
+
+        try {
+            reader.open(testFile);
+            // reference data
+            Array array = reader.readScaled(6, 5, new Interval(1, 1), "SIC");
+
+            assertNotNull(array);
+            assertArrayEquals(new int[]{1, 1}, array.getShape());
+            assertEquals(DataType.FLOAT, array.getDataType());
+            assertEquals(0.f, array.getFloat(0), 1e-8);
+
+            // ERA5
+            array = reader.readScaled(5, 28, new Interval(1, 1), "ERA5_ws");
+            assertEquals(DataType.FLOAT, array.getDataType());
+            assertEquals(16.88f, array.getFloat(0), 1e-8);
+
+            // AMSR2
+            array = reader.readScaled(5, 29, new Interval(1, 1), "AMSR2_7.3GHzV");
+            assertEquals(DataType.FLOAT, array.getDataType());
+            assertEquals(162.24f, array.getFloat(0), 1e-8);
         } finally {
             reader.close();
         }
