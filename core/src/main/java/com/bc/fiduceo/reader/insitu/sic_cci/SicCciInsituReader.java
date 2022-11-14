@@ -43,50 +43,7 @@ public class SicCciInsituReader implements Reader {
 
         final String fileName = file.getName();
         referenceSectionParser = createReferenceParser(fileName);
-
-        final ArrayList<AbstractSectionParser> parsers = new ArrayList<>();
-        parsers.add(referenceSectionParser);
-        if (fileName.contains("ERA5")) {
-            parsers.add(new ERASectionParser("ERA5"));
-        } else if (fileName.contains("ERA")) {
-            parsers.add(new ERASectionParser("ERA"));
-        }
-        if (fileName.contains("AMSR2")) {
-            parsers.add(new AMSR2SectionParser());
-        }
-        if (fileName.contains("ASCAT")) {
-            parsers.add(new ASCATSectionParser());
-        }
-        if (fileName.contains("QSCAT")){
-            parsers.add(new QSCATSectionParser());
-        }
-
-        sectionCache = new SectionCache(linelist, parsers.toArray(new AbstractSectionParser[0]));
-    }
-
-    static ReferenceSectionParser createReferenceParser(String fileName) throws IOException {
-        if (fileName.contains("DMISIC0")) {
-             return new DMISIC0SectionParser();
-        } else if (fileName.contains("DTUSIC1")) {
-             return new DTUSIC1SectionParser();
-        } else if (fileName.contains("ANTXXXI")) {
-            return new ANTXXXISectionParser();
-        }
-
-        throw new IOException("Invalid format, no known reference section found");
-    }
-
-    private void readLines() throws IOException {
-        linelist = new ArrayList<>();
-        final BufferedReader bufferedReader = new BufferedReader(fileReader);
-        String line;
-        while ((line = bufferedReader.readLine()) != null) {
-            if (line.startsWith("#")) {
-                // skip comment lines tb 2022-11-03
-                continue;
-            }
-            linelist.add(line);
-        }
+        sectionCache = new SectionCache(linelist, createSectionParsers(fileName));
     }
 
     @Override
@@ -207,6 +164,57 @@ public class SicCciInsituReader implements Reader {
     @Override
     public String getLatitudeVariableName() {
         return "latitude";
+    }
+
+    private AbstractSectionParser[] createSectionParsers(String fileName) {
+        final ArrayList<AbstractSectionParser> parsers = new ArrayList<>();
+        parsers.add(referenceSectionParser);
+        if (fileName.contains("ERA5")) {
+            parsers.add(new ERASectionParser("ERA5"));
+        } else if (fileName.contains("ERA")) {
+            parsers.add(new ERASectionParser("ERA"));
+        }
+        if (fileName.contains("AMSR2")) {
+            parsers.add(new AMSR2SectionParser());
+        }
+        if (fileName.contains("ASCAT")) {
+            parsers.add(new ASCATSectionParser());
+        }
+        if (fileName.contains("SMOS")) {
+            parsers.add(new SMOSSectionParser());
+        }
+        if (fileName.contains("SMAP")) {
+            parsers.add(new SMAPSectionParser());
+        }
+        if (fileName.contains("QSCAT")) {
+            parsers.add(new QSCATSectionParser());
+        }
+        return parsers.toArray(new AbstractSectionParser[0]);
+    }
+
+    static ReferenceSectionParser createReferenceParser(String fileName) throws IOException {
+        if (fileName.contains("DMISIC0")) {
+            return new DMISIC0SectionParser();
+        } else if (fileName.contains("DTUSIC1")) {
+            return new DTUSIC1SectionParser();
+        } else if (fileName.contains("ANTXXXI")) {
+            return new ANTXXXISectionParser();
+        }
+
+        throw new IOException("Invalid format, no known reference section found");
+    }
+
+    private void readLines() throws IOException {
+        linelist = new ArrayList<>();
+        final BufferedReader bufferedReader = new BufferedReader(fileReader);
+        String line;
+        while ((line = bufferedReader.readLine()) != null) {
+            if (line.startsWith("#")) {
+                // skip comment lines tb 2022-11-03
+                continue;
+            }
+            linelist.add(line);
+        }
     }
 
     private void parseSensingTimes(AcquisitionInfo acquisitionInfo) throws IOException {

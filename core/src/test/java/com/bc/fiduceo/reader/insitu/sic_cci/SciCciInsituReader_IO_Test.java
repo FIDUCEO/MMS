@@ -296,6 +296,46 @@ public class SciCciInsituReader_IO_Test {
     }
 
     @Test
+    public void testReadRaw_1x1_DTUSIC1_SMOS_SMAP() throws InvalidRangeException, IOException {
+        final File testFile = getDTUSIC1_SMOS_SMAP();
+
+        try {
+            reader.open(testFile);
+
+            // reference data
+            Array array = reader.readRaw(7, 5, new Interval(1, 1), "SIC");
+            final char[] valueAsArray = (char[]) array.get1DJavaArray(char.class);
+            assertEquals(1.f, array.getFloat(0), 1e-8);
+
+            // ERA5
+            array = reader.readRaw(7, 6, new Interval(1, 1), "ERA_v10");
+            assertEquals(1.18f, array.getFloat(0), 1e-8);
+
+            // AMSR2
+            array = reader.readRaw(7, 7, new Interval(1, 1), "AMSR2_7.3GHzH");
+            assertEquals(187.99f, array.getFloat(0), 1e-8);
+
+            // ASCAT
+            array = reader.readRaw(5, 8, new Interval(1, 1), "ASCAT_nb_samples");
+            assertEquals(21, array.getShort(0));
+
+            // SMOS
+            array = reader.readRaw(5, 9, new Interval(1, 1), "SMOS_Tbv");
+            assertEquals(227.93663f, array.getFloat(0), 1e-8);
+
+            // SMAP
+            array = reader.readRaw(5, 10, new Interval(1, 1), "SMAP_Tbh");
+            assertEquals(204.8144989013672f, array.getFloat(0), 1e-8);
+
+            // QSCAT
+            array = reader.readRaw(5, 11, new Interval(1, 1), "QSCAT_latitude");
+            assertEquals(82.5f, array.getFloat(0), 1e-8);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
     public void testReadRaw_3x3_ANTXXXI() throws InvalidRangeException, IOException {
         final File testFile = getANTXXXI();
 
@@ -437,6 +477,11 @@ public class SciCciInsituReader_IO_Test {
 
     private static File getDTUSIC1_QSCAT() throws IOException {
         final String relativePath = TestUtil.assembleFileSystemPath(new String[]{"insitu", "sic-cci", "DTUSIC1-sic-cci", "v3", "QSCAT-vs-ASCAT-vs-AMSR2-vs-ERA-vs-DTUSIC1-2016-S.text"}, false);
+        return TestUtil.getTestDataFileAsserted(relativePath);
+    }
+
+    private static File getDTUSIC1_SMOS_SMAP() throws IOException {
+        final String relativePath = TestUtil.assembleFileSystemPath(new String[]{"insitu", "sic-cci", "DTUSIC1-sic-cci", "v3", "QSCAT-vs-SMAP-vs-SMOS-vs-ASCAT-vs-AMSR2-vs-ERA-vs-DTUSIC1-2016-N.text"}, false);
         return TestUtil.getTestDataFileAsserted(relativePath);
     }
 
