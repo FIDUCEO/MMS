@@ -57,6 +57,9 @@ public class SicCciInsituReader implements Reader {
         if (fileName.contains("ASCAT")) {
             parsers.add(new ASCATSectionParser());
         }
+        if (fileName.contains("QSCAT")){
+            parsers.add(new QSCATSectionParser());
+        }
 
         sectionCache = new SectionCache(linelist, parsers.toArray(new AbstractSectionParser[0]));
     }

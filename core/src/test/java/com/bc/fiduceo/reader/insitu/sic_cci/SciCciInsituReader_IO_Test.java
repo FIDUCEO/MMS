@@ -365,6 +365,37 @@ public class SciCciInsituReader_IO_Test {
     }
 
     @Test
+    public void testReadScaled_1x1_DTUSIC1_QSCAT() throws InvalidRangeException, IOException {
+        final File testFile = getDTUSIC1_QSCAT();
+
+        try {
+            reader.open(testFile);
+
+            // reference data
+            Array array = reader.readScaled(6, 6, new Interval(1, 1), "areachange");
+            assertEquals(0.993f, array.getFloat(0), 1e-8);
+
+            // ERA5
+            array = reader.readScaled(5, 7, new Interval(1, 1), "ERA_t2m");
+            assertEquals(253.53f, array.getFloat(0), 1e-8);
+
+            // AMSR2
+            array = reader.readScaled(5, 8, new Interval(1, 1), "AMSR2_23.8GHzH");
+            assertEquals(229.82f, array.getFloat(0), 1e-8);
+
+            // ASCAT
+            array = reader.readScaled(5, 9, new Interval(1, 1), "ASCAT_std");
+            assertEquals(0.0755f, array.getFloat(0), 1e-8);
+
+            // QSCAT
+            array = reader.readScaled(5, 10, new Interval(1, 1), "QSCAT_sigma0_inner");
+            assertEquals(9.969209968386869E36f, array.getFloat(0), 1e-8);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
     public void testReadAcquisitionTime_1x1_DTUSIC1() throws IOException, InvalidRangeException {
         final File testFile = getDTUSIC1();
 
@@ -401,6 +432,11 @@ public class SciCciInsituReader_IO_Test {
 
     private static File getDTUSIC1() throws IOException {
         final String relativePath = TestUtil.assembleFileSystemPath(new String[]{"insitu", "sic-cci", "DTUSIC1-sic-cci", "v3", "ASCAT-vs-AMSR2-vs-ERA5-vs-DTUSIC1-2017-S.text"}, false);
+        return TestUtil.getTestDataFileAsserted(relativePath);
+    }
+
+    private static File getDTUSIC1_QSCAT() throws IOException {
+        final String relativePath = TestUtil.assembleFileSystemPath(new String[]{"insitu", "sic-cci", "DTUSIC1-sic-cci", "v3", "QSCAT-vs-ASCAT-vs-AMSR2-vs-ERA-vs-DTUSIC1-2016-S.text"}, false);
         return TestUtil.getTestDataFileAsserted(relativePath);
     }
 
