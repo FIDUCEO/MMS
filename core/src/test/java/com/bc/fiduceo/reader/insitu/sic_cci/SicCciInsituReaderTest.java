@@ -16,27 +16,45 @@ public class SicCciInsituReaderTest {
 
     @Before
     public void setUp() {
-        reader = new SicCciInsituReader();
+        reader = new SicCciInsituReader("whatever");
     }
 
     @Test
     public void testGetRegEx() {
-        final String expected = "ASCAT-vs-AMSR2-vs-ERA5-vs-\\p{Upper}{6}\\d{1}-\\d{4}-[N|S].text";
+        final String antxxxiPattern = ".*ANTXXXI.*.text";
+        final SicCciInsituReader antxxxiReader = new SicCciInsituReader(antxxxiPattern);
+        assertEquals(antxxxiPattern, antxxxiReader.getRegEx());
 
-        assertEquals(expected, reader.getRegEx());
+        Pattern pattern = Pattern.compile(antxxxiPattern);
 
-        final Pattern pattern = Pattern.compile(expected);
-
-        Matcher matcher = pattern.matcher("ASCAT-vs-AMSR2-vs-ERA5-vs-DMISIC0-2017-N.text");
+        Matcher matcher = pattern.matcher("ASCAT-vs-AMSR2-vs-ERA-vs-ANTXXXI_2_FROSN_SeaIceObservations_reformatted.text");
         assertTrue(matcher.matches());
+
+        matcher = pattern.matcher("ASCAT-vs-AMSR2-vs-ERA5-vs-DTUSIC1-2017-S.text");
+        assertFalse(matcher.matches());
+
+        final String dmisic0Pattern = ".*DMISIC0.*.text";
+        final SicCciInsituReader dmisic0Reader = new SicCciInsituReader(dmisic0Pattern);
+        assertEquals(dmisic0Pattern, dmisic0Reader.getRegEx());
+
+        pattern = Pattern.compile(dmisic0Pattern);
+
+        matcher = pattern.matcher("ASCAT-vs-AMSR2-vs-ERA5-vs-DMISIC0-2016-N.text");
+        assertTrue(matcher.matches());
+
+        matcher = pattern.matcher("ASCAT-vs-AMSR2-vs-ERA5-vs-DTUSIC1-2017-S.text");
+        assertFalse(matcher.matches());
+
+        final String dtusic1Pattern = ".*DTUSIC1.*.text";
+        final SicCciInsituReader dtusic10Reader = new SicCciInsituReader(dtusic1Pattern);
+        assertEquals(dtusic1Pattern, dtusic10Reader.getRegEx());
+
+        pattern = Pattern.compile(dtusic1Pattern);
 
         matcher = pattern.matcher("ASCAT-vs-AMSR2-vs-ERA5-vs-DTUSIC1-2017-S.text");
         assertTrue(matcher.matches());
 
-        matcher = pattern.matcher("insitu_0_WMOID_42531_19960904_19960909.nc");
-        assertFalse(matcher.matches());
-
-        matcher = pattern.matcher("190546533.NSS.HIRX.NL.D11235.S1235.E1422.B5628788.WI.nc");
+        matcher = pattern.matcher("ASCAT-vs-AMSR2-vs-ERA5-vs-DMISIC0-2016-N.text");
         assertFalse(matcher.matches());
     }
 

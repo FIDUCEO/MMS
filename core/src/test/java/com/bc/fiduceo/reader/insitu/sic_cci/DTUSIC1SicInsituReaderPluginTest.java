@@ -6,20 +6,19 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertTrue;
 
-public class SciCciInsituReaderPluginTest {
+public class DTUSIC1SicInsituReaderPluginTest {
 
-    private SicCciInsituReaderPlugin plugin;
+    private DTUSIC1SicInsituReaderPlugin plugin;
 
     @Before
     public void setUp() {
-        plugin = new SicCciInsituReaderPlugin();
+        plugin = new DTUSIC1SicInsituReaderPlugin();
     }
 
     @Test
     public void testGetSupportedSensorKeys() {
-        final String[] expected = {"sic-cci-dmisic0"};
+        final String[] expected = {"DTUSIC1-sic-cci"};
 
         final String[] sensorKeys = plugin.getSupportedSensorKeys();
         assertArrayEquals(expected, sensorKeys);
@@ -35,5 +34,7 @@ public class SciCciInsituReaderPluginTest {
         final Reader reader = plugin.createReader(null);
         assertNotNull(reader);
         assertTrue(reader instanceof SicCciInsituReader);
+
+        assertEquals(".*DTUSIC1.*.text", reader.getRegEx());
     }
 }

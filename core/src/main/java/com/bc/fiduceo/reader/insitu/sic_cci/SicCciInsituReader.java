@@ -27,13 +27,16 @@ import java.util.List;
 
 public class SicCciInsituReader implements Reader {
 
-    private static final String REG_EX = "ASCAT-vs-AMSR2-vs-ERA5-vs-\\p{Upper}{6}\\d{1}-\\d{4}-[N|S].text";
-
+    private final String regEx;
     private FileReader fileReader;
     private TimeLocator timeLocator;
     private ArrayList<String> linelist;
     private SectionCache sectionCache;
     private ReferenceSectionParser referenceSectionParser;
+
+    public SicCciInsituReader(String filenameRegEx) {
+        this.regEx = filenameRegEx;
+    }
 
     @Override
     public void open(File file) throws IOException {
@@ -75,7 +78,7 @@ public class SicCciInsituReader implements Reader {
 
     @Override
     public String getRegEx() {
-        return REG_EX;
+        return regEx;
     }
 
     @Override

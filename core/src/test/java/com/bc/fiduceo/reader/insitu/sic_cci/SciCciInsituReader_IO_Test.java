@@ -34,7 +34,7 @@ public class SciCciInsituReader_IO_Test {
 
     @Before
     public void setUp() {
-        reader = new SicCciInsituReader();
+        reader = new SicCciInsituReader("whatever");
     }
 
     @Test

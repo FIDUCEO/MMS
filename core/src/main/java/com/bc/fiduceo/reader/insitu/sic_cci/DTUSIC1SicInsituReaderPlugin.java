@@ -5,13 +5,13 @@ import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.ReaderPlugin;
 
-public class SicCciInsituReaderPlugin implements ReaderPlugin {
+public class DTUSIC1SicInsituReaderPlugin implements ReaderPlugin {
 
-    private final String[] SUPPORTED_KEYS = {"sic-cci-dmisic0"};
+    private final String[] SUPPORTED_KEYS = {"DTUSIC1-sic-cci"};
 
     @Override
     public Reader createReader(ReaderContext readerContext) {
-        return new SicCciInsituReader();
+        return new SicCciInsituReader(".*DTUSIC1.*.text");
     }
 
     @Override
