@@ -42,44 +42,41 @@ public class MatchupToolIntegrationTest_SMOSL1_sic_cci extends AbstractUsecaseIn
 
         final File mmdFile = getMmdFilePath(useCaseConfig, "2016-156", "2016-156");
         assertTrue(mmdFile.isFile());
-// @todo 1 tb/tb continue with assertions here 2022-11-14
-//        try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
-//            final int matchupCount = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, mmd);
-//            assertEquals(15, matchupCount);
-//
-//            NCTestUtils.assert3DVariable("drifter-sirds_acquisition_time", 0, 0, 0, 1511146800, mmd);
-//            NCTestUtils.assert3DVariable("drifter-sirds_collection", 0, 0, 1, 1, mmd);
-//            NCTestUtils.assert3DVariable("drifter-sirds_depth", 0, 0, 2, 0.2, mmd);
-//            NCTestUtils.assert3DVariable("drifter-sirds_depth_corr", 0, 0, 3, 0.0, mmd);
-//            NCTestUtils.assert3DVariable("drifter-sirds_latitude", 0, 0, 4, -25.63, mmd);
-//            NCTestUtils.assert3DVariable("drifter-sirds_longitude", 0, 0, 5, -151.32001, mmd);
-//            NCTestUtils.assert3DVariable("drifter-sirds_prof_id", 0, 0, 6, 633946, mmd);
-//            NCTestUtils.assert3DVariable("drifter-sirds_qc1", 0, 0, 7, 0, mmd);
-//            NCTestUtils.assert3DVariable("drifter-sirds_qc2", 0, 0, 8, -99, mmd);
-//            NCTestUtils.assert3DVariable("drifter-sirds_sst", 0, 0, 9, 30.100000381469727, mmd);
-//            NCTestUtils.assert3DVariable("drifter-sirds_sst_comb_unc", 0, 0, 10, 0.3895, mmd);
-//            NCTestUtils.assert3DVariable("drifter-sirds_sst_plat_corr", 0, 0, 11, 0.0, mmd);
-//            NCTestUtils.assert3DVariable("drifter-sirds_sst_plat_corr", 0, 0, 12, 0.0, mmd);
-//            NCTestUtils.assert3DVariable("drifter-sirds_sst_plat_corr_unc", 0, 0, 12, 0.29, mmd);
-//            NCTestUtils.assert3DVariable("drifter-sirds_sst_rand_unc", 0, 0, 13, 0.26, mmd);
-//
-//            NCTestUtils.assert3DVariable("miras-smos-CDF3TD_Azimuth_Angle_025", 0, 0, 0, -32768, mmd);
-//            NCTestUtils.assert3DVariable("miras-smos-CDF3TD_BT_3_075", 1, 0, 1, -32768, mmd);
-//            NCTestUtils.assert3DVariable("miras-smos-CDF3TD_BT_4_125", 2, 0, 2, -32768, mmd);
-//            NCTestUtils.assert3DVariable("miras-smos-CDF3TD_BT_H_175", 0, 1, 3, -32768, mmd);
-//            NCTestUtils.assert3DVariable("miras-smos-CDF3TD_BT_V_225", 1, 1, 4, -32768, mmd);
-//            NCTestUtils.assert3DVariable("miras-smos-CDF3TD_Days_275", 2, 1, 5, 6533, mmd);
-//            NCTestUtils.assert3DVariable("miras-smos-CDF3TD_Eta_325", 0, 2, 6, -10148, mmd);
-//            NCTestUtils.assert3DVariable("miras-smos-CDF3TD_Footprint_Axis1_375", 1, 2, 7, -16670, mmd);
-//            NCTestUtils.assert3DVariable("miras-smos-CDF3TD_Footprint_Axis2_400", 2, 2, 8, -19158, mmd);
-//            NCTestUtils.assert3DVariable("miras-smos-CDF3TD_Incidence_Angle_425", 0, 0, 9, -2487, mmd);
-//            NCTestUtils.assert3DVariable("miras-smos-CDF3TD_Nb_RFI_Flags_475", 1, 0, 10, 0, mmd);
-//            NCTestUtils.assert3DVariable("miras-smos-CDF3TD_Nb_SUN_Flags_525", 2, 0, 11, 0, mmd);
-//            NCTestUtils.assert3DVariable("miras-smos-CDF3TD_Nviews_575", 0, 1, 12, 14, mmd);
-//            NCTestUtils.assert3DVariable("miras-smos-CDF3TD_Pixel_BT_Standard_Deviation_3_625", 1, 1, 13, -32768, mmd);
-//            NCTestUtils.assert3DVariable("miras-smos-CDF3TD_lon", 2, 1, 13, -48.37175750732422, mmd);
-//            NCTestUtils.assert3DVariable("miras-smos-CDF3TD_lat", 0, 2, 14, 36.3758544921875, mmd);
-//        }
+        try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
+            final int matchupCount = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, mmd);
+            assertEquals(2, matchupCount);
+
+            NCTestUtils.assert3DVariable("DTUSIC1-sic-cci_AMSR2_10.7GHzV", 0, 0, 0, 267.39f, mmd);
+            NCTestUtils.assert3DVariable("DTUSIC1-sic-cci_AMSR2_Earth-Azimuth", 0, 0, 1, -174.65f, mmd);
+            NCTestUtils.assert3DVariable("DTUSIC1-sic-cci_ASCAT_latitude", 0, 0, 0, 79.45f, mmd);
+            NCTestUtils.assert3DVariable("DTUSIC1-sic-cci_ASCAT_time", 0, 0, 1, 1465041600, mmd);
+            NCTestUtils.assert3DVariable("DTUSIC1-sic-cci_ERA_istl1", 0, 0, 0, 273.16f, mmd);
+            NCTestUtils.assert3DVariable("DTUSIC1-sic-cci_ERA_tcwv", 0, 0, 1, 8.0443f, mmd);
+            NCTestUtils.assert3DVariable("DTUSIC1-sic-cci_QSCAT_longitude", 0, 0, 0, 174.50399780273438, mmd);
+            NCTestUtils.assert3DVariable("DTUSIC1-sic-cci_QSCAT_std_inner", 0, 0, 1, 9.969209968386869E36, mmd);
+            NCTestUtils.assert3DVariable("DTUSIC1-sic-cci_SMAP_RMSE_v", 0, 0, 0, 3.927370071411133, mmd);
+            NCTestUtils.assert3DVariable("DTUSIC1-sic-cci_SMAP_nmp", 0, 0, 1, 19, mmd);
+            NCTestUtils.assert3DVariable("DTUSIC1-sic-cci_SMOS_Tbh", 0, 0, 0, 236.36058044433594, mmd);
+            NCTestUtils.assert3DVariable("DTUSIC1-sic-cci_SMOS_longitude", 0, 0, 1, 147.529f, mmd);
+            NCTestUtils.assert3DVariable("DTUSIC1-sic-cci_areachange", 0, 0, 0, 0.998f, mmd);
+
+            NCTestUtils.assert3DVariable("miras-smos-CDF3TA_Azimuth_Angle_125", 0, 0, 0, 9549, mmd);
+            NCTestUtils.assert3DVariable("miras-smos-CDF3TA_BT_3_075", 1, 0, 1, 1158, mmd);
+            NCTestUtils.assert3DVariable("miras-smos-CDF3TA_BT_4_125", 2, 0, 0, -32768, mmd);
+            NCTestUtils.assert3DVariable("miras-smos-CDF3TA_BT_H_400", 0, 1, 1, 7770, mmd);
+            NCTestUtils.assert3DVariable("miras-smos-CDF3TA_Days_125", 1, 1, 0, 5999, mmd);
+            NCTestUtils.assert3DVariable("miras-smos-CDF3TA_Eta_275", 2, 1, 1, -4723, mmd);
+            NCTestUtils.assert3DVariable("miras-smos-CDF3TA_Footprint_Axis2_075", 0, 2, 0, -22329, mmd);
+            NCTestUtils.assert3DVariable("miras-smos-CDF3TA_Incidence_Angle_375", 1, 2, 1, -5369, mmd);
+            NCTestUtils.assert3DVariable("miras-smos-CDF3TA_Nb_RFI_Flags_400", 2, 2, 0, 0, mmd);
+            NCTestUtils.assert3DVariable("miras-smos-CDF3TA_Nviews_525", 0, 0, 1, 16, mmd);
+            NCTestUtils.assert3DVariable("miras-smos-CDF3TA_Pixel_BT_Standard_Deviation_H_025", 1, 0, 0, -32768, mmd);
+            NCTestUtils.assert3DVariable("miras-smos-CDF3TA_Pixel_BT_Standard_Deviation_V_475", 2, 0, 1, -30921, mmd);
+            NCTestUtils.assert3DVariable("miras-smos-CDF3TA_Pixel_Radiometric_Accuracy_4_625", 0, 1, 0, -32768, mmd);
+            NCTestUtils.assert3DVariable("miras-smos-CDF3TA_UTC_Microseconds_375", 1, 1, 0, 44459, mmd);
+            NCTestUtils.assert3DVariable("miras-smos-CDF3TA_Xi_375", 2, 1, 1, 1525, mmd);
+            NCTestUtils.assert3DVariable("miras-smos-CDF3TA_lon", 0, 2, 0, 174.1642608642578, mmd);
+        }
     }
 
     private void insert_SIC_CCI() throws IOException, SQLException {

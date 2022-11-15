@@ -33,6 +33,7 @@ public class SicCciInsituReader implements Reader {
     private ArrayList<String> linelist;
     private SectionCache sectionCache;
     private ReferenceSectionParser referenceSectionParser;
+    private AbstractSectionParser[] sectionParsers;
 
     public SicCciInsituReader(String filenameRegEx) {
         this.regEx = filenameRegEx;
@@ -46,7 +47,8 @@ public class SicCciInsituReader implements Reader {
 
         final String fileName = file.getName();
         referenceSectionParser = createReferenceParser(fileName);
-        sectionCache = new SectionCache(linelist, createSectionParsers(fileName));
+        sectionParsers = createSectionParsers(fileName);
+        sectionCache = new SectionCache(linelist, sectionParsers);
     }
 
     @Override
@@ -145,7 +147,13 @@ public class SicCciInsituReader implements Reader {
 
     @Override
     public List<Variable> getVariables() throws InvalidRangeException, IOException {
-        return referenceSectionParser.getVariables();
+        final ArrayList<Variable> variables = new ArrayList<>();
+
+        for(AbstractSectionParser parser: sectionParsers) {
+            variables.addAll(parser.getVariables());
+        }
+
+        return variables;
     }
 
     @Override

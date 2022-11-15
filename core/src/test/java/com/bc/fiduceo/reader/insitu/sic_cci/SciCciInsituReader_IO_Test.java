@@ -81,7 +81,7 @@ public class SciCciInsituReader_IO_Test {
             reader.open(testFile);
 
             final List<Variable> variables = reader.getVariables();
-            assertEquals(6, variables.size());
+            assertEquals(66, variables.size());
 
             Variable variable = variables.get(0);
             assertEquals("longitude", variable.getShortName());
@@ -90,6 +90,29 @@ public class SciCciInsituReader_IO_Test {
             variable = variables.get(5);
             assertEquals("areachange", variable.getShortName());
             assertEquals(DataType.FLOAT, variable.getDataType());
+
+            variable = variables.get(14);
+            assertEquals("ERA5_ws", variable.getShortName());
+            NCTestUtils.assertAttribute(variable, CF_FILL_VALUE_NAME, "9.969209968386869E36");
+
+            variable = variables.get(25);
+            assertEquals("ERA5_tciw", variable.getShortName());
+            NCTestUtils.assertAttribute(variable, CF_LONG_NAME, "Total column cloud ice water");
+
+            variable = variables.get(36);
+            assertEquals("AMSR2_reference-id", variable.getShortName());
+
+            variable = variables.get(47);
+            assertEquals("AMSR2_36.5GHzH", variable.getShortName());
+            NCTestUtils.assertAttribute(variable, CF_UNITS_NAME, "K");
+
+            variable = variables.get(58);
+            assertEquals("ASCAT_time", variable.getShortName());
+            NCTestUtils.assertAttribute(variable, CF_UNITS_NAME, "seconds since 1970-01-01");
+
+            variable = variables.get(65);
+            assertEquals("ASCAT_std", variable.getShortName());
+            NCTestUtils.assertAttribute(variable, CF_LONG_NAME, "Standard deviation of ASCAT data");
         } finally {
             reader.close();
         }
@@ -103,7 +126,7 @@ public class SciCciInsituReader_IO_Test {
             reader.open(testFile);
 
             final List<Variable> variables = reader.getVariables();
-            assertEquals(5, variables.size());
+            assertEquals(65, variables.size());
 
             Variable variable = variables.get(0);
             assertEquals("longitude", variable.getShortName());
@@ -112,6 +135,29 @@ public class SciCciInsituReader_IO_Test {
             variable = variables.get(4);
             assertEquals("SIC", variable.getShortName());
             NCTestUtils.assertAttribute(variable, CF_STANDARD_NAME, "sea_ice_area_fraction");
+
+            variable = variables.get(15);
+            assertEquals("ERA5_skt", variable.getShortName());
+            NCTestUtils.assertAttribute(variable, CF_UNITS_NAME, "K");
+
+            variable = variables.get(26);
+            assertEquals("ERA5_strd", variable.getShortName());
+            NCTestUtils.assertAttribute(variable, CF_LONG_NAME, "Surface thermal radiation downwards");
+
+            variable = variables.get(37);
+            assertEquals("AMSR2_6.9GHzV", variable.getShortName());
+            NCTestUtils.assertAttribute(variable, CF_UNITS_NAME, "K");
+
+            variable = variables.get(48);
+            assertEquals("AMSR2_89.0GHzH", variable.getShortName());
+            NCTestUtils.assertAttribute(variable, CF_FILL_VALUE_NAME, "9.969209968386869E36");
+
+            variable = variables.get(59);
+            assertEquals("ASCAT_upstreamfile", variable.getShortName());
+
+            variable = variables.get(63);
+            assertEquals("ASCAT_warning", variable.getShortName());
+            NCTestUtils.assertAttribute(variable, CF_LONG_NAME, "ASCAT flag");
         } finally {
             reader.close();
         }
@@ -125,7 +171,7 @@ public class SciCciInsituReader_IO_Test {
             reader.open(testFile);
 
             final List<Variable> variables = reader.getVariables();
-            assertEquals(33, variables.size());
+            assertEquals(93, variables.size());
 
             Variable variable = variables.get(0);
             assertEquals("longitude", variable.getShortName());
@@ -142,6 +188,29 @@ public class SciCciInsituReader_IO_Test {
             variable = variables.get(32);
             assertEquals("Weather", variable.getShortName());
             NCTestUtils.assertAttribute(variable, CF_FILL_VALUE_NAME, "-127");
+
+            variable = variables.get(43);
+            assertEquals("ERA_skt", variable.getShortName());
+            NCTestUtils.assertAttribute(variable, CF_LONG_NAME, "Skin temperature");
+
+            variable = variables.get(54);
+            assertEquals("ERA_strd", variable.getShortName());
+            NCTestUtils.assertAttribute(variable, CF_UNITS_NAME, "J m**-2");
+
+            variable = variables.get(65);
+            assertEquals("AMSR2_6.9GHzV", variable.getShortName());
+            NCTestUtils.assertAttribute(variable, CF_STANDARD_NAME, "toa_brightness_temperature");
+
+            variable = variables.get(76);
+            assertEquals("AMSR2_89.0GHzH", variable.getShortName());
+            NCTestUtils.assertAttribute(variable, CF_FILL_VALUE_NAME, "9.969209968386869E36");
+
+            variable = variables.get(87);
+            assertEquals("ASCAT_upstreamfile", variable.getShortName());
+
+            variable = variables.get(92);
+            assertEquals("ASCAT_std", variable.getShortName());
+            NCTestUtils.assertAttribute(variable, CF_FILL_VALUE_NAME, "9.969209968386869E36");
         } finally {
             reader.close();
         }
@@ -304,7 +373,6 @@ public class SciCciInsituReader_IO_Test {
 
             // reference data
             Array array = reader.readRaw(7, 5, new Interval(1, 1), "SIC");
-            final char[] valueAsArray = (char[]) array.get1DJavaArray(char.class);
             assertEquals(1.f, array.getFloat(0), 1e-8);
 
             // ERA5
