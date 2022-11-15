@@ -155,6 +155,9 @@ public class TestUtil {
                                        "        <rule sensors = \"miras-smos-CDF3TD, miras-smos-CDF3TA\">" +
                                        "            SENSOR/VERSION/YEAR/DAY_OF_YEAR" +
                                        "        </rule>" +
+                                       "        <rule sensors = \"ANTXXXI-sic-cci, DMISIC0-sic-cci, DTUSIC1-sic-cci\">" +
+                                       "            insitu/sic-cci/SENSOR/VERSION" +
+                                       "        </rule>" +
                                        "    </archive>" +
                                        "    <temp-directory>" +
                                        "            " + TestUtil.getTestDir().getAbsolutePath() +
