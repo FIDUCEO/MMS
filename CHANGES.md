@@ -1,3 +1,7 @@
+### Updates from version 1.5.6 to 1.5.7
+* added support for SMOS L1C daily aggregated products
+* added support for SIC-CCI RRDP insitu data
+
 ### Updates from version 1.5.5 to 1.5.6
 * added support for SLSTR subset data processed by UoR
 * updated to use SNAP 9.0.2 / S3TBX 9.0.3
