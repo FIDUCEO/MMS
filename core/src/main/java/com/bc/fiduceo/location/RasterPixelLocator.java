@@ -1,11 +1,9 @@
-package com.bc.fiduceo.reader.smos;
-
-import com.bc.fiduceo.location.PixelLocator;
+package com.bc.fiduceo.location;
 
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
-class RasterPixelLocator implements PixelLocator {
+public class RasterPixelLocator implements PixelLocator {
 
     private final float[] lons;
     private final float[] lats;
@@ -21,7 +19,7 @@ class RasterPixelLocator implements PixelLocator {
      * @param lats     the latitude axis
      * @param boundary the raster boundaries
      */
-    RasterPixelLocator(float[] lons, float[] lats, Rectangle2D.Float boundary) {
+    public RasterPixelLocator(float[] lons, float[] lats, Rectangle2D.Float boundary) {
         this.lons = lons;
         this.lats = lats;
         this.boundary = boundary;

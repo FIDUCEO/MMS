@@ -5,6 +5,7 @@ import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
+import com.bc.fiduceo.location.RasterPixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.RawDataReader;
 import com.bc.fiduceo.reader.ReaderContext;
@@ -104,12 +105,12 @@ class SmosL1CDailyGriddedReader extends NetCDFReader {
         final double[] geoMinMax = extractMinMax(longitudes, latitudes);
 
         final GeometryFactory geometryFactory = readerContext.getGeometryFactory();
-        final Polygon polygon = createPolygonFromMinMax(geoMinMax, geometryFactory);
+        final Polygon polygon = GeometryUtil.createPolygonFromMinMax(geoMinMax, geometryFactory);
         acquisitionInfo.setBoundingGeometry(polygon);
 
         setSensingTimes(acquisitionInfo);
 
-        final MultiLineString multiLineString = createMultiLineStringFromMinMax(geoMinMax, geometryFactory);
+        final MultiLineString multiLineString = GeometryUtil.createMultiLineStringFromMinMax(geoMinMax, geometryFactory);
         final TimeAxis timeAxis = new L3TimeAxis(acquisitionInfo.getSensingStart(), acquisitionInfo.getSensingStop(), multiLineString);
         acquisitionInfo.setTimeAxes(new TimeAxis[]{timeAxis});
 
@@ -402,26 +403,6 @@ class SmosL1CDailyGriddedReader extends NetCDFReader {
         acquisitionInfo.setSensingStop(utcCalendar.getTime());
     }
 
-    // package access for testing only tb 2022-09-15
-    static Polygon createPolygonFromMinMax(double[] geoMinMax, GeometryFactory geometryFactory) {
-        final double lonMin = geoMinMax[0];
-        final double lonMax = geoMinMax[1];
-        final double latMin = geoMinMax[2];
-        final double latMax = geoMinMax[3];
-
-        final Point ll = geometryFactory.createPoint(lonMin, latMin);
-        final Point ul = geometryFactory.createPoint(lonMin, latMax);
-        final Point ur = geometryFactory.createPoint(lonMax, latMax);
-        final Point lr = geometryFactory.createPoint(lonMax, latMin);
-        final ArrayList<Point> polygonPoints = new ArrayList<>();
-        polygonPoints.add(ll);
-        polygonPoints.add(lr);
-        polygonPoints.add(ur);
-        polygonPoints.add(ul);
-        polygonPoints.add(ll);
-        return geometryFactory.createPolygon(polygonPoints);
-    }
-
     /**
      * extract minimal and maximal value of geolocation arrays passed in.
      * the resulting array is ordered:
@@ -447,32 +428,6 @@ class SmosL1CDailyGriddedReader extends NetCDFReader {
         minMax[3] = latitudes.getDouble(size - 1);
 
         return minMax;
-    }
-
-    // package access for testing only tb 2022-09-26
-    static MultiLineString createMultiLineStringFromMinMax(double[] geoMinMax, GeometryFactory geometryFactory) {
-        final double lonMin = geoMinMax[0];
-        final double lonMax = geoMinMax[1];
-
-        final double latMin = geoMinMax[2];
-        final double latMax = geoMinMax[3];
-
-        final List<Point> points = new ArrayList<>();
-        points.add(geometryFactory.createPoint(lonMin, 0.0));
-        points.add(geometryFactory.createPoint(lonMax, 0.0));
-        final LineString we = geometryFactory.createLineString(points);
-
-        points.clear();
-        points.add(geometryFactory.createPoint(0.0, latMax));
-        points.add(geometryFactory.createPoint(0.0, latMin));
-
-        final LineString ns = geometryFactory.createLineString(points);
-
-        final List<LineString> lines = new ArrayList<>();
-        lines.add(we);
-        lines.add(ns);
-
-        return geometryFactory.createMultiLineString(lines);
     }
 
     // package access for testing only tb 2022-09-29

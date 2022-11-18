@@ -1,6 +1,5 @@
-package com.bc.fiduceo.reader.smos;
+package com.bc.fiduceo.location;
 
-import com.bc.fiduceo.location.PixelLocator;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -19,7 +18,7 @@ public class RasterPixelLocatorTest {
         final float[] lons = {-170, -130, -90, -50, -10, 10, 50, 90, 130, 170};
         final float[] lats = {-80, -50, -20, 0, 20, 50, 80};
 
-        Rectangle2D.Float boundary = new Rectangle2D.Float(-180, -88, 360, 176);
+        final Rectangle2D.Float boundary = new Rectangle2D.Float(-180, -88, 360, 176);
 
         rasterPixelLocator = new RasterPixelLocator(lons, lats, boundary);
     }

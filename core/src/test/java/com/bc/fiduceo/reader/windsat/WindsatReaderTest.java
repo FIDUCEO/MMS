@@ -1,5 +1,6 @@
 package com.bc.fiduceo.reader.windsat;
 
+import com.bc.fiduceo.reader.ReaderContext;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -14,7 +15,7 @@ public class WindsatReaderTest {
 
     @Before
     public void setUp() {
-        reader = new WindsatReader(null); // no context required in this test tb 2022-11-17
+        reader = new WindsatReader(new ReaderContext()); // empty context sufficient in this test tb 2022-11-17
     }
 
     @Test
