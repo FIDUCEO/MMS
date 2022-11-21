@@ -6,6 +6,7 @@ import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.*;
+import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
 import org.junit.Before;
@@ -84,6 +85,20 @@ public class WindsatReader_IO_Test {
             assertNotNull(productSize);
             assertEquals(3120, productSize.getNx());
             assertEquals(1440, productSize.getNy());
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testGetPixelocator() throws IOException {
+        final File file = getWindsatFile();
+
+        try {
+            reader.open(file);
+
+            final PixelLocator pixelLocator = reader.getPixelLocator();
+            assertNotNull(pixelLocator);
         } finally {
             reader.close();
         }

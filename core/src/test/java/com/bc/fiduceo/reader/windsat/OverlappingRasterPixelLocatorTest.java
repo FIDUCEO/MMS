@@ -3,39 +3,54 @@ package com.bc.fiduceo.reader.windsat;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class OverlappingRasterPixelLocatorTest {
 
     private float[] lats;
     private float[] lons_1;
-    private float[] lons_2;
+    private float[] lons;
     private Rectangle2D.Float boundary_1;
     private Rectangle2D.Float boundary_2;
 
     @Before
     public void setUp() {
         lats = new float[]{-75, -45, -15, 15, 45, 75};
-        lons_1 = new float[]{75, 45, 15, 0};
-        lons_2 = new float[]{15, 0, -15, -45, -75, -105, -135, -165};
-
-        boundary_1 = new Rectangle2D.Float(0, -88, 90, 176);
-        boundary_2 = new Rectangle2D.Float(-180, -88, 210, 176);
+        lons = new float[]{15, 0, 345, 315, 285, 255, 225, 195, 165, 135, 105, 75, 45, 15, 0};
     }
 
     @Test
-    public void testGetGeoLocation_oneRaster() {
-        final float[][] latVectors = {lats};
-        final float[][] lonVectors = {lons_2};
-        final Rectangle2D.Float[] boundaries = {boundary_2};
+    public void testGetGeoLocation() {
+        final OverlappingRasterPixelLocator pixelLocator = new OverlappingRasterPixelLocator(lons, lats);
 
-        final OverlappingRasterPixelLocator pixelLocator = new OverlappingRasterPixelLocator(lonVectors, latVectors, boundaries);
-
-        /*
-        @todo 1 tb/tb continue here 2022-11-18
         Point2D geoLocation = pixelLocator.getGeoLocation(0.5, 0.5, null);
-        assertEquals(-170, geoLocation.getX(), 1e-8);
-        assertEquals(-80, geoLocation.getY(), 1e-8);
-         */
+        assertEquals(15.0, geoLocation.getX(), 1e-8);
+        assertEquals(-75.0, geoLocation.getY(), 1e-8);
+
+        geoLocation = pixelLocator.getGeoLocation(13.5, 1.5, null);
+        assertEquals(15.0, geoLocation.getX(), 1e-8);
+        assertEquals(-45.0, geoLocation.getY(), 1e-8);
+    }
+
+    @Test
+    public void testGetGeoLocation_outside() {
+        final OverlappingRasterPixelLocator pixelLocator = new OverlappingRasterPixelLocator(lons, lats);
+
+        Point2D geoLocation = pixelLocator.getGeoLocation(-0.5, 0.5, null);
+        assertNull(geoLocation);
+
+        geoLocation = pixelLocator.getGeoLocation(15.5, 0.5, null);
+        assertNull(geoLocation);
+
+        geoLocation = pixelLocator.getGeoLocation(2.5, -0.5, null);
+        assertNull(geoLocation);
+
+        geoLocation = pixelLocator.getGeoLocation(2.5, 6.5, null);
+        assertNull(geoLocation);
+
     }
 }

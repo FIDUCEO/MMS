@@ -13,6 +13,7 @@ import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
+import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 
@@ -25,6 +26,8 @@ class WindsatReader extends NetCDFReader {
     private static final String REG_EX = "RSS_WindSat_TB_L1C_r\\d{5}_\\d{8}T\\d{6}_\\d{7}_V\\d{2}.\\d.nc";
 
     private final GeometryFactory geometryFactory;
+
+    private PixelLocator pixelLocator;
 
     WindsatReader(ReaderContext readerContext) {
         this.geometryFactory = readerContext.getGeometryFactory();
@@ -70,7 +73,17 @@ class WindsatReader extends NetCDFReader {
 
     @Override
     public PixelLocator getPixelLocator() throws IOException {
-        throw new RuntimeException("not implmented");
+        if (pixelLocator == null) {
+            final Array lonSection = readGeoLocationVector("longitude");
+            final Array latSection = readGeoLocationVector("latitude");
+
+            final float[] longitudes = (float[]) lonSection.get1DJavaArray(DataType.FLOAT);
+            final float[] latitudes = (float[]) latSection.get1DJavaArray(DataType.FLOAT);
+
+            pixelLocator = new OverlappingRasterPixelLocator(longitudes, latitudes);
+        }
+
+        return pixelLocator;
     }
 
     @Override
