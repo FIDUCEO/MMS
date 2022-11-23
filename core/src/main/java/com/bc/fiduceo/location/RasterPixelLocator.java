@@ -19,6 +19,7 @@ public class RasterPixelLocator implements PixelLocator {
      * @param lats     the latitude axis
      * @param boundary the raster boundaries
      */
+    // @todo 1 tb/tb add option to flip axes (at least lon for now) 2022-11-23
     public RasterPixelLocator(float[] lons, float[] lats, Rectangle2D.Float boundary) {
         this.lons = lons;
         this.lats = lats;

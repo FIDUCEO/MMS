@@ -6,15 +6,24 @@ import com.bc.fiduceo.location.RasterPixelLocator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.Collections;
 
 class OverlappingRasterPixelLocator implements PixelLocator {
 
     private final float[] lons;
     private final float[] lats;
+    private final RasterPixelLocator[] pixelLocators;
+    final int[] xOffsets;
 
     OverlappingRasterPixelLocator(float[] longitudes, float[] latitudes) {
         lons = longitudes;
         lats = latitudes;
+
+        // this assumes that we do not have a single pixel wide segment at the anti-meridian tb 2022-11-23
+        final float halfCellHeight = Math.abs(latitudes[1] - latitudes[0]) * 0.5f;
+        final float halfCellWidth = Math.abs(longitudes[1] - longitudes[0]) * 0.5f;
+        final float startLat = lats[0] - halfCellHeight;
+        final float boundaryHeight = latitudes[latitudes.length - 1] - latitudes[0] + 2 * halfCellHeight;
 
         // convert longitudes to -180 -> 180 range
         // and detect anti-meridian crosses at the same iteration
@@ -30,9 +39,42 @@ class OverlappingRasterPixelLocator implements PixelLocator {
             }
         }
 
-        for (int index : cutIndices) {
-            System.out.println("i: " + index + " -------------");
-            System.out.println(normLongitudes[index - 1] + " " + normLongitudes[index]);
+        final int numLocators = cutIndices.size() + 1;
+        pixelLocators = new RasterPixelLocator[numLocators];
+        xOffsets = new int[numLocators];
+        int previousIndex = 0;
+        for (int locIdx = 0; locIdx < numLocators; locIdx++) {
+            final int cutIdx;
+            if (locIdx >= cutIndices.size()) {
+                cutIdx = normLongitudes.length - 1;
+            } else {
+                cutIdx = cutIndices.get(locIdx);
+            }
+
+            final float[] subLons = new float[cutIdx - previousIndex];
+            for (int k = previousIndex; k < cutIdx; k++) {
+                subLons[k - previousIndex] = normLongitudes[k];
+            }
+
+            float lonMin = Float.MAX_VALUE;
+            float lonMax = -Float.MAX_VALUE;
+
+            for (int k = 0; k < subLons.length; k++) {
+                if (subLons[k] > lonMax){
+                    lonMax = subLons[k];
+                }
+                if (subLons[k] < lonMin){
+                    lonMin = subLons[k];
+                }
+            }
+
+            final float startLon = lonMin - halfCellWidth;
+            final float width = lonMax - lonMin + 2 * halfCellWidth;
+            final Rectangle2D.Float boundary = new Rectangle2D.Float(startLon, startLat, width, boundaryHeight);
+            pixelLocators[locIdx] = new RasterPixelLocator(subLons, lats, boundary);
+            xOffsets[locIdx] = previousIndex;
+
+            previousIndex = cutIdx;
         }
     }
 
@@ -58,6 +100,19 @@ class OverlappingRasterPixelLocator implements PixelLocator {
 
     @Override
     public Point2D[] getPixelLocation(double lon, double lat) {
-        throw new RuntimeException("not implemented");
+        final ArrayList<Point2D> resultList = new ArrayList<>();
+
+        for (int i = 0; i < pixelLocators.length; i++) {
+            final RasterPixelLocator pixelLocator = pixelLocators[i];
+            final int xOffset = xOffsets[i];
+
+            final Point2D[] pixelLocations = pixelLocator.getPixelLocation(lon, lat);
+            for (final Point2D location : pixelLocations) {
+                location.setLocation(location.getX() + xOffset, location.getY());
+                resultList.add(location);
+            }
+        }
+
+        return resultList.toArray(new Point2D[0]);
     }
 }

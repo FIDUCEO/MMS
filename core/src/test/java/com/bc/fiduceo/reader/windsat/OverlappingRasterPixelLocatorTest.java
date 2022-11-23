@@ -11,22 +11,18 @@ import static org.junit.Assert.assertNull;
 
 public class OverlappingRasterPixelLocatorTest {
 
-    private float[] lats;
-    private float[] lons_1;
-    private float[] lons;
-    private Rectangle2D.Float boundary_1;
-    private Rectangle2D.Float boundary_2;
+    private OverlappingRasterPixelLocator pixelLocator;
 
     @Before
     public void setUp() {
-        lats = new float[]{-75, -45, -15, 15, 45, 75};
-        lons = new float[]{15, 0, 345, 315, 285, 255, 225, 195, 165, 135, 105, 75, 45, 15, 0};
+        final float[] lats = new float[]{-75, -45, -15, 15, 45, 75};
+        final float[] lons = new float[]{15, 0, 345, 315, 285, 255, 225, 195, 165, 135, 105, 75, 45, 15, 0};
+
+        pixelLocator = new OverlappingRasterPixelLocator(lons, lats);
     }
 
     @Test
     public void testGetGeoLocation() {
-        final OverlappingRasterPixelLocator pixelLocator = new OverlappingRasterPixelLocator(lons, lats);
-
         Point2D geoLocation = pixelLocator.getGeoLocation(0.5, 0.5, null);
         assertEquals(15.0, geoLocation.getX(), 1e-8);
         assertEquals(-75.0, geoLocation.getY(), 1e-8);
@@ -38,8 +34,6 @@ public class OverlappingRasterPixelLocatorTest {
 
     @Test
     public void testGetGeoLocation_outside() {
-        final OverlappingRasterPixelLocator pixelLocator = new OverlappingRasterPixelLocator(lons, lats);
-
         Point2D geoLocation = pixelLocator.getGeoLocation(-0.5, 0.5, null);
         assertNull(geoLocation);
 
@@ -51,6 +45,15 @@ public class OverlappingRasterPixelLocatorTest {
 
         geoLocation = pixelLocator.getGeoLocation(2.5, 6.5, null);
         assertNull(geoLocation);
+    }
 
+    @Test
+    public void testGetPixelLocation_singleRasterArea() {
+        // on the location
+        Point2D[] pixelLocation = pixelLocator.getPixelLocation(105.f, -45.f);
+        assertEquals(1, pixelLocation.length);
+        // @todo 1 tb/tb continue here 2022-11-23
+        //assertEquals(5, pixelLocation[0].getX(), 1e-8);
+        //assertEquals(1, pixelLocation[0].getY(), 1e-8);
     }
 }
