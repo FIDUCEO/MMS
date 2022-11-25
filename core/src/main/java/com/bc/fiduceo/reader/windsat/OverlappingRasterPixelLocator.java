@@ -6,7 +6,8 @@ import com.bc.fiduceo.location.RasterPixelLocator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
-import java.util.Collections;
+
+import static com.bc.fiduceo.location.RasterPixelLocator.LON_EAST_WEST;
 
 class OverlappingRasterPixelLocator implements PixelLocator {
 
@@ -46,32 +47,29 @@ class OverlappingRasterPixelLocator implements PixelLocator {
         for (int locIdx = 0; locIdx < numLocators; locIdx++) {
             final int cutIdx;
             if (locIdx >= cutIndices.size()) {
-                cutIdx = normLongitudes.length - 1;
+                cutIdx = normLongitudes.length;
             } else {
                 cutIdx = cutIndices.get(locIdx);
             }
 
             final float[] subLons = new float[cutIdx - previousIndex];
-            for (int k = previousIndex; k < cutIdx; k++) {
-                subLons[k - previousIndex] = normLongitudes[k];
-            }
+            System.arraycopy(normLongitudes, previousIndex, subLons, 0, cutIdx - previousIndex);
 
             float lonMin = Float.MAX_VALUE;
             float lonMax = -Float.MAX_VALUE;
-
-            for (int k = 0; k < subLons.length; k++) {
-                if (subLons[k] > lonMax){
-                    lonMax = subLons[k];
+            for (float subLon : subLons) {
+                if (subLon > lonMax) {
+                    lonMax = subLon;
                 }
-                if (subLons[k] < lonMin){
-                    lonMin = subLons[k];
+                if (subLon < lonMin) {
+                    lonMin = subLon;
                 }
             }
 
             final float startLon = lonMin - halfCellWidth;
             final float width = lonMax - lonMin + 2 * halfCellWidth;
             final Rectangle2D.Float boundary = new Rectangle2D.Float(startLon, startLat, width, boundaryHeight);
-            pixelLocators[locIdx] = new RasterPixelLocator(subLons, lats, boundary);
+            pixelLocators[locIdx] = new RasterPixelLocator(subLons, lats, boundary, LON_EAST_WEST);
             xOffsets[locIdx] = previousIndex;
 
             previousIndex = cutIdx;
@@ -87,7 +85,7 @@ class OverlappingRasterPixelLocator implements PixelLocator {
             return null;
         }
 
-        final float lon = lons[x_pos];
+        final float lon = lons[x_pos] > 180.f ? lons[x_pos] - 360.f : lons[x_pos];
         final float lat = lats[y_pos];
 
         if (point == null) {

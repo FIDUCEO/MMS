@@ -13,6 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
@@ -91,7 +92,7 @@ public class WindsatReader_IO_Test {
     }
 
     @Test
-    public void testGetPixelocator() throws IOException {
+    public void testGetPixelLocator() throws IOException {
         final File file = getWindsatFile();
 
         try {
@@ -99,6 +100,46 @@ public class WindsatReader_IO_Test {
 
             final PixelLocator pixelLocator = reader.getPixelLocator();
             assertNotNull(pixelLocator);
+
+            Point2D geoLocation = pixelLocator.getGeoLocation(0.5, 0.5, null);
+            assertEquals(94.1875, geoLocation.getX(), 1e-8);
+            assertEquals(-89.9375, geoLocation.getY(), 1e-8);
+
+            geoLocation = pixelLocator.getGeoLocation(3119.5, 0.5, null);
+            assertEquals(64.3125, geoLocation.getX(), 1e-8);
+            assertEquals(-89.9375, geoLocation.getY(), 1e-8);
+
+            geoLocation = pixelLocator.getGeoLocation(1528.5, 674.5, null);
+            assertEquals(-96.8125, geoLocation.getX(), 1e-8);
+            assertEquals(-5.6875, geoLocation.getY(), 1e-8);
+
+            geoLocation = pixelLocator.getGeoLocation(2128.5, 1176.5, null);
+            assertEquals(-171.8125, geoLocation.getX(), 1e-8);
+            assertEquals(57.0625, geoLocation.getY(), 1e-8);
+
+            Point2D[] pixelLocations = pixelLocator.getPixelLocation(94.1875, -89.9375);
+            assertEquals(2, pixelLocations.length);
+            assertEquals(0.5, pixelLocations[0].getX(), 1e-8);
+            assertEquals(0.5, pixelLocations[0].getY(), 1e-8);
+            assertEquals(2880.5, pixelLocations[1].getX(), 1e-8);
+            assertEquals(0.5, pixelLocations[1].getY(), 1e-8);
+
+            pixelLocations = pixelLocator.getPixelLocation(64.3125, -89.9375);
+            assertEquals(2, pixelLocations.length);
+            assertEquals(239.5, pixelLocations[0].getX(), 1e-8);
+            assertEquals(0.5, pixelLocations[0].getY(), 1e-8);
+            assertEquals(3119.5, pixelLocations[1].getX(), 1e-8);
+            assertEquals(0.5, pixelLocations[1].getY(), 1e-8);
+
+            pixelLocations = pixelLocator.getPixelLocation(-96.8125, -5.6875);
+            assertEquals(1, pixelLocations.length);
+            assertEquals(1528.5, pixelLocations[0].getX(), 1e-8);
+            assertEquals(674.5, pixelLocations[0].getY(), 1e-8);
+
+            pixelLocations = pixelLocator.getPixelLocation(-171.8125, 57.0625);
+            assertEquals(1, pixelLocations.length);
+            assertEquals(2128.5, pixelLocations[0].getX(), 1e-8);
+            assertEquals(1176.5, pixelLocations[0].getY(), 1e-8);
         } finally {
             reader.close();
         }
