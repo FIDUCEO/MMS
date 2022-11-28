@@ -9,8 +9,10 @@ import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.netcdf.NetCDFReader;
 import com.bc.fiduceo.reader.time.TimeLocator;
+import com.bc.fiduceo.reader.time.TimeLocator_SecondsSince2000;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
+import com.bc.fiduceo.util.VariableProxy;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
@@ -25,10 +27,14 @@ import java.util.List;
 class WindsatReader extends NetCDFReader {
 
     private static final String REG_EX = "RSS_WindSat_TB_L1C_r\\d{5}_\\d{8}T\\d{6}_\\d{7}_V\\d{2}.\\d.nc";
+    private static final String[] LOOKS = {"fore", "aft"};
+    private static final String[] FREQ_BANDS = {"068", "107", "187", "238", "370"};
+    private static final String[] POLARIZATIONS = {"V", "H", "P", "M", "L", "R"};
 
     private final GeometryFactory geometryFactory;
 
     private PixelLocator pixelLocator;
+    private TimeLocator timeLocator;
 
     WindsatReader(ReaderContext readerContext) {
         this.geometryFactory = readerContext.getGeometryFactory();
@@ -43,6 +49,7 @@ class WindsatReader extends NetCDFReader {
     public void close() throws IOException {
         super.close();
         pixelLocator = null;
+        timeLocator = null;
     }
 
     @Override
@@ -95,7 +102,22 @@ class WindsatReader extends NetCDFReader {
 
     @Override
     public TimeLocator getTimeLocator() throws IOException {
-        throw new RuntimeException("not implmented");
+        if (timeLocator == null) {
+            final Array timeArray = arrayCache.get("time");
+            final Number fillValue = arrayCache.getNumberAttributeValue("_FillValue", "time");
+            final int[] origin = {0, 0, 0, 2};  // select layer for "fore" and 18 GHz tb 2022-11-28
+            final int[] shape = timeArray.getShape();
+            shape[2] = 1;   // one view layer tb 2022-11-28
+            shape[3] = 1;   // one frequency layer tb 2022-11-28
+
+            try {
+                final Array timeArraySection = timeArray.section(origin, shape).reduce();
+                timeLocator = new TimeLocator_SecondsSince2000(timeArraySection, fillValue.doubleValue());
+            } catch (InvalidRangeException e) {
+                throw new IOException(e.getMessage());
+            }
+        }
+        return timeLocator;
     }
 
     @Override
@@ -132,7 +154,12 @@ class WindsatReader extends NetCDFReader {
             if (rank == 1 || rank == 2) {
                 exportVariables.add(variable);
             } else {
-
+                final String varName = variable.getShortName();
+                if (varName.startsWith("tb_")) {
+                    addBrightnessTemperatureVariables(exportVariables, variable, varName);
+                } else {
+                    add4DViewVariables(exportVariables, variable, varName);
+                }
             }
         }
         return exportVariables;
@@ -207,6 +234,28 @@ class WindsatReader extends NetCDFReader {
             return lonVar.read(new int[]{0, 0}, readShape);
         } catch (InvalidRangeException e) {
             throw new IOException(e);
+        }
+    }
+
+    private void addBrightnessTemperatureVariables(ArrayList<Variable> exportVariables, Variable variable, String varName) {
+        // polarization_x look ydim_grid xdim_grid
+        final int[] shape = variable.getShape();
+        for (int look = 0; look < shape[1]; look++) {
+            for (int pol = 0; pol < shape[0]; pol++) {
+                final String layerVarName = varName + "_" + POLARIZATIONS[pol] + "_" + LOOKS[look];
+                exportVariables.add(new VariableProxy(layerVarName, variable.getDataType(), variable.attributes().getAttributes()));
+            }
+        }
+    }
+
+    private void add4DViewVariables(ArrayList<Variable> exportVariables, Variable variable, String varName) {
+        // ydim_grid xdim_grid look frequency_band
+        final int[] shape = variable.getShape();
+        for (int look = 0; look < shape[2]; look++) {
+            for (int freq = 0; freq < shape[3]; freq++) {
+                final String layerVarName = varName + "_" + FREQ_BANDS[freq] + "_" + LOOKS[look];
+                exportVariables.add(new VariableProxy(layerVarName, variable.getDataType(), variable.attributes().getAttributes()));
+            }
         }
     }
 }

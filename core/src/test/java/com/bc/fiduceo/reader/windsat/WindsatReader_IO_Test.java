@@ -9,6 +9,7 @@ import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
+import com.bc.fiduceo.reader.time.TimeLocator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -167,7 +168,6 @@ public class WindsatReader_IO_Test {
         }
     }
 
-    /*
     @Test
     public void testGetTimeLocator() throws IOException {
         final File file = getWindsatFile();
@@ -177,12 +177,20 @@ public class WindsatReader_IO_Test {
 
             final TimeLocator timeLocator = reader.getTimeLocator();
             assertNotNull(timeLocator);
+
+            // check fill value areas
+            assertEquals(-1, timeLocator.getTimeFor(0, 0));
+            assertEquals(-1, timeLocator.getTimeFor(2073, 1143));
+            assertEquals(-1, timeLocator.getTimeFor(2405, 1387));
+
+            // check data areas
+            assertEquals(1525029953, timeLocator.getTimeFor(3016, 29));
+            assertEquals(1525028428, timeLocator.getTimeFor(2237, 730));
+            assertEquals(1525024084, timeLocator.getTimeFor(274, 153));
         } finally {
             reader.close();
         }
     }
-
-     */
 
     @Test
     public void testGetVariables() throws IOException, InvalidRangeException {
@@ -192,7 +200,7 @@ public class WindsatReader_IO_Test {
             reader.open(file);
 
             final List<Variable> variables = reader.getVariables();
-            assertEquals(5, variables.size());
+            assertEquals(119, variables.size());
 
             Variable variable = variables.get(1);
             assertEquals("longitude", variable.getShortName());
@@ -206,6 +214,65 @@ public class WindsatReader_IO_Test {
             attribute = variable.attributes().findAttribute("add_offset");
             assertEquals(0.f, attribute.getNumericValue().floatValue(), 1e-8);
 
+            variable = variables.get(15);
+            assertEquals("scan_angle_068_fore", variable.getShortName());
+            assertEquals(DataType.FLOAT, variable.getDataType());
+            attribute = variable.attributes().findAttribute("convention");
+            assertEquals("0 forward, +90 left of forward, +180 aft, +270 right of forward", attribute.getStringValue());
+
+            variable = variables.get(26);
+            assertEquals("earth_azimuth_angle_107_fore", variable.getShortName());
+            assertEquals(DataType.FLOAT, variable.getDataType());
+            attribute = variable.attributes().findAttribute("coverage_content_type");
+            assertEquals("physicalMeasurement", attribute.getStringValue());
+
+            variable = variables.get(37);
+            assertEquals("pra_187_fore", variable.getShortName());
+            assertEquals(DataType.FLOAT, variable.getDataType());
+            attribute = variable.attributes().findAttribute("long_name");
+            assertEquals("geometric polarization basis rotation angle between surface and antenna", attribute.getStringValue());
+
+            variable = variables.get(48);
+            assertEquals("fra_238_fore", variable.getShortName());
+            assertEquals(DataType.FLOAT, variable.getDataType());
+            attribute = variable.attributes().findAttribute("scale_factor");
+            assertEquals(1.f, attribute.getNumericValue().floatValue(), 1e-8);
+
+            variable = variables.get(59);
+            assertEquals("earth_incidence_angle_370_fore", variable.getShortName());
+            assertEquals(DataType.FLOAT, variable.getDataType());
+            attribute = variable.attributes().findAttribute("standard_name");
+            assertEquals("angle_of_incidence", attribute.getStringValue());
+
+            variable = variables.get(70);
+            assertEquals("quality_flag_068_aft", variable.getShortName());
+            assertEquals(DataType.BYTE, variable.getDataType());
+            attribute = variable.attributes().findAttribute("units");
+            assertEquals("1", attribute.getStringValue());
+
+            variable = variables.get(81);
+            assertEquals("tb_10_P_fore", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
+            attribute = variable.attributes().findAttribute("_FillValue");
+            assertEquals(-32768, attribute.getNumericValue().shortValue());
+
+            variable = variables.get(92);
+            assertEquals("tb_18_H_fore", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
+            attribute = variable.attributes().findAttribute("add_offset");
+            assertEquals(50.0, attribute.getNumericValue().doubleValue(), 1e-8);
+
+            variable = variables.get(103);
+            assertEquals("tb_23_V_fore", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
+            attribute = variable.attributes().findAttribute("coverage_content_type");
+            assertEquals("physicalMeasurement", attribute.getStringValue());
+
+            variable = variables.get(114);
+            assertEquals("tb_37_H_aft", variable.getShortName());
+            assertEquals(DataType.SHORT, variable.getDataType());
+            attribute = variable.attributes().findAttribute("long_name");
+            assertEquals("TOA brightness temperature of 37.0 GHz band. Pol basis V, H, +45, -45, LC, RC", attribute.getStringValue());
         } finally {
             reader.close();
         }
