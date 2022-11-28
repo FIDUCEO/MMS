@@ -2,8 +2,10 @@ package com.bc.fiduceo.reader.windsat;
 
 
 import com.bc.fiduceo.IOTestRunner;
+import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
+import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
@@ -13,6 +15,7 @@ import com.bc.fiduceo.reader.time.TimeLocator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
@@ -184,9 +187,30 @@ public class WindsatReader_IO_Test {
             assertEquals(-1, timeLocator.getTimeFor(2405, 1387));
 
             // check data areas
-            assertEquals(1525029953, timeLocator.getTimeFor(3016, 29));
-            assertEquals(1525028428, timeLocator.getTimeFor(2237, 730));
-            assertEquals(1525024084, timeLocator.getTimeFor(274, 153));
+            assertEquals(1525029953000L, timeLocator.getTimeFor(3016, 29));
+            assertEquals(1525028428000L, timeLocator.getTimeFor(2237, 730));
+            assertEquals(1525024084000L, timeLocator.getTimeFor(274, 153));
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadAcquisitionTime() throws IOException, InvalidRangeException {
+        final File file = getWindsatFile();
+
+        try {
+            reader.open(file);
+
+            // read a section that covers a swath border tb 2022-11-28
+            final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(810, 737, new Interval(5, 3));
+            assertEquals(15, acquisitionTime.getSize());
+
+            NCTestUtils.assertValueAt(1525025479, 0, 1, acquisitionTime);
+            NCTestUtils.assertValueAt(1525025482, 1, 1, acquisitionTime);
+            NCTestUtils.assertValueAt(1525025484, 2, 1, acquisitionTime);
+            NCTestUtils.assertValueAt(-2147483647, 3, 1, acquisitionTime);
+            NCTestUtils.assertValueAt(-2147483647, 4, 1, acquisitionTime);
         } finally {
             reader.close();
         }

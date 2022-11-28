@@ -177,7 +177,7 @@ public class TimeUtils {
 
     public static long secondsSince2000ToUnixEpoch(double timeStampSecs2000) {
         long timeStamp = Math.round(timeStampSecs2000);
-        return secondsSince2000 + timeStamp;
+        return (secondsSince2000 + timeStamp) * 1000;
     }
 
     public static Date tai1993ToUtc(double taiSeconds) {

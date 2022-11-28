@@ -20,12 +20,18 @@
 
 package com.bc.fiduceo.reader;
 
+import com.bc.fiduceo.core.Dimension;
+import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.math.TimeInterval;
+import com.bc.fiduceo.reader.time.TimeLocator;
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.util.io.FileUtils;
+import ucar.ma2.Array;
+import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
+import ucar.ma2.Index;
 
 import java.io.*;
 import java.util.Date;
@@ -111,7 +117,7 @@ public class ReaderUtils {
 
     public static boolean isCompressed(File file) {
         final String extension = FileUtils.getExtension(file);
-        return extension.equalsIgnoreCase(".gz") || extension.equalsIgnoreCase(".tgz")|| extension.equalsIgnoreCase(".zip");
+        return extension.equalsIgnoreCase(".gz") || extension.equalsIgnoreCase(".tgz") || extension.equalsIgnoreCase(".zip");
     }
 
     /**
@@ -131,5 +137,45 @@ public class ReaderUtils {
                 out.write(buffer, 0, noOfBytesRead);
             }
         }
+    }
+
+    public static ArrayInt.D2 readAcquisitionTimeFromTimeLocator(int x, int y, Interval interval, Dimension productSize, TimeLocator timeLocator) {
+        final int height = interval.getY();
+        final int width = interval.getX();
+        final int x_offset = x - width / 2;
+        final int y_offset = y - height / 2;
+        int[] shape = new int[]{height, width};
+
+        final int pWidth = productSize.getNx();
+        final int pHeight = productSize.getNy();
+
+        final int acquisitionTimeFillValue = getDefaultFillValue(ProductData.TYPE_INT32).intValue();
+
+        final ArrayInt.D2 acquisitionTime = (ArrayInt.D2) Array.factory(DataType.INT, shape);
+        final Index index = acquisitionTime.getIndex();
+
+        for (int ya = 0; ya < height; ya++) {
+            final int yRead = y_offset + ya;
+
+            for (int xa = 0; xa < width; xa++) {
+                final int xRead = x_offset + xa;
+
+                int acTime;
+                if (xRead < 0 || xRead >= pWidth || yRead < 0 || yRead >= pHeight) {
+                    acTime = acquisitionTimeFillValue;
+                } else {
+                    final long pxTime = timeLocator.getTimeFor(xRead, yRead);
+                    if (pxTime < 0) {
+                        acTime = acquisitionTimeFillValue;
+                    } else {
+                        acTime = (int) (pxTime / 1000);
+                    }
+                }
+                index.set(ya, xa);
+                acquisitionTime.setInt(index, acTime);
+            }
+        }
+
+        return acquisitionTime;
     }
 }

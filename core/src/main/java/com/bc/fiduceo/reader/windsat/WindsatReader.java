@@ -7,6 +7,7 @@ import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
+import com.bc.fiduceo.reader.ReaderUtils;
 import com.bc.fiduceo.reader.netcdf.NetCDFReader;
 import com.bc.fiduceo.reader.time.TimeLocator;
 import com.bc.fiduceo.reader.time.TimeLocator_SecondsSince2000;
@@ -141,7 +142,9 @@ class WindsatReader extends NetCDFReader {
 
     @Override
     public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException {
-        throw new RuntimeException("not implmented");
+        final Dimension productSize = getProductSize();
+        final TimeLocator timeLocator = getTimeLocator();
+        return ReaderUtils.readAcquisitionTimeFromTimeLocator(x, y, interval, productSize, timeLocator);
     }
 
     @Override

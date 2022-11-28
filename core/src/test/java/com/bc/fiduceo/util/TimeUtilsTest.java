@@ -182,9 +182,9 @@ public class TimeUtilsTest {
 
     @Test
     public void testSecondsSince2000ToUnixEpoch() {
-        assertEquals(946684800L, TimeUtils.secondsSince2000ToUnixEpoch(0));
-        assertEquals(946771200L, TimeUtils.secondsSince2000ToUnixEpoch(86400));
-        assertEquals(956684800L, TimeUtils.secondsSince2000ToUnixEpoch(10000000L));
+        assertEquals(946684800000L, TimeUtils.secondsSince2000ToUnixEpoch(0));
+        assertEquals(946771200000L, TimeUtils.secondsSince2000ToUnixEpoch(86400));
+        assertEquals(956684800000L, TimeUtils.secondsSince2000ToUnixEpoch(10000000L));
     }
 
     @Test

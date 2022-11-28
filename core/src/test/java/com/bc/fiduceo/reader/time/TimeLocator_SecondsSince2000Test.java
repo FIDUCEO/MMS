@@ -24,9 +24,9 @@ public class TimeLocator_SecondsSince2000Test {
 
     @Test
     public void testGetTimes() {
-        assertEquals(1525023896, timeLocator.getTimeFor(0, 1));
-        assertEquals(1525023893, timeLocator.getTimeFor(1, 2));
-        assertEquals(1525023898, timeLocator.getTimeFor(2, 0));
+        assertEquals(1525023896000L, timeLocator.getTimeFor(0, 1));
+        assertEquals(1525023893000L, timeLocator.getTimeFor(1, 2));
+        assertEquals(1525023898000L, timeLocator.getTimeFor(2, 0));
     }
 
     @Test
