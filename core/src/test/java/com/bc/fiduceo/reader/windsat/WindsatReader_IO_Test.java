@@ -9,14 +9,18 @@ import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
+import com.bc.fiduceo.reader.time.TimeLocator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import ucar.ma2.InvalidRangeException;
+import ucar.nc2.Variable;
 
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -145,7 +149,53 @@ public class WindsatReader_IO_Test {
         }
     }
 
-    private File getWindsatFile() throws IOException {
+    @Test
+    public void testGetSubScenePixelLocator() throws IOException {
+        final File file = getWindsatFile();
+
+        try {
+            reader.open(file);
+
+            final PixelLocator subScenePixelLocator = reader.getSubScenePixelLocator(null);// geometry is not used here tb 2022-09-29
+            final PixelLocator pixelLocator = reader.getPixelLocator();
+
+            assertSame(pixelLocator, subScenePixelLocator);
+        } finally {
+            reader.close();
+        }
+    }
+
+    /*
+    @Test
+    public void testGetTimeLocator() throws IOException {
+        final File file = getWindsatFile();
+
+        try {
+            reader.open(file);
+
+            final TimeLocator timeLocator = reader.getTimeLocator();
+            assertNotNull(timeLocator);
+        } finally {
+            reader.close();
+        }
+    }
+
+     */
+
+    @Test
+    public void testGetVariables() throws IOException, InvalidRangeException {
+        final File file = getWindsatFile();
+
+        try {
+            reader.open(file);
+
+            final List<Variable> variables = reader.getVariables();
+        } finally {
+            reader.close();
+        }
+    }
+
+            private File getWindsatFile() throws IOException {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"windsat-coriolis", "v1.0", "2018", "04", "29", "RSS_WindSat_TB_L1C_r79285_20180429T174238_2018119_V08.0.nc"}, false);
         return TestUtil.getTestDataFileAsserted(testFilePath);
     }

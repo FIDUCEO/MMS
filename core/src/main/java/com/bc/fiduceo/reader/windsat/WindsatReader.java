@@ -19,6 +19,7 @@ import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 class WindsatReader extends NetCDFReader {
@@ -41,6 +42,7 @@ class WindsatReader extends NetCDFReader {
     @Override
     public void close() throws IOException {
         super.close();
+        pixelLocator = null;
     }
 
     @Override
@@ -88,7 +90,7 @@ class WindsatReader extends NetCDFReader {
 
     @Override
     public PixelLocator getSubScenePixelLocator(Polygon sceneGeometry) throws IOException {
-        throw new RuntimeException("not implmented");
+        return getPixelLocator();
     }
 
     @Override
@@ -122,7 +124,9 @@ class WindsatReader extends NetCDFReader {
 
     @Override
     public List<Variable> getVariables() throws InvalidRangeException, IOException {
-        throw new RuntimeException("not implmented");
+        final List<Variable> variablesInFile = netcdfFile.getVariables();
+        final ArrayList<Variable> exportVariables = new ArrayList<>();
+        return exportVariables;
     }
 
     @Override
