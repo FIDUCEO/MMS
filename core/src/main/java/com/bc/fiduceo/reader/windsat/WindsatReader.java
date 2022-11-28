@@ -132,6 +132,18 @@ class WindsatReader extends NetCDFReader {
 
     @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
+        // detect if variable one of the multidimensional
+        // yes:
+        //   - extract layer indices from variable name
+        //   - extract NetCDF file variable name
+        //   - read from ArrayCache
+        //   - create section
+        // no:
+        //   check if 1d vector
+        //   yes:
+        //      - implement specific fill handling
+        //   no:
+        //      -read subset
         throw new RuntimeException("not implmented");
     }
 
