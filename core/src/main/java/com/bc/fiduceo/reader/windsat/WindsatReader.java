@@ -126,6 +126,15 @@ class WindsatReader extends NetCDFReader {
     public List<Variable> getVariables() throws InvalidRangeException, IOException {
         final List<Variable> variablesInFile = netcdfFile.getVariables();
         final ArrayList<Variable> exportVariables = new ArrayList<>();
+
+        for (final Variable variable : variablesInFile) {
+            final int rank = variable.getRank();
+            if (rank == 1 || rank == 2) {
+                exportVariables.add(variable);
+            } else {
+
+            }
+        }
         return exportVariables;
     }
 

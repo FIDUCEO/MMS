@@ -9,11 +9,12 @@ import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.ReaderContext;
-import com.bc.fiduceo.reader.time.TimeLocator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
+import ucar.nc2.Attribute;
 import ucar.nc2.Variable;
 
 import java.awt.geom.Point2D;
@@ -24,6 +25,7 @@ import java.util.List;
 
 import static org.junit.Assert.*;
 
+@SuppressWarnings("ConstantConditions")
 @RunWith(IOTestRunner.class)
 public class WindsatReader_IO_Test {
 
@@ -190,12 +192,26 @@ public class WindsatReader_IO_Test {
             reader.open(file);
 
             final List<Variable> variables = reader.getVariables();
+            assertEquals(5, variables.size());
+
+            Variable variable = variables.get(1);
+            assertEquals("longitude", variable.getShortName());
+            assertEquals(DataType.FLOAT, variable.getDataType());
+            Attribute attribute = variable.attributes().findAttribute("valid_min");
+            assertEquals(0.f, attribute.getNumericValue().floatValue(), 1e-8);
+
+            variable = variables.get(4);
+            assertEquals("land_fraction_10", variable.getShortName());
+            assertEquals(DataType.FLOAT, variable.getDataType());
+            attribute = variable.attributes().findAttribute("add_offset");
+            assertEquals(0.f, attribute.getNumericValue().floatValue(), 1e-8);
+
         } finally {
             reader.close();
         }
     }
 
-            private File getWindsatFile() throws IOException {
+    private File getWindsatFile() throws IOException {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"windsat-coriolis", "v1.0", "2018", "04", "29", "RSS_WindSat_TB_L1C_r79285_20180429T174238_2018119_V08.0.nc"}, false);
         return TestUtil.getTestDataFileAsserted(testFilePath);
     }
