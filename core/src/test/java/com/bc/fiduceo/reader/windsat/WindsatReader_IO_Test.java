@@ -15,6 +15,7 @@ import com.bc.fiduceo.reader.time.TimeLocator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
@@ -297,6 +298,22 @@ public class WindsatReader_IO_Test {
             assertEquals(DataType.SHORT, variable.getDataType());
             attribute = variable.attributes().findAttribute("long_name");
             assertEquals("TOA brightness temperature of 37.0 GHz band. Pol basis V, H, +45, -45, LC, RC", attribute.getStringValue());
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw() throws IOException, InvalidRangeException {
+        final File file = getWindsatFile();
+
+        try {
+            reader.open(file);
+
+            Array array = reader.readRaw(1328, 382, new Interval(3, 3), "land_fraction_06");
+            NCTestUtils.assertValueAt(1.0, 0, 1, array);
+            NCTestUtils.assertValueAt(0.996, 1, 1, array);
+            NCTestUtils.assertValueAt(0.9920000433921814, 2, 1, array); // rounding issues in assertion code
         } finally {
             reader.close();
         }

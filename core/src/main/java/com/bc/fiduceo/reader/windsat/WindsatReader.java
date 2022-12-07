@@ -6,6 +6,7 @@ import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
+import com.bc.fiduceo.reader.RawDataReader;
 import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.ReaderUtils;
 import com.bc.fiduceo.reader.netcdf.NetCDFReader;
@@ -31,6 +32,7 @@ class WindsatReader extends NetCDFReader {
     private static final String[] LOOKS = {"fore", "aft"};
     private static final String[] FREQ_BANDS = {"068", "107", "187", "238", "370"};
     private static final String[] POLARIZATIONS = {"V", "H", "P", "M", "L", "R"};
+    private final List<String> variables2D;
 
     private final GeometryFactory geometryFactory;
 
@@ -39,6 +41,11 @@ class WindsatReader extends NetCDFReader {
 
     WindsatReader(ReaderContext readerContext) {
         this.geometryFactory = readerContext.getGeometryFactory();
+        variables2D = new ArrayList<>();
+        variables2D.add("latitude");
+        variables2D.add("longitude");
+        variables2D.add("land_fraction_06");
+        variables2D.add("land_fraction_10");
     }
 
     @Override
@@ -132,18 +139,19 @@ class WindsatReader extends NetCDFReader {
 
     @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
-        // detect if variable one of the multidimensional
-        // yes:
-        //   - extract layer indices from variable name
-        //   - extract NetCDF file variable name
-        //   - read from ArrayCache
-        //   - create section
-        // no:
-        //   check if 1d vector
-        //   yes:
-        //      - implement specific fill handling
-        //   no:
-        //      -read subset
+        if (variableName.equals("fractional_orbit")) {
+            // read x section and fill in y-direction
+        } else if (variables2D.contains(variableName)) {
+            final Array array = arrayCache.get(variableName);
+            final Number fillValue = arrayCache.getNumberAttributeValue(NetCDFUtils.CF_FILL_VALUE_NAME, variableName);
+            return RawDataReader.read(centerX, centerY, interval, fillValue, array, getProductSize());
+        } else {
+            //   - extract layer indices from variable name
+            //   - extract NetCDF file variable name
+            //   - read from ArrayCache
+            //   - create section
+        }
+
         throw new RuntimeException("not implmented");
     }
 
