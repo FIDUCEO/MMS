@@ -264,9 +264,7 @@ public class SirdsInsituReader extends NetCDFReader {
         int splitIdx = sensorKey.lastIndexOf("-");
 
         final String sensor = sensorKey.substring(0, splitIdx);
-        if (sensor.equals("argosurf")) {
-            return "argo_surf";
-        } else if (sensor.equals("driftercmems")) {
+        if (sensor.equals("driftercmems")) {
             return "drifter_cmems";
         } else {
             return sensor;

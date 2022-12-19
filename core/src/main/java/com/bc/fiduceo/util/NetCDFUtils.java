@@ -494,7 +494,6 @@ public class NetCDFUtils {
         return Array.factory(DataType.DOUBLE, shape, data);
     }
 
-    // @todo 2 tb/tb write test 2020-05-07
     public static Array create(double[][] data) {
         final int linelength = data[0].length;
         double[] flatData = new double[data.length * linelength];

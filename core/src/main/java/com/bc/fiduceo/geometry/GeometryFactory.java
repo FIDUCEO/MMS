@@ -81,13 +81,18 @@ public class GeometryFactory extends AbstractGeometryFactory {
     }
 
     @Override
+    public MultiPolygon createMultiPolygon(List<Polygon> polygonList) {
+        return factoryImpl.createMultiPolygon(polygonList);
+    }
+
+    @Override
     public LineString createLineString(List<Point> points) {
         return factoryImpl.createLineString(points);
     }
 
     @Override
-    public MultiPolygon createMultiPolygon(List<Polygon> polygonList) {
-        return factoryImpl.createMultiPolygon(polygonList);
+    public MultiLineString createMultiLineString(List<LineString> lineStrings) {
+        return factoryImpl.createMultiLineString(lineStrings);
     }
 
     @Override

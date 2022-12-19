@@ -34,3 +34,7 @@ com.bc.fiduceo.reader.insitu.sirds_sst.SirdsMbtInsituReaderPlugin
 com.bc.fiduceo.reader.insitu.sirds_sst.SirdsMooringInsituReaderPlugin
 com.bc.fiduceo.reader.insitu.sirds_sst.SirdsShipInsituReaderPlugin
 com.bc.fiduceo.reader.insitu.sirds_sst.SirdsXbtInsituReaderPlugin
+com.bc.fiduceo.reader.smos.SmosL1CDailyGriddedReaderPlugin
+com.bc.fiduceo.reader.insitu.sic_cci.ANTXXXISicInsituReaderPlugin
+com.bc.fiduceo.reader.insitu.sic_cci.DMISIC0SicInsituReaderPlugin
+com.bc.fiduceo.reader.insitu.sic_cci.DTUSIC1SicInsituReaderPlugin

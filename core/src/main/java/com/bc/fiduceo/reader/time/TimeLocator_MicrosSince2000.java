@@ -6,11 +6,9 @@ public class TimeLocator_MicrosSince2000 implements TimeLocator {
 
     private final long[] timeStamps;
 
-
     public TimeLocator_MicrosSince2000(long[] timeStamps) {
         this.timeStamps = timeStamps;
     }
-
 
     @Override
     public long getTimeFor(int x, int y) {

@@ -46,6 +46,25 @@ class BcS2MultiLineString implements MultiLineString {
     }
 
     @Override
+    public Geometry[] getGeometries() {
+        final Geometry[] result = new Geometry[s2PolylineList.size()];
+        int i = 0;
+        for (S2Polyline polyline : s2PolylineList) {
+            result[i] = new BcS2LineString(polyline);
+            ++i;
+        }
+        return result;
+    }
+
+    @Override
+    public void setGeometries(Geometry[] geometries) {
+        s2PolylineList.clear();
+        for (final Geometry geometry : geometries) {
+            s2PolylineList.add((S2Polyline) geometry.getInner());
+        }
+    }
+
+    @Override
     public Geometry getIntersection(Geometry other) {
         List<Geometry> results;
         if (other instanceof Point) {
@@ -104,14 +123,14 @@ class BcS2MultiLineString implements MultiLineString {
 
     @Override
     public Point[] getCoordinates() {
-        List<Point> pointList = new ArrayList<>();
+        final List<Point> pointList = new ArrayList<>();
         for (S2Polyline s2Polyline : s2PolylineList) {
             int i = s2Polyline.numVertices();
             for (int j = 0; j < i; j++) {
                 pointList.add(BcS2Point.createFrom(s2Polyline.vertex(j)));
             }
         }
-        return pointList.toArray(new Point[pointList.size()]);
+        return pointList.toArray(new Point[0]);
     }
 
     @Override
@@ -162,7 +181,7 @@ class BcS2MultiLineString implements MultiLineString {
             return BcS2Point.createEmpty();
         } else if (results.size() > 1) {
             final GeometryCollection geometryCollection = new BcGeometryCollection();
-            geometryCollection.setGeometries(results.toArray(new Geometry[results.size()]));
+            geometryCollection.setGeometries(results.toArray(new Geometry[0]));
             return geometryCollection;
         } else {
             return results.get(0);

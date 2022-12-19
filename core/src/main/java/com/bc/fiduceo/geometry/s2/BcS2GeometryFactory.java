@@ -48,12 +48,18 @@ public class BcS2GeometryFactory extends AbstractGeometryFactory {
         } else if (geometry instanceof S2Point) {
             return BcS2Point.createFrom((S2Point) geometry);
         } else if (geometry instanceof List) {
-            final ArrayList<Polygon> polygonList = new ArrayList<>();
-            List<S2Polygon> googlePolygonList = (List<S2Polygon>) geometry;
-            for (S2Polygon googlePolygon : googlePolygonList) {
-                polygonList.add(new BcS2Polygon(googlePolygon));
+            final Object geoObject = ((List<?>) geometry).get(0);
+            if (geoObject instanceof S2Polygon) {
+                final ArrayList<Polygon> polygonList = new ArrayList<>();
+                final List<S2Polygon> googlePolygonList = (List<S2Polygon>) geometry;
+                for (S2Polygon googlePolygon : googlePolygonList) {
+                    polygonList.add(new BcS2Polygon(googlePolygon));
+                }
+                return new BcS2MultiPolygon(polygonList);
+            } else if (geoObject instanceof S2Polyline) {
+                final List<S2Polyline> googlePolylineList = (List<S2Polyline>) geometry;
+                return new BcS2MultiLineString(googlePolylineList);
             }
-            return new BcS2MultiPolygon(polygonList);
         }
         throw new RuntimeException("Unsupported geometry type");
     }
@@ -99,6 +105,11 @@ public class BcS2GeometryFactory extends AbstractGeometryFactory {
     }
 
     @Override
+    public MultiPolygon createMultiPolygon(List<Polygon> polygonList) {
+        return new BcS2MultiPolygon(polygonList);
+    }
+
+    @Override
     public LineString createLineString(List<Point> points) {
         final List<S2Point> loopPoints = extractS2Points(points);
 
@@ -107,10 +118,13 @@ public class BcS2GeometryFactory extends AbstractGeometryFactory {
     }
 
     @Override
-    public MultiPolygon createMultiPolygon(List<Polygon> polygonList) {
-        return new BcS2MultiPolygon(polygonList);
+    public MultiLineString createMultiLineString(List<LineString> lineStrings) {
+        final List<BcS2LineString> casted = new ArrayList<>();
+        for (final LineString lineString : lineStrings) {
+            casted.add((BcS2LineString) lineString);
+        }
+        return BcS2MultiLineString.createFrom(casted);
     }
-
 
     @Override
     public TimeAxis createTimeAxis(LineString lineString, Date startTime, Date endTime) {

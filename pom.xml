@@ -7,10 +7,10 @@
     <groupId>com.bc.fiduceo</groupId>
     <artifactId>fiduceo-master</artifactId>
     <packaging>pom</packaging>
-    <version>1.5.6</version>
+    <version>1.5.7</version>
 
     <properties>
-       <mms.version>1.5.6</mms.version>
+       <mms.version>1.5.7</mms.version>
     </properties>
 
     <modules>
@@ -27,31 +27,31 @@
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-core</artifactId>
-                <version>9.0.0</version>
+                <version>9.0.2</version>
             </dependency>
 
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-engine-utilities</artifactId>
-                <version>9.0.0</version>
+                <version>9.0.2</version>
             </dependency>
 
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-envisat-reader</artifactId>
-                <version>9.0.0</version>
+                <version>9.0.2</version>
             </dependency>
 
             <dependency>
                 <groupId>org.esa.s3tbx</groupId>
                 <artifactId>s3tbx-avhrr-reader</artifactId>
-                <version>9.0.0</version>
+                <version>9.0.3</version>
             </dependency>
 
             <dependency>
                 <groupId>org.esa.s3tbx</groupId>
                 <artifactId>s3tbx-sentinel3-reader</artifactId>
-                <version>9.0.0</version>
+                <version>9.0.3</version>
                 <!--<exclusions>-->
                     <!--<exclusion>-->
                         <!--<groupId>edu.ucar</groupId>-->
@@ -70,6 +70,12 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-dbcp2</artifactId>
                 <version>2.9.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-compress</artifactId>
+                <version>1.21</version>
             </dependency>
 
             <dependency>

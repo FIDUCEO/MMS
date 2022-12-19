@@ -92,9 +92,69 @@ public class MatchupToolIntegrationTest_AVHRR_SLSTR extends AbstractUsecaseInteg
         }
     }
 
+    @Test
+    public void testMatchup_AVHRR_SLSTR_UOR_coo6() throws IOException, ParseException, SQLException, InvalidRangeException {
+        final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder_coo06()
+                .withTimeDeltaSeconds(7200, null)
+                .withMaxPixelDistanceKm(1.f, null)
+                .withBorderDistance(4, 4)
+                .withOverlapRemoval("PRIMARY")
+                .withPixelPosition("PRIMARY", 548, 1448, -1, -1)
+                .withPixelValueScreening("S8_BT_in > 260.0", null)
+                .withRandomPointsPerDay(2400000, "INV_TRUNC_COSINE_LAT")
+                .withTestRun()  // we need that to always have the same random sequence, else we cannot run assertions tb 2022-12-14
+                .createConfig();
+        final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-avhrr-slstr.xml");
+
+        insert_AVHRR_FRAC_MC_coo06();
+        insert_SLSTR_UOR_coo06();
+
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "2020-084", "-end", "2020-085"};
+        MatchupToolMain.main(args);
+
+        final File mmdFile = getMmdFilePath(useCaseConfig, "2020-084", "2020-085");
+        assertTrue(mmdFile.isFile());
+
+        try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
+            final int matchupCount = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, mmd);
+            assertEquals(2, matchupCount);
+
+            NCTestUtils.assert3DVariable("slstr-s3a-uor_S2_radiance_in", 0, 0, 0, -32768, mmd);
+            NCTestUtils.assert3DVariable("slstr-s3a-uor_S8_BT_in", 1, 0, 1, -489, mmd);
+            NCTestUtils.assert3DVariable("slstr-s3a-uor_acquisition_time", 2, 0, 0, 1585094546, mmd);
+            NCTestUtils.assert3DVariable("slstr-s3a-uor_S9_exception_in", 3, 0, 1, 0, mmd);
+            NCTestUtils.assert3DVariable("slstr-s3a-uor_cloud_in", 4, 0, 0, 6720, mmd);
+            NCTestUtils.assert3DVariable("slstr-s3a-uor_detector_io", 5, 0, 1, 0, mmd);
+            NCTestUtils.assert3DVariable("slstr-s3a-uor_latitude_in", 6, 0, 0, 44083570, mmd);
+            NCTestUtils.assert3DVariable("slstr-s3a-uor_longitude_in", 0, 1, 1, -35702362, mmd);
+            NCTestUtils.assert3DVariable("slstr-s3a-uor_solar_azimuth_tn", 1, 1, 0, 315.4619750972859, mmd);
+            NCTestUtils.assert3DVariable("slstr-s3a-uor_solar_azimuth_to", 2, 1, 1, 315.61679013351716, mmd);
+
+            NCTestUtils.assert3DVariable("avhrr-frac-mc_acquisition_time", 3, 1, 0, 1585088512, mmd);
+            NCTestUtils.assert3DVariable("avhrr-frac-mc_cloudFlag", 4, 1, 0, 0, mmd);
+            NCTestUtils.assert3DVariable("avhrr-frac-mc_delta_azimuth", 5, 1, 1, -51.33234405517578, mmd);
+            NCTestUtils.assert3DVariable("avhrr-frac-mc_flags", 6, 1, 0, 0, mmd);
+            NCTestUtils.assert3DVariable("avhrr-frac-mc_latitude", 0, 2, 1, 45.60192108154297, mmd);
+            NCTestUtils.assert3DVariable("avhrr-frac-mc_longitude", 1, 2, 0, -34.61174392700195, mmd);
+            NCTestUtils.assert3DVariable("avhrr-frac-mc_radiance_1", 2, 2, 1, -0.10135757923126221, mmd);
+            NCTestUtils.assert3DVariable("avhrr-frac-mc_radiance_2", 3, 2, 0, 0.007804560009390116, mmd);
+            NCTestUtils.assert3DVariable("avhrr-frac-mc_radiance_3a", 4, 2, 1, 0.0, mmd);
+            NCTestUtils.assert3DVariable("avhrr-frac-mc_radiance_4", 5, 2, 0, 73.82252502441406, mmd);
+            NCTestUtils.assert3DVariable("avhrr-frac-mc_radiance_5", 6, 2, 1, 97.5717544555664, mmd);
+        }
+    }
+
     private void insert_SLSTR_UOR() throws IOException, SQLException {
         final String sensorKey = "slstr-s3a-uor";
         final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{sensorKey, "1.0", "2020", "05", "22", "S3A_SL_1_RBT____20200522T231202_20200522T231502_20200524T053503_0179_058_286_5580_LN2_O_NT_004.SEN3"}, true);
+
+        final SatelliteObservation satelliteObservation = readSatelliteObservation(sensorKey, relativeArchivePath, "1.0");
+        storage.insert(satelliteObservation);
+    }
+
+    private void insert_SLSTR_UOR_coo06() throws IOException, SQLException {
+        final String sensorKey = "slstr-s3a-uor";
+        final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{sensorKey, "1.0", "2020", "03", "25", "S3A_SL_1_RBT____20200325T000151_20200325T000451_20200326T054139_0179_056_216_0720_LN2_O_NT_004.zip"}, true);
 
         final SatelliteObservation satelliteObservation = readSatelliteObservation(sensorKey, relativeArchivePath, "1.0");
         storage.insert(satelliteObservation);
@@ -106,6 +166,31 @@ public class MatchupToolIntegrationTest_AVHRR_SLSTR extends AbstractUsecaseInteg
 
         final SatelliteObservation satelliteObservation = readSatelliteObservation(sensorKey, relativeArchivePath, "v1");
         storage.insert(satelliteObservation);
+    }
+
+    private void insert_AVHRR_FRAC_MC_coo06() throws IOException, SQLException {
+        final String sensorKey = "avhrr-frac-mc";
+        final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{sensorKey, "v1", "2020", "03", "24", "NSS.FRAC.M3.D20084.S2209.E2352.B0715960.SV"}, true);
+
+        final SatelliteObservation satelliteObservation = readSatelliteObservation(sensorKey, relativeArchivePath, "v1");
+        storage.insert(satelliteObservation);
+    }
+
+    private MatchupToolTestUseCaseConfigBuilder createUseCaseConfigBuilder_coo06() {
+        final List<Sensor> sensorList = new ArrayList<>();
+        final Sensor primary = new Sensor("slstr-s3a-uor");
+        primary.setPrimary(true);
+        sensorList.add(primary);
+        sensorList.add(new Sensor("avhrr-frac-mc"));
+
+        final List<com.bc.fiduceo.core.Dimension> dimensions = new ArrayList<>();
+        dimensions.add(new com.bc.fiduceo.core.Dimension("avhrr-frac-mc", 7, 7));
+        dimensions.add(new com.bc.fiduceo.core.Dimension("slstr-s3a-uor", 7, 7));
+
+        return (MatchupToolTestUseCaseConfigBuilder) new MatchupToolTestUseCaseConfigBuilder("coo06")
+                .withSensors(sensorList)
+                .withOutputPath(new File(TestUtil.getTestDir().getPath(), "coo06-avhrr-slstr").getPath())
+                .withDimensions(dimensions);
     }
 
     private MatchupToolTestUseCaseConfigBuilder createUseCaseConfigBuilder() {

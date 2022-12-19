@@ -21,5 +21,5 @@
 package com.bc.fiduceo.geometry;
 
 
-public interface MultiLineString extends LineString {
+public interface MultiLineString extends GeometryCollection {
 }

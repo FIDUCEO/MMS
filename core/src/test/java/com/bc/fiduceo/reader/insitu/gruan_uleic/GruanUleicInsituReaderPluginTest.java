@@ -35,5 +35,4 @@ public class GruanUleicInsituReaderPluginTest {
         assertNotNull(reader);
         assertTrue(reader instanceof GruanUleicInsituReader);
     }
-
 }

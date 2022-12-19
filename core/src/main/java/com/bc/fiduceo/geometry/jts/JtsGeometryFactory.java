@@ -20,12 +20,7 @@
 
 package com.bc.fiduceo.geometry.jts;
 
-import com.bc.fiduceo.geometry.AbstractGeometryFactory;
-import com.bc.fiduceo.geometry.Geometry;
-import com.bc.fiduceo.geometry.LineString;
-import com.bc.fiduceo.geometry.Point;
-import com.bc.fiduceo.geometry.Polygon;
-import com.bc.fiduceo.geometry.TimeAxis;
+import com.bc.fiduceo.geometry.*;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.MultiPolygon;
@@ -89,6 +84,8 @@ public class JtsGeometryFactory extends AbstractGeometryFactory {
             return new JTSLineString((com.vividsolutions.jts.geom.LineString) geometry);
         } else if (geometry instanceof com.vividsolutions.jts.geom.Point) {
             return new JTSPoint(geometry.getCoordinate());
+        } else if (geometry instanceof com.vividsolutions.jts.geom.MultiLineString) {
+            return new JTSMultiLineString((com.vividsolutions.jts.geom.MultiLineString) geometry);
         }
         throw new RuntimeException("Unsupported geometry type");
     }
@@ -159,6 +156,11 @@ public class JtsGeometryFactory extends AbstractGeometryFactory {
     }
 
     @Override
+    public com.bc.fiduceo.geometry.MultiPolygon createMultiPolygon(List<Polygon> polygonList) {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
     public LineString createLineString(List<Point> points) {
         final Coordinate[] coordinates = extractCoordinates(points);
 
@@ -167,8 +169,8 @@ public class JtsGeometryFactory extends AbstractGeometryFactory {
     }
 
     @Override
-    public com.bc.fiduceo.geometry.MultiPolygon createMultiPolygon(List<Polygon> polygonList) {
-        return null;
+    public MultiLineString createMultiLineString(List<LineString> points) {
+        throw new RuntimeException("not implemented");
     }
 
     @Override

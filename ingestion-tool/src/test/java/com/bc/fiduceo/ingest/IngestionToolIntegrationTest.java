@@ -108,8 +108,8 @@ public class IngestionToolIntegrationTest {
     public void testIngest_errorStopDateBeforeStartDate() throws ParseException, IOException, SQLException {
         final String[] args = new String[]{
                 "-c", configDir.getAbsolutePath(), "-s", "iasi-mb", "-v", "v0-0N",
-                "-start", "2001-02-02",
-                "-end", "2001-01-01"
+                "-start", "2001-004",
+                "-end", "2001-001"
         };
         final CommandLineParser parser = new PosixParser();
         final CommandLine commandLine = parser.parse(IngestionTool.getOptions(), args);
@@ -1145,6 +1145,80 @@ public class IngestionToolIntegrationTest {
         }
     }
 
+    @Test
+    public void testIngest_miras_smos_CDF3TD() throws SQLException, ParseException {
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "miras-smos-CDF3TD", "-start", "2017-324", "-end", "2017-324", "-v", "re07"};
+
+        try {
+            IngestionToolMain.main(args);
+            final List<SatelliteObservation> satelliteObservations = storage.get();
+            assertEquals(1, satelliteObservations.size());
+
+            final SatelliteObservation observation = getSatelliteObservation("SM_RE07_MIR_CDF3TD_20171120T000000_20171120T235959_330_001_7.tgz", satelliteObservations);
+            TestUtil.assertCorrectUTCDate(2017, 11, 20, 0, 0, 0, 0, observation.getStartTime());
+            TestUtil.assertCorrectUTCDate(2017, 11, 20, 23, 59, 59, 999, observation.getStopTime());
+
+            assertEquals("miras-smos-CDF3TD", observation.getSensor().getName());
+
+            final String expectedPath = TestUtil.assembleFileSystemPath(new String[]{"miras-smos-CDF3TD", "re07", "2017", "324", "SM_RE07_MIR_CDF3TD_20171120T000000_20171120T235959_330_001_7.tgz"}, false);
+            assertEquals(expectedPath, observation.getDataFilePath().toString());
+
+            assertEquals(NodeType.UNDEFINED, observation.getNodeType());
+            assertEquals("re07", observation.getVersion());
+
+            final Geometry geoBounds = observation.getGeoBounds();
+            assertEquals("POLYGON((-179.8703155517578 -83.51713562011719,179.8703155517578 -83.51713562011719,179.8703155517578 83.51713562011719,-179.8703155517578 83.51713562011719,-179.8703155517578 -83.51713562011719))",
+                    geometryFactory.format(geoBounds));
+            final TimeAxis timeAxis = observation.getTimeAxes()[0];
+            assertTrue(timeAxis instanceof L3TimeAxis);
+            assertEquals("MULTILINESTRING((-179.8703155517578 0.0,179.8703155517578 0.0),(0.0 83.51713562011719,0.0 -83.51713562011719))", geometryFactory.format(timeAxis.getGeometry()));
+        } finally {
+            storage.clear();
+            storage.close();
+        }
+    }
+
+    @Test
+    public void testIngest_DTUSIC1_sic_cci() throws SQLException, ParseException {
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "DTUSIC1-sic-cci", "-start", "2016-001", "-end", "2016-002", "-v", "v3"};
+
+        try {
+            IngestionToolMain.main(args);
+            final List<SatelliteObservation> satelliteObservations = storage.get();
+            assertEquals(3, satelliteObservations.size());
+
+            SatelliteObservation observation = getSatelliteObservation("ASCAT-vs-AMSR2-vs-ERA5-vs-DTUSIC1-2017-S.text", satelliteObservations);
+            TestUtil.assertCorrectUTCDate(2017, 1, 20, 23, 40, 15, observation.getStartTime());
+            TestUtil.assertCorrectUTCDate(2017, 12, 28, 1, 25, 18, observation.getStopTime());
+
+            assertEquals("DTUSIC1-sic-cci", observation.getSensor().getName());
+            assertEquals("v3", observation.getVersion());
+            assertEquals(NodeType.UNDEFINED, observation.getNodeType());
+            assertNull(observation.getGeoBounds());
+
+            observation = getSatelliteObservation("QSCAT-vs-ASCAT-vs-AMSR2-vs-ERA-vs-DTUSIC1-2016-S.text", satelliteObservations);
+            TestUtil.assertCorrectUTCDate(2016, 1, 16, 1, 9, 30, observation.getStartTime());
+            TestUtil.assertCorrectUTCDate(2016, 12, 31, 6, 33, 5, observation.getStopTime());
+
+            assertEquals("DTUSIC1-sic-cci", observation.getSensor().getName());
+            assertEquals("v3", observation.getVersion());
+            assertEquals(NodeType.UNDEFINED, observation.getNodeType());
+            assertNull(observation.getGeoBounds());
+
+            observation = getSatelliteObservation("QSCAT-vs-SMAP-vs-SMOS-vs-ASCAT-vs-AMSR2-vs-ERA-vs-DTUSIC1-2016-N.text", satelliteObservations);
+            TestUtil.assertCorrectUTCDate(2016, 1, 2, 2, 12, 34, observation.getStartTime());
+            TestUtil.assertCorrectUTCDate(2016, 12, 31, 23, 15, 10, observation.getStopTime());
+
+            assertEquals("DTUSIC1-sic-cci", observation.getSensor().getName());
+            assertEquals("v3", observation.getVersion());
+            assertEquals(NodeType.UNDEFINED, observation.getNodeType());
+            assertNull(observation.getGeoBounds());
+        } finally {
+            storage.clear();
+            storage.close();
+        }
+    }
+
     private void callMainAndValidateSystemOutput(String[] args, boolean errorOutputExpected) throws ParseException {
         final ByteArrayOutputStream expected = new ByteArrayOutputStream();
         new IngestionTool().printUsageTo(expected);
@@ -1163,6 +1237,7 @@ public class IngestionToolIntegrationTest {
 
             psO.flush();
             psE.flush();
+
             if (errorOutputExpected) {
                 assertEquals("", out.toString());
                 assertEquals(expected.toString(), err.toString());

@@ -47,7 +47,7 @@ class JTSLineString implements LineString {
 
     @Override
     public boolean isValid() {
-        throw new RuntimeException("not implemented");
+        return jtsLineString.isValid();
     }
 
     @Override

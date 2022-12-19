@@ -18,6 +18,7 @@ import java.util.regex.Pattern;
 
 import static org.junit.Assert.*;
 
+@SuppressWarnings("resource")
 public class SlstrRegriddedSubsetReaderTest {
 
     @Test

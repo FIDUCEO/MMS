@@ -1,6 +1,11 @@
+### Updates from version 1.5.6 to 1.5.7
+* added support for SMOS L1C daily aggregated products
+* added support for SIC-CCI RRDP insitu data
+* Corrected reading bug in slstr-s3x-uor reader
+
 ### Updates from version 1.5.5 to 1.5.6
 * added support for SLSTR subset data processed by UoR
-* updated to use SNAP 9.0.0
+* updated to use SNAP 9.0.2 / S3TBX 9.0.3
 * corrected TAI 1993 to UTC conversion for MODIS data
 * added support for MODIS MxD035 cloud data
 * updated H2 database driver
@@ -9,6 +14,7 @@
 * updated SLSTR reader to allow switching geo-coding source between tie-point/pixel
 * added database timeout to configuration
 * Updated ERA5 post-processing - simplify configuration
+* Fixed bug in ERA5 post-processing - time series iteration was incorrect
 
 ### Updates from version 1.5.4 to 1.5.5
 * updated to use SNAP version 8.0.9 / S3TBX version 8.0.6

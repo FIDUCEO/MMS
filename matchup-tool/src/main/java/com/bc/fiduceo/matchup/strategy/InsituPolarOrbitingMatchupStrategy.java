@@ -178,6 +178,8 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
             applyConditionsAndScreenings(matchupSet, conditionEngine, conditionEngineContext, screeningEngine, primaryReader, secondaryReaders);
         }
 
+        readerCache.close();
+
         return combineBean.matchupCollection;
     }
 

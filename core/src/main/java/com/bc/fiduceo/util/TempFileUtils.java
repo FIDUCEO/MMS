@@ -70,9 +70,11 @@ public class TempFileUtils {
     }
 
     public void delete(File tempFile) {
-        deleteFileIfExists(tempFile);
+        final boolean deleted = deleteFileIfExists(tempFile);
 
-        tempFileList.remove(tempFile);
+        if (deleted) {
+            tempFileList.remove(tempFile);
+        }
     }
 
     public void cleanup() {
@@ -85,17 +87,21 @@ public class TempFileUtils {
         }
     }
 
-    private void deleteFileIfExists(File tempFile) {
+    private boolean deleteFileIfExists(File tempFile) {
+        boolean success = true;
         if (tempFile.isFile()) {
             if (!tempFile.delete()) {
                 FiduceoLogger.getLogger().warning("Unable to delete file: " + tempFile.getAbsolutePath());
+                success = false;
             }
         }
         if (tempFile.isDirectory()) {
             if (!FileUtils.deleteTree(tempFile)) {
                 FiduceoLogger.getLogger().warning("Unable to delete directory: " + tempFile.getAbsolutePath());
+                success = false;
             }
         }
+        return success;
     }
 
     public void keepAfterCleanup(boolean keep) {

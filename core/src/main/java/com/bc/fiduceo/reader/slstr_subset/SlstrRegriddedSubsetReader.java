@@ -240,7 +240,7 @@ public class SlstrRegriddedSubsetReader implements Reader {
         final int mappedX = (int) transform.mapCoordinate_X(centerX);
         final int mappedY = (int) transform.mapCoordinate_Y(centerY);
 
-        return RawDataReader.read(mappedX, mappedY, interval, fillValue, rawArray, getProductSize());
+        return RawDataReader.read(mappedX, mappedY, interval, fillValue, rawArray, getProductSize()).copy();
     }
 
     @Override
@@ -253,7 +253,7 @@ public class SlstrRegriddedSubsetReader implements Reader {
         final int mappedX = (int) transform.mapCoordinate_X(centerX);
         final int mappedY = (int) transform.mapCoordinate_Y(centerY);
 
-        return RawDataReader.read(mappedX, mappedY, interval, fillValue, scaledArray, getProductSize());
+        return RawDataReader.read(mappedX, mappedY, interval, fillValue, scaledArray, getProductSize()).copy();
     }
 
     @Override

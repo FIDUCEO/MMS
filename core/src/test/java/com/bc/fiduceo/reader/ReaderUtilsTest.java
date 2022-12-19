@@ -114,6 +114,7 @@ public class ReaderUtilsTest {
     public void testIsCompressed() {
         assertTrue(ReaderUtils.isCompressed(new File("/home/tom/GW1AM2_201707160510_232D_L1SGRTBR_2220220.h5.gz")));
         assertTrue(ReaderUtils.isCompressed(new File("/some/where/else/S3A_SL_1_RBT____20181026T231611_20181026T231911_20181028T023445_0180_037_187_0900_LN2_O_NT_003.zip")));
+        assertTrue(ReaderUtils.isCompressed(new File("/some/whatever/SM_RE07_MIR_CDF3TA_20160610T000000_20160610T235959_330_001_7.tgz")));
 
         assertFalse(ReaderUtils.isCompressed(new File("/home/tom/GW1AM2_201707160510_232D_L1SGRTBR_2220220.h5")));
     }

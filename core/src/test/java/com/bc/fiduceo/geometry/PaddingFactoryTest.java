@@ -109,9 +109,7 @@ public class PaddingFactoryTest {
 
     private Polygon createEnvelope(Point[] input, String locationName) {
         final LineString lineString = GF.createLineString(Arrays.asList(input));
-        final Polygon envelope = PaddingFactory.createLinePadding(lineString, ENVELOPE_WIDTH_KM, GF);
-        System.out.println("envelope at " + locationName + " = " + envelope);
-        return envelope;
+        return PaddingFactory.createLinePadding(lineString, ENVELOPE_WIDTH_KM, GF);
     }
 
     private Point[] getPoints(Polygon envelope) {

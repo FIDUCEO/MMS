@@ -152,6 +152,12 @@ public class TestUtil {
                                        "        <rule sensors = \"mod06-te, myd06-aq, mod35-te, myd35-aq, airs-aq\">" +
                                        "            SENSOR/VERSION/YEAR/DAY_OF_YEAR" +
                                        "        </rule>" +
+                                       "        <rule sensors = \"miras-smos-CDF3TD, miras-smos-CDF3TA\">" +
+                                       "            SENSOR/VERSION/YEAR/DAY_OF_YEAR" +
+                                       "        </rule>" +
+                                       "        <rule sensors = \"ANTXXXI-sic-cci, DMISIC0-sic-cci, DTUSIC1-sic-cci\">" +
+                                       "            insitu/sic-cci/SENSOR/VERSION" +
+                                       "        </rule>" +
                                        "    </archive>" +
                                        "    <temp-directory>" +
                                        "            " + TestUtil.getTestDir().getAbsolutePath() +
