@@ -319,6 +319,102 @@ public class WindsatReader_IO_Test {
         }
     }
 
+    @Test
+    public void testReadRaw_vector_data() throws IOException, InvalidRangeException {
+        final File file = getWindsatFile();
+
+        try {
+            reader.open(file);
+
+            Array array = reader.readRaw(1328, 384, new Interval(3, 3), "fractional_orbit");
+            NCTestUtils.assertValueAt(0.48804149876781366, 0, 0, array);
+            NCTestUtils.assertValueAt(0.4881054987676521, 1, 1, array);
+            NCTestUtils.assertValueAt(0.4881694987674905, 2, 2, array); // rounding issues in assertion code
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_vector_data_outside() throws IOException, InvalidRangeException {
+        final File file = getWindsatFile();
+
+        try {
+            reader.open(file);
+
+            Array array = reader.readRaw(0, 385, new Interval(3, 3), "fractional_orbit");
+            NCTestUtils.assertValueAt(9.969209968386869E36, 0, 0, array);
+            NCTestUtils.assertValueAt(2.599999993435631E-5, 1, 1, array);
+            NCTestUtils.assertValueAt(7.799999980306893E-5, 2, 2, array); // rounding issues in assertion code
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_frequency_dependent() throws IOException, InvalidRangeException {
+        final File file = getWindsatFile();
+
+        try {
+            reader.open(file);
+
+            Array array = reader.readRaw(1329, 1306, new Interval(3, 3), "earth_azimuth_angle_187_fore");
+            NCTestUtils.assertValueAt(-9999.0, 0, 0, array);
+            NCTestUtils.assertValueAt(244.25, 1, 1, array);
+            NCTestUtils.assertValueAt(245.239990234375, 2, 2, array);
+
+            array = reader.readRaw(765, 848, new Interval(3, 3), "fra_238_aft");
+            NCTestUtils.assertValueAt(0.048, 0, 1, array);
+            NCTestUtils.assertValueAt(0.049, 1, 1, array);
+            NCTestUtils.assertValueAt(0.049, 2, 1, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_polarisation_dependent() throws IOException, InvalidRangeException {
+        final File file = getWindsatFile();
+
+        try {
+            reader.open(file);
+
+            Array array = reader.readRaw(665, 234, new Interval(3, 3), "tb_06_V_aft");
+            NCTestUtils.assertValueAt(-32768, 0, 1, array);
+            NCTestUtils.assertValueAt(10172, 1, 1, array);
+            NCTestUtils.assertValueAt(10176, 2, 1, array);
+
+            array = reader.readRaw(2964, 17, new Interval(3, 3), "tb_37_M_fore");
+            NCTestUtils.assertValueAt(12197, 0, 1, array);
+            NCTestUtils.assertValueAt(-32768, 1, 1, array);
+            NCTestUtils.assertValueAt(12199, 2, 1, array);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadScaled() throws IOException, InvalidRangeException {
+        final File file = getWindsatFile();
+
+        try {
+            reader.open(file);
+
+            // only need to check the brightness temperatures, the remainder of the variables is stored as floats/is flag data
+            Array array = reader.readScaled(665, 234, new Interval(3, 3), "tb_06_V_aft");
+            NCTestUtils.assertValueAt(-277.67999267578125, 0, 1, array);
+            NCTestUtils.assertValueAt(151.71999772638083, 1, 1, array);
+            NCTestUtils.assertValueAt(151.75999772548676, 2, 1, array);
+
+            array = reader.readScaled(2964, 17, new Interval(3, 3), "tb_37_M_fore");
+            NCTestUtils.assertValueAt(171.96999727375805, 0, 1, array);
+            NCTestUtils.assertValueAt(-277.67999267578125, 1, 1, array);
+            NCTestUtils.assertValueAt(171.98999727331102, 2, 1, array);
+        } finally {
+            reader.close();
+        }
+    }
+
     private File getWindsatFile() throws IOException {
         final String testFilePath = TestUtil.assembleFileSystemPath(new String[]{"windsat-coriolis", "v1.0", "2018", "04", "29", "RSS_WindSat_TB_L1C_r79285_20180429T174238_2018119_V08.0.nc"}, false);
         return TestUtil.getTestDataFileAsserted(testFilePath);

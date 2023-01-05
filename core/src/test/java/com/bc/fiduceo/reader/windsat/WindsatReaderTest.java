@@ -58,4 +58,25 @@ public class WindsatReaderTest {
         ymd = reader.extractYearMonthDayFromFilename("RSS_WindSat_TB_L1C_r80689_20180806T174232_2018218_V08.0.nc");
         assertArrayEquals(new int[]{2018, 8, 6}, ymd);
     }
+
+    @Test
+    public void testExtractArrayInfo() {
+        ArrayInfo info = WindsatReader.extractArrayInfo("scan_angle_068_fore");
+        assertEquals("scan_angle", info.ncVarName);
+        assertEquals(0, info.freqIdx);
+        assertEquals(-1, info.polIdx);
+        assertEquals(0, info.lookIdx);
+
+        info = WindsatReader.extractArrayInfo("earth_azimuth_angle_107_aft");
+        assertEquals("earth_azimuth_angle", info.ncVarName);
+        assertEquals(1, info.freqIdx);
+        assertEquals(-1, info.polIdx);
+        assertEquals(1, info.lookIdx);
+
+        info = WindsatReader.extractArrayInfo("tb_37_H_aft");
+        assertEquals("tb_37", info.ncVarName);
+        assertEquals(-1, info.freqIdx);
+        assertEquals(1, info.polIdx);
+        assertEquals(1, info.lookIdx);
+    }
 }

@@ -15,10 +15,7 @@ import com.bc.fiduceo.reader.time.TimeLocator_SecondsSince2000;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import com.bc.fiduceo.util.VariableProxy;
-import ucar.ma2.Array;
-import ucar.ma2.ArrayInt;
-import ucar.ma2.DataType;
-import ucar.ma2.InvalidRangeException;
+import ucar.ma2.*;
 import ucar.nc2.Variable;
 
 import java.io.File;
@@ -46,6 +43,32 @@ class WindsatReader extends NetCDFReader {
         variables2D.add("longitude");
         variables2D.add("land_fraction_06");
         variables2D.add("land_fraction_10");
+    }
+
+    static ArrayInfo extractArrayInfo(String mmsVariableName) {
+        final ArrayInfo arrayInfo = new ArrayInfo();
+
+        final int viewIdx = mmsVariableName.lastIndexOf("_");
+        final String view = mmsVariableName.substring(viewIdx + 1);
+        arrayInfo.lookIdx = getIndex(view, LOOKS);
+
+        final int extIdx = mmsVariableName.lastIndexOf("_", viewIdx - 1);
+        final String ext = mmsVariableName.substring(extIdx + 1, viewIdx);
+        arrayInfo.polIdx = getIndex(ext, POLARIZATIONS);
+        arrayInfo.freqIdx = getIndex(ext, FREQ_BANDS);
+
+        arrayInfo.ncVarName = mmsVariableName.substring(0, extIdx);
+
+        return arrayInfo;
+    }
+
+    static int getIndex(String value, String[] strings) {
+        for (int i = 0; i < strings.length; i++) {
+            if (strings[i].equals(value)) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     @Override
@@ -141,23 +164,83 @@ class WindsatReader extends NetCDFReader {
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
         if (variableName.equals("fractional_orbit")) {
             // read x section and fill in y-direction
+            final Array array = arrayCache.get(variableName);
+            final int[] shape = array.getShape();
+            final Number fillValue = NetCDFUtils.getDefaultFillValue(DataType.DOUBLE, true);
+
+            final int sectionWidth = interval.getX();
+            final int sectionHeight = interval.getY();
+            final Array resultArray = Array.factory(DataType.DOUBLE, new int[]{sectionWidth, sectionHeight});
+            final Index index = resultArray.getIndex();
+
+            final int offsetX = centerX - sectionWidth / 2;
+
+            int writeX = 0;
+            for (int x = offsetX; x < offsetX + sectionWidth; x++) {
+                final double value;
+                if (x >= 0 && x < shape[0]) {
+                    value = array.getDouble(x);
+                } else {
+                    value = fillValue.doubleValue();
+                }
+
+                for (int y = 0; y < sectionHeight; y++) {
+                    index.set(y, writeX);
+                    resultArray.setDouble(index, value);
+                }
+                writeX++;
+            }
+
+            return resultArray;
         } else if (variables2D.contains(variableName)) {
             final Array array = arrayCache.get(variableName);
             final Number fillValue = arrayCache.getNumberAttributeValue(NetCDFUtils.CF_FILL_VALUE_NAME, variableName);
             return RawDataReader.read(centerX, centerY, interval, fillValue, array, getProductSize());
         } else {
-            //   - extract layer indices from variable name
-            //   - extract NetCDF file variable name
-            //   - read from ArrayCache
-            //   - create section
-        }
+            // extract layer indices and NetCDF file variable name from variable name
+            final ArrayInfo arrayInfo = extractArrayInfo(variableName);
 
-        throw new RuntimeException("not implmented");
+            final Array array = arrayCache.get(arrayInfo.ncVarName);
+            final Number fillValue = arrayCache.getNumberAttributeValue(NetCDFUtils.CF_FILL_VALUE_NAME, arrayInfo.ncVarName);
+
+            final int[] origin;
+            final int[] shape;
+            if (arrayInfo.freqIdx >= 0) {
+                origin = new int[4];
+                origin[2] = arrayInfo.lookIdx;
+                origin[3] = arrayInfo.freqIdx;
+
+                shape = array.getShape();
+                shape[2] = 1;
+                shape[3] = 1;
+            } else {
+                origin = new int[4];
+                origin[0] = arrayInfo.polIdx;
+                origin[1] = arrayInfo.lookIdx;
+
+                shape = array.getShape();
+                shape[0] = 1;
+                shape[1] = 1;
+            }
+
+            final Array section = array.section(origin, shape).copy();
+            return RawDataReader.read(centerX, centerY, interval, fillValue, section, getProductSize());
+        }
     }
 
     @Override
     public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
-        throw new RuntimeException("not implmented");
+        final Array rawArray = readRaw(centerX, centerY, interval, variableName);
+        if (!variableName.startsWith("tb_")) {
+            // everything except for the brightness temperatures is already scaled tb 2023-01-05
+            return rawArray;
+        }
+
+        final ArrayInfo arrayInfo = extractArrayInfo(variableName);
+        final double scaleFactor = arrayCache.getNumberAttributeValue("scale_factor", arrayInfo.ncVarName).doubleValue();
+        final double offset = arrayCache.getNumberAttributeValue("add_offset", arrayInfo.ncVarName).doubleValue();
+        final MAMath.ScaleOffset scaleOffset = new MAMath.ScaleOffset(scaleFactor, offset);
+        return MAMath.convert2Unpacked(rawArray, scaleOffset);
     }
 
     @Override

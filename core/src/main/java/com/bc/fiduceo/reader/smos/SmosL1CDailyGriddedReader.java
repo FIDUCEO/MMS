@@ -279,8 +279,8 @@ class SmosL1CDailyGriddedReader extends NetCDFReader {
             final int extensionIdx = variableName.lastIndexOf("_");
             ncVariableName = variableName.substring(0, extensionIdx);
         }
-        double scaleFactor = arrayCache.getNumberAttributeValue("scale_factor", ncVariableName).doubleValue();
-        double offset = arrayCache.getNumberAttributeValue("add_offset", ncVariableName).doubleValue();
+        final double scaleFactor = arrayCache.getNumberAttributeValue("scale_factor", ncVariableName).doubleValue();
+        final double offset = arrayCache.getNumberAttributeValue("add_offset", ncVariableName).doubleValue();
         if (ReaderUtils.mustScale(scaleFactor, offset)) {
             final MAMath.ScaleOffset scaleOffset = new MAMath.ScaleOffset(scaleFactor, offset);
             return MAMath.convert2Unpacked(rawArray, scaleOffset);
