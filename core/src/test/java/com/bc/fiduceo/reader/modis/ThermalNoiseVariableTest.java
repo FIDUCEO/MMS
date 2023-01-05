@@ -3,6 +3,7 @@ package com.bc.fiduceo.reader.modis;
 import org.junit.Test;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
+import ucar.nc2.AttributeContainer;
 import ucar.nc2.Variable;
 
 import java.io.IOException;
@@ -13,7 +14,7 @@ import static org.mockito.Mockito.when;
 
 public class ThermalNoiseVariableTest {
 
-    private static byte[] DATA = {26, 27, 33, 35, 35, 31, 28, 28, 29, 15,
+    private static final byte[] DATA = {26, 27, 33, 35, 35, 31, 28, 28, 29, 15,
             29, 26, 27, 25, 27, 30, 35, 30, 21, 26,
             31, 26, 28, 25, 25, 30, 27, 27, 26, 31,
             30, 26, 21, 24, 18, 24, 25, 25, 25, 23,
@@ -68,6 +69,5 @@ public class ThermalNoiseVariableTest {
         assertEquals(31, expandedArray.getShort(10));
         assertEquals(25, expandedArray.getShort(14));
         assertEquals(25, expandedArray.getShort(24));
-
     }
 }
