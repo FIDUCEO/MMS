@@ -1219,6 +1219,37 @@ public class IngestionToolIntegrationTest {
         }
     }
 
+    @Test
+    public void testIngest_windsat_coriolis() throws SQLException, ParseException {
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "windsat-coriolis", "-start", "2018-119", "-end", "2018-119", "-v", "v1.0"};
+
+        try {
+            IngestionToolMain.main(args);
+
+            final List<SatelliteObservation> observations = storage.get();
+            assertEquals(1, observations.size());
+
+            final SatelliteObservation observation = getSatelliteObservation("RSS_WindSat_TB_L1C_r79285_20180429T174238_2018119_V08.0.nc", observations);
+            TestUtil.assertCorrectUTCDate(2018, 4, 29, 17, 42, 38, observation.getStartTime());
+            TestUtil.assertCorrectUTCDate(2018, 4, 29, 19, 30, 45, observation.getStopTime());
+
+            assertEquals("windsat-coriolis", observation.getSensor().getName());
+            assertEquals("v1.0", observation.getVersion());
+            assertEquals(NodeType.UNDEFINED, observation.getNodeType());
+
+            final Geometry geoBounds = observation.getGeoBounds();
+            assertEquals("POLYGON((-179.93750000000003 -89.9375,179.93750000000003 -89.9375,179.93750000000003 89.9375,-179.93750000000003 89.9375,-179.93750000000003 -89.9375))",
+                    geometryFactory.format(geoBounds));
+            final TimeAxis timeAxis = observation.getTimeAxes()[0];
+            assertTrue(timeAxis instanceof L3TimeAxis);
+            assertEquals("MULTILINESTRING((-179.93750000000003 0.0,179.93750000000003 0.0),(0.0 89.9375,0.0 -89.9375))", geometryFactory.format(timeAxis.getGeometry()));
+
+        } finally {
+            storage.clear();
+            storage.close();
+        }
+    }
+
     private void callMainAndValidateSystemOutput(String[] args, boolean errorOutputExpected) throws ParseException {
         final ByteArrayOutputStream expected = new ByteArrayOutputStream();
         new IngestionTool().printUsageTo(expected);

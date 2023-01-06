@@ -81,7 +81,7 @@ public class MatchupToolIntegrationTest_SMOSL1_sic_cci extends AbstractUsecaseIn
 
     private void insert_SIC_CCI() throws IOException, SQLException {
         final String sensorKey = "DTUSIC1-sic-cci";
-        final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{"insitu", "sic-cci", "DTUSIC1-sic-cci", "v3", "QSCAT-vs-SMAP-vs-SMOS-vs-ASCAT-vs-AMSR2-vs-ERA-vs-DTUSIC1-2016-N.text"}, true);
+        final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{"insitu", "sic-cci", sensorKey, "v3", "QSCAT-vs-SMAP-vs-SMOS-vs-ASCAT-vs-AMSR2-vs-ERA-vs-DTUSIC1-2016-N.text"}, true);
 
         final SatelliteObservation satelliteObservation = readSatelliteObservation(sensorKey, relativeArchivePath, "v3");
         storage.insert(satelliteObservation);
