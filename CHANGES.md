@@ -1,4 +1,4 @@
-### Updates from version 1.5.6 to 1.5.7
+### Updates from version 1.5.7 to 1.5.8
 * added support for Windsat Coriolis data
 
 ### Updates from version 1.5.6 to 1.5.7
