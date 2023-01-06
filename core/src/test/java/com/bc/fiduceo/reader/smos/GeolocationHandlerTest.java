@@ -1,6 +1,7 @@
 package com.bc.fiduceo.reader.smos;
 
 import com.bc.fiduceo.core.Interval;
+import com.bc.fiduceo.location.RasterPixelLocator;
 import org.junit.Before;
 import org.junit.Test;
 import ucar.ma2.Array;
