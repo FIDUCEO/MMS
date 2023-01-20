@@ -366,16 +366,22 @@ class Workflow:
 
         monitor.wait_for_completion()
 
-    def run_matchup(self, hosts, num_parallel_tasks, simulation=False, logdir='trace'):
+    def run_matchup(self, hosts, num_parallel_tasks, simulation=False, logdir='trace', synchronous=False):
         """
 
         :param hosts: list
         :param num_parallel_tasks: int
         :param simulation: bool
         :param logdir: str
+        :param synchronous: bool
         :return:
         """
-        monitor = self._get_monitor(hosts, [('matchup_start.sh', num_parallel_tasks)], logdir, simulation)
+        if synchronous:
+            runs_script = 'matchup_run.sh'
+        else:
+            runs_script = 'matchup_start.sh'
+
+        monitor = self._get_monitor(hosts, [(runs_script, num_parallel_tasks)], logdir, simulation)
 
         sensors = self._get_sensor_pairs()
         for sensor_pair in sensors:
@@ -393,7 +399,7 @@ class Workflow:
                 pre_condition = 'ingest-' + primary_name + '-' + start_string + '-' + end_string
                 post_condition = 'matchup-' + name + '-' + start_string + '-' + end_string + '-' + self.usecase_config
 
-                job = Job(job_name, 'matchup_start.sh', [pre_condition], [post_condition],
+                job = Job(job_name, runs_script, [pre_condition], [post_condition],
                           [start_string, end_string, self._get_config_dir(), self.usecase_config])
                 monitor.execute(job)
 
