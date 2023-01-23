@@ -1,14 +1,14 @@
-package com.bc.fiduceo.reader.insitu.noaa_buoy;
+package com.bc.fiduceo.reader.insitu.nbdc;
 
 import org.esa.snap.core.datamodel.GeoPos;
 
 import java.util.HashMap;
 
-class NoaaBuoyReader {
+class NbdcInsituReader {
 
     private final HashMap<String, GeoPos> buoyLocations;
 
-    public NoaaBuoyReader() {
+    public NbdcInsituReader() {
         this.buoyLocations = new HashMap<>();
 
         buoyLocations.put("41002", new GeoPos(31.759, -74.936));
