@@ -244,13 +244,14 @@ class Workflow:
 
         return preconditions
 
-    def _get_monitor(self, hosts, calls, log_dir, simulation):
+    def _get_monitor(self, hosts, calls, log_dir, simulation, synchronous=False):
         """
 
         :type hosts: list
         :type calls: list
         :type log_dir: str
         :type simulation: bool
+        :type synchronous: bool
         :rtype : Monitor
         """
         preconditions = list()
@@ -262,7 +263,7 @@ class Workflow:
         # @todo 2 tb/tb do we need this 2016-03-29
         # self._add_obs_preconditions(preconditions)
         # self._add_smp_preconditions(preconditions)
-        return Monitor(preconditions, self.get_usecase(), hosts, calls, log_dir, simulation)
+        return Monitor(preconditions, self.get_usecase(), hosts, calls, log_dir, simulation, synchronous)
 
     def _next_year_start(self, date):
         """
@@ -381,7 +382,7 @@ class Workflow:
         else:
             runs_script = 'matchup_start.sh'
 
-        monitor = self._get_monitor(hosts, [(runs_script, num_parallel_tasks)], logdir, simulation)
+        monitor = self._get_monitor(hosts, [(runs_script, num_parallel_tasks)], logdir, simulation, synchronous)
 
         sensors = self._get_sensor_pairs()
         for sensor_pair in sensors:
