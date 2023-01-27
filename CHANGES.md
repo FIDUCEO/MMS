@@ -1,5 +1,7 @@
 ### Updates from version 1.5.7 to 1.5.8
 * added support for Windsat Coriolis data
+* added conda environment
+* extended workflow to run without scheduler on plain console
 
 ### Updates from version 1.5.6 to 1.5.7
 * added support for SMOS L1C daily aggregated products

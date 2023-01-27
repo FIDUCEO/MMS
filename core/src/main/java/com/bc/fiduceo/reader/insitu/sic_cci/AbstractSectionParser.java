@@ -56,7 +56,7 @@ abstract class AbstractSectionParser {
 
     static Array parseFloat(String token) {
         final float floatVal;
-        if (token.equals("noval")) {
+        if (token.isEmpty() || token.equals("noval")) {
             floatVal = NetCDFUtils.getDefaultFillValue(float.class).floatValue();
         } else {
             floatVal = Float.parseFloat(token);
@@ -68,7 +68,7 @@ abstract class AbstractSectionParser {
     static Array parseShort(String token) {
         final short shortVal;
 
-        if (token.equals("noval")) {
+        if (token.isEmpty() || token.equals("noval")) {
             shortVal = NetCDFUtils.getDefaultFillValue(short.class).shortValue();
         } else {
             shortVal = Short.parseShort(token);
@@ -77,8 +77,14 @@ abstract class AbstractSectionParser {
     }
 
     static Array parseByte(String token) {
-        final byte sic_total = Byte.parseByte(token);
-        return Array.factory(DataType.BYTE, SCALAR, new byte[]{sic_total});
+        final byte byteVal;
+        if (token.isEmpty() || token.equals("noval")) {
+            byteVal = NetCDFUtils.getDefaultFillValue(byte.class).byteValue();
+        } else {
+            byteVal = Byte.parseByte(token);
+        }
+
+        return Array.factory(DataType.BYTE, SCALAR, new byte[]{byteVal});
     }
 
     static Array parseUtcTime(String token) throws ParseException {
