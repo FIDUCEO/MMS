@@ -27,20 +27,12 @@ import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.IndexIterator;
 import ucar.ma2.InvalidRangeException;
-import ucar.nc2.Attribute;
-import ucar.nc2.Dimension;
-import ucar.nc2.NetcdfFile;
-import ucar.nc2.NetcdfFileWriter;
-import ucar.nc2.Variable;
+import ucar.nc2.*;
 import ucar.nc2.constants.CDM;
 
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.bc.fiduceo.reader.airs.AIRS_Constants.AIRS_NUM_CHANELS;
 
@@ -54,8 +46,8 @@ public class AddAirsSpectrum extends PostProcessing {
     private final String targetRadiancesVariableName;
     private final String targetCalFlagVariableName;
     private final String targetSpaceViewDeltaVariableName;
-    private Dimension[] cutOutDims;
     private final Map<String, Variable> variablesMap;
+    private Dimension[] cutOutDims;
 
     AddAirsSpectrum(String srcVariableName_fileName, String srcVariableName_processingVersion,
                     String srcVariableName_x, String srcVariableName_y, String srcVariableName_cutOutReference,
@@ -71,6 +63,15 @@ public class AddAirsSpectrum extends PostProcessing {
         this.targetCalFlagVariableName = targetCalFlagVariableName;
         this.targetSpaceViewDeltaVariableName = targetSpaceViewDeltaVariableName;
         variablesMap = new HashMap<>();
+    }
+
+    // @todo 2 tb/se write the test 2019-01-30
+    // package access for testing only se 2018-08-31
+    static List<ucar.nc2.Dimension> addSpectrumDimension(NetcdfFileWriter writer, Dimension[] cutOutDimensions) {
+        final List<Dimension> targetDimensions = new ArrayList<>(Arrays.asList(cutOutDimensions));
+        final ucar.nc2.Dimension airsChannel = writer.addDimension(null, "airs_channel", AIRS_NUM_CHANELS);
+        targetDimensions.add(airsChannel);
+        return targetDimensions;
     }
 
     @Override
@@ -93,7 +94,8 @@ public class AddAirsSpectrum extends PostProcessing {
         final Array xArray = xVariable.read();
         final Array yArray = yVariable.read();
 
-        final int matchup_count = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, reader);
+        final String matchupDimensionName = getMatchupDimensionName();
+        final int matchup_count = NetCDFUtils.getDimensionLength(matchupDimensionName, reader);
         final int fileNameSize = NetCDFUtils.getDimensionLength(FiduceoConstants.FILE_NAME, reader);
         final int processingVersionSize = NetCDFUtils.getDimensionLength(FiduceoConstants.PROCESSING_VERSION, reader);
         for (int i = 0; i < matchup_count; i++) {
@@ -190,15 +192,6 @@ public class AddAirsSpectrum extends PostProcessing {
     @Override
     protected void initReaderCache() {
         readerCache = createReaderCache(getContext());
-    }
-
-    // @todo 2 tb/se write the test 2019-01-30
-    // package access for testing only se 2018-08-31
-    static List<ucar.nc2.Dimension> addSpectrumDimension(NetcdfFileWriter writer, Dimension[] cutOutDimensions) {
-        final List<Dimension> targetDimensions = new ArrayList<>(Arrays.asList(cutOutDimensions));
-        final ucar.nc2.Dimension airsChannel = writer.addDimension(null, "airs_channel", AIRS_NUM_CHANELS);
-        targetDimensions.add(airsChannel);
-        return targetDimensions;
     }
 
     // @todo 2 tb/se write the test 2019-01-30

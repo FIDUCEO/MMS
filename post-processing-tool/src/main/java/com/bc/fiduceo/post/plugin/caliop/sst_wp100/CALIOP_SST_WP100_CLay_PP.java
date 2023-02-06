@@ -110,12 +110,13 @@ public class CALIOP_SST_WP100_CLay_PP extends PostProcessing {
         final Variable targetVarX = NetCDFUtils.getVariable(writer, targetVarNameX);
         final Variable targetVarY = NetCDFUtils.getVariable(writer, targetVarNameY);
 
-        final String sensorName = CALIOP_SST_WP100_CLay_ReaderPlugin.SENSOR_NAME;
-        final int mcSize = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, reader);
+        final String matchupDimensionName = getMatchupDimensionName();
+        final int mcSize = NetCDFUtils.getDimensionLength(matchupDimensionName, reader);
 
         final Interval interval_1 = new Interval(1, ny);
         final Interval interval_10 = new Interval(10, ny);
 
+        final String sensorName = CALIOP_SST_WP100_CLay_ReaderPlugin.SENSOR_NAME;
         for (int mu = 0; mu < mcSize; mu++) {
             final int[] writeOrigin = {mu, 0, 0};
             final int y = yArr[mu];
@@ -123,17 +124,11 @@ public class CALIOP_SST_WP100_CLay_PP extends PostProcessing {
             sourceFileName = toCLaySourceFileName(sourceFileName);
             final Reader caliopReader = readerCache.getReaderFor(sensorName, Paths.get(sourceFileName), processingVersion);
             final List<Variable> variables = caliopReader.getVariables();
-            int c = 0;
+
             for (Variable variable : variables) {
                 final String shortName = variable.getShortName();
                 final int shape1 = variable.getShape(1);
                 final Variable targetVar = variableMap.get(shortName);
-                if (mu == 0) {
-                    System.out.println(++c);
-                    System.out.println("CAL ... shortName = " + shortName);
-                    System.out.println("        targetName = " + targetVar.getShortName());
-                    System.out.println("        shape1 = " + shape1);
-                }
                 final Interval interval;
                 final int centerX;
                 if (shape1 == 1) {

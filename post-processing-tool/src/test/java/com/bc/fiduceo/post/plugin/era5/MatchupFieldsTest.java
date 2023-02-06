@@ -22,6 +22,7 @@ public class MatchupFieldsTest {
     @Before
     public void setUp() {
         config = new MatchupFieldsConfiguration();
+        config.setMatchupDimensionName(FiduceoConstants.MATCHUP_COUNT);
         matchupFields = new MatchupFields();
     }
 
