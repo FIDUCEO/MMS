@@ -27,15 +27,15 @@ import static org.junit.Assert.assertTrue;
 public class MatchupToolIntegrationTest_SMOSL1_sic_cci extends AbstractUsecaseIntegrationTest {
 
     @Test
-    public void testMatchup() throws IOException, SQLException, ParseException, InvalidRangeException {
-        final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
+    public void testMatchup_DTUSIC1() throws IOException, SQLException, ParseException, InvalidRangeException {
+        final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder("DTUSIC1-sic-cci")
                 .withTimeDeltaSeconds(28800, null)
                 .withMaxPixelDistanceKm(10, null)
                 .createConfig();
         final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-44.xml");
 
-        insert_SIC_CCI();
-        insert_miras_CDF3TA();
+        insert_DTU_SIC_CCI();
+        insert_miras_CDF3TA_June();
 
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "2016-156", "-end", "2016-156"};
         MatchupToolMain.main(args);
@@ -79,7 +79,24 @@ public class MatchupToolIntegrationTest_SMOSL1_sic_cci extends AbstractUsecaseIn
         }
     }
 
-    private void insert_SIC_CCI() throws IOException, SQLException {
+    @Test
+    public void testMatchup_ANTXXXI() throws IOException, SQLException, ParseException, InvalidRangeException {
+        final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder("ANTXXXI-sic-cci")
+                .withTimeDeltaSeconds(86400, null)
+                .withMaxPixelDistanceKm(14, null)
+                .createConfig();
+        final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-44.xml");
+
+        insert_ANT_SIC_CCI();
+        insert_miras_CDF3TA_Jan();
+
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "2016-001", "-end", "2016-002"};
+        MatchupToolMain.main(args);
+
+        // @todo 1/1 add assertions tb 2023-02-09
+    }
+
+    private void insert_DTU_SIC_CCI() throws IOException, SQLException {
         final String sensorKey = "DTUSIC1-sic-cci";
         final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{"insitu", "sic-cci", sensorKey, "v3", "QSCAT-vs-SMAP-vs-SMOS-vs-ASCAT-vs-AMSR2-vs-ERA-vs-DTUSIC1-2016-N.text"}, true);
 
@@ -87,7 +104,23 @@ public class MatchupToolIntegrationTest_SMOSL1_sic_cci extends AbstractUsecaseIn
         storage.insert(satelliteObservation);
     }
 
-    private void insert_miras_CDF3TA() throws IOException, SQLException {
+    private void insert_ANT_SIC_CCI() throws IOException, SQLException {
+        final String sensorKey = "ANTXXXI-sic-cci";
+        final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{"insitu", "sic-cci", sensorKey, "v3", "ASCAT-vs-AMSR2-vs-ERA-vs-ANTXXXI_2_FROSN_SeaIceObservations_reformatted.txt"}, true);
+
+        final SatelliteObservation satelliteObservation = readSatelliteObservation(sensorKey, relativeArchivePath, "v3");
+        storage.insert(satelliteObservation);
+    }
+
+    private void insert_miras_CDF3TA_Jan() throws IOException, SQLException {
+        final String sensorKey = "miras-smos-CDF3TA";
+        final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{sensorKey, "re07", "2016", "001", "SM_RE07_MIR_CDF3TA_20160101T000000_20160101T235959_330_001_7.tgz"}, true);
+
+        final SatelliteObservation satelliteObservation = readSatelliteObservation(sensorKey, relativeArchivePath, "re07");
+        storage.insert(satelliteObservation);
+    }
+
+    private void insert_miras_CDF3TA_June() throws IOException, SQLException {
         final String sensorKey = "miras-smos-CDF3TA";
         final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{sensorKey, "re07", "2016", "156", "SM_RE07_MIR_CDF3TA_20160604T000000_20160604T235959_330_001_7.tgz"}, true);
 
@@ -95,15 +128,15 @@ public class MatchupToolIntegrationTest_SMOSL1_sic_cci extends AbstractUsecaseIn
         storage.insert(satelliteObservation);
     }
 
-    private MatchupToolTestUseCaseConfigBuilder createUseCaseConfigBuilder() {
+    private MatchupToolTestUseCaseConfigBuilder createUseCaseConfigBuilder(String sicSensor) {
         final List<Sensor> sensorList = new ArrayList<>();
-        final Sensor primary = new Sensor("DTUSIC1-sic-cci");
+        final Sensor primary = new Sensor(sicSensor);
         primary.setPrimary(true);
         sensorList.add(primary);
         sensorList.add(new Sensor("miras-smos-CDF3TA"));
 
         final List<com.bc.fiduceo.core.Dimension> dimensions = new ArrayList<>();
-        dimensions.add(new com.bc.fiduceo.core.Dimension("DTUSIC1-sic-cci", 1, 1));
+        dimensions.add(new com.bc.fiduceo.core.Dimension(sicSensor, 1, 1));
         dimensions.add(new com.bc.fiduceo.core.Dimension("miras-smos-CDF3TA", 3, 3));
 
         return (MatchupToolTestUseCaseConfigBuilder) new MatchupToolTestUseCaseConfigBuilder("mmd44")
