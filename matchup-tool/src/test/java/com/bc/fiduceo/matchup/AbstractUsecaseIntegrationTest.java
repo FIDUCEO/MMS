@@ -62,11 +62,13 @@ abstract class AbstractUsecaseIntegrationTest {
 
         final DatabaseConfig databaseConfig = new DatabaseConfig();
         databaseConfig.setDataSource(TestUtil.getDataSource_MongoDb());
+        //databaseConfig.setDataSource(TestUtil.getDataSource_Postgres());
         storage = Storage.create(databaseConfig, geometryFactory);
         storage.clear();
         storage.initialize();
 
         TestUtil.writeDatabaseProperties_MongoDb(configDir);
+        //TestUtil.writeDatabaseProperties_Postgres(configDir);
         TestUtil.writeSystemConfig(configDir);
         TestUtil.writeMmdWriterConfig(configDir);
     }

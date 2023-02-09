@@ -38,11 +38,11 @@ public class MatchupToolIntegrationTest_Windsat_sic_cci extends AbstractUsecaseI
         insert_windsat();
 
 
-        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "2018-119", "-end", "2018-119"};
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "2018-118", "-end", "2018-120"};
         MatchupToolMain.main(args);
 
 
-        final File mmdFile = getMmdFilePath(useCaseConfig, "2018-119", "2018-119");
+        final File mmdFile = getMmdFilePath(useCaseConfig, "2018-118", "2018-120");
         assertTrue(mmdFile.isFile());
         try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
             final int matchupCount = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, mmd);

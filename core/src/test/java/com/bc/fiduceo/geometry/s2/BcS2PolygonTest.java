@@ -37,7 +37,7 @@ public class BcS2PolygonTest {
 
     @Test
     public void testGetIntersection_polygon_noIntersection() {
-        final BcS2Polygon bcS2Polygon_1 = createBcS2Polygon("POLYGON((-5 0, -5 1, -4 1, -4 0, -5 0))");
+        final BcS2Polygon bcS2Polygon_1 = createBcS2Polygon("POLYGON((-5 0, -4 0, -4 1, -5 1, -5 0))");
         final BcS2Polygon bcS2Polygon_2 = createBcS2Polygon("POLYGON((5 0, 5 1, 4 1, 4 0, 5 0))");
 
         final Geometry intersection = bcS2Polygon_1.getIntersection(bcS2Polygon_2);
@@ -47,8 +47,8 @@ public class BcS2PolygonTest {
 
     @Test
     public void testGetIntersection_polygon_intersectionWest() {
-        final BcS2Polygon bcS2Polygon_1 = createBcS2Polygon("POLYGON((-5 0, -5 1, -4 1, -4 0, -5 0))");
-        final BcS2Polygon bcS2Polygon_2 = createBcS2Polygon("POLYGON((-5.5 0, -5.5 1, -4.5 1, -4.5 0, -5.5 0))");
+        final BcS2Polygon bcS2Polygon_1 = createBcS2Polygon("POLYGON((-5 0, -4 0, -4 1, -5 1, -5 0))");
+        final BcS2Polygon bcS2Polygon_2 = createBcS2Polygon("POLYGON((-5.5 0, -4.5 0, -4.5 1, -5.5 1, -5.5 0))");
 
         final Geometry intersection = bcS2Polygon_1.getIntersection(bcS2Polygon_2);
         assertNotNull(intersection);
@@ -65,8 +65,8 @@ public class BcS2PolygonTest {
 
     @Test
     public void testGetIntersection_polygon_intersectionNorth() {
-        final BcS2Polygon bcS2Polygon_1 = createBcS2Polygon("POLYGON((-10 -10,-10 10,10 10,10 -10,-10 -10))");
-        final BcS2Polygon bcS2Polygon_2 = createBcS2Polygon("POLYGON((-8 -10,-8 12,9 12,9 -10,-8 -10))");
+        final BcS2Polygon bcS2Polygon_1 = createBcS2Polygon("POLYGON((-10 -10,10 -10,10 10,-10 10,-10 -10))");
+        final BcS2Polygon bcS2Polygon_2 = createBcS2Polygon("POLYGON((-8 -10,9 -10,9 12,-8 12,-8 -10))");
 
         final Geometry intersection = bcS2Polygon_1.getIntersection(bcS2Polygon_2);
         assertNotNull(intersection);
@@ -110,8 +110,8 @@ public class BcS2PolygonTest {
 
     @Test
     public void testGetIntersection_multipolygon_noIntersection() {
-        final BcS2Polygon bcS2Polygon_1 = createBcS2Polygon("POLYGON((-5 0, -5 1, -4 1, -4 0, -5 0))");
-        final BcS2MultiPolygon bcS2Polygon_2 = createBcS2MultiPolygon("MULTIPOLYGON(((5 0, 5 1, 4 1, 4 0, 5 0)),((10 0, 10 1, 9 1, 9 0, 10 0)))");
+        final BcS2Polygon bcS2Polygon_1 = createBcS2Polygon("POLYGON((-5 0, -4 0, -4 1, -5 1, -5 0))");
+        final BcS2MultiPolygon bcS2Polygon_2 = createBcS2MultiPolygon("MULTIPOLYGON(((5 0, 4 0, 4 1, 5 1, 5 0)),((10 0, 10 1, 9 1, 9 0, 10 0)))");
 
         final Geometry intersection = bcS2Polygon_1.getIntersection(bcS2Polygon_2);
         assertNotNull(intersection);
@@ -120,8 +120,8 @@ public class BcS2PolygonTest {
 
     @Test
     public void testGetIntersection_multipolygon_intersectFirst() {
-        final BcS2Polygon bcS2Polygon_1 = createBcS2Polygon("POLYGON((-5 0, -5 1, -4 1, -4 0, -5 0))");
-        final BcS2MultiPolygon bcS2Polygon_2 = createBcS2MultiPolygon("MULTIPOLYGON(((-4.5 -0.5, -4.5 0.5, -3.5 0.5, -3.5 -0.5, -4.5 -0.5)),((10 0, 10 1, 9 1, 9 0, 10 0)))");
+        final BcS2Polygon bcS2Polygon_1 = createBcS2Polygon("POLYGON((-5 0, -4 0, -4 1, -5 1, -5 0))");
+        final BcS2MultiPolygon bcS2Polygon_2 = createBcS2MultiPolygon("MULTIPOLYGON(((-4.5 -0.5, -3.5 -0.5, -3.5 0.5, -4.5 0.5, -4.5 -0.5)),((10 0, 10 1, 9 1, 9 0, 10 0)))");
 
         final Geometry intersection = bcS2Polygon_1.getIntersection(bcS2Polygon_2);
         assertNotNull(intersection);
@@ -137,7 +137,7 @@ public class BcS2PolygonTest {
 
     @Test
     public void testGetIntersection_multipolygon_intersectSecond() {
-        final BcS2Polygon bcS2Polygon_1 = createBcS2Polygon("POLYGON((9.5 0.5, 9.5 1.5, 10.5 1.5, 10.5 0.5, 9.5 0.5))");
+        final BcS2Polygon bcS2Polygon_1 = createBcS2Polygon("POLYGON((9.5 0.5, 10.5 0.5, 10.5 1.5, 9.5 1.5, 9.5 0.5))");
         final BcS2MultiPolygon bcS2Polygon_2 = createBcS2MultiPolygon("MULTIPOLYGON(((5 0, 5 1, 4 1, 4 0, 5 0)),((10 0, 10 1, 11 1, 11 0, 10 0)))");
 
         final Geometry intersection = bcS2Polygon_1.getIntersection(bcS2Polygon_2);
@@ -154,8 +154,8 @@ public class BcS2PolygonTest {
 
     @Test
     public void testGetIntersection_multipolygon_intersectBoth() {
-        final BcS2Polygon bcS2Polygon_1 = createBcS2Polygon("POLYGON((4 0.5, 4 1.5, 10.5 1.5, 10.5 0.5, 4 0.5))");
-        final BcS2MultiPolygon bcS2Polygon_2 = createBcS2MultiPolygon("MULTIPOLYGON(((5 0, 5 1, 4 1, 4 0, 5 0)),((10 0, 10 1, 11 1, 11 0, 10 0)))");
+        final BcS2Polygon bcS2Polygon_1 = createBcS2Polygon("POLYGON((4 0.5, 10.5 0.5, 10.5 1.5, 4 1.5, 4 0.5))");
+        final BcS2MultiPolygon bcS2Polygon_2 = createBcS2MultiPolygon("MULTIPOLYGON(((5 0, 5 1, 4 1, 4 0, 5 0)),((10 0, 11 0, 11 1, 10 1, 10 0)))");
 
         final Geometry intersection = bcS2Polygon_1.getIntersection(bcS2Polygon_2);
         assertNotNull(intersection);
@@ -176,7 +176,7 @@ public class BcS2PolygonTest {
 
     @Test
     public void testGetIntersection_Point_contained() {
-        final BcS2Polygon polygon = createBcS2Polygon("POLYGON((-10 -10,-10 10,10 10,10 -10,-10 -10))");
+        final BcS2Polygon polygon = createBcS2Polygon("POLYGON((-10 -10,10 -10,10 10,-10 10,-10 -10))");
         final BcS2Point point = createBcS2Point("POINT(0 0)");
 
         final Geometry intersection = polygon.getIntersection(point);
@@ -186,7 +186,7 @@ public class BcS2PolygonTest {
 
     @Test
     public void testGetIntersection_Point_outside() {
-        final BcS2Polygon polygon = createBcS2Polygon("POLYGON((-10 -10,-10 10,10 10,10 -10,-10 -10))");
+        final BcS2Polygon polygon = createBcS2Polygon("POLYGON((-10 -10,10 -10,10 10,-10 10,-10 -10))");
         final BcS2Point point = createBcS2Point("POINT(-28 65)");
 
         final Geometry intersection = polygon.getIntersection(point);
@@ -196,7 +196,7 @@ public class BcS2PolygonTest {
 
     @Test
     public void testGetIntersection_multiLineString_noIntersection() {
-        final BcS2Polygon polygon = createBcS2Polygon("POLYGON((-10 -10, -10 10, 10 10, 10 -10, -10 -10))");
+        final BcS2Polygon polygon = createBcS2Polygon("POLYGON((-10 -10, 10 -10, 10 10, -10 10, -10 -10))");
         final BcS2MultiLineString multiLineString = createBcS2MultiLineString("MULTILINESTRING((-30 -30, -30 -35), (80 76, 82 78))");
 
         final Geometry intersection = polygon.getIntersection(multiLineString);
@@ -205,7 +205,7 @@ public class BcS2PolygonTest {
 
     @Test
     public void testGetIntersection_multiLineString_oneIntersection() {
-        final BcS2Polygon polygon = createBcS2Polygon("POLYGON((-10 -10, -10 10, 10 10, 10 -10, -10 -10))");
+        final BcS2Polygon polygon = createBcS2Polygon("POLYGON((-10 -10, 10 -10, 10 10, -10 10, -10 -10))");
         final BcS2MultiLineString multiLineString = createBcS2MultiLineString("MULTILINESTRING((-20 -5, 20 -5), (80 76, 82 78))");
 
         final Geometry intersection = polygon.getIntersection(multiLineString);
@@ -218,7 +218,7 @@ public class BcS2PolygonTest {
 
     @Test
     public void testGetIntersection_multiLineString_twoIntersection() {
-        final BcS2Polygon polygon = createBcS2Polygon("POLYGON((-10 -10, -10 10, 10 10, 10 -10, -10 -10))");
+        final BcS2Polygon polygon = createBcS2Polygon("POLYGON((-10 -10, 10 -10, 10 10, -10 10, -10 -10))");
         final BcS2MultiLineString multiLineString = createBcS2MultiLineString("MULTILINESTRING((-20 -5, 20 -5), (-20 5, 30 5))");
 
         final Geometry intersection = polygon.getIntersection(multiLineString);
@@ -233,7 +233,7 @@ public class BcS2PolygonTest {
 
     @Test
     public void testGetIntersection_lineString_noIntersection() {
-        final BcS2Polygon polygon = createBcS2Polygon("POLYGON((-10 -10, -10 10, 10 10, 10 -10, -10 -10))");
+        final BcS2Polygon polygon = createBcS2Polygon("POLYGON((-10 -10, 10 -10, 10 10, -10 10, -10 -10))");
         final BcS2LineString lineString = createBcS2LineString("LINESTRING(-20 -20, -20 -25)");
 
         final Geometry intersection = polygon.getIntersection(lineString);
@@ -242,7 +242,7 @@ public class BcS2PolygonTest {
 
     @Test
     public void testGetIntersection_lineString_oneIntersection() {
-        final BcS2Polygon polygon = createBcS2Polygon("POLYGON((-10 -10, -10 10, 10 10, 10 -10, -10 -10))");
+        final BcS2Polygon polygon = createBcS2Polygon("POLYGON((-10 -10, 10 -10, 10 10, -10 10, -10 -10))");
         final BcS2LineString lineString = createBcS2LineString("LINESTRING(-20 -3, 20 5)");
 
         final Geometry intersection = polygon.getIntersection(lineString);
@@ -255,7 +255,7 @@ public class BcS2PolygonTest {
 
     @Test
     public void testGetIntersection_lineString_twoIntersections() {
-        final BcS2Polygon polygon = createBcS2Polygon("POLYGON((-10 -10, -10 10, 10 10, 10 -10, -10 -10))");
+        final BcS2Polygon polygon = createBcS2Polygon("POLYGON((-10 -10, 10 -10, 10 10, -10 10, -10 -10))");
         final BcS2LineString lineString = createBcS2LineString("LINESTRING(-12 4, -4 14, 8 -12)");
 
         final Geometry intersection = polygon.getIntersection(lineString);
@@ -312,15 +312,13 @@ public class BcS2PolygonTest {
 
     @Test
     public void testIsValid_resolvesToValid_polygonIsADonut() {
-        // the donut polygon does not conform the ogc wkt-specification, the inner loop has to be in clockwise order.
-        // We suspect google S2 library specific behavior.  tb 24.2.2016
-        final BcS2Polygon bcS2Polygon = createBcS2Polygon("POLYGON((0 0, 0 5, 5 5, 5 0, 0 0),(1 2, 4 2, 2 4, 1 2))");
+        final BcS2Polygon bcS2Polygon = createBcS2Polygon("POLYGON((0 0, 5 0, 5 5, 0 5, 0 0),(1 2, 4 2, 2 4, 1 2))");
         assertTrue(bcS2Polygon.isValid());
     }
 
     @Test
     public void testIsValid_resolvesToInvalid_polygonIsADamagedDonut() {
-        final BcS2Polygon bcS2Polygon = createBcS2Polygon("POLYGON((0 0, 0 5, 5 5, 5 0, 0 0),(4 2, 7 2, 5 4, 4 2))");
+        final BcS2Polygon bcS2Polygon = createBcS2Polygon("POLYGON((0 0, 5 0, 5 5, 0 5, 0 0),(4 2, 7 2, 5 4, 4 2))");
         assertFalse(bcS2Polygon.isValid());
     }
 
@@ -438,15 +436,15 @@ public class BcS2PolygonTest {
 
     @Test
     public void testExtractPoints_polygon_twoLoops() {
-        final BcS2Polygon bcS2Polygon = createBcS2Polygon("POLYGON((0 0, 0 5, 5 5, 5 0, 0 0),(1 2, 4 2, 2 4, 1 2))");
+        final BcS2Polygon bcS2Polygon = createBcS2Polygon("POLYGON((0 0, 5 0, 5 5, 0 5, 0 0),(1 2, 4 2, 2 4, 1 2))");
 
         final ArrayList<Point> points = BcS2Polygon.extractPoints((S2Polygon) bcS2Polygon.getInner());
         assertEquals(9, points.size());
 
-        assertEquals(5.0, points.get(0).getLon(), 1e-8);
+        assertEquals(0.0, points.get(0).getLon(), 1e-8);
         assertEquals(0.0, points.get(0).getLat(), 1e-8);
 
-        assertEquals(0.0, points.get(2).getLon(), 1e-8);
+        assertEquals(5.0, points.get(2).getLon(), 1e-8);
         assertEquals(5.0, points.get(2).getLat(), 1e-8);
 
         assertEquals(4.0, points.get(6).getLon(), 1e-8);
@@ -455,7 +453,7 @@ public class BcS2PolygonTest {
 
     @Test
     public void testGetCentroid() {
-        final BcS2Polygon polygon = createBcS2Polygon("POLYGON((-10 -10, -10 10, 10 10, 10 -10, -10 -10))");
+        final BcS2Polygon polygon = createBcS2Polygon("POLYGON((-10 -10, 10 -10, 10 10, -10 10, -10 -10))");
 
         final Point centroid = polygon.getCentroid();
         assertEquals(0.0, centroid.getLat(), 1e-8);

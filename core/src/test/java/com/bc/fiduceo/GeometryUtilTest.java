@@ -54,11 +54,11 @@ public class GeometryUtilTest {
                 "    <outerBoundaryIs>\n" +
                 "      <LinearRing>\n" +
                 "        <coordinates>\n" +
-                "          1.0,0.0,0\n" +
-                "          0.9999999999999998,1.0,0\n" +
-                "          0.0,1.0,0\n" +
                 "          0.0,0.0,0\n" +
+                "          0.0,1.0,0\n" +
+                "          0.9999999999999998,1.0,0\n" +
                 "          1.0,0.0,0\n" +
+                "          0.0,0.0,0\n" +
                 "        </coordinates>\n" +
                 "      </LinearRing>\n" +
                 "    </outerBoundaryIs>\n" +
