@@ -93,7 +93,56 @@ public class MatchupToolIntegrationTest_SMOSL1_sic_cci extends AbstractUsecaseIn
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "2016-001", "-end", "2016-002"};
         MatchupToolMain.main(args);
 
-        // @todo 1/1 add assertions tb 2023-02-09
+        final File mmdFile = getMmdFilePath(useCaseConfig, "2016-001", "2016-002");
+        assertTrue(mmdFile.isFile());
+
+        try (NetcdfFile mmd = NetcdfFile.open(mmdFile.getAbsolutePath())) {
+            final int matchupCount = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, mmd);
+            assertEquals(2, matchupCount);
+
+            NCTestUtils.assert3DVariable("ANTXXXI-sic-cci_AMSR2_18.7GHzH", 0, 0, 0, 9.969209968386869E36f, mmd);
+            NCTestUtils.assert3DVariable("ANTXXXI-sic-cci_AMSR2_6.9GHzV", 0, 0, 1, 9.969209968386869E36f, mmd);
+            NCTestUtils.assert3DVariable("ANTXXXI-sic-cci_AMSR2_latitude", 0, 0, 0, -75.026f, mmd);
+            NCTestUtils.assert3DVariable("ANTXXXI-sic-cci_ASCAT_latitude", 0, 0, 1, -75.03f, mmd);
+            NCTestUtils.assert3DVariable("ANTXXXI-sic-cci_ASCAT_time", 0, 0, 0, 1451736000, mmd);
+            NCTestUtils.assert3DVariable("ANTXXXI-sic-cci_ERA_fal", 0, 0, 1, 0.3189f, mmd);
+            NCTestUtils.assert3DVariable("ANTXXXI-sic-cci_ERA_msl", 0, 0, 0, 997.4f, mmd);
+            NCTestUtils.assert3DVariable("ANTXXXI-sic-cci_ERA_strd", 0, 0, 1, 204.21f, mmd);
+            NCTestUtils.assert3DVariable("ANTXXXI-sic-cci_ERA_u10", 0, 0, 0, 2.42f, mmd);
+            NCTestUtils.assert3DVariable("ANTXXXI-sic-cci_Ridge-height-primary", 0, 0, 1, 1.f, mmd);
+            NCTestUtils.assert3DVariable("ANTXXXI-sic-cci_SIC-secondary", 0, 0, 0, 20.f, mmd);
+            NCTestUtils.assert3DVariable("ANTXXXI-sic-cci_Snow-cover-type-primary", 0, 0, 1, 4, mmd);
+            NCTestUtils.assert3DVariable("ANTXXXI-sic-cci_Weather", 0, 0, 0, 1, mmd);
+            NCTestUtils.assert3DVariable("ANTXXXI-sic-cci_time", 0, 0, 1, 1451714400, mmd);
+
+            NCTestUtils.assert3DVariable("miras-smos-CDF3TA_Azimuth_Angle_125", 0, 0, 0, 8258, mmd);
+            NCTestUtils.assert3DVariable("miras-smos-CDF3TA_BT_3_075", 1, 0, 1, -32768, mmd);
+            NCTestUtils.assert3DVariable("miras-smos-CDF3TA_BT_4_025", 2, 0, 0, -32768, mmd);
+            NCTestUtils.assert3DVariable("miras-smos-CDF3TA_BT_4_625", 0, 1, 1, -2410, mmd);
+            NCTestUtils.assert3DVariable("miras-smos-CDF3TA_BT_H_575", 1, 1, 0, -32768, mmd);
+            NCTestUtils.assert3DVariable("miras-smos-CDF3TA_BT_V_525", 2, 1, 1, -586, mmd);
+            NCTestUtils.assert3DVariable("miras-smos-CDF3TA_Days_475", 0, 2, 0, 5844, mmd);
+            NCTestUtils.assert3DVariable("miras-smos-CDF3TA_Eta_425", 1, 2, 1, 836, mmd);
+            NCTestUtils.assert3DVariable("miras-smos-CDF3TA_Footprint_Axis1_400", 2, 2, 0, -15255, mmd);
+            NCTestUtils.assert3DVariable("miras-smos-CDF3TA_Footprint_Axis2_375", 0, 0, 1, -19677, mmd);
+            NCTestUtils.assert3DVariable("miras-smos-CDF3TA_Incidence_Angle_275", 1, 0, 0, -12760, mmd);
+            NCTestUtils.assert3DVariable("miras-smos-CDF3TA_Nb_RFI_Flags_225", 2, 0, 1, 0, mmd);
+            NCTestUtils.assert3DVariable("miras-smos-CDF3TA_Nb_SUN_Flags_175", 0, 1, 0, 31, mmd);
+            NCTestUtils.assert3DVariable("miras-smos-CDF3TA_Nviews_125", 1, 1, 1, -32768, mmd);
+            NCTestUtils.assert3DVariable("miras-smos-CDF3TA_Pixel_BT_Standard_Deviation_3_075", 2, 1, 0, -32768, mmd);
+            NCTestUtils.assert3DVariable("miras-smos-CDF3TA_Pixel_BT_Standard_Deviation_4_025", 0, 2, 1, -32768, mmd);
+            NCTestUtils.assert3DVariable("miras-smos-CDF3TA_Pixel_BT_Standard_Deviation_4_625", 1, 2, 0, -32768, mmd);
+            NCTestUtils.assert3DVariable("miras-smos-CDF3TA_Pixel_BT_Standard_Deviation_H_575", 2, 2, 1, -27928, mmd);
+            NCTestUtils.assert3DVariable("miras-smos-CDF3TA_Pixel_BT_Standard_Deviation_V_525", 0, 0, 0, -32768, mmd);
+            NCTestUtils.assert3DVariable("miras-smos-CDF3TA_Pixel_Radiometric_Accuracy_3_475", 1, 0, 1, -24717, mmd);
+            NCTestUtils.assert3DVariable("miras-smos-CDF3TA_Pixel_Radiometric_Accuracy_4_425", 2, 0, 0, -24640, mmd);
+            NCTestUtils.assert3DVariable("miras-smos-CDF3TA_Pixel_Radiometric_Accuracy_H_400", 0, 1, 1, -28195, mmd);
+            NCTestUtils.assert3DVariable("miras-smos-CDF3TA_Pixel_Radiometric_Accuracy_V_375", 1, 1, 0, -28065, mmd);
+            NCTestUtils.assert3DVariable("miras-smos-CDF3TA_UTC_Microseconds_325", 2, 1, 1, 705385, mmd);
+            NCTestUtils.assert3DVariable("miras-smos-CDF3TA_UTC_Seconds_275", 0, 2, 0, 38954, mmd);
+            NCTestUtils.assert3DVariable("miras-smos-CDF3TA_Xi_175", 1, 2, 1, -32768, mmd);
+            NCTestUtils.assert3DVariable("miras-smos-CDF3TA_lat", 2, 2, 0, -74.40499877929688, mmd);
+        }
     }
 
     private void insert_DTU_SIC_CCI() throws IOException, SQLException {
