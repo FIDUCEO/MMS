@@ -70,7 +70,7 @@ abstract class AbstractUsecaseIntegrationTest {
         TestUtil.writeDatabaseProperties_MongoDb(configDir);
         //TestUtil.writeDatabaseProperties_Postgres(configDir);
         TestUtil.writeSystemConfig(configDir);
-        TestUtil.writeMmdWriterConfig(configDir);
+        TestUtil.writeMmdWriterConfig(configDir, "<reader-cache-size>3</reader-cache-size>");
     }
 
     @After
