@@ -76,7 +76,7 @@ public class AMSR2SectionParserTest {
 
         variable = variables.get(21);
         assertEquals("AMSR2_upstreamfile", variable.getShortName());
-        assertEquals(DataType.CHAR, variable.getDataType());
+        assertEquals(DataType.STRING, variable.getDataType());
 
         variable = variables.get(22);
         assertEquals("AMSR2_timediff", variable.getShortName());

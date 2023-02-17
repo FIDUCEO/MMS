@@ -9,6 +9,7 @@ import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.db.DbAndIOTestRunner;
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.apache.commons.cli.ParseException;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.InvalidRangeException;
@@ -28,7 +29,7 @@ public class MatchupToolIntegrationTest_Windsat_sic_cci extends AbstractUsecaseI
 
     @Test
     public void testMatchup() throws IOException, SQLException, ParseException, InvalidRangeException {
-        final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder()
+        final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder("DMISIC0-sic-cci")
                 .withTimeDeltaSeconds(28800, null)
                 .withMaxPixelDistanceKm(8, null)
                 .createConfig();
@@ -37,10 +38,8 @@ public class MatchupToolIntegrationTest_Windsat_sic_cci extends AbstractUsecaseI
         insert_SIC_CCI();
         insert_windsat();
 
-
         final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "2018-118", "-end", "2018-120"};
         MatchupToolMain.main(args);
-
 
         final File mmdFile = getMmdFilePath(useCaseConfig, "2018-118", "2018-120");
         assertTrue(mmdFile.isFile());
@@ -91,6 +90,31 @@ public class MatchupToolIntegrationTest_Windsat_sic_cci extends AbstractUsecaseI
         }
     }
 
+    @Test
+    @Ignore
+    public void test_oome_crash() throws IOException, SQLException, ParseException {
+        final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder("DTUSIC1-sic-cci")
+                .withTimeDeltaSeconds(86400, null)
+                .withMaxPixelDistanceKm(14, null)
+                .createConfig();
+        final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-45.xml");
+
+        insert_DTU_SIC_CCI("ASCAT-vs-AMSR2-vs-ERA5-vs-DTUSIC1-2018-S.text");
+        insert_DTU_SIC_CCI("ASCAT-vs-AMSR2-vs-ERA5-vs-DTUSIC1-2018-N.text");
+
+        insert_windsat_MD("09", "30", "RSS_WindSat_TB_L1C_r81462_20180930T055123_2018273_V08.0.nc");
+        insert_windsat_MD("09", "30", "RSS_WindSat_TB_L1C_r81465_20180930T105600_2018273_V08.0.nc");
+        insert_windsat_MD("09", "30", "RSS_WindSat_TB_L1C_r81466_20180930T123732_2018273_V08.0.nc");
+        insert_windsat_MD("09", "30", "RSS_WindSat_TB_L1C_r81467_20180930T141905_2018273_V08.0.nc");
+        insert_windsat_MD("09", "30", "RSS_WindSat_TB_L1C_r81468_20180930T160038_2018273_V08.0.nc");
+        insert_windsat_MD("09", "30", "RSS_WindSat_TB_L1C_r81469_20180930T174209_2018273_V08.0.nc");
+        insert_windsat_MD("09", "30", "RSS_WindSat_TB_L1C_r81470_20180930T192342_2018273_V08.0.nc");
+        insert_windsat_MD("09", "30", "RSS_WindSat_TB_L1C_r81471_20180930T210513_2018273_V08.0.nc");
+
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "2018-274", "-end", "2018-274"};
+        MatchupToolMain.main(args);
+    }
+
     private void insert_SIC_CCI() throws IOException, SQLException {
         final String sensorKey = "DMISIC0-sic-cci";
         final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{"insitu", "sic-cci", sensorKey, "v3", "ASCAT-vs-AMSR2-vs-ERA5-vs-DMISIC0-2018-N.text"}, true);
@@ -107,15 +131,31 @@ public class MatchupToolIntegrationTest_Windsat_sic_cci extends AbstractUsecaseI
         storage.insert(satelliteObservation);
     }
 
-    private MatchupToolTestUseCaseConfigBuilder createUseCaseConfigBuilder() {
+    private void insert_DTU_SIC_CCI(String fileName) throws IOException, SQLException {
+        final String sensorKey = "DTUSIC1-sic-cci";
+        final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{"insitu", "sic-cci", sensorKey, "v3", fileName}, true);
+
+        final SatelliteObservation satelliteObservation = readSatelliteObservation(sensorKey, relativeArchivePath, "v3");
+        storage.insert(satelliteObservation);
+    }
+
+    private void insert_windsat_MD(String month, String day, String filename) throws IOException, SQLException {
+        final String sensorKey = "windsat-coriolis";
+        final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{sensorKey, "v1.0", "2018", month, day, filename}, true);
+
+        final SatelliteObservation satelliteObservation = readSatelliteObservation(sensorKey, relativeArchivePath, "v1.0");
+        storage.insert(satelliteObservation);
+    }
+
+    private MatchupToolTestUseCaseConfigBuilder createUseCaseConfigBuilder(String insituName) {
         final List<Sensor> sensorList = new ArrayList<>();
-        final Sensor primary = new Sensor("DMISIC0-sic-cci");
+        final Sensor primary = new Sensor(insituName);
         primary.setPrimary(true);
         sensorList.add(primary);
         sensorList.add(new Sensor("windsat-coriolis"));
 
         final List<com.bc.fiduceo.core.Dimension> dimensions = new ArrayList<>();
-        dimensions.add(new com.bc.fiduceo.core.Dimension("DMISIC0-sic-cci", 1, 1));
+        dimensions.add(new com.bc.fiduceo.core.Dimension(insituName, 1, 1));
         dimensions.add(new com.bc.fiduceo.core.Dimension("windsat-coriolis", 3, 3));
 
         return (MatchupToolTestUseCaseConfigBuilder) new MatchupToolTestUseCaseConfigBuilder("mmd45")

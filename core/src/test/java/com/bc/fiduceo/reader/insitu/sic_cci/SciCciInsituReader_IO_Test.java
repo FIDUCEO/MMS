@@ -336,6 +336,20 @@ public class SciCciInsituReader_IO_Test {
     }
 
     @Test
+    public void testReadRaw_String_DMISIC0() throws InvalidRangeException, IOException {
+        final File testFile = getDMISIC0();
+
+        try {
+            reader.open(testFile);
+
+            final Array array = reader.readRaw(6, 3, new Interval(1, 1), "AMSR2_upstreamfile");
+            NCTestUtils.assertStringValue(array, "GW1AM2_201601010343_218D_L1SGRTBR_2210210.h5");
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
     public void testReadRaw_1x1_DTUSIC1() throws InvalidRangeException, IOException {
         final File testFile = getDTUSIC1();
 
@@ -359,6 +373,19 @@ public class SciCciInsituReader_IO_Test {
             array = reader.readRaw(5, 7, new Interval(1, 1), "ASCAT_sigma_40_mask");
             assertEquals(-15.17677f, array.getFloat(0), 1e-8);
 
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_string_DTUSIC1() throws InvalidRangeException, IOException {
+        final File testFile = getDTUSIC1();
+
+        try {
+            reader.open(testFile);
+            final Array array = reader.readRaw(5, 7, new Interval(1, 1), "ASCAT_upstreamfile");
+            NCTestUtils.assertStringValue(array, "ASCAT_A_B_20170130.nc");
         } finally {
             reader.close();
         }

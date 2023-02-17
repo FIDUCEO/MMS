@@ -187,7 +187,7 @@ public class TestUtil {
     public static void writeMmdWriterConfig(File configDir, String additionalTags) throws IOException {
         final String config = "<mmd-writer-config>" +
                 "    <overwrite>false</overwrite>" +
-                "    <cache-size>2048</cache-size>" +
+                "    <cache-size>64</cache-size>" +
                 "    <netcdf-format>N4</netcdf-format>" +
                 additionalTags +
                 "</mmd-writer-config>";

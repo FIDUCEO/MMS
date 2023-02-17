@@ -1,5 +1,6 @@
 package com.bc.fiduceo.reader.insitu.sic_cci;
 
+import com.bc.fiduceo.reader.netcdf.StringVariable;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.VariableProxy;
 import ucar.ma2.Array;
@@ -29,7 +30,7 @@ class ERASectionParser extends AbstractSectionParser {
         createCommonVariables(variables, prefix);
 
         ArrayList<Attribute> attributes = new ArrayList<>();
-        variables.add(new VariableProxy(prefix + "upstreamfile", DataType.CHAR, attributes));
+        variables.add(new StringVariable(new VariableProxy(prefix + "upstreamfile", DataType.STRING, attributes), 16));
 
         attributes = new ArrayList<>();
         attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(float.class)));
