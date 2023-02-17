@@ -1,5 +1,6 @@
 package com.bc.fiduceo.reader.insitu.sic_cci;
 
+import com.bc.fiduceo.NCTestUtils;
 import org.junit.Test;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
@@ -26,7 +27,7 @@ public class ERASectionParserTest {
 
         variable = variables.get(4);
         assertEquals("ERA_upstreamfile", variable.getShortName());
-        assertEquals(DataType.CHAR, variable.getDataType());
+        assertEquals(DataType.STRING, variable.getDataType());
 
         variable = variables.get(6);
         assertEquals("ERA_u10", variable.getShortName());
@@ -151,12 +152,10 @@ public class ERASectionParserTest {
         assertEquals(1514908800, section.get("ERA5_time").getInt(0));
 
         Array refId = section.get("ERA5_reference-id");
-        char[] valueAsArray = (char[]) refId.get1DJavaArray(DataType.CHAR);
-        assertEquals("ERA5_ECMWF", new String(valueAsArray));
+        NCTestUtils.assertStringValue(refId, "ERA5_ECMWF");
 
         refId = section.get("ERA5_upstreamfile");
-        valueAsArray = (char[]) refId.get1DJavaArray(DataType.CHAR);
-        assertEquals("201801era5.nc", new String(valueAsArray));
+        NCTestUtils.assertStringValue(refId, "201801era5.nc");
 
         assertEquals(994.4f, section.get("ERA5_msl").getFloat(0), 1e-8);
         assertEquals(-7.38f, section.get("ERA5_u10").getFloat(0), 1e-8);
@@ -200,12 +199,10 @@ public class ERASectionParserTest {
         assertEquals(1450083600, section.get("ERA_time").getInt(0));
 
         Array refId = section.get("ERA_reference-id");
-        char[] valueAsArray = (char[]) refId.get1DJavaArray(DataType.CHAR);
-        assertEquals("NWP_ECMWF", new String(valueAsArray));
+        NCTestUtils.assertStringValue(refId, "NWP_ECMWF");
 
         refId = section.get("ERA_upstreamfile");
-        valueAsArray = (char[]) refId.get1DJavaArray(DataType.CHAR);
-        assertEquals("2015q4.nc", new String(valueAsArray));
+        NCTestUtils.assertStringValue(refId, "2015q4.nc");
 
         assertEquals(984.1f, section.get("ERA_msl").getFloat(0), 1e-8);
         assertEquals(-5.67f, section.get("ERA_u10").getFloat(0), 1e-8);

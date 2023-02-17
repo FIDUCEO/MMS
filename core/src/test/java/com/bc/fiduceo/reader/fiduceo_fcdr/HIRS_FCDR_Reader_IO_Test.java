@@ -552,7 +552,7 @@ public class HIRS_FCDR_Reader_IO_Test {
         final File file = createHirsNOAA07File();
 
         final GeometryFactory geometryFactory = new GeometryFactory(GeometryFactory.Type.S2);
-        final Polygon polygon = (Polygon) geometryFactory.parse("POLYGON((149 7, 149 9, 151 9, 151 7, 149 7))");
+        final Polygon polygon = (Polygon) geometryFactory.parse("POLYGON((149 7, 151 7, 151 9, 149 9, 149 7))");
 
         try {
             reader.open(file);

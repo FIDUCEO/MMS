@@ -319,7 +319,8 @@ class MatchupTool {
         writer.write(ls + ls);
 
         final HelpFormatter helpFormatter = new HelpFormatter();
-        helpFormatter.printHelp(writer, 120, "matchup-tool <options>", "Valid options are:", getOptions(), 3, 3, "");
+        helpFormatter.printHelp(writer, 120, "matchup-tool <options>", "Valid options are:",
+                getOptions(), 3, 3, "");
 
         writer.flush();
     }

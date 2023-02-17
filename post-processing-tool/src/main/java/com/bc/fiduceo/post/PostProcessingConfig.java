@@ -40,11 +40,13 @@ public class PostProcessingConfig {
     static final String TAG_NAME_NEW_FILES = "create-new-files";
     static final String TAG_NAME_OUTPUT_DIR = "output-directory";
     static final String TAG_NAME_OVERWRITE = "overwrite";
+    static final String TAG_NAME_MATCHUP_DIMENSION= "matchup-dimension-name";
 
     final transient private Document document;
     private boolean newFiles;
     private String outputDirectory;
     private boolean overwrite;
+    private String matchupDimensionName;
     private List<Element> postProcessingElements;
 
     private PostProcessingConfig(Document document) {
@@ -87,6 +89,10 @@ public class PostProcessingConfig {
         return overwrite;
     }
 
+    public String getMatchupDimensionName() {
+        return matchupDimensionName;
+    }
+
     @SuppressWarnings("unchecked")
     private void init() {
         final Element rootElement = JDomUtils.getMandatoryRootElement(TAG_NAME_ROOT, document);
@@ -104,6 +110,11 @@ public class PostProcessingConfig {
 
         if (!newFiles && !overwrite) {
             throw new RuntimeException("Either <" + TAG_NAME_NEW_FILES + "> or <" + TAG_NAME_OVERWRITE + "> must be configured.");
+        }
+
+        final Element matchupDimElem = rootElement.getChild(TAG_NAME_MATCHUP_DIMENSION);
+        if (matchupDimElem != null) {
+            matchupDimensionName = JDomUtils.getMandatoryText(matchupDimElem);
         }
 
         final Element processingsElem = JDomUtils.getMandatoryChild(rootElement, TAG_NAME_POST_PROCESSINGS);

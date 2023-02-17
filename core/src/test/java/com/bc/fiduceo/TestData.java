@@ -124,7 +124,7 @@ public class TestData {
     public static final String DATA_FILE_PATH = "the_data.file";
 
     public static SatelliteObservation createSatelliteObservation(Date startTime, Date stopTime, GeometryFactory geometryFactory) {
-        return createSatelliteObservation(startTime, stopTime, "POLYGON ((10 5, 10 7, 12 7, 12 5, 10 5))", geometryFactory);
+        return createSatelliteObservation(startTime, stopTime, "POLYGON ((10 5, 12 5, 12 7, 10 7, 10 5))", geometryFactory);
     }
 
     public static SatelliteObservation createSatelliteObservation(Date startTime, Date stopTime, String boundaryWkt, GeometryFactory geometryFactory) {

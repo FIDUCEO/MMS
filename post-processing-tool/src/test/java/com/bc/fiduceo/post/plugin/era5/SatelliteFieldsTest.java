@@ -53,6 +53,7 @@ public class SatelliteFieldsTest {
 
         final SatelliteFields satelliteFields = new SatelliteFields();
         final SatelliteFieldsConfiguration config = createConfig();
+        config.setMatchupDimensionName(FiduceoConstants.MATCHUP_COUNT);
 
         final NetcdfFileWriter writer = mock(NetcdfFileWriter.class);
         when(writer.addDimension(config.get_x_dim_name(), config.get_x_dim())).thenReturn(new Dimension(config.get_x_dim_name(), config.get_x_dim()));
@@ -86,6 +87,7 @@ public class SatelliteFieldsTest {
 
         final SatelliteFields satelliteFields = new SatelliteFields();
         final SatelliteFieldsConfiguration config = createConfig();
+        config.setMatchupDimensionName(FiduceoConstants.MATCHUP_COUNT);
         config.set_z_dim(17);
 
         final NetcdfFileWriter writer = mock(NetcdfFileWriter.class);

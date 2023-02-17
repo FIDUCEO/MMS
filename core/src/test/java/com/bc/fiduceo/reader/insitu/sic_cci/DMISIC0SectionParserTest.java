@@ -68,7 +68,7 @@ public class DMISIC0SectionParserTest {
 
         variable = variables.get(3);
         assertEquals("reference-id", variable.getShortName());
-        assertEquals(DataType.CHAR, variable.getDataType());
+        assertEquals(DataType.STRING, variable.getDataType());
 
         variable = variables.get(4);
         assertEquals("SIC", variable.getShortName());

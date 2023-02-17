@@ -18,6 +18,7 @@
  */
 package com.bc.fiduceo.post;
 
+import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.archive.Archive;
 import com.bc.fiduceo.archive.ArchiveConfig;
 import com.bc.fiduceo.core.SystemConfig;
@@ -25,6 +26,7 @@ import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.reader.ReaderCache;
 import com.bc.fiduceo.reader.ReaderFactory;
 import com.bc.fiduceo.util.NetCDFUtils;
+import org.esa.snap.core.util.StringUtils;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriter;
@@ -122,5 +124,14 @@ public abstract class PostProcessing {
             throw new RuntimeException("The file name '" + sourceFileName + "' does not match the regular expression '" + fileNamePattern + "'");
         }
         return sourceFileName;
+    }
+
+    protected String getMatchupDimensionName() {
+        String matchupDimensionName = context.getProcessingConfig().getMatchupDimensionName();
+        if (StringUtils.isNullOrEmpty(matchupDimensionName)) {
+            matchupDimensionName = FiduceoConstants.MATCHUP_COUNT;
+        }
+
+        return matchupDimensionName;
     }
 }

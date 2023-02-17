@@ -2,6 +2,11 @@ package com.bc.fiduceo.post.plugin.gruan_uleic;
 
 import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.TestUtil;
+import com.bc.fiduceo.archive.ArchiveConfig;
+import com.bc.fiduceo.core.SystemConfig;
+import com.bc.fiduceo.post.PostProcessingConfig;
+import com.bc.fiduceo.post.PostProcessingContext;
+import org.checkerframework.checker.units.qual.A;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.junit.Before;
@@ -57,13 +62,28 @@ public class AddGruanSourceTest {
         final Variable targetVariable = mock(Variable.class);
         when(writer.addVariable(any(), eq("the_source_file_name"), eq(DataType.CHAR), (List<Dimension>) any())).thenReturn(targetVariable);
 
-        final AddGruanSource plugin = new AddGruanSource(configuration);
-
+        final AddGruanSource plugin = createPlugin(configuration);
         plugin.prepare(reader, writer);
 
         verify(reader, times(2)).findDimension(any());
         verify(writer, times(1)).addVariable(null, "the_source_file_name", DataType.CHAR, dimensions);
         verifyNoMoreInteractions(reader, writer);
+    }
+
+    private AddGruanSource createPlugin(AddGruanSource.Configuration configuration) {
+        final AddGruanSource plugin = new AddGruanSource(configuration);
+        final PostProcessingContext postProcessingContext = new PostProcessingContext();
+
+        final SystemConfig systemConfig = mock(SystemConfig.class);
+        final ArchiveConfig archiveConfig = mock(ArchiveConfig.class);
+        when(systemConfig.getArchiveConfig()).thenReturn(archiveConfig);
+
+        postProcessingContext.setSystemConfig(systemConfig);
+
+        postProcessingContext.setProcessingConfig(mock(PostProcessingConfig.class));
+
+        plugin.setContext(postProcessingContext);
+        return plugin;
     }
 
     @Test
@@ -81,6 +101,7 @@ public class AddGruanSourceTest {
 
     @Test
     public void testExtractTargetDimensions() {
+        final AddGruanSource plugin = createPlugin(new AddGruanSource.Configuration());
         final NetcdfFile netcdfFile = mock(NetcdfFile.class);
         final Dimension fileNameDimension = new Dimension(FiduceoConstants.FILE_NAME, 128);
         final Dimension matchupCountDimensions = new Dimension(FiduceoConstants.MATCHUP_COUNT, 6);
@@ -88,7 +109,7 @@ public class AddGruanSourceTest {
         when(netcdfFile.findDimension(FiduceoConstants.FILE_NAME)).thenReturn(fileNameDimension);
         when(netcdfFile.findDimension(FiduceoConstants.MATCHUP_COUNT)).thenReturn(matchupCountDimensions);
 
-        final ArrayList<Dimension> dimensions = AddGruanSource.extractTargetDimensions(netcdfFile);
+        final ArrayList<Dimension> dimensions = plugin.extractTargetDimensions(netcdfFile);
         assertEquals(2, dimensions.size());
 
         assertEquals(FiduceoConstants.MATCHUP_COUNT, dimensions.get(0).getFullName());
@@ -97,13 +118,15 @@ public class AddGruanSourceTest {
 
     @Test
     public void testExtractTargetDimensions_missingFileName() {
+        final AddGruanSource plugin = createPlugin(new AddGruanSource.Configuration());
+
         final NetcdfFile netcdfFile = mock(NetcdfFile.class);
         final Dimension fileNameDimensions = new Dimension(FiduceoConstants.FILE_NAME, 6);
 
         when(netcdfFile.findDimension(FiduceoConstants.FILE_NAME)).thenReturn(fileNameDimensions);
 
         try {
-            AddGruanSource.extractTargetDimensions(netcdfFile);
+            plugin.extractTargetDimensions(netcdfFile);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
         }
@@ -111,13 +134,14 @@ public class AddGruanSourceTest {
 
     @Test
     public void testExtractTargetDimensions_missingMatchupCount() {
+        final AddGruanSource plugin = new AddGruanSource(new AddGruanSource.Configuration());
         final NetcdfFile netcdfFile = mock(NetcdfFile.class);
         final Dimension matchupCountDimensions = new Dimension(FiduceoConstants.MATCHUP_COUNT, 6);
 
         when(netcdfFile.findDimension(FiduceoConstants.MATCHUP_COUNT)).thenReturn(matchupCountDimensions);
 
         try {
-            AddGruanSource.extractTargetDimensions(netcdfFile);
+            plugin.extractTargetDimensions(netcdfFile);
             fail("RuntimeException expected");
         } catch (RuntimeException expected) {
         }
