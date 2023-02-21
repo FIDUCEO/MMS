@@ -9,7 +9,6 @@ import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.db.DbAndIOTestRunner;
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.apache.commons.cli.ParseException;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.InvalidRangeException;
@@ -91,27 +90,18 @@ public class MatchupToolIntegrationTest_Windsat_sic_cci extends AbstractUsecaseI
     }
 
     @Test
-    @Ignore
     public void test_oome_crash() throws IOException, SQLException, ParseException {
-        final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder("DTUSIC1-sic-cci")
+        final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder("ANTXXXI-sic-cci")
                 .withTimeDeltaSeconds(86400, null)
                 .withMaxPixelDistanceKm(14, null)
                 .createConfig();
         final File useCaseConfigFile = storeUseCaseConfig(useCaseConfig, "usecase-45.xml");
 
-        insert_DTU_SIC_CCI("ASCAT-vs-AMSR2-vs-ERA5-vs-DTUSIC1-2018-S.text");
-        insert_DTU_SIC_CCI("ASCAT-vs-AMSR2-vs-ERA5-vs-DTUSIC1-2018-N.text");
+        insert_Polarstern();
 
-        insert_windsat_MD("09", "30", "RSS_WindSat_TB_L1C_r81462_20180930T055123_2018273_V08.0.nc");
-        insert_windsat_MD("09", "30", "RSS_WindSat_TB_L1C_r81465_20180930T105600_2018273_V08.0.nc");
-        insert_windsat_MD("09", "30", "RSS_WindSat_TB_L1C_r81466_20180930T123732_2018273_V08.0.nc");
-        insert_windsat_MD("09", "30", "RSS_WindSat_TB_L1C_r81467_20180930T141905_2018273_V08.0.nc");
-        insert_windsat_MD("09", "30", "RSS_WindSat_TB_L1C_r81468_20180930T160038_2018273_V08.0.nc");
-        insert_windsat_MD("09", "30", "RSS_WindSat_TB_L1C_r81469_20180930T174209_2018273_V08.0.nc");
-        insert_windsat_MD("09", "30", "RSS_WindSat_TB_L1C_r81470_20180930T192342_2018273_V08.0.nc");
-        insert_windsat_MD("09", "30", "RSS_WindSat_TB_L1C_r81471_20180930T210513_2018273_V08.0.nc");
+        insert_windsat_MD("2016", "01", "15", "RSS_WindSat_TB_L1C_r67435_20160115T031230_2016015_V08.0.nc");
 
-        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "2018-274", "-end", "2018-274"};
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-u", useCaseConfigFile.getName(), "-start", "2016-015", "-end", "2016-015"};
         MatchupToolMain.main(args);
     }
 
@@ -139,9 +129,17 @@ public class MatchupToolIntegrationTest_Windsat_sic_cci extends AbstractUsecaseI
         storage.insert(satelliteObservation);
     }
 
-    private void insert_windsat_MD(String month, String day, String filename) throws IOException, SQLException {
+    private void insert_Polarstern() throws IOException, SQLException {
+        final String sensorKey = "ANTXXXI-sic-cci";
+        final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{"insitu", "sic-cci", sensorKey, "v3", "ASCAT-vs-AMSR2-vs-ERA-vs-ANTXXXI_2_FROSN_SeaIceObservations_reformatted.txt"}, true);
+
+        final SatelliteObservation satelliteObservation = readSatelliteObservation(sensorKey, relativeArchivePath, "v3");
+        storage.insert(satelliteObservation);
+    }
+
+    private void insert_windsat_MD(String year, String month, String day, String filename) throws IOException, SQLException {
         final String sensorKey = "windsat-coriolis";
-        final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{sensorKey, "v1.0", "2018", month, day, filename}, true);
+        final String relativeArchivePath = TestUtil.assembleFileSystemPath(new String[]{sensorKey, "v1.0", year, month, day, filename}, true);
 
         final SatelliteObservation satelliteObservation = readSatelliteObservation(sensorKey, relativeArchivePath, "v1.0");
         storage.insert(satelliteObservation);

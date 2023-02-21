@@ -135,7 +135,7 @@ class WindsatReader extends NetCDFReader {
     public TimeLocator getTimeLocator() throws IOException {
         if (timeLocator == null) {
             final Array timeArray = arrayCache.get("time");
-            final Number fillValue = arrayCache.getNumberAttributeValue("_FillValue", "time");
+            final Number fillValue = getFillValue("time", timeArray);
             final int[] origin = {0, 0, 0, 2};  // select layer for "fore" and 18 GHz tb 2022-11-28
             final int[] shape = timeArray.getShape();
             shape[2] = 1;   // one view layer tb 2022-11-28
@@ -166,7 +166,7 @@ class WindsatReader extends NetCDFReader {
             // read x section and fill in y-direction
             final Array array = arrayCache.get(variableName);
             final int[] shape = array.getShape();
-            final Number fillValue = NetCDFUtils.getDefaultFillValue(DataType.DOUBLE, true);
+            final double fillValue = NetCDFUtils.getDefaultFillValue(DataType.DOUBLE, true).doubleValue();
 
             final int sectionWidth = interval.getX();
             final int sectionHeight = interval.getY();
@@ -181,7 +181,7 @@ class WindsatReader extends NetCDFReader {
                 if (x >= 0 && x < shape[0]) {
                     value = array.getDouble(x);
                 } else {
-                    value = fillValue.doubleValue();
+                    value = fillValue;
                 }
 
                 for (int y = 0; y < sectionHeight; y++) {
@@ -194,14 +194,14 @@ class WindsatReader extends NetCDFReader {
             return resultArray;
         } else if (variables2D.contains(variableName)) {
             final Array array = arrayCache.get(variableName);
-            final Number fillValue = arrayCache.getNumberAttributeValue(NetCDFUtils.CF_FILL_VALUE_NAME, variableName);
+            final Number fillValue = getFillValue(variableName, array);
             return RawDataReader.read(centerX, centerY, interval, fillValue, array, getProductSize());
         } else {
             // extract layer indices and NetCDF file variable name from variable name
             final ArrayInfo arrayInfo = extractArrayInfo(variableName);
 
             final Array array = arrayCache.get(arrayInfo.ncVarName);
-            final Number fillValue = arrayCache.getNumberAttributeValue(NetCDFUtils.CF_FILL_VALUE_NAME, arrayInfo.ncVarName);
+            final Number fillValue = getFillValue(arrayInfo.ncVarName, array);
 
             final int[] origin;
             final int[] shape;
@@ -226,6 +226,14 @@ class WindsatReader extends NetCDFReader {
             final Array section = array.section(origin, shape).copy();
             return RawDataReader.read(centerX, centerY, interval, fillValue, section, getProductSize());
         }
+    }
+
+    private Number getFillValue(String variableName, Array array) throws IOException {
+        Number fillValue = arrayCache.getNumberAttributeValue(NetCDFUtils.CF_FILL_VALUE_NAME, variableName);
+        if (fillValue == null) {
+            fillValue = NetCDFUtils.getDefaultFillValue(array);
+        }
+        return fillValue;
     }
 
     @Override
