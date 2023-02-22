@@ -1,6 +1,6 @@
 package com.bc.fiduceo.reader.insitu.ndbc;
 
-enum InstrumentType {
+enum StationType {
     OCEAN_BUOY,     // > 5km distance to land
     COAST_BUOY,     // <= 5km distance to land
     LAKE_BUOY,      // inland water
