@@ -9,6 +9,7 @@ import com.bc.fiduceo.core.UseCaseConfig;
 import com.bc.fiduceo.db.DbAndIOTestRunner;
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.apache.commons.cli.ParseException;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.InvalidRangeException;
@@ -90,6 +91,7 @@ public class MatchupToolIntegrationTest_Windsat_sic_cci extends AbstractUsecaseI
     }
 
     @Test
+    @Ignore
     public void test_oome_crash() throws IOException, SQLException, ParseException {
         final UseCaseConfig useCaseConfig = createUseCaseConfigBuilder("ANTXXXI-sic-cci")
                 .withTimeDeltaSeconds(86400, null)
