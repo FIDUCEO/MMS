@@ -25,12 +25,12 @@ class NdbcInsituReader implements Reader {
     private static final String REG_EX_CW = "\\w{5}c\\d{4}.txt";
     private static final String REG_EX_SM = "\\w{5}h\\d{4}.txt";
 
-    private final HashMap<String, GeoPos> buoyLocations;
+    private static StationDatabase stationDatabase;
+
     private final MeasurementType type;
 
     public NdbcInsituReader(MeasurementType type) {
         this.type = type;
-        this.buoyLocations = new HashMap<>();
     }
 
     @Override
@@ -110,5 +110,11 @@ class NdbcInsituReader implements Reader {
     @Override
     public String getLatitudeVariableName() {
         throw new RuntimeException("not implemented");
+    }
+
+    private void ensureStationDatabase() {
+        if (stationDatabase == null) {
+
+        }
     }
 }
