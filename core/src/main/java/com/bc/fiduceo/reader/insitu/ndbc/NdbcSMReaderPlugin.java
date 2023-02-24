@@ -5,15 +5,13 @@ import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.ReaderPlugin;
 
-import static com.bc.fiduceo.reader.insitu.ndbc.MeasurementType.STANDARD_METEOROLOGICAL;
-
 public class NdbcSMReaderPlugin implements ReaderPlugin {
 
-    private final String[] SUPPORTED_KEYS = {"ndbc-sm"};
+    private final String[] SUPPORTED_KEYS = {"ndbc-sm-ob", "ndbc-sm-cb", "ndbc-sm-lb", "ndbc-sm-os", "ndbc-sm-cs", "ndbc-sm-ls"};
 
     @Override
     public Reader createReader(ReaderContext readerContext) {
-        return new NdbcInsituReader(STANDARD_METEOROLOGICAL);
+        return new NdbcCWReader();
     }
 
     @Override

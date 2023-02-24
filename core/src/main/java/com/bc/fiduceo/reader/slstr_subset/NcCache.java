@@ -81,6 +81,7 @@ class NcCache {
         for (String[] record : recordList) {
             dddBMap.put(record[0], record[1]);
         }
+        inputStream.close();
     }
 
     List<String> getVariableNames() {

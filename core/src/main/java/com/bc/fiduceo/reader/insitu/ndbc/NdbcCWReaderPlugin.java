@@ -5,15 +5,13 @@ import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.ReaderPlugin;
 
-import static com.bc.fiduceo.reader.insitu.ndbc.MeasurementType.CONSTANT_WIND;
-
 public class NdbcCWReaderPlugin implements ReaderPlugin {
 
-    private final String[] SUPPORTED_KEYS = {"ndbc-cw"};
+    private final String[] SUPPORTED_KEYS = {"ndbc-cw-ob", "ndbc-cw-cb", "ndbc-cw-lb", "ndbc-cw-os", "ndbc-cw-cs", "ndbc-cw-ls"};
 
     @Override
     public Reader createReader(ReaderContext readerContext) {
-        return new NdbcInsituReader(CONSTANT_WIND);
+        return new NdbcCWReader();
     }
 
     @Override

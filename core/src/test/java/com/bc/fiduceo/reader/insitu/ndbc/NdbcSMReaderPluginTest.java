@@ -19,7 +19,7 @@ public class NdbcSMReaderPluginTest {
 
     @Test
     public void testGetSupportedSensorKeys() throws Exception {
-        final String[] expected = {"ndbc-sm"};
+        final String[] expected = {"ndbc-sm-ob", "ndbc-sm-cb", "ndbc-sm-lb", "ndbc-sm-os", "ndbc-sm-cs", "ndbc-sm-ls"};
 
         final String[] sensorKeys = plugin.getSupportedSensorKeys();
         assertArrayEquals(expected, sensorKeys);
@@ -34,6 +34,6 @@ public class NdbcSMReaderPluginTest {
     public void testCreateReader() {
         final Reader reader = plugin.createReader(null);
         assertNotNull(reader);
-        assertTrue(reader instanceof NdbcInsituReader);
+        assertTrue(reader instanceof NdbcCWReader);
     }
 }

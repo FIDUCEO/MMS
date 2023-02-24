@@ -19,7 +19,7 @@ public class NdbcCWReaderPluginTest {
 
     @Test
     public void testGetSupportedSensorKeys() throws Exception {
-        final String[] expected = {"ndbc-cw"};
+        final String[] expected = {"ndbc-cw-ob", "ndbc-cw-cb", "ndbc-cw-lb", "ndbc-cw-os", "ndbc-cw-cs", "ndbc-cw-ls"};
 
         final String[] sensorKeys = plugin.getSupportedSensorKeys();
         assertArrayEquals(expected, sensorKeys);
@@ -34,6 +34,6 @@ public class NdbcCWReaderPluginTest {
     public void testCreateReader() {
         final Reader reader = plugin.createReader(null);
         assertNotNull(reader);
-        assertTrue(reader instanceof NdbcInsituReader);
+        assertTrue(reader instanceof NdbcCWReader);
     }
 }
