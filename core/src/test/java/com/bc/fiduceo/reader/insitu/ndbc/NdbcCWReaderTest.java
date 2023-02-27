@@ -3,8 +3,13 @@ package com.bc.fiduceo.reader.insitu.ndbc;
 import com.bc.fiduceo.util.TimeUtils;
 import org.junit.Before;
 import org.junit.Test;
+import ucar.ma2.DataType;
+import ucar.ma2.InvalidRangeException;
+import ucar.nc2.Variable;
 
+import java.io.IOException;
 import java.util.Calendar;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -62,5 +67,32 @@ public class NdbcCWReaderTest {
         assertEquals(999, record.gustDir);
         assertEquals(99.f, record.gustSpeed, 1e-8);
         assertEquals(9999, record.gustTime);
+    }
+
+    @Test
+    public void testGetVariables() throws InvalidRangeException, IOException {
+        final List<Variable> variables = reader.getVariables();
+
+        assertEquals(15, variables.size());
+
+        Variable variable = variables.get(0);
+        assertEquals("station_id", variable.getShortName());
+        assertEquals(DataType.STRING, variable.getDataType());
+
+        variable = variables.get(3);
+        assertEquals("longitude", variable.getShortName());
+        assertEquals(DataType.FLOAT, variable.getDataType());
+
+        variable = variables.get(6);
+        assertEquals("air_temp_height", variable.getShortName());
+        assertEquals(DataType.FLOAT, variable.getDataType());
+
+        variable = variables.get(9);
+        assertEquals("time", variable.getShortName());
+        assertEquals(DataType.INT, variable.getDataType());
+
+        variable = variables.get(12);
+        assertEquals("GDR", variable.getShortName());
+        assertEquals(DataType.SHORT, variable.getDataType());
     }
 }

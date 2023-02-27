@@ -1,12 +1,15 @@
 package com.bc.fiduceo.reader.insitu.ndbc;
 
+import com.bc.fiduceo.IOTestRunner;
 import com.bc.fiduceo.TestUtil;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.IOException;
 
+@RunWith(IOTestRunner.class)
 public class NdbcSMReader_IO_Test {
 
     private NdbcSMReader reader;
