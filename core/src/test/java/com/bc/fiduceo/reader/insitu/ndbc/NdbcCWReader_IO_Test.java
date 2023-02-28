@@ -223,6 +223,86 @@ public class NdbcCWReader_IO_Test {
         }
     }
 
+    @Test
+    public void testReadScaled_1x1_oceanBuoy() throws InvalidRangeException, IOException {
+        final File testFile = getOCEAN_BUOY();
+
+        try {
+            reader.open(testFile);
+
+            Array array = reader.readScaled(13, 11, new Interval(1, 1), "air_temp_height");
+            assertEquals(DataType.FLOAT, array.getDataType());
+            assertEquals(Float.NaN, array.getFloat(0), 1e-8);
+
+            array = reader.readRaw(14, 12, new Interval(1, 1), "time");
+            assertEquals(DataType.INT, array.getDataType());
+            assertEquals(1464742800, array.getInt(0));
+
+            array = reader.readRaw(15, 13, new Interval(1, 1), "GDR");
+            assertEquals(DataType.SHORT, array.getDataType());
+            assertEquals(999, array.getShort(0));
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadScaled_1x1_lakeBuoy() throws InvalidRangeException, IOException {
+        final File testFile = getLAKE_BUOY();
+
+        try {
+            reader.open(testFile);
+
+            Array array = reader.readScaled(13, 14, new Interval(1, 1), "barometer_height");
+            assertEquals(DataType.FLOAT, array.getDataType());
+            assertEquals(Float.NaN, array.getFloat(0), 1e-8);
+
+            array = reader.readRaw(14, 15, new Interval(1, 1), "WDIR");
+            assertEquals(DataType.SHORT, array.getDataType());
+            assertEquals(24, array.getShort(0));
+
+            array = reader.readRaw(15, 16, new Interval(1, 1), "GST");
+            assertEquals(DataType.FLOAT, array.getDataType());
+            assertEquals(99.f, array.getFloat(0), 1e-8);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_3x3_lakeBuoy() throws InvalidRangeException, IOException {
+        final File testFile = getLAKE_BUOY();
+
+        try {
+            reader.open(testFile);
+
+            final Array array = reader.readRaw(7, 4, new Interval(3, 3), "longitude");
+            assertEquals(DataType.FLOAT, array.getDataType());
+            assertEquals(Float.NaN, array.getFloat(0), 1e-8);
+            assertEquals(Float.NaN, array.getFloat(2), 1e-8);
+            assertEquals(-87.793f, array.getFloat(4), 1e-8);
+            assertEquals(Float.NaN, array.getFloat(6), 1e-8);
+            assertEquals(Float.NaN, array.getFloat(8), 1e-8);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadRaw_String() throws IOException, InvalidRangeException {
+        final File testFile = getOCEAN_BUOY();
+
+        try {
+            reader.open(testFile);
+
+            final Array array = reader.readRaw(7, 4, new Interval(3, 3), "station_id");
+            assertEquals(DataType.STRING, array.getDataType());
+            assertEquals("42002", array.getObject(0));
+        } finally {
+            reader.close();
+        }
+    }
+
     private static File getOCEAN_BUOY() throws IOException {
         final String relativePath = TestUtil.assembleFileSystemPath(new String[]{"insitu", "ndbc", "ndbc-cw-ob", "v1", "2016", "42002c2016.txt"}, false);
         return TestUtil.getTestDataFileAsserted(relativePath);

@@ -45,6 +45,10 @@ class NdbcCWReader extends NdbcReader {
     private static final String LATITUDE = "latitude";
     private static final String BAROMETER_HEIGHT = "barometer_height";
     private static final String WDIR = "WDIR";
+    public static final String LONGITUDE = "longitude";
+    public static final String AIR_TEMP_HEIGHT = "air_temp_height";
+    public static final String TIME = "time";
+    public static final String GDR = "GDR";
     private static StationDatabase stationDatabase;
 
     private ArrayList<CwRecord> records;
@@ -164,34 +168,43 @@ class NdbcCWReader extends NdbcReader {
 
     @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
-        if (variableName.equals(STATION_ID)) {
+        final CwRecord record = records.get(centerY);
 
-        } else if (variableName.equals(STATION_TYPE)) {
-            final StationType type = station.getType();
-            return createResultArray(toByte(type), -1, DataType.BYTE, interval);
-        } else if (variableName.equals(MEASUREMENT_TYPE)) {
-            final MeasurementType measurementType = station.getMeasurementType();
-            return createResultArray(toByte(measurementType), -1, DataType.BYTE, interval);
-        } else if (variableName.equals(LATITUDE)) {
-            return createResultArray(station.getLat(), Float.NaN, DataType.FLOAT, interval);
-        } else if (variableName.equals(ANEMOMETER_HEIGHT)) {
-            return createResultArray(station.getAnemometerHeight(), Float.NaN, DataType.FLOAT, interval);
-        } else if (variableName.equals(BAROMETER_HEIGHT)) {
-            return createResultArray(station.getBarometerHeight(), Float.NaN, DataType.FLOAT, interval);
-        } else if (variableName.equals(SST_DEPTH)) {
-            return createResultArray(station.getSSTDepth(), Float.NaN, DataType.FLOAT, interval);
-        } else if (variableName.equals(WDIR)) {
-            final CwRecord record = records.get(centerY);
-            return createResultArray(record.windDir, 999, DataType.SHORT, interval);
-        } else if (variableName.equals(WSPD)) {
-            final CwRecord record = records.get(centerY);
-            return createResultArray(record.windSpeed, 99.f, DataType.FLOAT, interval);
-        } else if (variableName.equals(GST)) {
-            final CwRecord record = records.get(centerY);
-            return createResultArray(record.gustSpeed, 99.f, DataType.FLOAT, interval);
-        } else if (variableName.equals(GTIME)) {
-            final CwRecord record = records.get(centerY);
-            return createResultArray(record.gustTime, 9999, DataType.SHORT, interval);
+        switch (variableName) {
+            case STATION_ID:
+                final Array resultArray = Array.factory(DataType.STRING, new int[]{1, 1});
+                resultArray.setObject(0, station.getId());
+                return resultArray;
+            case STATION_TYPE:
+                final StationType type = station.getType();
+                return createResultArray(toByte(type), -1, DataType.BYTE, interval);
+            case MEASUREMENT_TYPE:
+                final MeasurementType measurementType = station.getMeasurementType();
+                return createResultArray(toByte(measurementType), -1, DataType.BYTE, interval);
+            case LONGITUDE:
+                return createResultArray(station.getLon(), Float.NaN, DataType.FLOAT, interval);
+            case LATITUDE:
+                return createResultArray(station.getLat(), Float.NaN, DataType.FLOAT, interval);
+            case ANEMOMETER_HEIGHT:
+                return createResultArray(station.getAnemometerHeight(), Float.NaN, DataType.FLOAT, interval);
+            case AIR_TEMP_HEIGHT:
+                return createResultArray(station.getAirTemperatureHeight(), Float.NaN, DataType.FLOAT, interval);
+            case BAROMETER_HEIGHT:
+                return createResultArray(station.getBarometerHeight(), Float.NaN, DataType.FLOAT, interval);
+            case SST_DEPTH:
+                return createResultArray(station.getSSTDepth(), Float.NaN, DataType.FLOAT, interval);
+            case TIME:
+                return createResultArray(record.utc, NetCDFUtils.getDefaultFillValue(int.class), DataType.INT, interval);
+            case WDIR:
+                return createResultArray(record.windDir, 999, DataType.SHORT, interval);
+            case WSPD:
+                return createResultArray(record.windSpeed, 99.f, DataType.FLOAT, interval);
+            case GST:
+                return createResultArray(record.gustSpeed, 99.f, DataType.FLOAT, interval);
+            case GDR:
+                return createResultArray(record.gustDir, 999, DataType.SHORT, interval);
+            case GTIME:
+                return createResultArray(record.gustTime, 9999, DataType.SHORT, interval);
         }
 
         return null;
@@ -199,7 +212,7 @@ class NdbcCWReader extends NdbcReader {
 
     @Override
     public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
-        throw new RuntimeException("not implemented");
+        return readRaw(centerX, centerY, interval, variableName);   // nothing to scale here tb 2023-02-28
     }
 
     @Override
@@ -227,7 +240,7 @@ class NdbcCWReader extends NdbcReader {
         attributes.add(new Attribute(CF_UNITS_NAME, "degree_east"));
         attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(float.class)));
         attributes.add(new Attribute(CF_STANDARD_NAME, "longitude"));
-        variables.add(new VariableProxy("longitude", DataType.FLOAT, attributes));
+        variables.add(new VariableProxy(LONGITUDE, DataType.FLOAT, attributes));
 
         attributes = new ArrayList<>();
         attributes.add(new Attribute(CF_UNITS_NAME, "degree_north"));
@@ -245,7 +258,7 @@ class NdbcCWReader extends NdbcReader {
         attributes.add(new Attribute(CF_UNITS_NAME, "m"));
         attributes.add(new Attribute(CF_FILL_VALUE_NAME, Float.NaN));
         attributes.add(new Attribute(CF_LONG_NAME, "Height of instrument above site elevation"));
-        variables.add(new VariableProxy("air_temp_height", DataType.FLOAT, attributes));
+        variables.add(new VariableProxy(AIR_TEMP_HEIGHT, DataType.FLOAT, attributes));
 
         attributes = new ArrayList<>();
         attributes.add(new Attribute(CF_UNITS_NAME, "m"));
@@ -263,7 +276,7 @@ class NdbcCWReader extends NdbcReader {
         attributes.add(new Attribute(CF_UNITS_NAME, "seconds since 1970-01-01"));
         attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(int.class)));
         attributes.add(new Attribute(CF_STANDARD_NAME, "time"));
-        variables.add(new VariableProxy("time", DataType.INT, attributes));
+        variables.add(new VariableProxy(TIME, DataType.INT, attributes));
 
         // @todo 1 tb/tb check CF standard names for the measurement data 2023-02027
         attributes = new ArrayList<>();
@@ -282,7 +295,7 @@ class NdbcCWReader extends NdbcReader {
         attributes.add(new Attribute(CF_UNITS_NAME, "degT"));
         attributes.add(new Attribute(CF_FILL_VALUE_NAME, 999));
         attributes.add(new Attribute(CF_LONG_NAME, "Direction, in degrees clockwise from true North, of the GST, reported at the last hourly 10-minute segment."));
-        variables.add(new VariableProxy("GDR", DataType.SHORT, attributes));
+        variables.add(new VariableProxy(GDR, DataType.SHORT, attributes));
 
         attributes = new ArrayList<>();
         attributes.add(new Attribute(CF_UNITS_NAME, "m/s"));
