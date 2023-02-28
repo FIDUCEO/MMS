@@ -6,6 +6,7 @@ import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.time.TimeLocator;
+import org.esa.snap.core.util.StringUtils;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.InvalidRangeException;
@@ -13,6 +14,8 @@ import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 class NdbcSMReader extends NdbcReader {
@@ -81,7 +84,9 @@ class NdbcSMReader extends NdbcReader {
 
     @Override
     public List<Variable> getVariables() throws InvalidRangeException, IOException {
-        throw new RuntimeException("not implemented");
+        final ArrayList<Variable> variables = new ArrayList<>();
+
+        return variables;
     }
 
     @Override
@@ -103,5 +108,36 @@ class NdbcSMReader extends NdbcReader {
         if (stationDatabase == null) {
             stationDatabase = parseStationDatabase("buoy_locations_sm.txt");
         }
+    }
+
+    SmRecord parseLine(String line, Calendar calendar) {
+        final SmRecord record = new SmRecord();
+
+        line = line.replaceAll(" +", " "); // some fields are separated by two or more blanks (sigh) tb 2023-02-27
+        final String[] tokens = StringUtils.split(line, new char[]{' '}, true);
+
+        calendar.setTimeInMillis(0);
+        calendar.set(Calendar.YEAR, Integer.parseInt(tokens[0]));
+        calendar.set(Calendar.MONTH, Integer.parseInt(tokens[1]) - 1);  // calendar wants month zero-based tb 2023-02-27
+        calendar.set(Calendar.DAY_OF_MONTH, Integer.parseInt(tokens[2]));
+        calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(tokens[3]));
+        calendar.set(Calendar.MINUTE, Integer.parseInt(tokens[4]));
+        record.utc = (int) (calendar.getTimeInMillis() * 0.001);
+
+        record.windDir = Short.parseShort(tokens[5]);
+        record.windSpeed = Float.parseFloat(tokens[6]);
+        record.gustSpeed = Float.parseFloat(tokens[7]);
+        record.waveHeight = Float.parseFloat(tokens[8]);
+        record.domWavePeriod = Float.parseFloat(tokens[9]);
+        record.avgWavePeriod = Float.parseFloat(tokens[10]);
+        record.waveDir = Short.parseShort(tokens[11]);
+        record.seaLevelPressure = Float.parseFloat(tokens[12]);
+        record.airTemp = Float.parseFloat(tokens[13]);
+        record.seaSurfTemp = Float.parseFloat(tokens[14]);
+        record.dewPointTemp = Float.parseFloat(tokens[15]);
+        record.visibility = Float.parseFloat(tokens[16]);
+        record.tideLevel = Float.parseFloat(tokens[17]);
+
+        return record;
     }
 }

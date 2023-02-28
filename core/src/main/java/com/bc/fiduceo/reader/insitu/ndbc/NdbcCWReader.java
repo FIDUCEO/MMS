@@ -231,6 +231,7 @@ class NdbcCWReader extends NdbcReader {
         final ArrayList<Variable> variables = new ArrayList<>();
 
         List<Attribute> attributes = new ArrayList<>();
+        // station variables
         attributes.add(new Attribute(CF_LONG_NAME, "Station identifier"));
         variables.add(new VariableProxy(STATION_ID, DataType.STRING, attributes));
 
@@ -284,7 +285,7 @@ class NdbcCWReader extends NdbcReader {
         attributes.add(new Attribute(CF_STANDARD_NAME, "time"));
         variables.add(new VariableProxy(TIME, DataType.INT, attributes));
 
-        // @todo 1 tb/tb check CF standard names for the measurement data 2023-02027
+        // measurement record variables
         attributes = new ArrayList<>();
         attributes.add(new Attribute(CF_UNITS_NAME, "degT"));
         attributes.add(new Attribute(CF_FILL_VALUE_NAME, 999));
@@ -355,8 +356,8 @@ class NdbcCWReader extends NdbcReader {
         calendar.set(Calendar.DAY_OF_MONTH, Integer.parseInt(tokens[2]));
         calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(tokens[3]));
         calendar.set(Calendar.MINUTE, Integer.parseInt(tokens[4]));
-
         cwRecord.utc = (int) (calendar.getTimeInMillis() * 0.001);
+
         cwRecord.windDir = Short.parseShort(tokens[5]);
         cwRecord.windSpeed = Float.parseFloat(tokens[6]);
         cwRecord.gustDir = Short.parseShort(tokens[7]);
