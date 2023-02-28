@@ -33,30 +33,28 @@ import static com.bc.fiduceo.util.NetCDFUtils.*;
 
 class NdbcCWReader extends NdbcReader {
 
-    public static final String GST = "GST";
-    public static final String MEASUREMENT_TYPE = "measurement_type";
-    public static final String ANEMOMETER_HEIGHT = "anemometer_height";
-    public static final String SST_DEPTH = "sst_depth";
-    public static final String WSPD = "WSPD";
-    public static final String GTIME = "GTIME";
+    private static final String GST = "GST";
+    private static final String MEASUREMENT_TYPE = "measurement_type";
+    private static final String ANEMOMETER_HEIGHT = "anemometer_height";
+    private static final String SST_DEPTH = "sst_depth";
+    private static final String WSPD = "WSPD";
+    private static final String GTIME = "GTIME";
     private static final String REG_EX_CW = "\\w{5}c\\d{4}.txt";
     private static final String STATION_ID = "station_id";
     private static final String STATION_TYPE = "station_type";
+    private static final String LONGITUDE = "longitude";
     private static final String LATITUDE = "latitude";
     private static final String BAROMETER_HEIGHT = "barometer_height";
     private static final String WDIR = "WDIR";
-    public static final String LONGITUDE = "longitude";
-    public static final String AIR_TEMP_HEIGHT = "air_temp_height";
-    public static final String TIME = "time";
-    public static final String GDR = "GDR";
+    private static final String AIR_TEMP_HEIGHT = "air_temp_height";
+    private static final String TIME = "time";
+    private static final String GDR = "GDR";
+
     private static StationDatabase stationDatabase;
 
     private ArrayList<CwRecord> records;
     private TimeLocator timeLocator;
     private Station station;
-
-    NdbcCWReader() {
-    }
 
     @Override
     public void open(File file) throws IOException {
@@ -163,7 +161,13 @@ class NdbcCWReader extends NdbcReader {
 
     @Override
     public int[] extractYearMonthDayFromFilename(String fileName) {
-        throw new RuntimeException("not implemented");
+        int[] ymd = new int[3];
+        final int dotIndex = fileName.indexOf('.');
+        final String yearString = fileName.substring(dotIndex - 4, dotIndex);
+        ymd[0] = Integer.parseInt(yearString);
+        ymd[1] = 1;
+        ymd[2] = 1;
+        return ymd;
     }
 
     @Override
@@ -217,7 +221,9 @@ class NdbcCWReader extends NdbcReader {
 
     @Override
     public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException {
-        throw new RuntimeException("not implemented");
+        final Array timeArray = readRaw(x, y, interval, TIME);
+
+        return (ArrayInt.D2) timeArray;
     }
 
     @Override
@@ -282,24 +288,28 @@ class NdbcCWReader extends NdbcReader {
         attributes = new ArrayList<>();
         attributes.add(new Attribute(CF_UNITS_NAME, "degT"));
         attributes.add(new Attribute(CF_FILL_VALUE_NAME, 999));
+        attributes.add(new Attribute(CF_STANDARD_NAME, "wind_from_direction"));
         attributes.add(new Attribute(CF_LONG_NAME, "Ten-minute average wind direction measurements in degrees clockwise from true North."));
         variables.add(new VariableProxy(WDIR, DataType.SHORT, attributes));
 
         attributes = new ArrayList<>();
         attributes.add(new Attribute(CF_UNITS_NAME, "m/s"));
         attributes.add(new Attribute(CF_FILL_VALUE_NAME, 99.f));
+        attributes.add(new Attribute(CF_STANDARD_NAME, "wind_speed"));
         attributes.add(new Attribute(CF_LONG_NAME, "Ten-minute average wind speed values in m/s."));
         variables.add(new VariableProxy(WSPD, DataType.FLOAT, attributes));
 
         attributes = new ArrayList<>();
         attributes.add(new Attribute(CF_UNITS_NAME, "degT"));
         attributes.add(new Attribute(CF_FILL_VALUE_NAME, 999));
+        attributes.add(new Attribute(CF_STANDARD_NAME, "wind_gust_from_direction"));
         attributes.add(new Attribute(CF_LONG_NAME, "Direction, in degrees clockwise from true North, of the GST, reported at the last hourly 10-minute segment."));
         variables.add(new VariableProxy(GDR, DataType.SHORT, attributes));
 
         attributes = new ArrayList<>();
         attributes.add(new Attribute(CF_UNITS_NAME, "m/s"));
         attributes.add(new Attribute(CF_FILL_VALUE_NAME, 99.f));
+        attributes.add(new Attribute(CF_STANDARD_NAME, "wind_gust_speed"));
         attributes.add(new Attribute(CF_LONG_NAME, "Maximum 5-second peak gust during the measurement hour, reported at the last hourly 10-minute segment."));
         variables.add(new VariableProxy(GST, DataType.FLOAT, attributes));
 
@@ -319,12 +329,12 @@ class NdbcCWReader extends NdbcReader {
 
     @Override
     public String getLongitudeVariableName() {
-        throw new RuntimeException("not implemented");
+        return LONGITUDE;
     }
 
     @Override
     public String getLatitudeVariableName() {
-        throw new RuntimeException("not implemented");
+        return LATITUDE;
     }
 
     private void ensureStationDatabase() throws IOException {

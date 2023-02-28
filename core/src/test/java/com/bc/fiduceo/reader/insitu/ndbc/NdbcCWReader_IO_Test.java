@@ -1,6 +1,7 @@
 package com.bc.fiduceo.reader.insitu.ndbc;
 
 import com.bc.fiduceo.IOTestRunner;
+import com.bc.fiduceo.NCTestUtils;
 import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
@@ -13,6 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.Array;
+import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
 
@@ -298,6 +300,36 @@ public class NdbcCWReader_IO_Test {
             final Array array = reader.readRaw(7, 4, new Interval(3, 3), "station_id");
             assertEquals(DataType.STRING, array.getDataType());
             assertEquals("42002", array.getObject(0));
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadAcquisitionTime_1x1_lakeBouy() throws IOException, InvalidRangeException {
+        final File testFile = getLAKE_BUOY();
+
+        try {
+            reader.open(testFile);
+
+            final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(13, 35, new Interval(1, 1));
+            NCTestUtils.assertValueAt(1493999400, 0, 0, acquisitionTime);
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
+    public void testReadAcquisitionTime_3x1_oceanBuoy() throws IOException, InvalidRangeException {
+        final File testFile = getOCEAN_BUOY();
+
+        try {
+            reader.open(testFile);
+
+            final ArrayInt.D2 acquisitionTime = reader.readAcquisitionTime(14, 36, new Interval(3, 1));
+            NCTestUtils.assertValueAt(-2147483647, 0, 0, acquisitionTime);
+            NCTestUtils.assertValueAt(1464757200, 1, 0, acquisitionTime);
+            NCTestUtils.assertValueAt(-2147483647, 2, 0, acquisitionTime);
         } finally {
             reader.close();
         }

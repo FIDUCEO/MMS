@@ -95,4 +95,23 @@ public class NdbcCWReaderTest {
         assertEquals("GDR", variable.getShortName());
         assertEquals(DataType.SHORT, variable.getDataType());
     }
+
+    @Test
+    public void testExtractYearMonthDayFromFilename() {
+        int[] ymd = reader.extractYearMonthDayFromFilename("45008c2018.txt");
+        assertEquals(3, ymd.length);
+        assertEquals(2018, ymd[0]);
+        assertEquals(1, ymd[1]);
+        assertEquals(1, ymd[2]);
+    }
+
+    @Test
+    public void testGetLongitudeVariableName() {
+        assertEquals("longitude", reader.getLongitudeVariableName());
+    }
+
+    @Test
+    public void testGetLatitudeVariableName() {
+        assertEquals("latitude", reader.getLatitudeVariableName());
+    }
 }
