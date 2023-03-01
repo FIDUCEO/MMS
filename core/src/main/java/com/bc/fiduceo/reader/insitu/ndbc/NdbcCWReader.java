@@ -33,21 +33,9 @@ import static com.bc.fiduceo.util.NetCDFUtils.*;
 
 class NdbcCWReader extends NdbcReader {
 
-    private static final String GST = "GST";
-    private static final String MEASUREMENT_TYPE = "measurement_type";
-    private static final String ANEMOMETER_HEIGHT = "anemometer_height";
-    private static final String SST_DEPTH = "sst_depth";
-    private static final String WSPD = "WSPD";
     private static final String GTIME = "GTIME";
     private static final String REG_EX_CW = "\\w{5}c\\d{4}.txt";
-    private static final String STATION_ID = "station_id";
-    private static final String STATION_TYPE = "station_type";
-    private static final String LONGITUDE = "longitude";
-    private static final String LATITUDE = "latitude";
-    private static final String BAROMETER_HEIGHT = "barometer_height";
-    private static final String WDIR = "WDIR";
-    private static final String AIR_TEMP_HEIGHT = "air_temp_height";
-    private static final String TIME = "time";
+
     private static final String GDR = "GDR";
 
     private static StationDatabase stationDatabase;
@@ -191,12 +179,6 @@ class NdbcCWReader extends NdbcReader {
                 return createResultArray(station.getLat(), Float.NaN, DataType.FLOAT, interval);
             case ANEMOMETER_HEIGHT:
                 return createResultArray(station.getAnemometerHeight(), Float.NaN, DataType.FLOAT, interval);
-            case AIR_TEMP_HEIGHT:
-                return createResultArray(station.getAirTemperatureHeight(), Float.NaN, DataType.FLOAT, interval);
-            case BAROMETER_HEIGHT:
-                return createResultArray(station.getBarometerHeight(), Float.NaN, DataType.FLOAT, interval);
-            case SST_DEPTH:
-                return createResultArray(station.getSSTDepth(), Float.NaN, DataType.FLOAT, interval);
             case TIME:
                 return createResultArray(record.utc, NetCDFUtils.getDefaultFillValue(int.class), DataType.INT, interval);
             case WDIR:
@@ -231,74 +213,13 @@ class NdbcCWReader extends NdbcReader {
         final ArrayList<Variable> variables = new ArrayList<>();
 
         List<Attribute> attributes = new ArrayList<>();
-        // station variables
-        attributes.add(new Attribute(CF_LONG_NAME, "Station identifier"));
-        variables.add(new VariableProxy(STATION_ID, DataType.STRING, attributes));
 
-        attributes = new ArrayList<>();
-        attributes.add(new Attribute(CF_LONG_NAME, "Station type. 0: OCEAN_BUOY, 1: COAST_BUOY, 2: LAKE_BUOY, 3: OCEAN_STATION, 4: COAST_STATION, 5: LAKE_STATION"));
-        variables.add(new VariableProxy(STATION_TYPE, DataType.BYTE, attributes));
+        createBasicStationVariables(variables, attributes);
 
-        attributes = new ArrayList<>();
-        attributes.add(new Attribute(CF_LONG_NAME, "Measurement type. 0: CONSTANT_WIND, 1: STANDARD_METEOROLOGICAL"));
-        variables.add(new VariableProxy(MEASUREMENT_TYPE, DataType.BYTE, attributes));
-
-        attributes = new ArrayList<>();
-        attributes.add(new Attribute(CF_UNITS_NAME, "degree_east"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(float.class)));
-        attributes.add(new Attribute(CF_STANDARD_NAME, "longitude"));
-        variables.add(new VariableProxy(LONGITUDE, DataType.FLOAT, attributes));
-
-        attributes = new ArrayList<>();
-        attributes.add(new Attribute(CF_UNITS_NAME, "degree_north"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(float.class)));
-        attributes.add(new Attribute(CF_STANDARD_NAME, "latitude"));
-        variables.add(new VariableProxy(LATITUDE, DataType.FLOAT, attributes));
-
-        attributes = new ArrayList<>();
-        attributes.add(new Attribute(CF_UNITS_NAME, "m"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, Float.NaN));
-        attributes.add(new Attribute(CF_LONG_NAME, "Height of instrument above site elevation"));
-        variables.add(new VariableProxy(ANEMOMETER_HEIGHT, DataType.FLOAT, attributes));
-
-        attributes = new ArrayList<>();
-        attributes.add(new Attribute(CF_UNITS_NAME, "m"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, Float.NaN));
-        attributes.add(new Attribute(CF_LONG_NAME, "Height of instrument above site elevation"));
-        variables.add(new VariableProxy(AIR_TEMP_HEIGHT, DataType.FLOAT, attributes));
-
-        attributes = new ArrayList<>();
-        attributes.add(new Attribute(CF_UNITS_NAME, "m"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, Float.NaN));
-        attributes.add(new Attribute(CF_LONG_NAME, "Height of instrument above above mean sea level"));
-        variables.add(new VariableProxy(BAROMETER_HEIGHT, DataType.FLOAT, attributes));
-
-        attributes = new ArrayList<>();
-        attributes.add(new Attribute(CF_UNITS_NAME, "m"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, Float.NaN));
-        attributes.add(new Attribute(CF_LONG_NAME, "Depth of instrument below water line"));
-        variables.add(new VariableProxy(SST_DEPTH, DataType.FLOAT, attributes));
-
-        attributes = new ArrayList<>();
-        attributes.add(new Attribute(CF_UNITS_NAME, "seconds since 1970-01-01"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(int.class)));
-        attributes.add(new Attribute(CF_STANDARD_NAME, "time"));
-        variables.add(new VariableProxy(TIME, DataType.INT, attributes));
-
-        // measurement record variables
-        attributes = new ArrayList<>();
-        attributes.add(new Attribute(CF_UNITS_NAME, "degT"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, 999));
-        attributes.add(new Attribute(CF_STANDARD_NAME, "wind_from_direction"));
-        attributes.add(new Attribute(CF_LONG_NAME, "Ten-minute average wind direction measurements in degrees clockwise from true North."));
-        variables.add(new VariableProxy(WDIR, DataType.SHORT, attributes));
-
-        attributes = new ArrayList<>();
-        attributes.add(new Attribute(CF_UNITS_NAME, "m/s"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, 99.f));
-        attributes.add(new Attribute(CF_STANDARD_NAME, "wind_speed"));
-        attributes.add(new Attribute(CF_LONG_NAME, "Ten-minute average wind speed values in m/s."));
-        variables.add(new VariableProxy(WSPD, DataType.FLOAT, attributes));
+        // measurement record variables ----------------------------------
+        createMeasurementTimeVariable(variables);
+        createWindDirectionVariable(variables);
+        createWindSpeedVariable(variables);
 
         attributes = new ArrayList<>();
         attributes.add(new Attribute(CF_UNITS_NAME, "degT"));
@@ -307,12 +228,7 @@ class NdbcCWReader extends NdbcReader {
         attributes.add(new Attribute(CF_LONG_NAME, "Direction, in degrees clockwise from true North, of the GST, reported at the last hourly 10-minute segment."));
         variables.add(new VariableProxy(GDR, DataType.SHORT, attributes));
 
-        attributes = new ArrayList<>();
-        attributes.add(new Attribute(CF_UNITS_NAME, "m/s"));
-        attributes.add(new Attribute(CF_FILL_VALUE_NAME, 99.f));
-        attributes.add(new Attribute(CF_STANDARD_NAME, "wind_gust_speed"));
-        attributes.add(new Attribute(CF_LONG_NAME, "Maximum 5-second peak gust during the measurement hour, reported at the last hourly 10-minute segment."));
-        variables.add(new VariableProxy(GST, DataType.FLOAT, attributes));
+        createGustSpeedVariable(variables, "Maximum 5-second peak gust during the measurement hour, reported at the last hourly 10-minute segment.");
 
         attributes = new ArrayList<>();
         attributes.add(new Attribute(CF_UNITS_NAME, "hhmm"));

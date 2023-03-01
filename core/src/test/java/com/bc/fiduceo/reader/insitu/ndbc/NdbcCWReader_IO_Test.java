@@ -175,13 +175,9 @@ public class NdbcCWReader_IO_Test {
             assertEquals(DataType.FLOAT, array.getDataType());
             assertEquals(48.061f, array.getFloat(0), 1e-8);
 
-            array = reader.readRaw(9, 6, new Interval(1, 1), "barometer_height");
+            array = reader.readRaw(9, 6, new Interval(1, 1), "anemometer_height");
             assertEquals(DataType.FLOAT, array.getDataType());
-            assertEquals(Float.NaN, array.getFloat(0), 1e-8);
-
-            array = reader.readRaw(10, 7, new Interval(1, 1), "barometer_height");
-            assertEquals(DataType.FLOAT, array.getDataType());
-            assertEquals(Float.NaN, array.getFloat(0), 1e-8);
+            assertEquals(3.2f, array.getFloat(0), 1e-8);
 
             array = reader.readRaw(11, 8, new Interval(1, 1), "WDIR");
             assertEquals(DataType.SHORT, array.getDataType());
@@ -210,9 +206,9 @@ public class NdbcCWReader_IO_Test {
             assertEquals(DataType.FLOAT, array.getDataType());
             assertEquals(3.8f, array.getFloat(0), 1e-8);
 
-            array = reader.readRaw(15, 11, new Interval(1, 1), "sst_depth");
-            assertEquals(DataType.FLOAT, array.getDataType());
-            assertEquals(Float.NaN, array.getFloat(0), 1e-8);
+            array = reader.readRaw(15, 11, new Interval(1, 1), "time");
+            assertEquals(DataType.INT, array.getDataType());
+            assertEquals(1464742200, array.getInt(0));
 
             array = reader.readRaw(16, 12, new Interval(1, 1), "WSPD");
             assertEquals(DataType.FLOAT, array.getDataType());
@@ -232,9 +228,9 @@ public class NdbcCWReader_IO_Test {
         try {
             reader.open(testFile);
 
-            Array array = reader.readScaled(13, 11, new Interval(1, 1), "air_temp_height");
+            Array array = reader.readScaled(13, 11, new Interval(1, 1), "anemometer_height");
             assertEquals(DataType.FLOAT, array.getDataType());
-            assertEquals(Float.NaN, array.getFloat(0), 1e-8);
+            assertEquals(3.8f, array.getFloat(0), 1e-8);
 
             array = reader.readRaw(14, 12, new Interval(1, 1), "time");
             assertEquals(DataType.INT, array.getDataType());
@@ -255,9 +251,9 @@ public class NdbcCWReader_IO_Test {
         try {
             reader.open(testFile);
 
-            Array array = reader.readScaled(13, 14, new Interval(1, 1), "barometer_height");
+            Array array = reader.readScaled(13, 14, new Interval(1, 1), "longitude");
             assertEquals(DataType.FLOAT, array.getDataType());
-            assertEquals(Float.NaN, array.getFloat(0), 1e-8);
+            assertEquals(-87.793f, array.getFloat(0), 1e-8);
 
             array = reader.readRaw(14, 15, new Interval(1, 1), "WDIR");
             assertEquals(DataType.SHORT, array.getDataType());

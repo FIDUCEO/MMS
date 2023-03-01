@@ -13,9 +13,11 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.bc.fiduceo.util.NetCDFUtils.*;
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertFalse;
 
+@SuppressWarnings("ConstantConditions")
 public class NdbcCWReaderTest {
 
     private NdbcCWReader reader;
@@ -73,27 +75,32 @@ public class NdbcCWReaderTest {
     public void testGetVariables() throws InvalidRangeException, IOException {
         final List<Variable> variables = reader.getVariables();
 
-        assertEquals(15, variables.size());
+        assertEquals(12, variables.size());
 
         Variable variable = variables.get(0);
         assertEquals("station_id", variable.getShortName());
         assertEquals(DataType.STRING, variable.getDataType());
+        assertEquals("Station identifier", variable.findAttribute(CF_LONG_NAME).getStringValue());
 
         variable = variables.get(3);
         assertEquals("longitude", variable.getShortName());
         assertEquals(DataType.FLOAT, variable.getDataType());
+        assertEquals("degree_east", variable.findAttribute(CF_UNITS_NAME).getStringValue());
 
         variable = variables.get(6);
-        assertEquals("air_temp_height", variable.getShortName());
-        assertEquals(DataType.FLOAT, variable.getDataType());
-
-        variable = variables.get(9);
         assertEquals("time", variable.getShortName());
         assertEquals(DataType.INT, variable.getDataType());
+        assertEquals("time", variable.findAttribute(CF_STANDARD_NAME).getStringValue());
 
-        variable = variables.get(12);
-        assertEquals("GDR", variable.getShortName());
+        variable = variables.get(7);
+        assertEquals("WDIR", variable.getShortName());
         assertEquals(DataType.SHORT, variable.getDataType());
+        assertEquals(999, variable.findAttribute(CF_FILL_VALUE_NAME).getNumericValue().shortValue());
+
+        variable = variables.get(10);
+        assertEquals("GST", variable.getShortName());
+        assertEquals(DataType.FLOAT, variable.getDataType());
+        assertEquals("m/s", variable.findAttribute(CF_UNITS_NAME).getStringValue());
     }
 
     @Test

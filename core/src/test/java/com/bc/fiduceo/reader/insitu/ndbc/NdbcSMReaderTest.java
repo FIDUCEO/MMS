@@ -13,9 +13,10 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.bc.fiduceo.util.NetCDFUtils.*;
 import static org.junit.Assert.*;
 
-@SuppressWarnings("resource")
+@SuppressWarnings("ConstantConditions")
 public class NdbcSMReaderTest {
 
     private NdbcSMReader reader;
@@ -90,8 +91,50 @@ public class NdbcSMReaderTest {
     public void testGetVariables() throws InvalidRangeException, IOException {
         final List<Variable> variables = reader.getVariables();
 
-        assertEquals(0, variables.size());
-        // @todo 1 tb/tb continue here 2023-02-28
+        //assertEquals(0, variables.size());
+        Variable variable = variables.get(0);
+        assertEquals("station_id", variable.getShortName());
+        assertEquals(DataType.STRING, variable.getDataType());
+        assertEquals("Station identifier", variable.findAttribute(CF_LONG_NAME).getStringValue());
 
+        variable = variables.get(1);
+        assertEquals("station_type", variable.getShortName());
+        assertEquals(DataType.BYTE, variable.getDataType());
+        assertEquals("Station type. 0: OCEAN_BUOY, 1: COAST_BUOY, 2: LAKE_BUOY, 3: OCEAN_STATION, 4: COAST_STATION, 5: LAKE_STATION", variable.findAttribute(CF_LONG_NAME).getStringValue());
+
+        variable = variables.get(4);
+        assertEquals("latitude", variable.getShortName());
+        assertEquals(DataType.FLOAT, variable.getDataType());
+        assertEquals(9.969209968386869E36f, variable.findAttribute(CF_FILL_VALUE_NAME).getNumericValue().floatValue(), 1e-8);
+
+        variable = variables.get(7);
+        assertEquals("barometer_height", variable.getShortName());
+        assertEquals(DataType.FLOAT, variable.getDataType());
+        assertEquals("Height of instrument above above mean sea level", variable.findAttribute(CF_LONG_NAME).getStringValue());
+
+        variable = variables.get(10);
+        assertEquals("WDIR", variable.getShortName());
+        assertEquals(DataType.SHORT, variable.getDataType());
+        assertEquals("wind_from_direction", variable.findAttribute(CF_STANDARD_NAME).getStringValue());
+
+        variable = variables.get(13);
+        assertEquals("WVHT", variable.getShortName());
+        assertEquals(DataType.FLOAT, variable.getDataType());
+        assertEquals("Significant wave height (meters) is calculated as the average of the highest one-third of all of the wave heights during the 20-minute sampling period.", variable.findAttribute(CF_LONG_NAME).getStringValue());
+
+        variable = variables.get(16);
+        assertEquals("MWD", variable.getShortName());
+        assertEquals(DataType.SHORT, variable.getDataType());
+        assertEquals("degT", variable.findAttribute(CF_UNITS_NAME).getStringValue());
+
+        variable = variables.get(19);
+        assertEquals("DEWP", variable.getShortName());
+        assertEquals(DataType.FLOAT, variable.getDataType());
+        assertEquals(999.f, variable.findAttribute(CF_FILL_VALUE_NAME).getNumericValue().floatValue(), 1e-8);
+
+        variable = variables.get(21);
+        assertEquals("TIDE", variable.getShortName());
+        assertEquals(DataType.FLOAT, variable.getDataType());
+        assertEquals("The water level in feet above or below Mean Lower Low Water (MLLW).", variable.findAttribute(CF_LONG_NAME).getStringValue());
     }
 }
