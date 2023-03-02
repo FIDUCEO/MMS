@@ -2,10 +2,14 @@ package com.bc.fiduceo.reader.insitu.ndbc;
 
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
+import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.time.TimeLocator;
+import com.bc.fiduceo.reader.time.TimeLocator_MillisSince1970;
+import com.bc.fiduceo.util.NetCDFUtils;
+import com.bc.fiduceo.util.TimeUtils;
 import com.bc.fiduceo.util.VariableProxy;
 import org.esa.snap.core.util.StringUtils;
 import ucar.ma2.Array;
@@ -15,10 +19,13 @@ import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
 import ucar.nc2.Variable;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import static com.bc.fiduceo.util.NetCDFUtils.*;
@@ -39,18 +46,47 @@ class NdbcSMReader extends NdbcReader {
 
     private static StationDatabase stationDatabase;
 
+    private ArrayList<SmRecord> records;
+    private TimeLocator timeLocator;
+
     @Override
     public void open(File file) throws IOException {
         ensureStationDatabase();
+        loadStation(file, stationDatabase);
+        parseFile(file);
     }
 
     @Override
     public void close() throws IOException {
+        if (records != null) {
+            records.clear();
+            records = null;
+        }
+
+        station = null;
     }
 
     @Override
     public AcquisitionInfo read() throws IOException {
-        throw new RuntimeException("not implemented");
+        final AcquisitionInfo acquisitionInfo = new AcquisitionInfo();
+
+        int minTime = Integer.MAX_VALUE;
+        int maxTime = Integer.MIN_VALUE;
+        for (final SmRecord record : records) {
+            if (record.utc < minTime) {
+                minTime = record.utc;
+            }
+            if (record.utc > maxTime) {
+                maxTime = record.utc;
+            }
+        }
+
+        acquisitionInfo.setSensingStart(new Date(minTime * 1000L));
+        acquisitionInfo.setSensingStop(new Date(maxTime * 1000L));
+
+        acquisitionInfo.setNodeType(NodeType.UNDEFINED);
+
+        return acquisitionInfo;
     }
 
     @Override
@@ -70,27 +106,81 @@ class NdbcSMReader extends NdbcReader {
 
     @Override
     public TimeLocator getTimeLocator() throws IOException {
-        throw new RuntimeException("not implemented");
-    }
+        if (timeLocator == null) {
+            createTimeLocator();
+        }
 
-    @Override
-    public int[] extractYearMonthDayFromFilename(String fileName) {
-        throw new RuntimeException("not implemented");
+        return timeLocator;
     }
 
     @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
-        throw new RuntimeException("not implemented");
+        final SmRecord record = records.get(centerY);
+
+        switch (variableName) {
+            case STATION_ID:
+                final Array resultArray = Array.factory(DataType.STRING, new int[]{1, 1});
+                resultArray.setObject(0, station.getId());
+                return resultArray;
+            case STATION_TYPE:
+                final StationType type = station.getType();
+                return createResultArray(toByte(type), -1, DataType.BYTE, interval);
+            case MEASUREMENT_TYPE:
+                final MeasurementType measurementType = station.getMeasurementType();
+                return createResultArray(toByte(measurementType), -1, DataType.BYTE, interval);
+            case LONGITUDE:
+                return createResultArray(station.getLon(), Float.NaN, DataType.FLOAT, interval);
+            case LATITUDE:
+                return createResultArray(station.getLat(), Float.NaN, DataType.FLOAT, interval);
+            case ANEMOMETER_HEIGHT:
+                return createResultArray(station.getAnemometerHeight(), Float.NaN, DataType.FLOAT, interval);
+            case AIR_TEMP_HEIGHT:
+                return createResultArray(station.getAirTemperatureHeight(), Float.NaN, DataType.FLOAT, interval);
+            case BAROMETER_HEIGHT:
+                return createResultArray(station.getBarometerHeight(), Float.NaN, DataType.FLOAT, interval);
+            case SST_DEPTH:
+                return createResultArray(station.getSSTDepth(), Float.NaN, DataType.FLOAT, interval);
+            case TIME:
+                return createResultArray(record.utc, NetCDFUtils.getDefaultFillValue(int.class), DataType.INT, interval);
+            case WDIR:
+                return createResultArray(record.windDir, 999, DataType.SHORT, interval);
+            case WSPD:
+                return createResultArray(record.windSpeed, 99.f, DataType.FLOAT, interval);
+            case GST:
+                return createResultArray(record.gustSpeed, 99.f, DataType.FLOAT, interval);
+            case WVHT:
+                return createResultArray(record.waveHeight, 99.f, DataType.FLOAT, interval);
+            case DPD:
+                return createResultArray(record.domWavePeriod, 99.f, DataType.FLOAT, interval);
+            case APD:
+                return createResultArray(record.avgWavePeriod, 99.f, DataType.FLOAT, interval);
+            case MWD:
+                return createResultArray(record.waveDir, 999, DataType.SHORT, interval);
+            case PRES:
+                return createResultArray(record.seaLevelPressure, 9999.f, DataType.FLOAT, interval);
+            case ATMP:
+                return createResultArray(record.airTemp, 999.f, DataType.FLOAT, interval);
+            case DEWP:
+                return createResultArray(record.dewPointTemp, 999.f, DataType.FLOAT, interval);
+            case VIS:
+                return createResultArray(record.visibility, 99.f, DataType.FLOAT, interval);
+            case TIDE:
+                return createResultArray(record.tideLevel, 99.f, DataType.FLOAT, interval);
+        }
+
+        return null;
     }
 
     @Override
     public Array readScaled(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
-        throw new RuntimeException("not implemented");
+        return readRaw(centerX, centerY, interval, variableName);
     }
 
     @Override
     public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException {
-        throw new RuntimeException("not implemented");
+        final Array timeArray = readRaw(x, y, interval, TIME);
+
+        return (ArrayInt.D2) timeArray;
     }
 
     @Override
@@ -190,17 +280,7 @@ class NdbcSMReader extends NdbcReader {
 
     @Override
     public Dimension getProductSize() throws IOException {
-        throw new RuntimeException("not implemented");
-    }
-
-    @Override
-    public String getLongitudeVariableName() {
-        throw new RuntimeException("not implemented");
-    }
-
-    @Override
-    public String getLatitudeVariableName() {
-        throw new RuntimeException("not implemented");
+        return new Dimension("product_size", 1, records.size());
     }
 
     private void ensureStationDatabase() throws IOException {
@@ -238,5 +318,35 @@ class NdbcSMReader extends NdbcReader {
         record.tideLevel = Float.parseFloat(tokens[17]);
 
         return record;
+    }
+
+    private void parseFile(File file) throws IOException {
+        records = new ArrayList<>();
+        try (final FileReader fileReader = new FileReader(file)) {
+            final Calendar calendar = TimeUtils.getUTCCalendar();
+            final BufferedReader bufferedReader = new BufferedReader(fileReader);
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                if (line.startsWith("#")) {
+                    // skip comment lines tb 2023-02-27
+                    continue;
+                }
+
+                final SmRecord smRecord = parseLine(line, calendar);
+                records.add(smRecord);
+            }
+        }
+    }
+
+    private void createTimeLocator() {
+        long[] timeArray = new long[records.size()];
+
+        int i = 0;
+        for (final SmRecord record : records) {
+            timeArray[i] = record.utc * 1000L;
+            i++;
+        }
+
+        timeLocator = new TimeLocator_MillisSince1970(timeArray);
     }
 }

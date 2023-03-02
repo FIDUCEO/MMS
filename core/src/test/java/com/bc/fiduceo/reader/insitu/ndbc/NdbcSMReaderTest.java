@@ -137,4 +137,23 @@ public class NdbcSMReaderTest {
         assertEquals(DataType.FLOAT, variable.getDataType());
         assertEquals("The water level in feet above or below Mean Lower Low Water (MLLW).", variable.findAttribute(CF_LONG_NAME).getStringValue());
     }
+
+    @Test
+    public void testExtractYearMonthDayFromFilename() {
+        int[] ymd = reader.extractYearMonthDayFromFilename("ptaw1h2017.txt");
+        assertEquals(3, ymd.length);
+        assertEquals(2017, ymd[0]);
+        assertEquals(1, ymd[1]);
+        assertEquals(1, ymd[2]);
+    }
+
+    @Test
+    public void testGetLongitudeVariableName() {
+        assertEquals("longitude", reader.getLongitudeVariableName());
+    }
+
+    @Test
+    public void testGetLatitudeVariableName() {
+        assertEquals("latitude", reader.getLatitudeVariableName());
+    }
 }

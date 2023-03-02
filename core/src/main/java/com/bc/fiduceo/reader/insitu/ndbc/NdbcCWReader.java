@@ -12,7 +12,6 @@ import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import com.bc.fiduceo.util.VariableProxy;
 import org.esa.snap.core.util.StringUtils;
-import org.esa.snap.core.util.io.FileUtils;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
@@ -42,22 +41,12 @@ class NdbcCWReader extends NdbcReader {
 
     private ArrayList<CwRecord> records;
     private TimeLocator timeLocator;
-    private Station station;
 
     @Override
     public void open(File file) throws IOException {
         ensureStationDatabase();
-        loadStation(file);
+        loadStation(file, stationDatabase);
         parseFile(file);
-    }
-
-    private void loadStation(File file) {
-        final String fileName = FileUtils.getFilenameWithoutExtension(file);
-        final String stationId = fileName.substring(0, 5);
-        station = stationDatabase.get(stationId);
-        if (station == null) {
-            throw new IllegalArgumentException("unsupported station, id = " + stationId);
-        }
     }
 
     private void parseFile(File file) throws IOException {
@@ -86,6 +75,7 @@ class NdbcCWReader extends NdbcReader {
         }
 
         timeLocator = null;
+        station = null;
     }
 
     @Override
@@ -145,17 +135,6 @@ class NdbcCWReader extends NdbcReader {
         }
 
         timeLocator = new TimeLocator_MillisSince1970(timeArray);
-    }
-
-    @Override
-    public int[] extractYearMonthDayFromFilename(String fileName) {
-        int[] ymd = new int[3];
-        final int dotIndex = fileName.indexOf('.');
-        final String yearString = fileName.substring(dotIndex - 4, dotIndex);
-        ymd[0] = Integer.parseInt(yearString);
-        ymd[1] = 1;
-        ymd[2] = 1;
-        return ymd;
     }
 
     @Override
@@ -242,16 +221,6 @@ class NdbcCWReader extends NdbcReader {
     @Override
     public Dimension getProductSize() throws IOException {
         return new Dimension("product_size", 1, records.size());
-    }
-
-    @Override
-    public String getLongitudeVariableName() {
-        return LONGITUDE;
-    }
-
-    @Override
-    public String getLatitudeVariableName() {
-        return LATITUDE;
     }
 
     private void ensureStationDatabase() throws IOException {

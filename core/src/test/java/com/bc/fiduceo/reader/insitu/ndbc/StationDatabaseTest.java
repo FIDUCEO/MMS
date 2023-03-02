@@ -44,7 +44,7 @@ public class StationDatabaseTest {
     }
 
     @Test
-    public void testLoadANdGet_SM() throws IOException {
+    public void testLoadAndGet_SM() throws IOException {
         final String resourceFile = "AAMC1     | 37.772   | -122.3    | COAST_STATION  | 6.9               | 4.3             | 5.3              | 1.2\n" +
                 "ADKA2     | 51.861   | -176.637  | COAST_STATION  | 7.0               | 6.3             | 7.0              | 2.8\n" +
                 "AGMW3     | 44.608   | -87.433   | LAKE_STATION   | 9.0               | 9.0             | NaN              | NaN\n" +
@@ -67,5 +67,19 @@ public class StationDatabaseTest {
         assertEquals(6.3f, station.getAirTemperatureHeight(), 1e-8);
         assertEquals(7.0f, station.getBarometerHeight(), 1e-8);
         assertEquals(2.8f, station.getSSTDepth(), 1e-8);
+    }
+
+    @Test
+    public void testLoadAndGet_SM_smallLetters() throws IOException {
+        final String resourceFile = "AAMC1     | 37.772   | -122.3    | COAST_STATION  | 6.9               | 4.3             | 5.3              | 1.2\n" +
+                "ADKA2     | 51.861   | -176.637  | COAST_STATION  | 7.0               | 6.3             | 7.0              | 2.8\n";
+
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(resourceFile.getBytes());
+
+        final StationDatabase stationDatabase = new StationDatabase();
+        stationDatabase.load(inputStream);
+
+        Station station = stationDatabase.get("aamc1");
+        assertEquals("AAMC1", station.getId());
     }
 }

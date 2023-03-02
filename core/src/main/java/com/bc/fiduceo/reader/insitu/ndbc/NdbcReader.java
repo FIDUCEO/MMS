@@ -4,18 +4,19 @@ import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.VariableProxy;
+import org.esa.snap.core.util.io.FileUtils;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
 import ucar.nc2.Variable;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.bc.fiduceo.util.NetCDFUtils.*;
-import static com.bc.fiduceo.util.NetCDFUtils.CF_LONG_NAME;
 
 abstract class NdbcReader implements Reader {
 
@@ -34,6 +35,29 @@ abstract class NdbcReader implements Reader {
     static final String WSPD = "WSPD";
     static final String GST = "GST";
 
+    protected Station station;
+
+    @Override
+    public int[] extractYearMonthDayFromFilename(String fileName) {
+        int[] ymd = new int[3];
+        final int dotIndex = fileName.indexOf('.');
+        final String yearString = fileName.substring(dotIndex - 4, dotIndex);
+        ymd[0] = Integer.parseInt(yearString);
+        ymd[1] = 1;
+        ymd[2] = 1;
+        return ymd;
+    }
+
+    @Override
+    public String getLongitudeVariableName() {
+        return LONGITUDE;
+    }
+
+    @Override
+    public String getLatitudeVariableName() {
+        return LATITUDE;
+    }
+
     StationDatabase parseStationDatabase(String resourceName) throws IOException {
         final InputStream is = getClass().getResourceAsStream(resourceName);
         if (is == null) {
@@ -46,6 +70,15 @@ abstract class NdbcReader implements Reader {
         is.close();
 
         return sdb;
+    }
+
+    void loadStation(File file, StationDatabase stationDatabase) {
+        final String fileName = FileUtils.getFilenameWithoutExtension(file);
+        final String stationId = fileName.substring(0, 5);
+        station = stationDatabase.get(stationId);
+        if (station == null) {
+            throw new IllegalArgumentException("unsupported station, id = " + stationId);
+        }
     }
 
     static byte toByte(StationType stationType) {

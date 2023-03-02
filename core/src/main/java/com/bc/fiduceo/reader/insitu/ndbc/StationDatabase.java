@@ -82,7 +82,7 @@ class StationDatabase {
         String line;
         while ((line = reader.readLine()) != null) {
             if (line.startsWith("#")) {
-                // skip comment lines tb 2022-11-03
+                // skip comment lines tb 2023-03-02
                 continue;
             }
             lineList.add(line);
@@ -91,6 +91,6 @@ class StationDatabase {
     }
 
     Station get(String id) {
-        return stationMap.get(id);
+        return stationMap.get(id.toUpperCase());
     }
 }
