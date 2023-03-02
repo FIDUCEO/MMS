@@ -39,6 +39,9 @@ public class NdbcSMReaderTest {
         matcher = pattern.matcher("46005h2018.txt");
         assertTrue(matcher.matches());
 
+        matcher = pattern.matcher("42088h2017.txt");
+        assertTrue(matcher.matches());
+
         matcher = pattern.matcher("41048c2016.txt");
         assertFalse(matcher.matches());
 

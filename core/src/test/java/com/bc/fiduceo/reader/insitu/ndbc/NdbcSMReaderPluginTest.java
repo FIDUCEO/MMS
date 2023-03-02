@@ -34,6 +34,6 @@ public class NdbcSMReaderPluginTest {
     public void testCreateReader() {
         final Reader reader = plugin.createReader(null);
         assertNotNull(reader);
-        assertTrue(reader instanceof NdbcCWReader);
+        assertTrue(reader instanceof NdbcSMReader);
     }
 }

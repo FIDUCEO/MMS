@@ -158,6 +158,9 @@ public class TestUtil {
                 "        <rule sensors = \"ANTXXXI-sic-cci, DMISIC0-sic-cci, DTUSIC1-sic-cci\">" +
                 "            insitu/sic-cci/SENSOR/VERSION" +
                 "        </rule>" +
+                "        <rule sensors=\"ndbc-sm-cb\">\n" +
+                "            insitu/ndbc/SENSOR/VERSION/YEAR\n" +
+                "        </rule>" +
                 "    </archive>" +
                 "    <temp-directory>" +
                 "            " + TestUtil.getTestDir().getAbsolutePath() +
