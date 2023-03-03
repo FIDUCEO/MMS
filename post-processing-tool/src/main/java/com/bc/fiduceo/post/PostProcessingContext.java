@@ -18,32 +18,28 @@
  */
 package com.bc.fiduceo.post;
 
-import com.bc.fiduceo.core.SystemConfig;
 import com.bc.fiduceo.tool.ToolContext;
-import com.bc.fiduceo.util.TempFileUtils;
 
 import java.nio.file.Path;
-import java.util.Date;
 
 public final class PostProcessingContext extends ToolContext {
 
     private PostProcessingConfig processingConfig;
     private Path mmdInputDirectory;
 
+    public PostProcessingConfig getProcessingConfig() {
+        return processingConfig;
+    }
 
     public void setProcessingConfig(PostProcessingConfig processingConfig) {
         this.processingConfig = processingConfig;
     }
 
-    public PostProcessingConfig getProcessingConfig() {
-        return processingConfig;
+    public Path getMmdInputDirectory() {
+        return mmdInputDirectory;
     }
 
     public void setMmdInputDirectory(Path mmdInputDirectory) {
         this.mmdInputDirectory = mmdInputDirectory;
-    }
-
-    public Path getMmdInputDirectory() {
-        return mmdInputDirectory;
     }
 }

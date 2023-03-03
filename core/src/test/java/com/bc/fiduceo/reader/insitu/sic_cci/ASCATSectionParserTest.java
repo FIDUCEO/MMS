@@ -33,7 +33,7 @@ public class ASCATSectionParserTest {
 
         variable = variables.get(4);
         assertEquals("ASCAT_upstreamfile", variable.getShortName());
-        assertEquals(DataType.CHAR, variable.getDataType());
+        assertEquals(DataType.STRING, variable.getDataType());
 
         variable = variables.get(5);
         assertEquals("ASCAT_sigma_40", variable.getShortName());

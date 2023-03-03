@@ -94,7 +94,9 @@ public class PostProcessingToolMain_IO_Test {
             new XMLOutputter(Format.getPrettyFormat()).output(document, stream);
         }
 
-        dataDir.mkdirs();
+        if (!dataDir.mkdirs()) {
+            fail("unable to create test directory");
+        }
         final String filename = "mmd22_amsub-n16_ssmt2-f14_2000-306_2000-312.nc";
         final File src = new File(new File(TestUtil.getTestDataDirectory(), "post-processing"), filename);
         final File target = new File(dataDir, filename);

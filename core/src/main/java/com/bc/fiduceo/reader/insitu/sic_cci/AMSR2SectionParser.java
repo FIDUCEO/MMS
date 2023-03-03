@@ -1,5 +1,6 @@
 package com.bc.fiduceo.reader.insitu.sic_cci;
 
+import com.bc.fiduceo.reader.netcdf.StringVariable;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.VariableProxy;
 import ucar.ma2.DataType;
@@ -52,7 +53,7 @@ class AMSR2SectionParser extends AbstractSectionParser {
         variables.add(new VariableProxy("AMSR2_scanpos", DataType.SHORT, attributes));
 
         attributes = new ArrayList<>();
-        variables.add(new VariableProxy("AMSR2_upstreamfile", DataType.CHAR, attributes));
+        variables.add(new StringVariable(new VariableProxy("AMSR2_upstreamfile", DataType.STRING, attributes), 48));
 
         attributes = new ArrayList<>();
         attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(short.class)));

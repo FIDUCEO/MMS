@@ -120,7 +120,7 @@ public abstract class StorageTest_SatelliteObservation {
 
         final Geometry geoBoundsFromDb = observationFromDb.getGeoBounds();
         final String geoBoundsWkt = geometryFactory.format(geoBoundsFromDb);
-        assertEquals("POLYGON((12.0 4.999999999999998,12.000000000000004 7.000000000000001,9.999999999999998 7.0,9.999999999999998 4.999999999999998,12.0 4.999999999999998))", geoBoundsWkt);
+        assertEquals("POLYGON((9.999999999999998 4.999999999999998,12.0 4.999999999999998,12.000000000000004 7.000000000000001,9.999999999999998 7.0,9.999999999999998 4.999999999999998))", geoBoundsWkt);
 
         assertEquals(observation.getSensor().getName(), observationFromDb.getSensor().getName());
         assertEquals(observation.getDataFilePath().toString(), observationFromDb.getDataFilePath().toString());
@@ -220,7 +220,7 @@ public abstract class StorageTest_SatelliteObservation {
 
         final Geometry multiLineString = geometryFactory.parse("MULTILINESTRING((-2 3, -1 5), (-56 3, 56 4))");
         final L3TimeAxis l3TimeAxis = new L3TimeAxis(TimeUtils.create(1440000000000L), TimeUtils.create(1450000000000L), multiLineString);
-        final TimeAxis[] timeAxes = new TimeAxis[] {l3TimeAxis};
+        final TimeAxis[] timeAxes = new TimeAxis[]{l3TimeAxis};
         observation.setTimeAxes(timeAxes);
 
         storage.insert(observation);
@@ -280,7 +280,7 @@ public abstract class StorageTest_SatelliteObservation {
         final SatelliteObservation updatedObservation = result.get(0);
         assertEquals(1440000000000L, updatedObservation.getStartTime().getTime());
         assertEquals(1440001000000L, updatedObservation.getStopTime().getTime());
-        assertEquals("POLYGON((13.0 4.999999999999998,13.0 6.999999999999999,11.0 6.999999999999999,11.0 4.999999999999998,13.0 4.999999999999998))", geometryFactory.format(updatedObservation.getGeoBounds()));
+        assertEquals("POLYGON((11.0 4.999999999999998,11.0 6.999999999999999,13.0 6.999999999999999,13.0 4.999999999999998,11.0 4.999999999999998))", geometryFactory.format(updatedObservation.getGeoBounds()));
 
         final TimeAxis[] timeAxes = observation.getTimeAxes();
         assertEquals(1, timeAxes.length);

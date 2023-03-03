@@ -20,12 +20,7 @@
 
 package com.bc.geometry.s2;
 
-import com.google.common.geometry.S2LatLng;
-import com.google.common.geometry.S2Loop;
-import com.google.common.geometry.S2Point;
-import com.google.common.geometry.S2Polygon;
-import com.google.common.geometry.S2Polyline;
-import com.google.common.geometry.S2Region;
+import com.google.common.geometry.*;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -339,15 +334,11 @@ public class S2WKTReader {
         }
         ArrayList<S2Loop> loops = new ArrayList<>();
         S2Loop shell = readLinearRingText();
-        shell.normalize();
         loops.add(shell);
         nextToken = getNextCloserOrComma();
         while (COMMA.equals(nextToken)) {
             S2Loop e = readLinearRingText();
             loops.add(e);
-//            if (!loops.contains(e)) {
-//                loops.add(e);
-//            }
             nextToken = getNextCloserOrComma();
         }
         return new S2Polygon(loops);

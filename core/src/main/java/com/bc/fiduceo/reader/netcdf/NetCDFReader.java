@@ -29,7 +29,10 @@ public abstract class NetCDFReader implements Reader {
 
     @Override
     public void close() throws IOException {
-        arrayCache = null;
+        if (arrayCache != null) {
+            arrayCache.clear();
+            arrayCache = null;
+        }
 
         if (netcdfFile != null) {
             netcdfFile.close();

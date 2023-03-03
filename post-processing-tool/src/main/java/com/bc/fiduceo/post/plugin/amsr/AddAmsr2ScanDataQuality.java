@@ -8,11 +8,7 @@ import ucar.ma2.Array;
 import ucar.ma2.ArrayByte;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
-import ucar.nc2.Attribute;
-import ucar.nc2.Dimension;
-import ucar.nc2.NetcdfFile;
-import ucar.nc2.NetcdfFileWriter;
-import ucar.nc2.Variable;
+import ucar.nc2.*;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -29,7 +25,8 @@ class AddAmsr2ScanDataQuality extends PostProcessing {
 
     @Override
     protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) {
-        final Dimension matchupDimension = reader.findDimension(FiduceoConstants.MATCHUP_COUNT);
+        final String matchupDimensionName = getMatchupDimensionName();
+        final Dimension matchupDimension = reader.findDimension(matchupDimensionName);
 
         final Dimension scanDataQualityDimension = writer.addDimension(null, "scan_data_quality", 512);
         final List<Dimension> dimensions = new ArrayList<>();
@@ -47,7 +44,8 @@ class AddAmsr2ScanDataQuality extends PostProcessing {
         final Variable yVariable = NetCDFUtils.getVariable(reader, configuration.yCoordinateVariableName);
         final Array yArray = yVariable.read();
 
-        final int matchup_count = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, reader);
+        final String matchupDimensionName = getMatchupDimensionName();
+        final int matchup_count = NetCDFUtils.getDimensionLength(matchupDimensionName, reader);
         final int fileNameSize = NetCDFUtils.getDimensionLength(FiduceoConstants.FILE_NAME, reader);
         final int processingVersionSize = NetCDFUtils.getDimensionLength(FiduceoConstants.PROCESSING_VERSION, reader);
         final Variable targetVariable = NetCDFUtils.getVariable(writer, configuration.targetVariableName);

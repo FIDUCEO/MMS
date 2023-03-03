@@ -23,20 +23,11 @@ package com.bc.fiduceo.matchup;
 
 import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.TestUtil;
-import com.bc.fiduceo.core.Dimension;
-import com.bc.fiduceo.core.Sensor;
-import com.bc.fiduceo.core.UseCaseConfig;
-import com.bc.fiduceo.core.UseCaseConfigBuilder;
-import com.bc.fiduceo.core.ValidationResult;
-import com.bc.fiduceo.matchup.writer.IOVariable;
-import com.bc.fiduceo.matchup.writer.IOVariablesList;
-import com.bc.fiduceo.matchup.writer.ReaderContainer;
-import com.bc.fiduceo.matchup.writer.VariablesConfiguration;
-import com.bc.fiduceo.matchup.writer.WindowReadingIOVariable;
+import com.bc.fiduceo.core.*;
+import com.bc.fiduceo.matchup.writer.*;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.junit.Before;
 import org.junit.Test;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
@@ -44,47 +35,26 @@ import ucar.nc2.Attribute;
 import java.io.ByteArrayOutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.bc.fiduceo.util.NetCDFUtils.CF_FILL_VALUE_NAME;
 import static com.bc.fiduceo.util.NetCDFUtils.CF_UNITS_NAME;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class MatchupToolTest {
 
-    private String ls;
-
-    @Before
-    public void SetUp() {
-        ls = System.lineSeparator();
-    }
-
     @Test
     public void testPrintUsageTo() {
+        final String ls = System.lineSeparator();
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         final MatchupTool matchupTool = new MatchupTool();
 
         matchupTool.printUsageTo(outputStream);
 
-        assertEquals("matchup-tool version 1.5.7" + ls +
+        assertEquals("matchup-tool version 1.5.8" + ls +
                 ls +
                 "usage: matchup-tool <options>" + ls +
                 "Valid options are:" + ls +

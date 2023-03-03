@@ -5,6 +5,7 @@ import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.*;
 import com.bc.fiduceo.location.PixelLocator;
+import com.bc.fiduceo.location.RasterPixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.RawDataReader;
 import com.bc.fiduceo.reader.ReaderContext;
@@ -32,7 +33,6 @@ import java.util.List;
 
 import static com.bc.fiduceo.reader.smos.GeolocationHandler.LATITUDE;
 import static com.bc.fiduceo.reader.smos.GeolocationHandler.LONGITUDE;
-import static com.bc.fiduceo.util.NetCDFUtils.getDefaultFillValue;
 
 class SmosL1CDailyGriddedReader extends NetCDFReader {
 
@@ -62,6 +62,52 @@ class SmosL1CDailyGriddedReader extends NetCDFReader {
         variables2D.add("X_Swath");
         variables2D.add("Grid_Point_Mask");
         layerExtension = new SmosAngleExtension();
+    }
+
+    /**
+     * extract minimal and maximal value of geolocation arrays passed in.
+     * the resulting array is ordered:
+     * [0] lonMin
+     * [1] lonMax
+     * [2] latMin
+     * [3] latMax
+     * package access for testing only tb 2022-09-26
+     *
+     * @param longitudes longitude data
+     * @param latitudes  latitude data
+     * @return array with the extreme values
+     */
+    static double[] extractMinMax(Array longitudes, Array latitudes) {
+        final double[] minMax = new double[4];
+
+        int size = (int) longitudes.getSize();
+        minMax[0] = longitudes.getDouble(0);
+        minMax[1] = longitudes.getDouble(size - 1);
+
+        size = (int) latitudes.getSize();
+        minMax[2] = latitudes.getDouble(0);
+        minMax[3] = latitudes.getDouble(size - 1);
+
+        return minMax;
+    }
+
+    // package access for testing only tb 2022-09-29
+    static Date cfiDateToUtc(int days, long seconds, long microseconds) {
+        final Calendar calendar = TimeUtils.getUTCCalendar();
+
+        calendar.set(Calendar.YEAR, 2000);
+        calendar.set(Calendar.MONTH, 0);
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+
+        calendar.add(Calendar.DATE, days);
+        calendar.add(Calendar.SECOND, (int) seconds);
+        calendar.add(Calendar.MILLISECOND, (int) (microseconds * 0.001));
+
+        return calendar.getTime();
     }
 
     @Override
@@ -104,12 +150,12 @@ class SmosL1CDailyGriddedReader extends NetCDFReader {
         final double[] geoMinMax = extractMinMax(longitudes, latitudes);
 
         final GeometryFactory geometryFactory = readerContext.getGeometryFactory();
-        final Polygon polygon = createPolygonFromMinMax(geoMinMax, geometryFactory);
+        final Polygon polygon = GeometryUtil.createPolygonFromMinMax(geoMinMax, geometryFactory);
         acquisitionInfo.setBoundingGeometry(polygon);
 
         setSensingTimes(acquisitionInfo);
 
-        final MultiLineString multiLineString = createMultiLineStringFromMinMax(geoMinMax, geometryFactory);
+        final MultiLineString multiLineString = GeometryUtil.createMultiLineStringFromMinMax(geoMinMax, geometryFactory);
         final TimeAxis timeAxis = new L3TimeAxis(acquisitionInfo.getSensingStart(), acquisitionInfo.getSensingStop(), multiLineString);
         acquisitionInfo.setTimeAxes(new TimeAxis[]{timeAxis});
 
@@ -233,8 +279,8 @@ class SmosL1CDailyGriddedReader extends NetCDFReader {
             final int extensionIdx = variableName.lastIndexOf("_");
             ncVariableName = variableName.substring(0, extensionIdx);
         }
-        double scaleFactor = arrayCache.getNumberAttributeValue("scale_factor", ncVariableName).doubleValue();
-        double offset = arrayCache.getNumberAttributeValue("add_offset", ncVariableName).doubleValue();
+        final double scaleFactor = arrayCache.getNumberAttributeValue("scale_factor", ncVariableName).doubleValue();
+        final double offset = arrayCache.getNumberAttributeValue("add_offset", ncVariableName).doubleValue();
         if (ReaderUtils.mustScale(scaleFactor, offset)) {
             final MAMath.ScaleOffset scaleOffset = new MAMath.ScaleOffset(scaleFactor, offset);
             return MAMath.convert2Unpacked(rawArray, scaleOffset);
@@ -245,45 +291,9 @@ class SmosL1CDailyGriddedReader extends NetCDFReader {
 
     @Override
     public ArrayInt.D2 readAcquisitionTime(int x, int y, Interval interval) throws IOException, InvalidRangeException {
-        final int height = interval.getY();
-        final int width = interval.getX();
-        final int x_offset = x - width / 2;
-        final int y_offset = y - height / 2;
-        int[] shape = new int[]{height, width};
-
         final Dimension productSize = getProductSize();
-        final int pWidth = productSize.getNx();
-        final int pHeight = productSize.getNy();
-
         final TimeLocator timeLocator = getTimeLocator();
-        final int acquisitionTimeFillValue = getDefaultFillValue(int.class).intValue();
-
-        final ArrayInt.D2 acquisitionTime = (ArrayInt.D2) Array.factory(DataType.INT, shape);
-        final Index index = acquisitionTime.getIndex();
-
-        for (int ya = 0; ya < height; ya++) {
-            final int yRead = y_offset + ya;
-
-            for (int xa = 0; xa < width; xa++) {
-                final int xRead = x_offset + xa;
-
-                int acTime;
-                if (xRead < 0 || xRead >= pWidth || yRead < 0 || yRead >= pHeight) {
-                    acTime = acquisitionTimeFillValue;
-                } else {
-                    final long pxTime = timeLocator.getTimeFor(xRead, yRead);
-                    if (pxTime < 0) {
-                        acTime = acquisitionTimeFillValue;
-                    } else {
-                        acTime = (int) (pxTime / 1000);
-                    }
-                }
-                index.set(ya, xa);
-                acquisitionTime.setInt(index, acTime);
-            }
-        }
-
-        return acquisitionTime;
+        return ReaderUtils.readAcquisitionTimeFromTimeLocator(x, y, interval, productSize, timeLocator);
     }
 
     @Override
@@ -400,97 +410,5 @@ class SmosL1CDailyGriddedReader extends NetCDFReader {
         utcCalendar.set(Calendar.MILLISECOND, 999);
 
         acquisitionInfo.setSensingStop(utcCalendar.getTime());
-    }
-
-    // package access for testing only tb 2022-09-15
-    static Polygon createPolygonFromMinMax(double[] geoMinMax, GeometryFactory geometryFactory) {
-        final double lonMin = geoMinMax[0];
-        final double lonMax = geoMinMax[1];
-        final double latMin = geoMinMax[2];
-        final double latMax = geoMinMax[3];
-
-        final Point ll = geometryFactory.createPoint(lonMin, latMin);
-        final Point ul = geometryFactory.createPoint(lonMin, latMax);
-        final Point ur = geometryFactory.createPoint(lonMax, latMax);
-        final Point lr = geometryFactory.createPoint(lonMax, latMin);
-        final ArrayList<Point> polygonPoints = new ArrayList<>();
-        polygonPoints.add(ll);
-        polygonPoints.add(lr);
-        polygonPoints.add(ur);
-        polygonPoints.add(ul);
-        polygonPoints.add(ll);
-        return geometryFactory.createPolygon(polygonPoints);
-    }
-
-    /**
-     * extract minimal and maximal value of geolocation arrays passed in.
-     * the resulting array is ordered:
-     * [0] lonMin
-     * [1] lonMax
-     * [2] latMin
-     * [3] latMax
-     * package access for testing only tb 2022-09-26
-     *
-     * @param longitudes longitude data
-     * @param latitudes  latitude data
-     * @return array with the extreme values
-     */
-    static double[] extractMinMax(Array longitudes, Array latitudes) {
-        final double[] minMax = new double[4];
-
-        int size = (int) longitudes.getSize();
-        minMax[0] = longitudes.getDouble(0);
-        minMax[1] = longitudes.getDouble(size - 1);
-
-        size = (int) latitudes.getSize();
-        minMax[2] = latitudes.getDouble(0);
-        minMax[3] = latitudes.getDouble(size - 1);
-
-        return minMax;
-    }
-
-    // package access for testing only tb 2022-09-26
-    static MultiLineString createMultiLineStringFromMinMax(double[] geoMinMax, GeometryFactory geometryFactory) {
-        final double lonMin = geoMinMax[0];
-        final double lonMax = geoMinMax[1];
-
-        final double latMin = geoMinMax[2];
-        final double latMax = geoMinMax[3];
-
-        final List<Point> points = new ArrayList<>();
-        points.add(geometryFactory.createPoint(lonMin, 0.0));
-        points.add(geometryFactory.createPoint(lonMax, 0.0));
-        final LineString we = geometryFactory.createLineString(points);
-
-        points.clear();
-        points.add(geometryFactory.createPoint(0.0, latMax));
-        points.add(geometryFactory.createPoint(0.0, latMin));
-
-        final LineString ns = geometryFactory.createLineString(points);
-
-        final List<LineString> lines = new ArrayList<>();
-        lines.add(we);
-        lines.add(ns);
-
-        return geometryFactory.createMultiLineString(lines);
-    }
-
-    // package access for testing only tb 2022-09-29
-    static Date cfiDateToUtc(int days, long seconds, long microseconds) {
-        final Calendar calendar = TimeUtils.getUTCCalendar();
-
-        calendar.set(Calendar.YEAR, 2000);
-        calendar.set(Calendar.MONTH, 0);
-        calendar.set(Calendar.DAY_OF_MONTH, 1);
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-
-        calendar.add(Calendar.DATE, days);
-        calendar.add(Calendar.SECOND, (int) seconds);
-        calendar.add(Calendar.MILLISECOND, (int) (microseconds * 0.001));
-
-        return calendar.getTime();
     }
 }

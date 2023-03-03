@@ -4,6 +4,16 @@ import org.esa.snap.core.util.StringUtils;
 
 class FieldsConfiguration {
 
+    private String matchupDimensionName;
+
+    String getMatchupDimensionName() {
+        return matchupDimensionName;
+    }
+
+    void setMatchupDimensionName(String matchupDimensionName) {
+        this.matchupDimensionName = matchupDimensionName;
+    }
+
     protected String expand(String variableName, String key, String replacement) {
         if (StringUtils.isNullOrEmpty(replacement)) {
             return variableName;

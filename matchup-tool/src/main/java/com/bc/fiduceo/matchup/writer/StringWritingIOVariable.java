@@ -24,8 +24,15 @@ public class StringWritingIOVariable extends ReaderIOVariable {
     public void writeData(int centerX, int centerY, Interval interval, int zIndex) throws IOException, InvalidRangeException {
         final Reader reader = readerContainer.getReader();
         final Array array = reader.readRaw(centerX, centerY, interval, sourceVariableName);
-        final char[] stringChars = (char[]) array.get1DJavaArray(DataType.CHAR);
-        target.write(new String(stringChars), targetVariableName, zIndex);
+        if (DataType.CHAR == array.getDataType()) {
+            final char[] stringChars = (char[]) array.get1DJavaArray(DataType.CHAR);
+            target.write(new String(stringChars), targetVariableName, zIndex);
+        } else if (DataType.STRING == array.getDataType()) {
+            final String stringValue = (String) array.getObject(0);
+            target.write(stringValue, targetVariableName, zIndex);
+        } else {
+            throw new IllegalStateException("Not a string data type");
+        }
     }
 
     @Override

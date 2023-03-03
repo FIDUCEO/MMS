@@ -33,7 +33,7 @@ public class QSCATSectionParserTest {
 
         variable = variables.get(4);
         assertEquals("QSCAT_upstreamfile", variable.getShortName());
-        assertEquals(DataType.CHAR, variable.getDataType());
+        assertEquals(DataType.STRING, variable.getDataType());
 
         variable = variables.get(5);
         assertEquals("QSCAT_sigma0_inner", variable.getShortName());

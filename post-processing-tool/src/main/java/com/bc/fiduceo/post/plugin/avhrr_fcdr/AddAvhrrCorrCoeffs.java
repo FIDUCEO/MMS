@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.bc.fiduceo.FiduceoConstants.FILE_NAME;
-import static com.bc.fiduceo.FiduceoConstants.MATCHUP_COUNT;
 
 class AddAvhrrCorrCoeffs extends PostProcessing {
 
@@ -170,7 +169,8 @@ class AddAvhrrCorrCoeffs extends PostProcessing {
     }
 
     private ArrayList<FileDescription> extractUniqueInputFileNames(NetcdfFile reader, int filenameSize) throws IOException, InvalidRangeException {
-        final int matchupCount = NetCDFUtils.getDimensionLength(MATCHUP_COUNT, reader);
+        final String matchupDimensionName = getMatchupDimensionName();
+        final int matchupCount = NetCDFUtils.getDimensionLength(matchupDimensionName, reader);
         final Variable filenameVariable = NetCDFUtils.getVariable(reader, configuration.fileNameVariableName);
         final Variable versionVariable = NetCDFUtils.getVariable(reader, configuration.versionVariableName);
         final ArrayList<FileDescription> fileList = new ArrayList<>();

@@ -42,23 +42,10 @@ import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.isNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.same;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 public class PostProcessingToolTest {
 
@@ -140,7 +127,7 @@ public class PostProcessingToolTest {
         PostProcessingTool.printUsageTo(out);
 
         final String ls = System.lineSeparator();
-        final String expected = "post-processing-tool version 1.5.7" + ls +
+        final String expected = "post-processing-tool version 1.5.8" + ls +
                 "" + ls +
                 "usage: post-processing-tool <options>" + ls +
                 "Valid options are:" + ls +
@@ -350,18 +337,6 @@ public class PostProcessingToolTest {
         assertTrue(namesList.contains("Karl-Heinz"));
         assertTrue(namesList.contains("Donald"));
         assertTrue(namesList.contains("Hermann"));
-    }
-
-    @Test
-    public void testFileNamePattern() {
-        final Pattern pattern = PostProcessingTool.getFileNamePattern();
-
-        assertTrue(pattern.matcher("mmd08_aatsr-en_avhrr-frac-ma_2012-092_2012-092.nc").matches());
-        assertTrue(pattern.matcher("mmd09_slstr-s3a-nt_avhrr-frac-ma_2019-115_2019-115.nc").matches());
-        assertTrue(pattern.matcher("coo_2_slstr-s3a-nt_avhrr-frac-mb_2020-241_2020-241.nc").matches());
-
-        assertFalse(pattern.matcher("NSS.FRAC.M3.D19261.S1708.E1849.B0448586.SV").matches());
-        assertFalse(pattern.matcher("20161122200700-ESACCI-L1C-AVHRR18_G-fv01.0.nc").matches());
     }
 
     private PostProcessingConfig getConfig() throws Exception {
