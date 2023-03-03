@@ -21,7 +21,6 @@
 package com.bc.fiduceo.geometry;
 
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class GeometryUtil {
@@ -34,55 +33,11 @@ public class GeometryUtil {
         } else if (composedGeometry instanceof MultiPolygon) {
             final MultiPolygon observationMultiPolygon = (MultiPolygon) composedGeometry;
             final List<Polygon> polygons = observationMultiPolygon.getPolygons();
-            geometries = polygons.toArray(new Geometry[0]);
+            geometries = polygons.toArray(new Geometry[polygons.size()]);
         } else {
             geometries = new Geometry[]{composedGeometry};
         }
         return geometries;
-    }
-
-    public static Polygon createPolygonFromMinMax(double[] geoMinMax, GeometryFactory geometryFactory) {
-        final double lonMin = geoMinMax[0];
-        final double lonMax = geoMinMax[1];
-        final double latMin = geoMinMax[2];
-        final double latMax = geoMinMax[3];
-
-        final Point ll = geometryFactory.createPoint(lonMin, latMin);
-        final Point ul = geometryFactory.createPoint(lonMin, latMax);
-        final Point ur = geometryFactory.createPoint(lonMax, latMax);
-        final Point lr = geometryFactory.createPoint(lonMax, latMin);
-        final ArrayList<Point> polygonPoints = new ArrayList<>();
-        polygonPoints.add(ll);
-        polygonPoints.add(lr);
-        polygonPoints.add(ur);
-        polygonPoints.add(ul);
-        polygonPoints.add(ll);
-        return geometryFactory.createPolygon(polygonPoints);
-    }
-
-    public static MultiLineString createMultiLineStringFromMinMax(double[] geoMinMax, GeometryFactory geometryFactory) {
-        final double lonMin = geoMinMax[0];
-        final double lonMax = geoMinMax[1];
-
-        final double latMin = geoMinMax[2];
-        final double latMax = geoMinMax[3];
-
-        final List<Point> points = new ArrayList<>();
-        points.add(geometryFactory.createPoint(lonMin, 0.0));
-        points.add(geometryFactory.createPoint(lonMax, 0.0));
-        final LineString we = geometryFactory.createLineString(points);
-
-        points.clear();
-        points.add(geometryFactory.createPoint(0.0, latMax));
-        points.add(geometryFactory.createPoint(0.0, latMin));
-
-        final LineString ns = geometryFactory.createLineString(points);
-
-        final List<LineString> lines = new ArrayList<>();
-        lines.add(we);
-        lines.add(ns);
-
-        return geometryFactory.createMultiLineString(lines);
     }
 
     public static String toKml(Polygon polygon) {
@@ -148,14 +103,14 @@ public class GeometryUtil {
         for (int i = 0; i < lats.length; i++) {
             final float lat = lats[i];
             final float lon = lons[i];
-            if (lat != latBefore || lon != lonBefore || i == lats.length - 1) {
+            if (lat != latBefore || lon != lonBefore || i == lats.length -1 ) {
                 builder.append("  <Placemark>\n");
-                builder.append("    <name>" + count + "</name>\n");
+                builder.append("    <name>"+count+"</name>\n");
                 builder.append("    <Point><coordinates>");
                 builder.append(lonBefore);
                 builder.append(",");
                 builder.append(latBefore);
-                //            builder.append(",0");
+    //            builder.append(",0");
                 builder.append("</coordinates>");
                 builder.append("</Point>\n");
                 builder.append("  </Placemark>\n");

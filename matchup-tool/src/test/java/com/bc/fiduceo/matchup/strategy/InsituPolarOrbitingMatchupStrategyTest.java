@@ -20,23 +20,22 @@
 
 package com.bc.fiduceo.matchup.strategy;
 
-import com.bc.fiduceo.core.Sample;
+import static org.junit.Assert.*;
+
 import com.bc.fiduceo.core.SatelliteObservation;
 import com.bc.fiduceo.geometry.Geometry;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.matchup.MatchupCollection;
 import com.bc.fiduceo.matchup.MatchupSet;
+import com.bc.fiduceo.core.Sample;
 import com.bc.fiduceo.matchup.SampleSet;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import static org.junit.Assert.*;
 
 public class InsituPolarOrbitingMatchupStrategyTest {
 
@@ -135,9 +134,9 @@ public class InsituPolarOrbitingMatchupStrategyTest {
     @Test
     public void testGetCandidatesByGeometry_outside() {
         final List<SatelliteObservation> satelliteObservations = new ArrayList<>();
-        satelliteObservations.add(createSatelliteObservation("POLYGON((0 0, 2 0, 2 2, 0 2, 0 0))"));
-        satelliteObservations.add(createSatelliteObservation("POLYGON((2 0, 3 0, 3 1, 2 1, 2 0))"));
-        satelliteObservations.add(createSatelliteObservation("POLYGON((2.5 0, 3.5 0, 3.5 1, 2.5 1, 2.5 0))"));
+        satelliteObservations.add(createSatelliteObservation("POLYGON((0 0, 0 2, 2 2, 2 0, 0 0))"));
+        satelliteObservations.add(createSatelliteObservation("POLYGON((2 0, 2 1, 3 1, 3 0, 2 0))"));
+        satelliteObservations.add(createSatelliteObservation("POLYGON((2.5 0, 2.5 1, 3.5 1, 3.5 0, 2.5 0))"));
 
         final List<SatelliteObservation> resultList = InsituPolarOrbitingMatchupStrategy.getCandidatesByGeometry(satelliteObservations, geometryFactory.createPoint(12.0, 14.8));
         assertEquals(0, resultList.size());
@@ -146,26 +145,26 @@ public class InsituPolarOrbitingMatchupStrategyTest {
     @Test
     public void testGetCandidatesByGeometry_pickOne() {
         final List<SatelliteObservation> satelliteObservations = new ArrayList<>();
-        satelliteObservations.add(createSatelliteObservation("POLYGON((0 0, 2 0, 2 2, 0 2, 0 0))"));
-        satelliteObservations.add(createSatelliteObservation("POLYGON((2 0, 3 0, 3 1, 2 1, 2 0))"));
-        satelliteObservations.add(createSatelliteObservation("POLYGON((2.5 0, 3.5 0, 3.5 1, 2.5 1, 2.5 0))"));
+        satelliteObservations.add(createSatelliteObservation("POLYGON((0 0, 0 2, 2 2, 2 0, 0 0))"));
+        satelliteObservations.add(createSatelliteObservation("POLYGON((2 0, 2 1, 3 1, 3 0, 2 0))"));
+        satelliteObservations.add(createSatelliteObservation("POLYGON((2.5 0, 2.5 1, 3.5 1, 3.5 0, 2.5 0))"));
 
         final List<SatelliteObservation> resultList = InsituPolarOrbitingMatchupStrategy.getCandidatesByGeometry(satelliteObservations, geometryFactory.createPoint(2.2, 0.7));
         assertEquals(1, resultList.size());
-        assertEquals("POLYGON((2.0 0.0,3.0000000000000004 0.0,3.0000000000000004 1.0,1.9999999999999996 1.0,2.0 0.0))", geometryFactory.format(resultList.get(0).getGeoBounds()));
+        assertEquals("POLYGON((3.0000000000000004 0.0,3.0000000000000004 1.0,1.9999999999999996 1.0,2.0 0.0,3.0000000000000004 0.0))", geometryFactory.format(resultList.get(0).getGeoBounds()));
     }
 
     @Test
     public void testGetCandidatesByGeometry_pickTwo() {
         final List<SatelliteObservation> satelliteObservations = new ArrayList<>();
-        satelliteObservations.add(createSatelliteObservation("POLYGON((0 0, 2 0, 2 2, 0 2, 0 0))"));
-        satelliteObservations.add(createSatelliteObservation("POLYGON((2 0, 3 0, 3 1, 2 1, 2 0))"));
-        satelliteObservations.add(createSatelliteObservation("POLYGON((2.5 0, 3.5 0, 3.5 1, 2.5 1, 2.5 0))"));
+        satelliteObservations.add(createSatelliteObservation("POLYGON((0 0, 0 2, 2 2, 2 0, 0 0))"));
+        satelliteObservations.add(createSatelliteObservation("POLYGON((2 0, 2 1, 3 1, 3 0, 2 0))"));
+        satelliteObservations.add(createSatelliteObservation("POLYGON((2.5 0, 2.5 1, 3.5 1, 3.5 0, 2.5 0))"));
 
         final List<SatelliteObservation> resultList = InsituPolarOrbitingMatchupStrategy.getCandidatesByGeometry(satelliteObservations, geometryFactory.createPoint(2.7, 0.4));
         assertEquals(2, resultList.size());
-        assertEquals("POLYGON((2.0 0.0,3.0000000000000004 0.0,3.0000000000000004 1.0,1.9999999999999996 1.0,2.0 0.0))", geometryFactory.format(resultList.get(0).getGeoBounds()));
-        assertEquals("POLYGON((2.5 0.0,3.5000000000000004 0.0,3.5 1.0,2.5000000000000004 1.0,2.5 0.0))", geometryFactory.format(resultList.get(1).getGeoBounds()));
+        assertEquals("POLYGON((3.0000000000000004 0.0,3.0000000000000004 1.0,1.9999999999999996 1.0,2.0 0.0,3.0000000000000004 0.0))", geometryFactory.format(resultList.get(0).getGeoBounds()));
+        assertEquals("POLYGON((3.5000000000000004 0.0,3.5 1.0,2.5000000000000004 1.0,2.5 0.0,3.5000000000000004 0.0))", geometryFactory.format(resultList.get(1).getGeoBounds()));
     }
 
     @Test
@@ -229,7 +228,7 @@ public class InsituPolarOrbitingMatchupStrategyTest {
 
         //execution
         final SampleSet sampleSet = InsituPolarOrbitingMatchupStrategy
-                .createValidSampleSet(samples, secSensorNames);
+                    .createValidSampleSet(samples, secSensorNames);
 
         //verification
         assertNull(sampleSet);

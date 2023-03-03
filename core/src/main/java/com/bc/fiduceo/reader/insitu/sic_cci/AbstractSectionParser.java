@@ -1,6 +1,5 @@
 package com.bc.fiduceo.reader.insitu.sic_cci;
 
-import com.bc.fiduceo.reader.netcdf.StringVariable;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.VariableProxy;
 import org.esa.snap.core.datamodel.ProductData;
@@ -52,12 +51,12 @@ abstract class AbstractSectionParser {
         variables.add(new VariableProxy(prefix + "time", DataType.INT, attributes));
 
         attributes = new ArrayList<>();
-        variables.add(new StringVariable(new VariableProxy(prefix + "reference-id", DataType.STRING, attributes), 32));
+        variables.add(new VariableProxy(prefix + "reference-id", DataType.CHAR, attributes));
     }
 
     static Array parseFloat(String token) {
         final float floatVal;
-        if (token.isEmpty() || token.equals("noval")) {
+        if (token.equals("noval")) {
             floatVal = NetCDFUtils.getDefaultFillValue(float.class).floatValue();
         } else {
             floatVal = Float.parseFloat(token);
@@ -69,7 +68,7 @@ abstract class AbstractSectionParser {
     static Array parseShort(String token) {
         final short shortVal;
 
-        if (token.isEmpty() || token.equals("noval")) {
+        if (token.equals("noval")) {
             shortVal = NetCDFUtils.getDefaultFillValue(short.class).shortValue();
         } else {
             shortVal = Short.parseShort(token);
@@ -78,14 +77,8 @@ abstract class AbstractSectionParser {
     }
 
     static Array parseByte(String token) {
-        final byte byteVal;
-        if (token.isEmpty() || token.equals("noval")) {
-            byteVal = NetCDFUtils.getDefaultFillValue(byte.class).byteValue();
-        } else {
-            byteVal = Byte.parseByte(token);
-        }
-
-        return Array.factory(DataType.BYTE, SCALAR, new byte[]{byteVal});
+        final byte sic_total = Byte.parseByte(token);
+        return Array.factory(DataType.BYTE, SCALAR, new byte[]{sic_total});
     }
 
     static Array parseUtcTime(String token) throws ParseException {

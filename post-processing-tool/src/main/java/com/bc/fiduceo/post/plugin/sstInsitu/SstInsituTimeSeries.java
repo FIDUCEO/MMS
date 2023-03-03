@@ -61,9 +61,7 @@ class SstInsituTimeSeries extends PostProcessing {
         fileNameVariable = getFileNameVariable(reader, sensorType, configuration);
 
         filenameFieldSize = NetCDFUtils.getDimensionLength(FiduceoConstants.FILE_NAME, reader);
-
-        String matchupDimensionName = getMatchupDimensionName();
-        matchupCount = NetCDFUtils.getDimensionLength(matchupDimensionName, reader);
+        matchupCount = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, reader);
 
         final String insituFileName = getSourceFileName(fileNameVariable, 0, filenameFieldSize, FILE_NAME_PATTERN_D8_D8_NC);
 
@@ -163,7 +161,7 @@ class SstInsituTimeSeries extends PostProcessing {
         final int matchupTime = times[matchupPos];
         final int minTime_ = matchupTime - (configuration.timeRangeSeconds / 2);
         final int maxTime = minTime_ + configuration.timeRangeSeconds;
-        final int minTime = Math.max(minTime_, 0);
+        final int minTime = minTime_ < 0 ? 0 : minTime_;
         int minIdx = matchupPos;
         int maxIdx = matchupPos;
         for (int i = matchupPos; i > 0; i--) {

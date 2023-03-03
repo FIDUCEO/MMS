@@ -17,8 +17,8 @@ import com.bc.fiduceo.reader.time.TimeLocator;
 import com.bc.fiduceo.reader.time.TimeLocator_TAI1993Scan;
 import com.bc.fiduceo.util.NetCDFUtils;
 import org.esa.snap.core.util.StringUtils;
-import ucar.ma2.DataType;
 import ucar.ma2.*;
+import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
 import ucar.nc2.AttributeContainer;
 import ucar.nc2.Structure;
@@ -246,7 +246,11 @@ class MxD021KM_Reader extends NetCDFReader {
             }
 
             if (variableName.contains("EV_1KM_RefSB")) {
-                addLayered3DVariables(exportVariables, variable, NUM_1KM_REF_CHAN, variableName, new ModisL1ReflectiveExtension());
+                final ArrayList<Variable> bandVariables = new ArrayList<>(NUM_1KM_REF_CHAN);
+
+                addLayered3DVariables(bandVariables, variable, NUM_1KM_REF_CHAN, variableName, new ModisL1ReflectiveExtension());
+
+                exportVariables.addAll(bandVariables);
                 continue;
             }
 

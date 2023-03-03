@@ -42,7 +42,6 @@ public class PostProcessingConfigTest {
     private static final String NEW_FILES = PostProcessingConfig.TAG_NAME_NEW_FILES;
     private static final String OUTPUT_DIR = PostProcessingConfig.TAG_NAME_OUTPUT_DIR;
     private static final String OVERWRITE = PostProcessingConfig.TAG_NAME_OVERWRITE;
-    private static final String MATCHUP_DIM = PostProcessingConfig.TAG_NAME_MATCHUP_DIMENSION;
 
     private static final String DUMMY_NAME = DummyPostProcessingPlugin.DUMMY_POST_PROCESSING_NAME;
     private Element root;
@@ -78,32 +77,7 @@ public class PostProcessingConfigTest {
         pw.println("    <" + DUMMY_NAME + ">C</" + DUMMY_NAME + ">");
         pw.println("  </post-processings>");
         pw.println("</post-processing-config>");
-        pw.flush();
-
-        assertEquals(sw.toString().replaceAll("\\s+",""), outputStream.toString().replaceAll("\\s+",""));
-    }
-
-    @Test
-    public void testStoreWithMatchup() throws Exception {
-        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        getConfigWithMatchupDimension("matching").store(outputStream);
-
-        final StringWriter sw = new StringWriter();
-        final PrintWriter pw = new PrintWriter(sw);
-        pw.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-        pw.println("<post-processing-config>");
-        pw.println("  <create-new-files>");
-        pw.println("    <output-directory>An_Output_Directory</output-directory>");
-        pw.println("  </create-new-files>");
-        pw.println("  <post-processings>");
-        pw.println("    <" + DUMMY_NAME + ">A</" + DUMMY_NAME + ">");
-        pw.println("    <" + DUMMY_NAME + ">B</" + DUMMY_NAME + ">");
-        pw.println("    <" + DUMMY_NAME + ">C</" + DUMMY_NAME + ">");
-        pw.println("  </post-processings>");
-        pw.println("  <matchup-dimension-name>");
-        pw.println("      matching");
-        pw.println("  </matchup-dimension-name>");
-        pw.println("</post-processing-config>");
+//        pw.println();
         pw.flush();
 
         assertEquals(sw.toString().replaceAll("\\s+",""), outputStream.toString().replaceAll("\\s+",""));
@@ -141,13 +115,6 @@ public class PostProcessingConfigTest {
 
         assertTrue(config.isNewFiles());
         assertEquals("An_Output_Directory", config.getOutputDirectory());
-    }
-
-    @Test
-    public void testLoad_matchupDimension() throws Exception {
-        final PostProcessingConfig config = getConfigWithMatchupDimension("theDimension");
-
-        assertEquals("theDimension", config.getMatchupDimensionName());
     }
 
     @Test
@@ -249,11 +216,5 @@ public class PostProcessingConfigTest {
         bs.close();
 
         return PostProcessingConfig.load(new ByteArrayInputStream(bs.toByteArray()));
-    }
-
-    private PostProcessingConfig getConfigWithMatchupDimension(String dimensionName) throws Exception {
-        root.addContent(new Element(MATCHUP_DIM).addContent(dimensionName));
-
-        return getConfig();
     }
 }

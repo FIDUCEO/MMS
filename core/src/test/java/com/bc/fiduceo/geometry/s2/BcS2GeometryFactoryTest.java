@@ -83,10 +83,10 @@ public class BcS2GeometryFactoryTest {
         Point[] coordinates = geometry.getCoordinates();
         assertEquals(4, coordinates.length);
         assertEquals(0.0, coordinates[0].getLon(), 1e-8);
-        assertEquals(1.0, coordinates[0].getLat(), 1e-8);
+        assertEquals( 1.0, coordinates[0].getLat(),1e-8);
 
-        assertEquals(3.0, coordinates[3].getLon(), 1e-8);
-        assertEquals(4.0, coordinates[3].getLat(), 1e-8);
+        assertEquals( 3.0, coordinates[3].getLon(),1e-8);
+        assertEquals( 4.0, coordinates[3].getLat(),1e-8);
     }
 
     @Test
@@ -245,10 +245,10 @@ public class BcS2GeometryFactoryTest {
         final Point[] coordinates = multiPolygon.getCoordinates();
         assertEquals(10, coordinates.length);
 
-        assertEquals(1.0, coordinates[2].getLon(), 1e-8);
+        assertEquals(0.0, coordinates[2].getLon(), 1e-8);
         assertEquals(1.0, coordinates[2].getLat(), 1e-8);
 
-        assertEquals(1.0, coordinates[6].getLon(), 1e-8);
+        assertEquals(3.0, coordinates[6].getLon(), 1e-8);
         assertEquals(1.0, coordinates[6].getLat(), 1e-8);
     }
 
@@ -283,7 +283,7 @@ public class BcS2GeometryFactoryTest {
         final Geometry point = factory.parse("POLYGON((1 8, 2 8.5, 3 8.2, 1 8))");
 
         final byte[] storageFormat = factory.toStorageFormat(point);
-        assertEquals("POLYGON((1.0 7.999999999999998,2.0 8.5,3.0000000000000004 8.2,1.0 7.999999999999998))", new String(storageFormat));
+        assertEquals("POLYGON((3.0000000000000004 8.2,2.0 8.5,1.0 7.999999999999998,3.0000000000000004 8.2))", new String(storageFormat));
     }
 
     @Test
@@ -323,12 +323,12 @@ public class BcS2GeometryFactoryTest {
 
         final Point[] coordinates = polygonGeometry.getCoordinates();
         assertEquals(4, coordinates.length);
-        assertEquals(1, coordinates[0].getLon(), 1e-8);
-        assertEquals(8, coordinates[0].getLat(), 1e-8);
-        assertEquals(3, coordinates[2].getLon(), 1e-8);
-        assertEquals(8.2, coordinates[2].getLat(), 1e-8);
-        assertEquals(1, coordinates[3].getLon(), 1e-8);
-        assertEquals(8, coordinates[3].getLat(), 1e-8);
+        assertEquals(3, coordinates[0].getLon(), 1e-8);
+        assertEquals(8.2, coordinates[0].getLat(), 1e-8);
+        assertEquals(1, coordinates[2].getLon(), 1e-8);
+        assertEquals(8, coordinates[2].getLat(), 1e-8);
+        assertEquals(3, coordinates[3].getLon(), 1e-8);
+        assertEquals(8.2, coordinates[3].getLat(), 1e-8);
     }
 
     @Test

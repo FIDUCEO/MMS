@@ -6,5 +6,5 @@ mvn clean install package assembly:directory
 # echo "clean up bin dir"
 echo "copy build result to bin dir"
 rm -rf /gws/nopw/j04/fiduceo/Software/mms/bin/*
-cp -a target/fiduceo-master-1.5.8-MMS/* /gws/nopw/j04/fiduceo/Software/mms/bin
+cp -a target/fiduceo-master-1.5.7-MMS/* /gws/nopw/j04/fiduceo/Software/mms/bin
 

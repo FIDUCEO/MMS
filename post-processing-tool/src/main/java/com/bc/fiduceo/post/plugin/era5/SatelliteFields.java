@@ -67,7 +67,7 @@ class SatelliteFields extends FieldsProcessor {
             // prepare data
             // + calculate dimensions
             // + allocate target data arrays
-            final int numMatches = NetCDFUtils.getDimensionLength(satFieldsConfig.getMatchupDimensionName(), reader);
+            final int numMatches = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, reader);
             final int[] nwpShape = getNwpShape(geoDimension, lonArray.getShape());
             final int[] nwpOffset = getNwpOffset(lonArray.getShape(), nwpShape);
             final int[] nwpStride = {1, 1, 1};
@@ -228,7 +228,7 @@ class SatelliteFields extends FieldsProcessor {
         final Dimension yDim = writer.addDimension(satFieldsConfig.get_y_dim_name(), satFieldsConfig.get_y_dim());
         final Dimension zDim = writer.addDimension(satFieldsConfig.get_z_dim_name(), satFieldsConfig.get_z_dim());
 
-        final Dimension matchupDim = reader.findDimension(satFieldsConfig.getMatchupDimensionName());
+        final Dimension matchupDim = reader.findDimension(FiduceoConstants.MATCHUP_COUNT);
 
         dimension2d = new ArrayList<>();
         dimension2d.add(matchupDim);

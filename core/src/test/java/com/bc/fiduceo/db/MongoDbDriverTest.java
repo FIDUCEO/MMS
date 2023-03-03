@@ -63,7 +63,7 @@ public class MongoDbDriverTest {
 
         final com.mongodb.client.model.geojson.Geometry geoJSON = MongoDbDriver.convertToGeoJSON(polygon);
         assertNotNull(geoJSON);
-        assertEquals("{\"type\": \"Polygon\", \"coordinates\": [[[-7.999999999999998, -1.9999999999999996], [-7.999999999999998, -1.0], [-6.0, -1.0], [-6.0, -2.0], [-7.999999999999998, -1.9999999999999996]]]}",
+        assertEquals("{\"type\": \"Polygon\", \"coordinates\": [[[-6.0, -2.0], [-6.0, -1.0], [-7.999999999999998, -1.0], [-7.999999999999998, -1.9999999999999996], [-6.0, -2.0]]]}",
                 geoJSON.toJson());
     }
 
@@ -133,7 +133,7 @@ public class MongoDbDriverTest {
 
 
         assertEquals(2, convertedGeometries.size());
-        assertEquals("Polygon{exterior=[Position{values=[-7.999999999999998, -1.9999999999999996]}, Position{values=[-7.999999999999998, -1.0]}, Position{values=[-6.0, -1.0]}, Position{values=[-6.0, -2.0]}, Position{values=[-7.999999999999998, -1.9999999999999996]}]}",
+        assertEquals("Polygon{exterior=[Position{values=[-6.0, -2.0]}, Position{values=[-6.0, -1.0]}, Position{values=[-7.999999999999998, -1.0]}, Position{values=[-7.999999999999998, -1.9999999999999996]}, Position{values=[-6.0, -2.0]}]}",
                 convertedGeometries.get(0).toString());
 
         assertEquals("MultiPolygon{coordinates=[PolygonCoordinates{exterior=[Position{values=[20.0, 0.0]}, " +
@@ -155,7 +155,7 @@ public class MongoDbDriverTest {
         com.mongodb.client.model.geojson.Geometry mongoGeometry = MongoDbDriver.convertToGeoJSON(geometryCollection);
         assertNotNull(mongoGeometry);
         assertTrue(mongoGeometry instanceof com.mongodb.client.model.geojson.Polygon);
-        assertEquals("{\"type\": \"Polygon\", \"coordinates\": [[[-6.0, -2.0], [-6.0, -1.0], [-4.000000000000001, -1.0], [-4.0, -2.0], [-6.0, -2.0]]]}",
+        assertEquals("{\"type\": \"Polygon\", \"coordinates\": [[[-4.0, -2.0], [-4.000000000000001, -1.0], [-6.0, -1.0], [-6.0, -2.0], [-4.0, -2.0]]]}",
                 mongoGeometry.toJson());
     }
 

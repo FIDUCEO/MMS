@@ -25,7 +25,6 @@ import com.bc.fiduceo.TestUtil;
 import com.bc.fiduceo.core.SystemConfig;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.log.FiduceoLogger;
-import com.bc.fiduceo.post.PostProcessingConfig;
 import com.bc.fiduceo.post.PostProcessingContext;
 import com.bc.fiduceo.post.PostProcessingToolMain;
 import com.bc.fiduceo.reader.Reader;
@@ -123,7 +122,6 @@ public class SstInsituTimeSeries_IO_Test {
         when(writer.addVariable(isNull(), anyString(), any(DataType.class), anyString())).thenReturn(newVariable);
 
         final PostProcessingContext context = new PostProcessingContext();
-        context.setProcessingConfig(mock(PostProcessingConfig.class));
         context.setSystemConfig(SystemConfig.load(new ByteArrayInputStream(
                 ("<system-config>" +
                         "    <geometry-library name = \"S2\" />" +

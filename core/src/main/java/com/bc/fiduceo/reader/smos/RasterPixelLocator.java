@@ -1,17 +1,15 @@
-package com.bc.fiduceo.location;
+package com.bc.fiduceo.reader.smos;
+
+import com.bc.fiduceo.location.PixelLocator;
 
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
-public class RasterPixelLocator implements PixelLocator {
-
-    public static int LON_WEST_EAST = 0;
-    public static int LON_EAST_WEST = 1;
+class RasterPixelLocator implements PixelLocator {
 
     private final float[] lons;
     private final float[] lats;
     private final Rectangle2D.Float boundary;
-    private final int lonDirection;
 
     /**
      * Pixel locator for rectangular rasters, lon and lat axes supplied as vectors.
@@ -23,16 +21,10 @@ public class RasterPixelLocator implements PixelLocator {
      * @param lats     the latitude axis
      * @param boundary the raster boundaries
      */
-    // @todo 1 tb/tb add option to flip axes (at least lon for now) 2022-11-23
-    public RasterPixelLocator(float[] lons, float[] lats, Rectangle2D.Float boundary) {
-        this(lons, lats, boundary, LON_WEST_EAST);
-    }
-
-    public RasterPixelLocator(float[] lons, float[] lats, Rectangle2D.Float boundary, int lonDirection) {
+    RasterPixelLocator(float[] lons, float[] lats, Rectangle2D.Float boundary) {
         this.lons = lons;
         this.lats = lats;
         this.boundary = boundary;
-        this.lonDirection = lonDirection;
     }
 
     @Override
@@ -61,12 +53,7 @@ public class RasterPixelLocator implements PixelLocator {
             return new Point2D[0];
         }
 
-        int x_break;
-        if (lonDirection == LON_EAST_WEST) {
-            x_break = getIndexSmallerThan(lon, lons);
-        } else {
-            x_break = getIndexLargerThan(lon, lons);
-        }
+        int x_break = getIndexLargerThan(lon, lons);
         x_break = adjustForClosest(x_break, lon, lons);
 
         int y_break = getIndexLargerThan(lat, lats);
@@ -90,7 +77,7 @@ public class RasterPixelLocator implements PixelLocator {
         return targetIndex;
     }
 
-    static int getIndexLargerThan(double location, float[] locations) {
+    private static int getIndexLargerThan(double location, float[] locations) {
         int x_break = -1;
         for (int i = 0; i < locations.length; i++) {
             if (location <= locations[i]) {
@@ -98,19 +85,6 @@ public class RasterPixelLocator implements PixelLocator {
                 break;
             }
         }
-        return x_break;
-    }
-
-    static int getIndexSmallerThan(double location, float[] locations) {
-        int x_break = -1;
-
-        for (int i = 0; i < locations.length; i++) {
-            if (location >= locations[i]) {
-                x_break = i;
-                break;
-            }
-        }
-
         return x_break;
     }
 }

@@ -20,6 +20,7 @@
 
 package com.bc.fiduceo.post.plugin.hirs.flag;
 
+import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.post.PostProcessing;
 import com.bc.fiduceo.post.util.DistanceToLandMap;
@@ -100,59 +101,6 @@ class HirsL1CloudyFlags extends PostProcessing {
         this.distanceToLandMap = distanceToLandMap;
     }
 
-    static MaximumAndFlags getMaximumAndFlags(Array domainData, float fillValue, int maxNumInvalidPixels) {
-        final IndexIterator iterator = domainData.getIndexIterator();
-        int invalidCount = 0;
-        float max = fillValue;
-        while (iterator.hasNext()) {
-            final float v = iterator.getFloatNext();
-            if (v == fillValue) {
-                invalidCount++;
-            } else {
-                max = Math.max(max, v);
-            }
-        }
-        byte flags = 0;
-        if (invalidCount == 0) { // all pixels are valid
-            flags = SPACE_CONTRAST_TEST_ALL_PIXELS_USABLE;
-        } else if (invalidCount > maxNumInvalidPixels) { // warning flag
-            flags = SPACE_CONTRAST_TEST_WARNING;
-        }
-        return new MaximumAndFlags(max, flags);
-    }
-
-    static boolean isLand(DistanceToLandMap distanceToLandMap, double lon, double lat) {
-        final double distanceToLand = distanceToLandMap.getDistance(lon, lat);
-        return distanceToLand < 0.3;
-    }
-
-    static boolean isIceCoveredWater() {
-        //@todo 1 se/** - the "ice covered" check must be implemented. Ask UHH (Imke Hans or Martin Burgdorf)
-        return false;
-    }
-
-    static byte getCloudy_SpaceContrastTest(double spaceContrastThreshold, final float value_11_1, float fillValue_11_1) {
-        // A pixel is classified cloudy if the pixel is useable (!= fill value) and value < threshold
-        // see chapter 2.2.2.1 - FIDUCEO Multi-sensor Match up System - Implementation Plan
-        boolean usable = value_11_1 != fillValue_11_1;
-        if (usable && spaceContrastThreshold > value_11_1) {
-            return SPACE_CONTRAST_TEST_CLOUDY;
-        }
-        return 0;
-    }
-
-    static byte getCloudy_InterChannelTest(final float value_11_1, float fillValue_11_1,
-                                           final float value_6_5, float fillValue_6_5) {
-        // A pixel is classified cloudy if both values are useable (!= fill value)
-        // and Math.abs(value_11_1 - value_6_5) < 25
-        // see chapter 2.2.2.2 - FIDUCEO Multi-sensor Match up System - Implementation Plan
-        boolean usable = value_11_1 != fillValue_11_1 && value_6_5 != fillValue_6_5;
-        if (usable && Math.abs(value_11_1 - value_6_5) < 25) {
-            return INTERCHANNEL_TEST_CLOUDY;
-        }
-        return 0;
-    }
-
     @Override
     protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) {
         final Variable variable = getVariable(reader, bt_11_1_um_VarName);
@@ -217,6 +165,59 @@ class HirsL1CloudyFlags extends PostProcessing {
         }
     }
 
+    static MaximumAndFlags getMaximumAndFlags(Array domainData, float fillValue, int maxNumInvalidPixels) {
+        final IndexIterator iterator = domainData.getIndexIterator();
+        int invalidCount = 0;
+        float max = fillValue;
+        while (iterator.hasNext()) {
+            final float v = iterator.getFloatNext();
+            if (v == fillValue) {
+                invalidCount++;
+            } else {
+                max = Math.max(max, v);
+            }
+        }
+        byte flags = 0;
+        if (invalidCount == 0) { // all pixels are valid
+            flags = SPACE_CONTRAST_TEST_ALL_PIXELS_USABLE;
+        } else if (invalidCount > maxNumInvalidPixels) { // warning flag
+            flags = SPACE_CONTRAST_TEST_WARNING;
+        }
+        return new MaximumAndFlags(max, flags);
+    }
+
+    static boolean isLand(DistanceToLandMap distanceToLandMap, double lon, double lat) {
+        final double distanceToLand = distanceToLandMap.getDistance(lon, lat);
+        return distanceToLand < 0.3;
+    }
+
+    static boolean isIceCoveredWater() {
+        //@todo 1 se/** - the "ice covered" check must be implemented. Ask UHH (Imke Hans or Martin Burgdorf)
+        return false;
+    }
+
+    static byte getCloudy_SpaceContrastTest(double spaceContrastThreshold, final float value_11_1, float fillValue_11_1) {
+        // A pixel is classified cloudy if the pixel is useable (!= fill value) and value < threshold
+        // see chapter 2.2.2.1 - FIDUCEO Multi-sensor Match up System - Implementation Plan
+        boolean usable = value_11_1 != fillValue_11_1;
+        if (usable && spaceContrastThreshold > value_11_1) {
+            return SPACE_CONTRAST_TEST_CLOUDY;
+        }
+        return 0;
+    }
+
+    static byte getCloudy_InterChannelTest(final float value_11_1, float fillValue_11_1,
+                                           final float value_6_5, float fillValue_6_5) {
+        // A pixel is classified cloudy if both values are useable (!= fill value)
+        // and Math.abs(value_11_1 - value_6_5) < 25
+        // see chapter 2.2.2.2 - FIDUCEO Multi-sensor Match up System - Implementation Plan
+        boolean usable = value_11_1 != fillValue_11_1 && value_6_5 != fillValue_6_5;
+        if (usable && Math.abs(value_11_1 - value_6_5) < 25) {
+            return INTERCHANNEL_TEST_CLOUDY;
+        }
+        return 0;
+    }
+
     private DomainDataProvider createLandOrIceDomainDataProvider() {
         final int[] levelShape = data11_1.getShape();
         levelShape[0] = 1;
@@ -271,9 +272,8 @@ class HirsL1CloudyFlags extends PostProcessing {
         data6_5 = var6_5um.read();
         flags = varFlags.read();
 
-        final String matchupDimensionName = getMatchupDimensionName();
-        lats = getCenterPosArrayFromMMDFile(reader, latVarName, null, null, matchupDimensionName);
-        lons = getCenterPosArrayFromMMDFile(reader, lonVarName, null, null, matchupDimensionName);
+        lats = getCenterPosArrayFromMMDFile(reader, latVarName, null, null, FiduceoConstants.MATCHUP_COUNT);
+        lons = getCenterPosArrayFromMMDFile(reader, lonVarName, null, null, FiduceoConstants.MATCHUP_COUNT);
     }
 
     static class MaximumAndFlags {

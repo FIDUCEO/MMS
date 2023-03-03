@@ -48,12 +48,6 @@ public class ArrayCache {
         variableFinder = netcdfFile::findVariable;
     }
 
-    public void clear() {
-        cache.clear();
-        scaledCache.clear();
-        injectedVariables.clear();
-    }
-
     // package access for testing only tb 2016-04-14
     static String createGroupedName(String groupName, String variableName) {
         return groupName + "_" + variableName;

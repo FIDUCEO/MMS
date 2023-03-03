@@ -488,7 +488,7 @@ public class IntersectionEngineTest {
 
         final Geometry[] geometryArray = IntersectionEngine.getGeometryArray(observation);
         assertEquals(2, geometryArray.length);
-        assertEquals("POLYGON((1.9999999999999996 1.0,3.0000000000000004 1.0,3.0000000000000004 2.0,3.0000000000000004 1.0,1.9999999999999996 1.0))", geometryFactory.format(geometryArray[0]));
+        assertEquals("POLYGON((3.0000000000000004 1.0,3.0000000000000004 2.0,3.0000000000000004 1.0,1.9999999999999996 1.0,3.0000000000000004 1.0))", geometryFactory.format(geometryArray[0]));
         assertEquals("POLYGON((0.9999999999999998 1.0,1.9999999999999996 1.0,2.0 1.9999999999999996,0.9999999999999998 2.0,0.9999999999999998 1.0))", geometryFactory.format(geometryArray[1]));
     }
 

@@ -1,7 +1,7 @@
 from pmonitor import PMonitor
 
 class Monitor:
-    def __init__(self, preconditions, usecase, hosts, types, log_dir, simulation, synchronous=False):
+    def __init__(self, preconditions, usecase, hosts, types, log_dir, simulation):
         """
 
         :type preconditions: list
@@ -10,12 +10,8 @@ class Monitor:
         :type calls: list
         :type log_dir: str
         :type simulation: bool
-        :type synchronous: bool
         """
-        if synchronous:
-            self.pm = PMonitor(preconditions, usecase, hosts, types, logdir=log_dir, simulation=simulation)
-        else:
-            self.pm = PMonitor(preconditions, usecase, hosts, types, logdir=log_dir, simulation=simulation, polling="job_status_callback.sh")
+        self.pm = PMonitor(preconditions, usecase, hosts, types, logdir=log_dir, simulation=simulation, polling="job_status_callback.sh")
 
     def execute(self, job):
         """
