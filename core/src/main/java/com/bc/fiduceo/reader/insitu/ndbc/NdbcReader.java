@@ -2,6 +2,7 @@ package com.bc.fiduceo.reader.insitu.ndbc;
 
 import com.bc.fiduceo.core.Interval;
 import com.bc.fiduceo.reader.Reader;
+import com.bc.fiduceo.reader.netcdf.StringVariable;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.VariableProxy;
 import org.esa.snap.core.util.io.FileUtils;
@@ -113,7 +114,7 @@ abstract class NdbcReader implements Reader {
 
     static void createBasicStationVariables(ArrayList<Variable> variables, List<Attribute> attributes) {
         attributes.add(new Attribute(CF_LONG_NAME, "Station identifier"));
-        variables.add(new VariableProxy(STATION_ID, DataType.STRING, attributes));
+        variables.add(new StringVariable(new VariableProxy(STATION_ID, DataType.STRING, attributes), 6));
 
         attributes = new ArrayList<>();
         attributes.add(new Attribute(CF_LONG_NAME, "Station type. 0: OCEAN_BUOY, 1: COAST_BUOY, 2: LAKE_BUOY, 3: OCEAN_STATION, 4: COAST_STATION, 5: LAKE_STATION"));

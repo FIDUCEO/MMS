@@ -158,7 +158,7 @@ public class TestUtil {
                 "        <rule sensors = \"ANTXXXI-sic-cci, DMISIC0-sic-cci, DTUSIC1-sic-cci\">" +
                 "            insitu/sic-cci/SENSOR/VERSION" +
                 "        </rule>" +
-                "        <rule sensors=\"ndbc-sm-cb\">\n" +
+                "        <rule sensors=\"ndbc-sm-cb, ndbc-sm-cs\">\n" +
                 "            insitu/ndbc/SENSOR/VERSION/YEAR\n" +
                 "        </rule>" +
                 "    </archive>" +

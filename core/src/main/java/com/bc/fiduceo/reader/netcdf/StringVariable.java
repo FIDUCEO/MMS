@@ -46,6 +46,11 @@ public class StringVariable extends VariablePrototype {
     }
 
     @Override
+    public Attribute findAttribute(String name) {
+        return originalVariable.findAttribute(name);
+    }
+
+    @Override
     public Dimension getDimension(int i) {
         return new Dimension(originalVariable.getShortName() + "_dim", stringLength);
     }
