@@ -74,22 +74,20 @@ class SphericalDistance extends PostProcessing {
 
     @Override
     protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) {
-        final String matchupDimensionName = getMatchupDimensionName();
-        writer.addVariable(null, targetVarName, DataType.getType(targetDataType), matchupDimensionName);
+        writer.addVariable(null, targetVarName, DataType.getType(targetDataType), FiduceoConstants.MATCHUP_COUNT);
     }
 
     @Override
     protected void compute(NetcdfFile reader, NetcdfFileWriter writer) throws IOException, InvalidRangeException {
         final NetcdfFile netcdfFile = writer.getNetcdfFile();
-        final String matchupDimensionName = getMatchupDimensionName();
-        final int count = NetCDFUtils.getDimensionLength(matchupDimensionName, netcdfFile);
+        final int count = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, netcdfFile);
 
         final Variable targetVar = netcdfFile.findVariable(targetVarName);
 
-        final Array p_lon = getCenterPosArrayFromMMDFile(netcdfFile, primLonVar, primLonScaleAttrName, primLonOffsetAttrName, matchupDimensionName);
-        final Array p_lat = getCenterPosArrayFromMMDFile(netcdfFile, primLatVar, primLatScaleAttrName, primLatOffsetAttrName, matchupDimensionName);
-        final Array s_lon = getCenterPosArrayFromMMDFile(netcdfFile, secoLonVar, secoLonScaleAttrName, secoLonOffsetAttrName, matchupDimensionName);
-        final Array s_lat = getCenterPosArrayFromMMDFile(netcdfFile, secoLatVar, secoLatScaleAttrName, secoLatOffsetAttrName, matchupDimensionName);
+        final Array p_lon = getCenterPosArrayFromMMDFile(netcdfFile, primLonVar, primLonScaleAttrName, primLonOffsetAttrName, FiduceoConstants.MATCHUP_COUNT);
+        final Array p_lat = getCenterPosArrayFromMMDFile(netcdfFile, primLatVar, primLatScaleAttrName, primLatOffsetAttrName, FiduceoConstants.MATCHUP_COUNT);
+        final Array s_lon = getCenterPosArrayFromMMDFile(netcdfFile, secoLonVar, secoLonScaleAttrName, secoLonOffsetAttrName, FiduceoConstants.MATCHUP_COUNT);
+        final Array s_lat = getCenterPosArrayFromMMDFile(netcdfFile, secoLatVar, secoLatScaleAttrName, secoLatOffsetAttrName, FiduceoConstants.MATCHUP_COUNT);
 
         Array target = Array.factory(DataType.getType(targetDataType), new int[]{count});
         for (int i = 0; i < count; i++) {

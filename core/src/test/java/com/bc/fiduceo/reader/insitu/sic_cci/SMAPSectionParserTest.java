@@ -34,7 +34,7 @@ public class SMAPSectionParserTest {
 
         variable = variables.get(4);
         assertEquals("SMAP_upstreamfile", variable.getShortName());
-        assertEquals(DataType.STRING, variable.getDataType());
+        assertEquals(DataType.CHAR, variable.getDataType());
 
         variable = variables.get(5);
         assertEquals("SMAP_Tbv", variable.getShortName());

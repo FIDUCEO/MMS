@@ -31,7 +31,9 @@ import org.junit.runner.RunWith;
 import java.io.File;
 import java.io.IOException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 @RunWith(IOTestRunner.class)
 public class SystemConfig_IO_Test {
@@ -59,7 +61,7 @@ public class SystemConfig_IO_Test {
         assertNotNull(systemConfig);
 
         assertEquals("S2", systemConfig.getGeometryLibraryType());
-        assertEquals(3, systemConfig.getReaderCacheSize());
+        assertEquals(12, systemConfig.getReaderCacheSize());
 
         final ArchiveConfig archiveConfig = systemConfig.getArchiveConfig();
         assertEquals(TestUtil.getTestDataDirectory().getAbsolutePath(), archiveConfig.getRootPath().toString());

@@ -1,6 +1,5 @@
 package com.bc.fiduceo.reader.insitu.sic_cci;
 
-import com.bc.fiduceo.reader.netcdf.StringVariable;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.VariableProxy;
 import ucar.ma2.DataType;
@@ -22,7 +21,7 @@ public class QSCATSectionParser extends AbstractSectionParser {
         createCommonVariables(variables, "QSCAT_");
 
         ArrayList<Attribute> attributes = new ArrayList<>();
-        variables.add(new StringVariable(new VariableProxy("QSCAT_upstreamfile", DataType.STRING, attributes), 32));
+        variables.add(new VariableProxy("QSCAT_upstreamfile", DataType.CHAR, attributes));
 
         attributes = new ArrayList<>();
         attributes.add(new Attribute(CF_FILL_VALUE_NAME, NetCDFUtils.getDefaultFillValue(float.class)));

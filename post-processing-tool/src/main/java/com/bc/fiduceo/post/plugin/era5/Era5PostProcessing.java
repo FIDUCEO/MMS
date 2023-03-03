@@ -1,5 +1,6 @@
 package com.bc.fiduceo.post.plugin.era5;
 
+import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.post.PostProcessing;
 import org.esa.snap.core.util.StringUtils;
 import ucar.ma2.Array;
@@ -145,6 +146,29 @@ class Era5PostProcessing extends PostProcessing {
         return lat >= -90.f && lat <= 90.f;
     }
 
+    @Override
+    protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) {
+        final Dimension matchupCountDimension = reader.findDimension(FiduceoConstants.MATCHUP_COUNT);
+        if (matchupCountDimension == null) {
+            throw new RuntimeException("Expected dimension not present in file: " + FiduceoConstants.MATCHUP_COUNT);
+        }
+
+        final  Era5Collection collection = getEra5Collection(configuration);
+        writer.addGlobalAttribute("era5-collection", collection.toString());
+
+        final SatelliteFieldsConfiguration satFieldsConfig = configuration.getSatelliteFields();
+        if (satFieldsConfig != null) {
+            satelliteFields = new SatelliteFields();
+            satelliteFields.prepare(satFieldsConfig, reader, writer, collection);
+        }
+
+        final MatchupFieldsConfiguration matchupFieldsConfig = configuration.getMatchupFields();
+        if (matchupFieldsConfig != null) {
+            matchupFields = new MatchupFields();
+            matchupFields.prepare(matchupFieldsConfig, reader, writer, collection);
+        }
+    }
+
     // package access for testing only tb 2021-01-12
     static Era5Collection getEra5Collection(Configuration configuration) {
         String collection = configuration.getEra5Collection();
@@ -163,32 +187,6 @@ class Era5PostProcessing extends PostProcessing {
             return Era5Collection.ERA_5;
         }
         throw new IllegalArgumentException("Unable to detect ERA5 collection from datapath. Please configure explicitly.");
-    }
-
-    @Override
-    protected void prepare(NetcdfFile reader, NetcdfFileWriter writer) {
-        final String matchupDimensionName = getMatchupDimensionName();
-        final Dimension matchupCountDimension = reader.findDimension(matchupDimensionName);
-        if (matchupCountDimension == null) {
-            throw new RuntimeException("Expected dimension not present in file: " + matchupDimensionName);
-        }
-
-        final Era5Collection collection = getEra5Collection(configuration);
-        writer.addGlobalAttribute("era5-collection", collection.toString());
-
-        final SatelliteFieldsConfiguration satFieldsConfig = configuration.getSatelliteFields();
-        if (satFieldsConfig != null) {
-            satFieldsConfig.setMatchupDimensionName(getMatchupDimensionName());
-            satelliteFields = new SatelliteFields();
-            satelliteFields.prepare(satFieldsConfig, reader, writer, collection);
-        }
-
-        final MatchupFieldsConfiguration matchupFieldsConfig = configuration.getMatchupFields();
-        if (matchupFieldsConfig != null) {
-            matchupFieldsConfig.setMatchupDimensionName(getMatchupDimensionName());
-            matchupFields = new MatchupFields();
-            matchupFields.prepare(matchupFieldsConfig, reader, writer, collection);
-        }
     }
 
     @Override

@@ -26,10 +26,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 import com.bc.fiduceo.FiduceoConstants;
-import com.bc.fiduceo.archive.ArchiveConfig;
-import com.bc.fiduceo.core.SystemConfig;
-import com.bc.fiduceo.post.PostProcessingConfig;
-import com.bc.fiduceo.post.PostProcessingContext;
 import com.bc.fiduceo.post.plugin.amsr.AddAmsr2ScanDataQuality;
 import org.junit.*;
 import ucar.ma2.DataType;
@@ -52,18 +48,6 @@ public class AddAmsr2ScanDataQualityTest {
 
         plugin = new AddAmsr2ScanDataQuality();
         plugin.configure(configuration);
-
-        final PostProcessingContext postProcessingContext = new PostProcessingContext();
-
-        final SystemConfig systemConfig = mock(SystemConfig.class);
-        final ArchiveConfig archiveConfig = mock(ArchiveConfig.class);
-        when(systemConfig.getArchiveConfig()).thenReturn(archiveConfig);
-
-        postProcessingContext.setSystemConfig(systemConfig);
-
-        postProcessingContext.setProcessingConfig(mock(PostProcessingConfig.class));
-
-        plugin.setContext(postProcessingContext);
 
         reader = mock(NetcdfFile.class);
         writer = mock(NetcdfFileWriter.class);

@@ -33,7 +33,7 @@ public class SMOSSectionParserTest {
 
         variable = variables.get(4);
         assertEquals("SMOS_upstreamfile", variable.getShortName());
-        assertEquals(DataType.STRING, variable.getDataType());
+        assertEquals(DataType.CHAR, variable.getDataType());
 
         variable = variables.get(5);
         assertEquals("SMOS_Tbv", variable.getShortName());

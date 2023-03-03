@@ -95,7 +95,7 @@ class MatchupFields extends FieldsProcessor {
             // for all nwp variables
             // - get variable
             // - get data array
-            final int numMatches = NetCDFUtils.getDimensionLength(matchupConfig.getMatchupDimensionName(), reader);
+            final int numMatches = NetCDFUtils.getDimensionLength(FiduceoConstants.MATCHUP_COUNT, reader);
             final int[] nwpShape = new int[]{1, 1, 1};
             final int[] nwpOffset = new int[]{0, 0, 0};
             final Index timeIndex = targetTimeArray.getIndex();
@@ -180,7 +180,7 @@ class MatchupFields extends FieldsProcessor {
     List<Dimension> getDimensions(MatchupFieldsConfiguration matchupFieldsConfig, NetcdfFileWriter writer, NetcdfFile reader) {
         final ArrayList<Dimension> dimensions = new ArrayList<>();
 
-        final Dimension matchupDim = reader.findDimension(matchupFieldsConfig.getMatchupDimensionName());
+        final Dimension matchupDim = reader.findDimension(FiduceoConstants.MATCHUP_COUNT);
         dimensions.add(matchupDim);
 
         final int time_steps_past = matchupFieldsConfig.get_time_steps_past();

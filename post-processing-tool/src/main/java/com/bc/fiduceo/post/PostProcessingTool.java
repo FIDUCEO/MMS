@@ -53,7 +53,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.bc.fiduceo.FiduceoConstants.VERSION_NUMBER;
-import static com.bc.fiduceo.util.MMDUtil.getMMDFileNamePattern;
 
 class PostProcessingTool {
 
@@ -112,10 +111,10 @@ class PostProcessingTool {
 
     void runPostProcessing() throws Exception {
         final Path inputDirectory = context.getMmdInputDirectory();
-        final Pattern pattern = getMMDFileNamePattern();
+        final Pattern pattern = getFileNamePattern();
 
         try (Stream<Path> pathStream = Files.walk(inputDirectory)) {
-            final Stream<Path> regularFiles = pathStream.filter(Files::isRegularFile);
+            final Stream<Path> regularFiles = pathStream.filter(path -> Files.isRegularFile(path));
             final Stream<Path> mmdFileStream = regularFiles.filter(path -> pattern.matcher(path.getFileName().toString()).matches());
             List<Path> mmdFiles = mmdFileStream.collect(Collectors.toList());
 
@@ -132,6 +131,11 @@ class PostProcessingTool {
             throw new RuntimeException("Value of cmd-line parameter '" + optionName + "' is missing.");
         }
         return dateString;
+    }
+
+
+    static Pattern getFileNamePattern() {
+        return Pattern.compile("\\w*\\d{1,2}.*_.*_.*_\\d{4}-\\d{3}_\\d{4}-\\d{3}.nc");
     }
 
     // package access for testing only se 2016-11-28

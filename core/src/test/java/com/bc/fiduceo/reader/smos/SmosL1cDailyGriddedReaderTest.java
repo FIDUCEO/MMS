@@ -1,5 +1,9 @@
 package com.bc.fiduceo.reader.smos;
 
+import com.bc.fiduceo.geometry.GeometryFactory;
+import com.bc.fiduceo.geometry.MultiLineString;
+import com.bc.fiduceo.geometry.Point;
+import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.util.TimeUtils;
 import org.junit.Test;
@@ -70,6 +74,23 @@ public class SmosL1cDailyGriddedReaderTest {
     }
 
     @Test
+    public void testCreatePolygonFromMinMax() {
+        final double[] geoMinMax = {-170.0, 170.0, -80.0, 80.0};
+
+        final Polygon polygon = SmosL1CDailyGriddedReader.createPolygonFromMinMax(geoMinMax, new GeometryFactory(GeometryFactory.Type.S2));
+        final Point[] coordinates = polygon.getCoordinates();
+        assertEquals(5, coordinates.length);
+        assertEquals(-170, coordinates[0].getLon(), 1e-8);
+        assertEquals(-80, coordinates[0].getLat(), 1e-8);
+
+        assertEquals(170, coordinates[2].getLon(), 1e-8);
+        assertEquals(80, coordinates[2].getLat(), 1e-8);
+
+        assertEquals(-170, coordinates[4].getLon(), 1e-8);
+        assertEquals(-80, coordinates[4].getLat(), 1e-8);
+    }
+
+    @Test
     public void testExtractMinMax() {
         final double[] lons = new double[]{-171.0, -81.0, 0.0, 81.0, 171.0};
         final double[] lats = new double[]{-79.0, -39.0, 0.0, 39.0, 79.0};
@@ -83,6 +104,20 @@ public class SmosL1cDailyGriddedReaderTest {
         assertEquals(171.0, minMax[1], 1e-8);
         assertEquals(-79.0, minMax[2], 1e-8);
         assertEquals(79.0, minMax[3], 1e-8);
+    }
+
+    @Test
+    public void testCreateMultiLineStringFromMinMax() {
+        final double[] geoMinMax = {-172.0, 172.0, -78.0, 87.0};
+
+        final MultiLineString lineString = SmosL1CDailyGriddedReader.createMultiLineStringFromMinMax(geoMinMax, new GeometryFactory(GeometryFactory.Type.S2));
+        assertNotNull(lineString);
+        final Point[] coordinates = lineString.getCoordinates();
+        assertEquals(4, coordinates.length);
+        assertEquals("POINT(-172.0 0.0)", coordinates[0].toString());
+        assertEquals("POINT(172.0 0.0)", coordinates[1].toString());
+        assertEquals("POINT(0.0 87.0)", coordinates[2].toString());
+        assertEquals("POINT(0.0 -78.0)", coordinates[3].toString());
     }
 
     @Test

@@ -42,7 +42,6 @@ public class BcS2GeometryFactory extends AbstractGeometryFactory {
     public Geometry parse(String wkt) {
         final Object geometry = s2WKTReader.read(wkt);
         if (geometry instanceof S2Polygon) {
-            //normalizePolygon((S2Polygon) geometry);
             return new BcS2Polygon(geometry);
         } else if (geometry instanceof S2Polyline) {
             return new BcS2LineString((S2Polyline) geometry);
@@ -54,7 +53,6 @@ public class BcS2GeometryFactory extends AbstractGeometryFactory {
                 final ArrayList<Polygon> polygonList = new ArrayList<>();
                 final List<S2Polygon> googlePolygonList = (List<S2Polygon>) geometry;
                 for (S2Polygon googlePolygon : googlePolygonList) {
-                    //normalizePolygon(googlePolygon);
                     polygonList.add(new BcS2Polygon(googlePolygon));
                 }
                 return new BcS2MultiPolygon(polygonList);

@@ -242,10 +242,4 @@ public class NCTestUtils {
     public static void assertDimensions(String dimensions, Variable variable) {
         assertEquals(dimensions, variable.getDimensionsString());
     }
-
-    public static void assertStringValue(Array array, String expected) {
-        final char[] valueAsArray = (char[]) array.get1DJavaArray(char.class);
-        assertEquals(expected, new String(valueAsArray).trim());
-
-    }
 }
