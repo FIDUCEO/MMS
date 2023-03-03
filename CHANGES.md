@@ -1,4 +1,5 @@
 ### Updates from version 1.5.7 to 1.5.8
+* added support for NOAA NDBC insitu data
 * added support for Windsat Coriolis data
 * added conda environment
 * extended workflow to run without scheduler on plain console

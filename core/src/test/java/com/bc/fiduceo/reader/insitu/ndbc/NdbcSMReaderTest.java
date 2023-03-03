@@ -94,7 +94,7 @@ public class NdbcSMReaderTest {
     public void testGetVariables() throws InvalidRangeException, IOException {
         final List<Variable> variables = reader.getVariables();
 
-        //assertEquals(0, variables.size());
+        assertEquals(22, variables.size());
         Variable variable = variables.get(0);
         assertEquals("station_id", variable.getShortName());
         assertEquals(DataType.STRING, variable.getDataType());
