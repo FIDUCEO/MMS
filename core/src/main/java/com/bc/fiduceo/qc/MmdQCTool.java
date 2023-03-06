@@ -7,15 +7,13 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.esa.snap.core.datamodel.GeoPos;
 import ucar.ma2.Array;
 import ucar.ma2.IndexIterator;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.NetcdfFile;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -48,6 +46,15 @@ class MmdQCTool {
         final Option timeOption = new Option("t", "time", true, "Defines matchup time variable name.");
         timeOption.setRequired(true);
         options.addOption(timeOption);
+
+        final Option plotOption = new Option("p", "plot", false, "Allows plotting the matchup locations onto a global map. Requires 'lon' and 'lat' to be set.");
+        options.addOption(plotOption);
+
+        final Option lonOption = new Option("lon", "longitude", false, "Defines the variable name for the longitude.");
+        options.addOption(lonOption);
+
+        final Option latOption = new Option("lat", "latitude", false, "Defines the variable name for the latitude.");
+        options.addOption(latOption);
 
         return options;
     }
@@ -92,6 +99,7 @@ class MmdQCTool {
         fileMessages = new FileMessages();
         matchupAccumulator = new MatchupAccumulator();
 
+
         // loop over files
         for (final Path mmdFile : mmdFiles) {
 
@@ -106,6 +114,32 @@ class MmdQCTool {
                     final int time = iterator.getIntNext();
                     matchupAccumulator.add(time);
                 }
+
+                if (commandLine.hasOption("p")) {
+                    final GlobalPlot filePlot = GlobalPlot.create();
+
+                    final String mmdFilePath = mmdFile.toString();
+                    int dotIndex = mmdFilePath.lastIndexOf(".");
+                    final String pngFilePath = mmdFilePath.substring(0, dotIndex + 1).concat("png");
+
+                    final Array latitudes = NetCDFUtils.getCenterPosArrayFromMMDFile(netcdfFile, "driftercmems-sirds_latitude", null,
+                            null, FiduceoConstants.MATCHUP_COUNT);
+
+                    final Array longitudes = NetCDFUtils.getCenterPosArrayFromMMDFile(netcdfFile, "driftercmems-sirds_longitude", null,
+                            null, FiduceoConstants.MATCHUP_COUNT);
+
+                    int numMatches = latitudes.getShape()[0];
+                    final ArrayList<GeoPos> pointList = new ArrayList<>();
+                    for (int i = 0; i < numMatches; i++) {
+                        final GeoPos geoPos = new GeoPos(latitudes.getFloat(i), longitudes.getFloat(i));
+                        pointList.add(geoPos);
+                    }
+
+                    filePlot.plot(pointList);
+                    filePlot.writeTo(pngFilePath);
+                    filePlot.dispose();
+                }
+
             } catch (IOException | InvalidRangeException ioException) {
                 fileMessages.add(mmdFile.getFileName().toString(), ioException.getMessage());
             }

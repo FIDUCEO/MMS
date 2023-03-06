@@ -24,13 +24,16 @@ public class MmdQCToolTest {
                 "Valid options are:" + ls +
                 "   -h,--help          Prints the tool usage." + ls +
                 "   -i,--input <arg>   Defines the MMD input directory." + ls +
+                "   -lat,--latitude    Defines the variable name for the latitude." + ls +
+                "   -lon,--longitude   Defines the variable name for the longitude." + ls +
+                "   -p,--plot          Allows plotting the matchup locations onto a global map. Requires 'lon' and 'lat' to be set." + ls +
                 "   -t,--time <arg>    Defines matchup time variable name." + ls, outputStream.toString());
     }
 
     @Test
     public void testGetOptions() {
         final Options options = MmdQCTool.getOptions();
-        assertEquals(3, options.getOptions().size());
+        assertEquals(6, options.getOptions().size());
 
         Option o = options.getOption("h");
         assertEquals("help", o.getLongOpt());
@@ -49,6 +52,24 @@ public class MmdQCToolTest {
         assertEquals("Defines matchup time variable name.", o.getDescription());
         assertTrue(o.hasArg());
         assertTrue(o.isRequired());
+
+        o = options.getOption("p");
+        assertEquals("plot", o.getLongOpt());
+        assertEquals("Allows plotting the matchup locations onto a global map. Requires 'lon' and 'lat' to be set.", o.getDescription());
+        assertFalse(o.hasArg());
+        assertFalse(o.isRequired());
+
+        o = options.getOption("lon");
+        assertEquals("longitude", o.getLongOpt());
+        assertEquals("Defines the variable name for the longitude.", o.getDescription());
+        assertFalse(o.hasArg());
+        assertFalse(o.isRequired());
+
+        o = options.getOption("lat");
+        assertEquals("latitude", o.getLongOpt());
+        assertEquals("Defines the variable name for the latitude.", o.getDescription());
+        assertFalse(o.hasArg());
+        assertFalse(o.isRequired());
     }
 
     @Test
