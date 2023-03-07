@@ -3,11 +3,14 @@ package com.bc.fiduceo.qc;
 import com.bc.fiduceo.FiduceoConstants;
 import com.bc.fiduceo.log.FiduceoLogger;
 import com.bc.fiduceo.util.NetCDFUtils;
+import com.bc.fiduceo.util.TimeUtils;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.esa.snap.core.datamodel.GeoPos;
+import org.esa.snap.core.util.StringUtils;
+import org.esa.snap.core.util.io.FileUtils;
 import ucar.ma2.Array;
 import ucar.ma2.IndexIterator;
 import ucar.ma2.InvalidRangeException;
@@ -29,9 +32,6 @@ class MmdQCTool {
 
     private final static Logger logger = FiduceoLogger.getLogger();
 
-    private FileMessages fileMessages;
-    private MatchupAccumulator matchupAccumulator;
-
     // package access for testing only tb 2023-02-14
     static Options getOptions() {
         final Options options = new Options();
@@ -43,17 +43,20 @@ class MmdQCTool {
         inputOption.setRequired(true);
         options.addOption(inputOption);
 
+        final Option outputOption = new Option("o", "outdir", true, "Defines the result output directory.");
+        options.addOption(outputOption);
+
         final Option timeOption = new Option("t", "time", true, "Defines matchup time variable name.");
         timeOption.setRequired(true);
         options.addOption(timeOption);
 
-        final Option plotOption = new Option("p", "plot", false, "Allows plotting the matchup locations onto a global map. Requires 'lon' and 'lat' to be set.");
+        final Option plotOption = new Option("p", "plot", false, "Enables plotting the matchup locations onto a global map. Requires 'lon' and 'lat' to be set.");
         options.addOption(plotOption);
 
-        final Option lonOption = new Option("lon", "longitude", false, "Defines the variable name for the longitude.");
+        final Option lonOption = new Option("lon", "longitude", true, "Defines the variable name for the longitude.");
         options.addOption(lonOption);
 
-        final Option latOption = new Option("lat", "latitude", false, "Defines the variable name for the latitude.");
+        final Option latOption = new Option("lat", "latitude", true, "Defines the variable name for the latitude.");
         options.addOption(latOption);
 
         return options;
@@ -75,7 +78,14 @@ class MmdQCTool {
         final int size = messageMap.size();
         writer.println(size + " file(s) with errors");
         if (size > 0) {
-            // @todo 1 tb/tb add error messages per file here
+            for (Map.Entry<String, List<String>> entry : messageMap.entrySet()) {
+                writer.println(entry.getKey());
+
+                final List<String> messages = entry.getValue();
+                for (final String message : messages) {
+                    writer.println(" - " + message);
+                }
+            }
         }
 
         writer.println();
@@ -96,14 +106,21 @@ class MmdQCTool {
         final List<Path> mmdFiles = getInputFiles(inputDirOption);
         logger.info("Found " + mmdFiles.size() + " input file(s) to analyze.");
 
-        fileMessages = new FileMessages();
-        matchupAccumulator = new MatchupAccumulator();
+        final String outDirString = commandLine.getOptionValue("o");
+        File outDir;
+        if (StringUtils.isNullOrEmpty(outDirString)) {
+            outDir = new File(".");
+        } else {
+            outDir = new File(outDirString);
+        }
 
+        final FileMessages fileMessages = new FileMessages();
+        final MatchupAccumulator matchupAccumulator = new MatchupAccumulator();
 
         // loop over files
         for (final Path mmdFile : mmdFiles) {
-
             try (final NetcdfFile netcdfFile = NetCDFUtils.openReadOnly(mmdFile.toAbsolutePath().toString())) {
+                matchupAccumulator.countFile();
 
                 // read time variable center pixel
                 final String timeVariableName = commandLine.getOptionValue("t");
@@ -116,28 +133,7 @@ class MmdQCTool {
                 }
 
                 if (commandLine.hasOption("p")) {
-                    final GlobalPlot filePlot = GlobalPlot.create();
-
-                    final String mmdFilePath = mmdFile.toString();
-                    int dotIndex = mmdFilePath.lastIndexOf(".");
-                    final String pngFilePath = mmdFilePath.substring(0, dotIndex + 1).concat("png");
-
-                    final Array latitudes = NetCDFUtils.getCenterPosArrayFromMMDFile(netcdfFile, "driftercmems-sirds_latitude", null,
-                            null, FiduceoConstants.MATCHUP_COUNT);
-
-                    final Array longitudes = NetCDFUtils.getCenterPosArrayFromMMDFile(netcdfFile, "driftercmems-sirds_longitude", null,
-                            null, FiduceoConstants.MATCHUP_COUNT);
-
-                    int numMatches = latitudes.getShape()[0];
-                    final ArrayList<GeoPos> pointList = new ArrayList<>();
-                    for (int i = 0; i < numMatches; i++) {
-                        final GeoPos geoPos = new GeoPos(latitudes.getFloat(i), longitudes.getFloat(i));
-                        pointList.add(geoPos);
-                    }
-
-                    filePlot.plot(pointList);
-                    filePlot.writeTo(pngFilePath);
-                    filePlot.dispose();
+                    plotMatchups(mmdFile, netcdfFile, commandLine, outDir);
                 }
 
             } catch (IOException | InvalidRangeException ioException) {
@@ -145,12 +141,52 @@ class MmdQCTool {
             }
         }
 
-        // write report
-        final TreeMap<String, Integer> treeMap = new TreeMap<>(matchupAccumulator.getDaysMap());
-        final Set<Map.Entry<String, Integer>> entries = treeMap.entrySet();
-        for (final Map.Entry<String, Integer> entry : entries) {
-            System.out.println(entry.getKey() + ": " + entry.getValue());
+        final Date now = TimeUtils.createNow();
+        final String timeString = TimeUtils.format(now, "yyyy-MM-dd");
+        final String qcFileName = "mmd_qc_report_" + timeString + ".txt";
+        final File reportFile = new File(outDir, qcFileName);
+        if (!reportFile.createNewFile()) {
+            throw new IOException("unable to create report file: " + reportFile.getAbsolutePath());
         }
+        try (FileOutputStream outStream = new FileOutputStream(reportFile)) {
+            writeReport(outStream, matchupAccumulator, fileMessages);
+        }
+    }
+
+    private static void plotMatchups(Path mmdFile, NetcdfFile netcdfFile, CommandLine commandLine, File outDir) throws IOException, InvalidRangeException {
+        final String lonVariable = commandLine.getOptionValue("lon");
+        final String latVariable = commandLine.getOptionValue("lat");
+
+        if (StringUtils.isNullOrEmpty(lonVariable) || StringUtils.isNullOrEmpty(latVariable)) {
+            throw new IllegalArgumentException("must provide lon and lat variable names for plotting");
+        }
+
+        final String filenameWithoutExtension = FileUtils.getFilenameWithoutExtension(mmdFile.toFile());
+        final String pngFile = filenameWithoutExtension.concat(".png");
+        final File pngFilePath = new File(outDir, pngFile);
+
+        final GlobalPlot filePlot = GlobalPlot.create();
+        final Array latitudes = NetCDFUtils.getCenterPosArrayFromMMDFile(netcdfFile, latVariable, null,
+                null, FiduceoConstants.MATCHUP_COUNT);
+
+        final Array longitudes = NetCDFUtils.getCenterPosArrayFromMMDFile(netcdfFile, lonVariable, null,
+                null, FiduceoConstants.MATCHUP_COUNT);
+
+        int numMatches = 1;
+        int[] shape = latitudes.getShape();
+        if (shape.length > 0) {
+           numMatches = shape[0];
+        }
+
+        final ArrayList<GeoPos> pointList = new ArrayList<>();
+        for (int i = 0; i < numMatches; i++) {
+            final GeoPos geoPos = new GeoPos(latitudes.getFloat(i), longitudes.getFloat(i));
+            pointList.add(geoPos);
+        }
+
+        filePlot.plot(pointList);
+        filePlot.writeTo(pngFilePath.getAbsolutePath());
+        filePlot.dispose();
     }
 
     private List<Path> getInputFiles(String inputDirOption) throws IOException {

@@ -7,7 +7,6 @@ import org.junit.Test;
 import java.io.ByteArrayOutputStream;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertFalse;
 
 public class MmdQCToolTest {
 
@@ -22,18 +21,20 @@ public class MmdQCToolTest {
                 ls +
                 "usage: matchup-tool <options>" + ls +
                 "Valid options are:" + ls +
-                "   -h,--help          Prints the tool usage." + ls +
-                "   -i,--input <arg>   Defines the MMD input directory." + ls +
-                "   -lat,--latitude    Defines the variable name for the latitude." + ls +
-                "   -lon,--longitude   Defines the variable name for the longitude." + ls +
-                "   -p,--plot          Allows plotting the matchup locations onto a global map. Requires 'lon' and 'lat' to be set." + ls +
-                "   -t,--time <arg>    Defines matchup time variable name." + ls, outputStream.toString());
+                "   -h,--help                Prints the tool usage." + ls +
+                "   -i,--input <arg>         Defines the MMD input directory." + ls +
+                "   -lat,--latitude <arg>    Defines the variable name for the latitude." + ls +
+                "   -lon,--longitude <arg>   Defines the variable name for the longitude." + ls +
+                "   -o,--outdir <arg>        Defines the result output directory." + ls +
+                "   -p,--plot                Enables plotting the matchup locations onto a global map. Requires 'lon' and 'lat' to be" + ls +
+                "                            set." + ls +
+                "   -t,--time <arg>          Defines matchup time variable name." + ls, outputStream.toString());
     }
 
     @Test
     public void testGetOptions() {
         final Options options = MmdQCTool.getOptions();
-        assertEquals(6, options.getOptions().size());
+        assertEquals(7, options.getOptions().size());
 
         Option o = options.getOption("h");
         assertEquals("help", o.getLongOpt());
@@ -47,6 +48,12 @@ public class MmdQCToolTest {
         assertTrue(o.hasArg());
         assertTrue(o.isRequired());
 
+        o = options.getOption("o");
+        assertEquals("outdir", o.getLongOpt());
+        assertEquals("Defines the result output directory.", o.getDescription());
+        assertTrue(o.hasArg());
+        assertFalse(o.isRequired());
+
         o = options.getOption("t");
         assertEquals("time", o.getLongOpt());
         assertEquals("Defines matchup time variable name.", o.getDescription());
@@ -55,20 +62,20 @@ public class MmdQCToolTest {
 
         o = options.getOption("p");
         assertEquals("plot", o.getLongOpt());
-        assertEquals("Allows plotting the matchup locations onto a global map. Requires 'lon' and 'lat' to be set.", o.getDescription());
+        assertEquals("Enables plotting the matchup locations onto a global map. Requires 'lon' and 'lat' to be set.", o.getDescription());
         assertFalse(o.hasArg());
         assertFalse(o.isRequired());
 
         o = options.getOption("lon");
         assertEquals("longitude", o.getLongOpt());
         assertEquals("Defines the variable name for the longitude.", o.getDescription());
-        assertFalse(o.hasArg());
+        assertTrue(o.hasArg());
         assertFalse(o.isRequired());
 
         o = options.getOption("lat");
         assertEquals("latitude", o.getLongOpt());
         assertEquals("Defines the variable name for the latitude.", o.getDescription());
-        assertFalse(o.hasArg());
+        assertTrue(o.hasArg());
         assertFalse(o.isRequired());
     }
 
@@ -103,5 +110,33 @@ public class MmdQCToolTest {
                 "Total number of matchups: 5" + ls +
                 "Daily distribution:" + ls +
                 "2022-08-12: 5" + ls, outputStream.toString());
+    }
+
+    @Test
+    public void testWriteReport_one_file_some_matches_with_errors() {
+        final String ls = System.lineSeparator();
+        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        final MatchupAccumulator accumulator = new MatchupAccumulator();
+
+        accumulator.countFile();
+
+        accumulator.add(1660262400);
+        accumulator.add(1660262800);
+
+        final FileMessages fileMessages = new FileMessages();
+        fileMessages.add("heffalump_3.nc", "Unable to read metadata");
+        fileMessages.add("heffalump_3.nc", "Quirky format");
+
+
+        MmdQCTool.writeReport(outputStream, accumulator, fileMessages);
+
+        assertEquals("Analysed 1 file(s)" + ls + ls +
+                "1 file(s) with errors" + ls +
+                "heffalump_3.nc" + ls +
+                " - Unable to read metadata" + ls +
+                " - Quirky format" + ls + ls +
+                "Total number of matchups: 2" + ls +
+                "Daily distribution:" + ls +
+                "2022-08-12: 2" + ls, outputStream.toString());
     }
 }
