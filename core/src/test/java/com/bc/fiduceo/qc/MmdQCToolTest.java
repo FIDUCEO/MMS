@@ -19,7 +19,7 @@ public class MmdQCToolTest {
 
         assertEquals("mmd-qc-tool version 1.5.8" + ls +
                 ls +
-                "usage: matchup-tool <options>" + ls +
+                "usage: mmd-qc-tool <options>" + ls +
                 "Valid options are:" + ls +
                 "   -h,--help                Prints the tool usage." + ls +
                 "   -i,--input <arg>         Defines the MMD input directory." + ls +

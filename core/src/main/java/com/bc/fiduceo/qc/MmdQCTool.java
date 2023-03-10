@@ -210,7 +210,7 @@ class MmdQCTool {
         writer.write(ls + ls);
 
         final HelpFormatter helpFormatter = new HelpFormatter();
-        helpFormatter.printHelp(writer, 120, "matchup-tool <options>", "Valid options are:",
+        helpFormatter.printHelp(writer, 120, "mmd-qc-tool <options>", "Valid options are:",
                 getOptions(), 3, 3, "");
 
         writer.flush();
