@@ -346,6 +346,9 @@ class InsituPolarOrbitingMatchupStrategy extends AbstractMatchupStrategy {
         final List<Sample> insituSamples = getInsituSamples(processingInterval, insituReader);
         for (final Sample insituSample : insituSamples) {
             final List<SatelliteObservation> candidatesByTime = getCandidatesByTime(secondaryObservations, new Date(insituSample.getTime()), timeDeltaInMillis);
+            if (candidatesByTime.size() == 0) {
+                continue;
+            }
             final Geometry point = geometryFactory.createPoint(insituSample.getLon(), insituSample.getLat());
             final List<SatelliteObservation> candidatesByGeometry = getCandidatesByGeometry(candidatesByTime, point);
 
