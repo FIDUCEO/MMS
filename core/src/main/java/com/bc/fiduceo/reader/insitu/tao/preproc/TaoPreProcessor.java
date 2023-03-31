@@ -15,12 +15,16 @@ public class TaoPreProcessor {
         configuration.targetDir = "C:\\Satellite\\CIMR\\TAO_merged";
         configuration.filePrefix = "TAO_T0N110W";
         configuration.sssFileName = "TAO_T0N110W_D_SALT_hourly.ascii";
+        configuration.sstFileName = "TAO_T0N110W_D_SST_10min.ascii";
 
         // --- read all we need ---
         final File sourceDir = new File(configuration.sourceDir);
         final File sssFile = new File(sourceDir, configuration.sssFileName);
 
         final HashMap<String, List<SSSRecord>> sssMap = parseSSSFile(sssFile);
+        final SSTProvider sstProvider = new SSTProvider();
+        sstProvider.open(new File(sourceDir, configuration.sstFileName));
+
         final HashMap<String, List<TAORecord>> taoMap = new HashMap<>();
 
         // --- assemble final records ---
@@ -38,6 +42,12 @@ public class TaoPreProcessor {
                 taoRecord.SSS = sssRecord.SSS;
                 M = M.concat(sssRecord.M);
                 Q = Q.concat(sssRecord.Q);
+
+                // sst data
+                final SSTRecord sstRecord = sstProvider.get(sssRecord.date);
+                taoRecord.SST = sstRecord.SST;
+                M = M.concat(sstRecord.M);
+                Q = Q.concat(sstRecord.Q);
 
                 taoRecord.M = M;
                 taoRecord.Q = Q;
@@ -169,31 +179,6 @@ public class TaoPreProcessor {
     // rh RH Q M height
     // sst SST Q M depth
     // wind WSPD WDIR Q M height
-
-    static class Configuration {
-        String sourceDir;
-        String targetDir;
-        String filePrefix;
-        String sssFileName;
-    }
-
-    static class SSSRecord {
-        int date;
-        String SSS;
-        String Q;
-        String M;
-    }
-
-    static class TAORecord {
-        int date;
-        String SSS;
-        String Q;
-        String M;
-
-        String toLine() {
-            return date + " " + SSS + " " + Q + " " + M;
-        }
-    }
 
     static int toUnixEpoch(String yyyymmdd, String hhmmss) {
         int year = Integer.parseInt(yyyymmdd.substring(0, 4));
