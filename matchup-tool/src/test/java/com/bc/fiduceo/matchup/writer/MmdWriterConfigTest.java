@@ -21,6 +21,10 @@
 package com.bc.fiduceo.matchup.writer;
 
 
+import static com.bc.fiduceo.matchup.writer.AbstractMmdWriter.GLOBAL_ATTR_TITLE;
+import static com.bc.fiduceo.matchup.writer.AbstractMmdWriter.GLOBAL_ATTR_INSTITUTION;
+import static com.bc.fiduceo.matchup.writer.AbstractMmdWriter.GLOBAL_ATTR_CONTACT;
+import static com.bc.fiduceo.matchup.writer.AbstractMmdWriter.GLOBAL_ATTR_LICENSE;
 import static com.bc.fiduceo.matchup.writer.MmdWriterFactory.NetcdfType.N3;
 import static com.bc.fiduceo.matchup.writer.MmdWriterFactory.NetcdfType.N4;
 import static org.junit.Assert.*;
@@ -159,6 +163,49 @@ public class MmdWriterConfigTest {
 
         final VariablesConfiguration variablesConfiguration = loadedConfig.getVariablesConfiguration();
         assertNotNull(variablesConfiguration);
+    }
+
+    @Test
+    public void testLoad_emptyGlobalAttributesConfiguration() {
+        //preparation
+        final String configXml = "<mmd-writer-config>" +
+                                 "    <global-attributes/>" +
+                                 "</mmd-writer-config>";
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(configXml.getBytes());
+
+        //execution
+        final MmdWriterConfig loadedConfig = MmdWriterConfig.load(inputStream);
+        final Map variablesConfiguration = loadedConfig.getGlobalAttributes();
+
+        //verification
+        assertNotNull(variablesConfiguration);
+        assertEquals(0, variablesConfiguration.size());
+    }
+
+    @Test
+    public void testLoad_fullGlobalAttributesConfiguration() {
+        //preparation
+        final String configXml = "<mmd-writer-config>" +
+                                 "    <global-attributes>" +
+                                 "        <attribute name=\"" + GLOBAL_ATTR_TITLE + "\" value=\"Ein\" />" +
+                                 "        <attribute name=\"" + GLOBAL_ATTR_INSTITUTION + "\" value=\"wunder\" />" +
+                                 "        <attribute name=\"" + GLOBAL_ATTR_CONTACT + "\" value=\"schöner\" />" +
+                                 "        <attribute name=\"" + GLOBAL_ATTR_LICENSE + "\" value=\"Tag\" />" +
+                                 "    </global-attributes>" +
+                                 "</mmd-writer-config>";
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(configXml.getBytes());
+
+        //execution
+        final MmdWriterConfig loadedConfig = MmdWriterConfig.load(inputStream);
+        final Map globAttr = loadedConfig.getGlobalAttributes();
+
+        //verification
+        assertNotNull(globAttr);
+        assertEquals(4, globAttr.size());
+        assertEquals("Ein", globAttr.get(GLOBAL_ATTR_TITLE) );
+        assertEquals("wunder", globAttr.get(GLOBAL_ATTR_INSTITUTION) );
+        assertEquals("schöner", globAttr.get(GLOBAL_ATTR_CONTACT) );
+        assertEquals("Tag", globAttr.get(GLOBAL_ATTR_LICENSE) );
     }
 
     @Test

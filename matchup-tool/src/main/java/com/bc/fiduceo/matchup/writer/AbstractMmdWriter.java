@@ -51,6 +51,11 @@ import java.util.logging.Logger;
 
 abstract class AbstractMmdWriter implements MmdWriter, Target {
 
+    static final String GLOBAL_ATTR_TITLE = "title";
+    static final String GLOBAL_ATTR_INSTITUTION = "institution";
+    static final String GLOBAL_ATTR_CONTACT = "contact";
+    static final String GLOBAL_ATTR_LICENSE = "license";
+
     private final Logger logger;
     private final Map<String, Array> dataCacheMap;
     private final Map<String, Variable> variableMap;
@@ -291,9 +296,9 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
                 netcdfFileWriter.addDimension(null, dimension.getShortName(), dimension.getLength());
             }
             final Variable variable = netcdfFileWriter.addVariable(null,
-                    ioVariable.getTargetVariableName(),
-                    DataType.getType(ioVariable.getDataType()),
-                    ioVariable.getDimensionNames());
+                                                                   ioVariable.getTargetVariableName(),
+                                                                   DataType.getType(ioVariable.getDataType()),
+                                                                   ioVariable.getDimensionNames());
             final List<Attribute> attributes = ioVariable.getAttributes();
             for (Attribute attribute : attributes) {
                 variable.addAttribute(attribute);
@@ -366,10 +371,17 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
     }
 
     private void createGlobalAttributes() {
-        addGlobalAttribute("title", "FIDUCEO multi-sensor match-up dataset (MMD)");
-        addGlobalAttribute("institution", "Brockmann Consult GmbH");
-        addGlobalAttribute("contact", "Tom Block (tom.block@brockmann-consult.de)");
-        addGlobalAttribute("license", "This dataset is released for use under CC-BY licence and was developed in the EC FIDUCEO project \"Fidelity and Uncertainty in Climate Data Records from Earth Observations\". Grant Agreement: 638822.");
+        final Map<String, String> ga = writerConfig.getGlobalAttributes();
+
+        final String title = ga.getOrDefault(GLOBAL_ATTR_TITLE, "FIDUCEO multi-sensor match-up dataset (MMD)");
+        final String institution = ga.getOrDefault(GLOBAL_ATTR_INSTITUTION, "Brockmann Consult GmbH");
+        final String contact = ga.getOrDefault(GLOBAL_ATTR_CONTACT, "Tom Block (tom.block@brockmann-consult.de)");
+        final String licence = ga.getOrDefault(GLOBAL_ATTR_LICENSE, "This dataset is released for use under CC-BY licence and was developed in the EC FIDUCEO project \"Fidelity and Uncertainty in Climate Data Records from Earth Observations\". Grant Agreement: 638822.");
+
+        addGlobalAttribute(GLOBAL_ATTR_TITLE, title);
+        addGlobalAttribute(GLOBAL_ATTR_INSTITUTION, institution);
+        addGlobalAttribute(GLOBAL_ATTR_CONTACT, contact);
+        addGlobalAttribute(GLOBAL_ATTR_LICENSE, licence);
         addGlobalAttribute("creation_date", TimeUtils.format(new Date(), "yyyy-MM-dd HH:mm:ss"));
         addGlobalAttribute("software_version", FiduceoConstants.VERSION);
     }

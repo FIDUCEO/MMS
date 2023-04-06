@@ -41,6 +41,7 @@ public class MmdWriterConfig {
     private static final String CACHE_SIZE_TAG = "cache-size";
     private static final String NETCDF_FORMAT_TAG = "netcdf-format";
     private static final String READER_CACHE_SIZE_TAG = "reader-cache-size";
+    private static final String GLOBAL_ATTRIBUTES_TAG = "global-attributes";
     private static final String VARIABLES_CONFIGURATION_TAG = "variables-configuration";
     private static final String SENSOR_RENAME_TAG = "sensor-rename";
     private static final String SEPARATOR = "separator";
@@ -61,12 +62,14 @@ public class MmdWriterConfig {
     private NetcdfType netcdfFormat;
     private VariablesConfiguration variablesConfiguration;
     private int readerCacheSize;
+    private Map<String, String> globalAttributes;
 
     MmdWriterConfig() {
         cacheSize = 2048;
         netcdfFormat = NetcdfType.N4;
         variablesConfiguration = new VariablesConfiguration();
         readerCacheSize = 6;
+        globalAttributes = new HashMap<>();
     }
 
     private MmdWriterConfig(Document document) {
@@ -94,6 +97,10 @@ public class MmdWriterConfig {
 
     public VariablesConfiguration getVariablesConfiguration() {
         return variablesConfiguration;
+    }
+
+    public Map<String, String> getGlobalAttributes() {
+        return Collections.unmodifiableMap(globalAttributes);
     }
 
     int getCacheSize() {
@@ -149,6 +156,16 @@ public class MmdWriterConfig {
         if (readerCachetElement != null) {
             final String readerCacheValue = readerCachetElement.getValue();
             setReaderCacheSize(Integer.valueOf(readerCacheValue));
+        }
+
+        final Element globalAttributesElement = rootElement.getChild(GLOBAL_ATTRIBUTES_TAG);
+        if (globalAttributesElement != null) {
+            final List<Element> elements = globalAttributesElement.getChildren("attribute");
+            for (Element element : elements) {
+                final String attName = element.getAttributeValue("name");
+                final String attValue = element.getAttributeValue("value");
+                globalAttributes.put(attName, attValue);
+            }
         }
 
         final Element variablesConfigurationElement = rootElement.getChild(VARIABLES_CONFIGURATION_TAG);
@@ -250,7 +267,7 @@ public class MmdWriterConfig {
         final List<Element> writeScaledElements = sensorElement.getChildren("writeScaled");
         for (final Element scaledVarElement : writeScaledElements) {
             final String sourceName = getAttributeString(SOURCE_NAME_ATTRIBUTE, scaledVarElement);
-            for (final String sensorName: sensorNames) {
+            for (final String sensorName : sensorNames) {
                 variablesConfiguration.addWriteScaled(sensorName, sourceName);
             }
         }
