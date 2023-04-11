@@ -189,7 +189,7 @@ public class MmdWriterConfigTest {
                                  "    <global-attributes>" +
                                  "        <attribute name=\"" + GLOBAL_ATTR_TITLE + "\" value=\"Ein\" />" +
                                  "        <attribute name=\"" + GLOBAL_ATTR_INSTITUTION + "\" value=\"wunder\" />" +
-                                 "        <attribute name=\"" + GLOBAL_ATTR_CONTACT + "\" value=\"schöner\" />" +
+                                 "        <attribute name=\"" + GLOBAL_ATTR_CONTACT + "\" value=\"barer\" />" +
                                  "        <attribute name=\"" + GLOBAL_ATTR_LICENSE + "\" value=\"Tag\" />" +
                                  "    </global-attributes>" +
                                  "</mmd-writer-config>";
@@ -204,7 +204,7 @@ public class MmdWriterConfigTest {
         assertEquals(4, globAttr.size());
         assertEquals("Ein", globAttr.get(GLOBAL_ATTR_TITLE) );
         assertEquals("wunder", globAttr.get(GLOBAL_ATTR_INSTITUTION) );
-        assertEquals("schöner", globAttr.get(GLOBAL_ATTR_CONTACT) );
+        assertEquals("barer", globAttr.get(GLOBAL_ATTR_CONTACT) );
         assertEquals("Tag", globAttr.get(GLOBAL_ATTR_LICENSE) );
     }
 
