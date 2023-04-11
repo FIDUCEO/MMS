@@ -45,6 +45,7 @@ import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 import ucar.nc2.iosp.netcdf3.N3iosp;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -57,6 +58,10 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import static com.bc.fiduceo.matchup.writer.AbstractMmdWriter.GLOBAL_ATTR_TITLE;
+import static com.bc.fiduceo.matchup.writer.AbstractMmdWriter.GLOBAL_ATTR_INSTITUTION;
+import static com.bc.fiduceo.matchup.writer.AbstractMmdWriter.GLOBAL_ATTR_CONTACT;
+import static com.bc.fiduceo.matchup.writer.AbstractMmdWriter.GLOBAL_ATTR_LICENSE;
 import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
 import static org.junit.Assert.*;
 
@@ -211,10 +216,10 @@ public class MmdWriter_IO_Test {
 
             assertEquals(9, mmd.getGlobalAttributes().size());
 
-            assertGlobalAttribute("title", "FIDUCEO multi-sensor match-up dataset (MMD)", mmd);
+            assertGlobalAttribute("title", "SCEPS multi-sensor match-up dataset (MMD)", mmd);
             assertGlobalAttribute("institution", "Brockmann Consult GmbH", mmd);
             assertGlobalAttribute("contact", "Tom Block (tom.block@brockmann-consult.de)", mmd);
-            assertGlobalAttribute("license", "This dataset is released for use under CC-BY licence and was developed in the EC FIDUCEO project \"Fidelity and Uncertainty in Climate Data Records from Earth Observations\". Grant Agreement: 638822.", mmd);
+            assertGlobalAttribute("license", "ESA Data Policy: free and open access.", mmd);
             assertGlobalDateAttribute("creation_date", TimeUtils.createNow(), mmd);
             assertGlobalAttribute("software_version", FiduceoConstants.VERSION, mmd);
             assertGlobalAttribute("sensor-names", "avhrr-n11,avhrr-n12", mmd);
@@ -291,6 +296,67 @@ public class MmdWriter_IO_Test {
 
             final List<Variable> variables = mmd.getVariables();
             assertEquals(4, variables.size());
+        } finally {
+            if (mmd != null) {
+                mmd.close();
+            }
+        }
+    }
+
+    @Test
+    public void testCreate_withUserDefinedGlobalAttributes() throws IOException, InvalidRangeException {
+        //preparation
+        final String configXml = "<mmd-writer-config>" +
+                                 "    <global-attributes>" +
+                                 "        <attribute name=\"" + GLOBAL_ATTR_TITLE + "\" value=\"Ein\" />" +
+                                 "        <attribute name=\"" + GLOBAL_ATTR_INSTITUTION + "\" value=\"wunder\" />" +
+                                 "        <attribute name=\"" + GLOBAL_ATTR_CONTACT + "\" value=\"schöner\" />" +
+                                 "        <attribute name=\"" + GLOBAL_ATTR_LICENSE + "\" value=\"Tag\" />" +
+                                 "    </global-attributes>" +
+                                 "</mmd-writer-config>";
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(configXml.getBytes());
+
+        final MmdWriterConfig loadedConfig = MmdWriterConfig.load(inputStream);
+        final MmdWriterNC3 mmdWriter = new MmdWriterNC3(loadedConfig);
+
+        final Sensor primarySensor = new Sensor("avhrr-n11");
+        primarySensor.setPrimary(true);
+
+        final UseCaseConfig useCaseConfig = UseCaseConfigBuilder
+                .build("useCaseName")
+                .withDimensions(Arrays.asList(
+                        new Dimension("avhrr-n11", 5, 7),
+                        new Dimension("avhrr-n12", 3, 5)))
+                .withSensors(Arrays.asList(
+                        primarySensor,
+                        new Sensor("avhrr-n12")))
+                .createConfig();
+
+        final Path mmdFile = Paths.get(testDir.toURI()).resolve("test_mmd.nc");
+
+//execution
+        try {
+            mmdWriter.initializeNetcdfFile(mmdFile, useCaseConfig, new ArrayList<IOVariable>(), 123);
+        } finally {
+            mmdWriter.close();
+        }
+
+        //verification
+        assertTrue(Files.isRegularFile(mmdFile));
+
+        NetcdfFile mmd = null;
+        try {
+            mmd = NetcdfFile.open(mmdFile.toString());
+
+            assertEquals(9, mmd.getGlobalAttributes().size());
+
+            assertGlobalAttribute("title", "Ein", mmd);
+            assertGlobalAttribute("institution", "wunder", mmd);
+            assertGlobalAttribute("contact", "schöner", mmd);
+            assertGlobalAttribute("license", "Tag", mmd);
+            assertGlobalDateAttribute("creation_date", TimeUtils.createNow(), mmd);
+            assertGlobalAttribute("software_version", FiduceoConstants.VERSION, mmd);
+
         } finally {
             if (mmd != null) {
                 mmd.close();
