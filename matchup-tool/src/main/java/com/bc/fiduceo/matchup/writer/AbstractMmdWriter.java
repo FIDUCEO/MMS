@@ -373,10 +373,10 @@ abstract class AbstractMmdWriter implements MmdWriter, Target {
     private void createGlobalAttributes() {
         final Map<String, String> ga = writerConfig.getGlobalAttributes();
 
-        final String title = ga.getOrDefault(GLOBAL_ATTR_TITLE, "FIDUCEO multi-sensor match-up dataset (MMD)");
+        final String title = ga.getOrDefault(GLOBAL_ATTR_TITLE, "SCEPS multi-sensor match-up dataset (MMD)");
         final String institution = ga.getOrDefault(GLOBAL_ATTR_INSTITUTION, "Brockmann Consult GmbH");
         final String contact = ga.getOrDefault(GLOBAL_ATTR_CONTACT, "Tom Block (tom.block@brockmann-consult.de)");
-        final String licence = ga.getOrDefault(GLOBAL_ATTR_LICENSE, "This dataset is released for use under CC-BY licence and was developed in the EC FIDUCEO project \"Fidelity and Uncertainty in Climate Data Records from Earth Observations\". Grant Agreement: 638822.");
+        final String licence = ga.getOrDefault(GLOBAL_ATTR_LICENSE, "ESA Data Policy: free and open access.");
 
         addGlobalAttribute(GLOBAL_ATTR_TITLE, title);
         addGlobalAttribute(GLOBAL_ATTR_INSTITUTION, institution);

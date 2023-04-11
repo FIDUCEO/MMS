@@ -216,10 +216,10 @@ public class MmdWriter_IO_Test {
 
             assertEquals(9, mmd.getGlobalAttributes().size());
 
-            assertGlobalAttribute("title", "FIDUCEO multi-sensor match-up dataset (MMD)", mmd);
+            assertGlobalAttribute("title", "SCEPS multi-sensor match-up dataset (MMD)", mmd);
             assertGlobalAttribute("institution", "Brockmann Consult GmbH", mmd);
             assertGlobalAttribute("contact", "Tom Block (tom.block@brockmann-consult.de)", mmd);
-            assertGlobalAttribute("license", "This dataset is released for use under CC-BY licence and was developed in the EC FIDUCEO project \"Fidelity and Uncertainty in Climate Data Records from Earth Observations\". Grant Agreement: 638822.", mmd);
+            assertGlobalAttribute("license", "ESA Data Policy: free and open access.", mmd);
             assertGlobalDateAttribute("creation_date", TimeUtils.createNow(), mmd);
             assertGlobalAttribute("software_version", FiduceoConstants.VERSION, mmd);
             assertGlobalAttribute("sensor-names", "avhrr-n11,avhrr-n12", mmd);
