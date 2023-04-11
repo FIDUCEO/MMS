@@ -6,4 +6,6 @@ class Configuration {
     String filePrefix;
     String sssFileName;
     String sstFileName;
+    String airtFileName;
+    String rhFileName;
 }

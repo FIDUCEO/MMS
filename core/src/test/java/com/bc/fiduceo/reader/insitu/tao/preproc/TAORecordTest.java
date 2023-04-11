@@ -12,10 +12,12 @@ public class TAORecordTest {
         taoRecord.date = 1543910594;
         taoRecord.SSS = "23.5";
         taoRecord.SST = "24.6";
-        taoRecord.Q = "23";
-        taoRecord.M = "DM";
+        taoRecord.AIRT = "25.7";
+        taoRecord.RH = "26.8";
+        taoRecord.Q = "2342";
+        taoRecord.M = "DMDM";
 
-        assertEquals("1543910594 23.5 24.6 23 DM", taoRecord.toLine());
+        assertEquals("1543910594 23.5 24.6 25.7 26.8 2342 DMDM", taoRecord.toLine());
 
     }
 }

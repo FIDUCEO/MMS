@@ -41,6 +41,7 @@ class SSTProvider {
         SSTRecord sstRecord = sstMap.get(date);
         if (sstRecord == null) {
             sstRecord = new SSTRecord();
+            sstRecord.date = date;
             sstRecord.SST = "-9.999";
             sstRecord.Q = "9";
             sstRecord.M = "D";

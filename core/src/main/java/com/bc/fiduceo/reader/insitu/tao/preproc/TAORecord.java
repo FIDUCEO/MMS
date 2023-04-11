@@ -4,10 +4,12 @@ class TAORecord {
     int date;
     String SSS;
     String SST;
+    String AIRT;
+    String RH;
     String Q;
     String M;
 
     String toLine() {
-        return date + " " + SSS + " " + SST + " " +Q + " " + M;
+        return date + " " + SSS + " " + SST + " " + AIRT + " " + RH + " " + Q + " " + M;
     }
 }

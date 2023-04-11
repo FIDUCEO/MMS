@@ -16,6 +16,8 @@ public class TaoPreProcessor {
         configuration.filePrefix = "TAO_T0N110W";
         configuration.sssFileName = "TAO_T0N110W_D_SALT_hourly.ascii";
         configuration.sstFileName = "TAO_T0N110W_D_SST_10min.ascii";
+        configuration.airtFileName = "TAO_T0N110W_D_AIRT_10min.ascii";
+        configuration.rhFileName = "TAO_T0N110W_D_RH_10min.ascii";
 
         // --- read all we need ---
         final File sourceDir = new File(configuration.sourceDir);
@@ -24,6 +26,12 @@ public class TaoPreProcessor {
         final HashMap<String, List<SSSRecord>> sssMap = parseSSSFile(sssFile);
         final SSTProvider sstProvider = new SSTProvider();
         sstProvider.open(new File(sourceDir, configuration.sstFileName));
+
+        final AirtProvider airtProvider = new AirtProvider();
+        airtProvider.open(new File(sourceDir, configuration.airtFileName));
+
+        final RHProvider rhProvider = new RHProvider();
+        rhProvider.open(new File(sourceDir, configuration.rhFileName));
 
         final HashMap<String, List<TAORecord>> taoMap = new HashMap<>();
 
@@ -38,6 +46,7 @@ public class TaoPreProcessor {
                 String M = "";
                 String Q = "";
 
+                // salinity
                 taoRecord.date = sssRecord.date;
                 taoRecord.SSS = sssRecord.SSS;
                 M = M.concat(sssRecord.M);
@@ -48,6 +57,18 @@ public class TaoPreProcessor {
                 taoRecord.SST = sstRecord.SST;
                 M = M.concat(sstRecord.M);
                 Q = Q.concat(sstRecord.Q);
+
+                // airt data
+                final AIRTRecord airtRecord = airtProvider.get(sssRecord.date);
+                taoRecord.AIRT = airtRecord.AIRT;
+                M = M.concat(airtRecord.M);
+                Q = Q.concat(airtRecord.Q);
+
+                // relative humidity
+                final RHRecord rhRecord = rhProvider.get(sssRecord.date);
+                taoRecord.RH = rhRecord.RH;
+                M = M.concat(rhRecord.M);
+                Q = Q.concat(rhRecord.Q);
 
                 taoRecord.M = M;
                 taoRecord.Q = Q;
