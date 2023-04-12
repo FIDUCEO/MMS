@@ -24,7 +24,7 @@ class SSTProvider {
                 }
 
                 final SSTRecord sstRecord = new SSTRecord();
-                final String[] tokens = StringUtils.split(line, new char[]{' '}, true);
+                final String[] tokens = TaoPreProcessor.tokenize(line);
                 sstRecord.date = TaoPreProcessor.toUnixEpoch(tokens[0], tokens[1]);
                 sstRecord.SST = tokens[2];
                 sstRecord.Q = tokens[3];

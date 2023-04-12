@@ -24,7 +24,7 @@ class RHProvider {
                 }
 
                 final RHRecord rhRecord = new RHRecord();
-                final String[] tokens = StringUtils.split(line, new char[]{' '}, true);
+                final String[] tokens = TaoPreProcessor.tokenize(line);
                 rhRecord.date = TaoPreProcessor.toUnixEpoch(tokens[0], tokens[1]);
                 rhRecord.RH = tokens[2];
                 rhRecord.Q = tokens[3];

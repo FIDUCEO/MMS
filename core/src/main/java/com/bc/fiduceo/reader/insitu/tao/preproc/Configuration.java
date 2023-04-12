@@ -8,4 +8,6 @@ class Configuration {
     String sstFileName;
     String airtFileName;
     String rhFileName;
+    String windFileName;
+    String baroFileName;
 }

@@ -24,7 +24,7 @@ class AirtProvider {
                 }
 
                 final AIRTRecord airtRecord = new AIRTRecord();
-                final String[] tokens = StringUtils.split(line, new char[]{' '}, true);
+                final String[] tokens = TaoPreProcessor.tokenize(line);
                 airtRecord.date = TaoPreProcessor.toUnixEpoch(tokens[0], tokens[1]);
                 airtRecord.AIRT = tokens[2];
                 airtRecord.Q = tokens[3];

@@ -18,6 +18,8 @@ public class TaoPreProcessor {
         configuration.sstFileName = "TAO_T0N110W_D_SST_10min.ascii";
         configuration.airtFileName = "TAO_T0N110W_D_AIRT_10min.ascii";
         configuration.rhFileName = "TAO_T0N110W_D_RH_10min.ascii";
+        configuration.windFileName = "TAO_T0N110W_D_WIND_10min.ascii";
+        configuration.baroFileName = "TAO_T0N110W_D_BARO_hourly.ascii";
 
         // --- read all we need ---
         final File sourceDir = new File(configuration.sourceDir);
@@ -32,6 +34,12 @@ public class TaoPreProcessor {
 
         final RHProvider rhProvider = new RHProvider();
         rhProvider.open(new File(sourceDir, configuration.rhFileName));
+
+        final WINDProvider windProvider = new WINDProvider();
+        windProvider.open(new File(sourceDir, configuration.windFileName));
+
+        final BAROProvider baroProvider = new BAROProvider();
+        baroProvider.open(new File(sourceDir, configuration.baroFileName));
 
         final HashMap<String, List<TAORecord>> taoMap = new HashMap<>();
 
@@ -70,6 +78,19 @@ public class TaoPreProcessor {
                 M = M.concat(rhRecord.M);
                 Q = Q.concat(rhRecord.Q);
 
+                // wind
+                final WINDRecord windRecord = windProvider.get(sssRecord.date);
+                taoRecord.WSPD = windRecord.WSPD;
+                taoRecord.WDIR = windRecord.WDIR;
+                M = M.concat(windRecord.M);
+                Q = Q.concat(windRecord.Q);
+
+                // barometric pressure
+                final BARORecord baroRecord = baroProvider.get(sssRecord.date);
+                taoRecord.BARO = baroRecord.BARO;
+                M = M.concat(baroRecord.M);
+                Q = Q.concat(baroRecord.Q);
+
                 taoRecord.M = M;
                 taoRecord.Q = Q;
 
@@ -94,7 +115,7 @@ public class TaoPreProcessor {
             for (final TAORecord taoRecord : taoRecords) {
                 utcCalendar.setTimeInMillis(taoRecord.date * 1000L);
                 int year = utcCalendar.get(Calendar.YEAR);
-                int month = utcCalendar.get(Calendar.MONTH);
+                int month = utcCalendar.get(Calendar.MONTH) + 1;
                 if (year != currentYear || month != currentMonth) {
                     currentYear = year;
                     currentMonth = month;
@@ -156,7 +177,7 @@ public class TaoPreProcessor {
                     continue;
                 }
 
-                final String[] tokens = StringUtils.split(line, new char[]{' '}, true);
+                final String[] tokens = TaoPreProcessor.tokenize(line);
                 final SSSRecord sssRecord = new SSSRecord();
                 sssRecord.date = toUnixEpoch(tokens[0], tokens[1]);
                 sssRecord.SSS = tokens[2];
@@ -220,5 +241,10 @@ public class TaoPreProcessor {
 
         long timeInMillis = calendar.getTime().getTime();
         return (int) (timeInMillis / 1000);
+    }
+
+    static String[] tokenize(String line) {
+        line = line.replaceAll(" +", " "); // some fields are separated by two or more blanks (sigh) tb 2023-04-12
+        return StringUtils.split(line, new char[]{' '}, true);
     }
 }
