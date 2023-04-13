@@ -15,6 +15,10 @@ class AirtProvider {
     void open(File airtFile) {
         airtMap = new HashMap<>();
 
+        if (airtFile == null) {
+            return;
+        }
+
         try (final FileReader fileReader = new FileReader(airtFile)) {
             final BufferedReader bufferedReader = new BufferedReader(fileReader);
             String line;

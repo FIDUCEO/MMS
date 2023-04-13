@@ -10,4 +10,8 @@ class Configuration {
     String rhFileName;
     String windFileName;
     String baroFileName;
+    String rainFileName;
+    String posFileName;
+    float nominalLon;
+    float nominalLat;
 }

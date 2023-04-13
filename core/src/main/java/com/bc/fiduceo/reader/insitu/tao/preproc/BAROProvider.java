@@ -13,6 +13,10 @@ class BAROProvider {
     void open(File baroFile) {
         baroMap = new HashMap<>();
 
+        if (baroFile == null) {
+            return;
+        }
+
         try (final FileReader fileReader = new FileReader(baroFile)) {
             final BufferedReader bufferedReader = new BufferedReader(fileReader);
             String line;

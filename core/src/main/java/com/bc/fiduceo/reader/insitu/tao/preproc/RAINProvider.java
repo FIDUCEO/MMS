@@ -6,18 +6,18 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 
-class SSTProvider {
+class RAINProvider {
 
-    private HashMap<Integer, SSTRecord> sstMap;
+    private HashMap<Integer, RAINRecord> rainMap;
 
-    void open(File sstFile) {
-        sstMap = new HashMap<>();
+    void open(File rainFile) {
+        rainMap = new HashMap<>();
 
-        if (sstFile == null){
+        if (rainFile == null){
             return;
         }
 
-        try (final FileReader fileReader = new FileReader(sstFile)) {
+        try (final FileReader fileReader = new FileReader(rainFile)) {
             final BufferedReader bufferedReader = new BufferedReader(fileReader);
             String line;
             while ((line = bufferedReader.readLine()) != null) {
@@ -25,26 +25,26 @@ class SSTProvider {
                     continue;
                 }
 
-                final SSTRecord sstRecord = new SSTRecord();
+                final RAINRecord rainRecord = new RAINRecord();
                 final String[] tokens = TaoPreProcessor.tokenize(line);
-                sstRecord.date = TaoPreProcessor.toUnixEpoch(tokens[0], tokens[1]);
-                sstRecord.SST = tokens[2];
-                sstRecord.Q = tokens[3];
-                sstRecord.M = tokens[4];
+                rainRecord.date = TaoPreProcessor.toUnixEpoch(tokens[0], tokens[1]);
+                rainRecord.RAIN = tokens[2];
+                rainRecord.Q = tokens[3];
+                rainRecord.M = tokens[4];
 
-                sstMap.put(sstRecord.date, sstRecord);
+                rainMap.put(rainRecord.date, rainRecord);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    SSTRecord get(int date) {
-        SSTRecord sstRecord = sstMap.get(date);
+    RAINRecord get(int date) {
+        RAINRecord sstRecord = rainMap.get(date);
         if (sstRecord == null) {
-            sstRecord = new SSTRecord();
+            sstRecord = new RAINRecord();
             sstRecord.date = date;
-            sstRecord.SST = "-9.999";
+            sstRecord.RAIN = "-9.99";
             sstRecord.Q = "9";
             sstRecord.M = "D";
         }

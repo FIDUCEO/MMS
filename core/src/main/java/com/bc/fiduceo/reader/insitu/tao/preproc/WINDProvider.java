@@ -15,6 +15,10 @@ class WINDProvider {
     void open(File windFile) {
         windMap = new HashMap<>();
 
+        if (windFile == null) {
+            return;
+        }
+
         try (final FileReader fileReader = new FileReader(windFile)) {
             final BufferedReader bufferedReader = new BufferedReader(fileReader);
             String line;

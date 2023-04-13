@@ -15,6 +15,10 @@ class RHProvider {
     void open(File rhFile) {
         rhMap = new HashMap<>();
 
+        if (rhFile == null) {
+            return;
+        }
+
         try (final FileReader fileReader = new FileReader(rhFile)) {
             final BufferedReader bufferedReader = new BufferedReader(fileReader);
             String line;

@@ -13,13 +13,17 @@ public class TaoPreProcessor {
         final Configuration configuration = new Configuration();
         configuration.sourceDir = "C:\\Satellite\\CIMR\\TAO_buoy";
         configuration.targetDir = "C:\\Satellite\\CIMR\\TAO_merged";
-        configuration.filePrefix = "TAO_T0N110W";
-        configuration.sssFileName = "TAO_T0N110W_D_SALT_hourly.ascii";
-        configuration.sstFileName = "TAO_T0N110W_D_SST_10min.ascii";
-        configuration.airtFileName = "TAO_T0N110W_D_AIRT_10min.ascii";
-        configuration.rhFileName = "TAO_T0N110W_D_RH_10min.ascii";
-        configuration.windFileName = "TAO_T0N110W_D_WIND_10min.ascii";
-        configuration.baroFileName = "TAO_T0N110W_D_BARO_hourly.ascii";
+        configuration.filePrefix = "TAO_T2N180W";
+        configuration.sssFileName = "TAO_T2N180W_D_SALT_hourly.ascii";
+        configuration.sstFileName = "TAO_T2N180W_D_SST_10min.ascii";
+        configuration.airtFileName = "TAO_T2N180W_D_AIRT_10min.ascii";
+        configuration.rhFileName = "TAO_T2N180W_D_RH_10min.ascii";
+        configuration.windFileName = "TAO_T2N180W_D_WIND_10min.ascii";
+        configuration.baroFileName = null;
+        configuration.rainFileName = null;
+        configuration.posFileName = "TAO_T2N180W_R_POS.ascii";
+        configuration.nominalLon = -180.f;
+        configuration.nominalLat = 2.f;
 
         // --- read all we need ---
         final File sourceDir = new File(configuration.sourceDir);
@@ -27,19 +31,25 @@ public class TaoPreProcessor {
 
         final HashMap<String, List<SSSRecord>> sssMap = parseSSSFile(sssFile);
         final SSTProvider sstProvider = new SSTProvider();
-        sstProvider.open(new File(sourceDir, configuration.sstFileName));
+        sstProvider.open(getFile(sourceDir, configuration.sstFileName));
 
         final AirtProvider airtProvider = new AirtProvider();
-        airtProvider.open(new File(sourceDir, configuration.airtFileName));
+        airtProvider.open(getFile(sourceDir, configuration.airtFileName));
 
         final RHProvider rhProvider = new RHProvider();
-        rhProvider.open(new File(sourceDir, configuration.rhFileName));
+        rhProvider.open(getFile(sourceDir, configuration.rhFileName));
 
         final WINDProvider windProvider = new WINDProvider();
-        windProvider.open(new File(sourceDir, configuration.windFileName));
+        windProvider.open(getFile(sourceDir, configuration.windFileName));
 
         final BAROProvider baroProvider = new BAROProvider();
-        baroProvider.open(new File(sourceDir, configuration.baroFileName));
+        baroProvider.open(getFile(sourceDir, configuration.baroFileName));
+
+        final RAINProvider rainProvider = new RAINProvider();
+        rainProvider.open(getFile(sourceDir, configuration.rainFileName));
+
+        final POSProvider posProvider = new POSProvider();
+        posProvider.open(getFile(sourceDir, configuration.posFileName), configuration.nominalLon, configuration.nominalLat);
 
         final HashMap<String, List<TAORecord>> taoMap = new HashMap<>();
 
@@ -54,8 +64,13 @@ public class TaoPreProcessor {
                 String M = "";
                 String Q = "";
 
-                // salinity
+                // date and place
                 taoRecord.date = sssRecord.date;
+                final POSRecord posRecord = posProvider.get(taoRecord.date);
+                taoRecord.lon = Float.toString(posRecord.lon);
+                taoRecord.lat = Float.toString(posRecord.lat);
+
+                // salinity
                 taoRecord.SSS = sssRecord.SSS;
                 M = M.concat(sssRecord.M);
                 Q = Q.concat(sssRecord.Q);
@@ -90,6 +105,12 @@ public class TaoPreProcessor {
                 taoRecord.BARO = baroRecord.BARO;
                 M = M.concat(baroRecord.M);
                 Q = Q.concat(baroRecord.Q);
+
+                // rainfall
+                final RAINRecord rainRecord = rainProvider.get(sssRecord.date);
+                taoRecord.RAIN = rainRecord.RAIN;
+                M = M.concat(rainRecord.M);
+                Q = Q.concat(rainRecord.Q);
 
                 taoRecord.M = M;
                 taoRecord.Q = Q;
@@ -132,6 +153,13 @@ public class TaoPreProcessor {
         }
     }
 
+    private static File getFile(File sourceDir, String fileName) {
+        if (StringUtils.isNotNullAndNotEmpty(fileName)) {
+            return new File(sourceDir, fileName);
+        }
+        return null;
+    }
+
     private static PrintWriter switchWriter(Configuration configuration, DecimalFormat format, PrintWriter writer, String filePrefix, int currentYear, int currentMonth) throws IOException {
         if (writer != null) {
             writer.flush();
@@ -150,7 +178,9 @@ public class TaoPreProcessor {
             throw new IOException("unable to create file: " + targetFile.getAbsolutePath());
         }
 
-        return new PrintWriter(targetFile);
+        final PrintWriter printWriter = new PrintWriter(targetFile);
+        printWriter.println("# utc longitude latitude SSS SST AIRT RH WSPD WDIR BARO RAIN M Q");
+        return printWriter;
     }
 
     private static HashMap<String, List<SSSRecord>> parseSSSFile(File sssFile) {
@@ -184,7 +214,13 @@ public class TaoPreProcessor {
                 if (tokens.length == 12) {
                     sssRecord.Q = tokens[10].substring(0, 1);
                     sssRecord.M = tokens[11].substring(0, 1);
-                } else if (tokens.length == 5) {
+                } else if (tokens.length == 9) {
+                    sssRecord.Q = tokens[7].substring(0, 1);
+                    sssRecord.M = tokens[8].substring(0, 1);
+                } else if (tokens.length == 6) {
+                    sssRecord.Q = tokens[4].substring(0, 1);
+                    sssRecord.M = tokens[5].substring(0, 1);
+                }else if (tokens.length == 5) {
                     sssRecord.Q = tokens[3];
                     sssRecord.M = tokens[4];
                 } else {
