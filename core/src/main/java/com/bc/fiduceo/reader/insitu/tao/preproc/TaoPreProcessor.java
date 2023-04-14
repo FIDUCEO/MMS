@@ -13,17 +13,17 @@ public class TaoPreProcessor {
         final Configuration configuration = new Configuration();
         configuration.sourceDir = "C:\\Satellite\\CIMR\\TAO_buoy";
         configuration.targetDir = "C:\\Satellite\\CIMR\\TAO_merged";
-        configuration.filePrefix = "TAO_T2N180W";
-        configuration.sssFileName = "TAO_T2N180W_D_SALT_hourly.ascii";
-        configuration.sstFileName = "TAO_T2N180W_D_SST_10min.ascii";
-        configuration.airtFileName = "TAO_T2N180W_D_AIRT_10min.ascii";
-        configuration.rhFileName = "TAO_T2N180W_D_RH_10min.ascii";
-        configuration.windFileName = "TAO_T2N180W_D_WIND_10min.ascii";
-        configuration.baroFileName = null;
-        configuration.rainFileName = null;
-        configuration.posFileName = "TAO_T2N180W_R_POS.ascii";
-        configuration.nominalLon = -180.f;
-        configuration.nominalLat = 2.f;
+        configuration.filePrefix = "TRITON_TR8N137E";
+        configuration.sssFileName = "TRITON_TR8N137E_M_SALT_daily.ascii";
+        configuration.sstFileName = "TRITON_TR8N137E_M_SST_daily.ascii";
+        configuration.airtFileName = "TRITON_TR8N137E_M_AIRT_daily.ascii";
+        configuration.rhFileName = "TRITON_TR8N137E_M_RH_daily.ascii";
+        configuration.windFileName = "TRITON_TR8N137E_M_WIND_daily.ascii";
+        configuration.baroFileName = "TRITON_TR8N137E_M_BARO_daily.ascii";
+        configuration.rainFileName = "TRITON_TR8N137E_M_RAIN_daily.ascii";
+        configuration.posFileName = null;
+        configuration.nominalLon = 137.f;
+        configuration.nominalLat = 8.f;
 
         // --- read all we need ---
         final File sourceDir = new File(configuration.sourceDir);
@@ -174,6 +174,11 @@ public class TaoPreProcessor {
         }
 
         final File targetFile = new File(targetDir, filePrefix + currentYear + "-" + format.format(currentMonth) + ".txt");
+        if (targetFile.exists()) {
+            if (!targetFile.delete()) {
+                throw new IOException("unable to delete file: " + targetFile.getAbsolutePath());
+            }
+        }
         if (!targetFile.createNewFile()) {
             throw new IOException("unable to create file: " + targetFile.getAbsolutePath());
         }
@@ -211,16 +216,22 @@ public class TaoPreProcessor {
                 final SSSRecord sssRecord = new SSSRecord();
                 sssRecord.date = toUnixEpoch(tokens[0], tokens[1]);
                 sssRecord.SSS = tokens[2];
-                if (tokens.length == 12) {
+                if (tokens.length == 16) {
+                    sssRecord.Q = tokens[14].substring(0, 1);
+                    sssRecord.M = tokens[15].substring(0, 1);
+                } else if (tokens.length == 12) {
                     sssRecord.Q = tokens[10].substring(0, 1);
                     sssRecord.M = tokens[11].substring(0, 1);
                 } else if (tokens.length == 9) {
                     sssRecord.Q = tokens[7].substring(0, 1);
                     sssRecord.M = tokens[8].substring(0, 1);
+                } else if (tokens.length == 8) {
+                    sssRecord.Q = tokens[6].substring(0, 1);
+                    sssRecord.M = tokens[7].substring(0, 1);
                 } else if (tokens.length == 6) {
                     sssRecord.Q = tokens[4].substring(0, 1);
                     sssRecord.M = tokens[5].substring(0, 1);
-                }else if (tokens.length == 5) {
+                } else if (tokens.length == 5) {
                     sssRecord.Q = tokens[3];
                     sssRecord.M = tokens[4];
                 } else {
