@@ -2,13 +2,15 @@ package com.bc.fiduceo.reader.insitu.tao;
 
 import com.bc.fiduceo.core.Dimension;
 import com.bc.fiduceo.core.Interval;
+import com.bc.fiduceo.core.NodeType;
 import com.bc.fiduceo.geometry.Polygon;
 import com.bc.fiduceo.location.PixelLocator;
 import com.bc.fiduceo.reader.AcquisitionInfo;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.time.TimeLocator;
-import com.bc.fiduceo.util.NetCDFUtils;
+import com.bc.fiduceo.reader.time.TimeLocator_MillisSince1970;
 import com.bc.fiduceo.util.VariableProxy;
+import org.esa.snap.core.util.StringUtils;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayInt;
 import ucar.ma2.DataType;
@@ -16,9 +18,12 @@ import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
 import ucar.nc2.Variable;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static com.bc.fiduceo.util.NetCDFUtils.*;
@@ -27,19 +32,79 @@ class TaoReader implements Reader {
 
     private final static String REG_EX = "(?:TAO|TRITON)_\\w+_\\w+(-\\w+)??\\d{4}-\\d{2}.txt";
 
+    private ArrayList<TaoRecord> records;
+    private TimeLocator timeLocator;
+
+    static TaoRecord parseLine(String line) {
+        line = line.replaceAll(" +", " "); // ensure that we only have single blanks as separator tb 2023-04-28
+        final String[] tokens = StringUtils.split(line, new char[]{' '}, true);
+
+        final TaoRecord record = new TaoRecord();
+        record.time = Integer.parseInt(tokens[0]);
+        record.longitude = Float.parseFloat(tokens[1]);
+        record.latitude = Float.parseFloat(tokens[2]);
+        record.SSS = Float.parseFloat(tokens[3]);
+        record.SST = Float.parseFloat(tokens[4]);
+        record.AIRT = Float.parseFloat(tokens[5]);
+        record.RH = Float.parseFloat(tokens[6]);
+        record.WSPD = Float.parseFloat(tokens[7]);
+        record.WDIR = Float.parseFloat(tokens[8]);
+        record.BARO = Float.parseFloat(tokens[9]);
+        record.RAIN = Float.parseFloat(tokens[10]);
+        record.Q = Integer.parseInt(tokens[11]);
+        record.M = tokens[12];
+
+        return record;
+    }
+
     @Override
     public void open(File file) throws IOException {
-        throw new RuntimeException("not implemented");
+        try (final FileReader fileReader = new FileReader(file)) {
+            records = new ArrayList<>();
+
+            final BufferedReader bufferedReader = new BufferedReader(fileReader);
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                if (line.startsWith("#")) {
+                    // skip comment lines tb 2023-04-28
+                    continue;
+                }
+
+                final TaoRecord record = parseLine(line);
+                records.add(record);
+            }
+        }
     }
 
     @Override
     public void close() throws IOException {
-        throw new RuntimeException("not implemented");
+        if (records != null) {
+            records.clear();
+            records = null;
+        }
+        timeLocator = null;
     }
 
     @Override
     public AcquisitionInfo read() throws IOException {
-        throw new RuntimeException("not implemented");
+        final AcquisitionInfo acquisitionInfo = new AcquisitionInfo();
+        int minTime = Integer.MAX_VALUE;
+        int maxTime = Integer.MIN_VALUE;
+        for (final TaoRecord record : records) {
+            if (record.time < minTime) {
+                minTime = record.time;
+            }
+            if (record.time > maxTime) {
+                maxTime = record.time;
+            }
+        }
+
+        acquisitionInfo.setSensingStart(new Date(minTime * 1000L));
+        acquisitionInfo.setSensingStop(new Date(maxTime * 1000L));
+
+        acquisitionInfo.setNodeType(NodeType.UNDEFINED);
+
+        return acquisitionInfo;
     }
 
     @Override
@@ -59,7 +124,10 @@ class TaoReader implements Reader {
 
     @Override
     public TimeLocator getTimeLocator() throws IOException {
-        throw new RuntimeException("not implemented");
+        if (timeLocator == null) {
+            createTimeLocator();
+        }
+        return timeLocator;
     }
 
     @Override
@@ -91,12 +159,98 @@ class TaoReader implements Reader {
         attributes.add(new Attribute(CF_STANDARD_NAME, "longitude"));
         variables.add(new VariableProxy("longitude", DataType.FLOAT, attributes));
 
+        attributes = new ArrayList<>();
+        attributes.add(new Attribute(CF_UNITS_NAME, "degree_north"));
+        attributes.add(new Attribute(CF_STANDARD_NAME, "latitude"));
+        variables.add(new VariableProxy("latitude", DataType.FLOAT, attributes));
+
+        attributes = new ArrayList<>();
+        attributes.add(new Attribute(CF_UNITS_NAME, "seconds since 1970-01-01"));
+        attributes.add(new Attribute(CF_STANDARD_NAME, "time"));
+        variables.add(new VariableProxy("time", DataType.INT, attributes));
+
+        attributes = new ArrayList<>();
+        attributes.add(new Attribute(CF_UNITS_NAME, "psu"));
+        attributes.add(new Attribute(CF_STANDARD_NAME, "sea_surface_salinity"));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, -9.999));
+        variables.add(new VariableProxy("SSS", DataType.FLOAT, attributes));
+
+        attributes = new ArrayList<>();
+        attributes.add(new Attribute(CF_UNITS_NAME, "degree_Celsius"));
+        attributes.add(new Attribute(CF_STANDARD_NAME, "sea_surface_temperature"));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, -9.999));
+        variables.add(new VariableProxy("SST", DataType.FLOAT, attributes));
+
+        attributes = new ArrayList<>();
+        attributes.add(new Attribute(CF_UNITS_NAME, "degree_Celsius"));
+        attributes.add(new Attribute(CF_STANDARD_NAME, "air_temperature"));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, -9.99));
+        variables.add(new VariableProxy("AIRT", DataType.FLOAT, attributes));
+
+        attributes = new ArrayList<>();
+        attributes.add(new Attribute(CF_UNITS_NAME, "percent"));
+        attributes.add(new Attribute(CF_STANDARD_NAME, "relative_humidity"));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, -9.99));
+        variables.add(new VariableProxy("RH", DataType.FLOAT, attributes));
+
+        attributes = new ArrayList<>();
+        attributes.add(new Attribute(CF_UNITS_NAME, "m/s"));
+        attributes.add(new Attribute(CF_STANDARD_NAME, "wind_speed"));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, -99.9));
+        variables.add(new VariableProxy("WSPD", DataType.FLOAT, attributes));
+
+        attributes = new ArrayList<>();
+        attributes.add(new Attribute(CF_UNITS_NAME, "degree"));
+        attributes.add(new Attribute(CF_STANDARD_NAME, "wind_to_direction"));
+        attributes.add(new Attribute(CF_LONG_NAME, "Wind To Direction degree true in Oceanographic Convention"));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, -99.9));
+        variables.add(new VariableProxy("WDIR", DataType.FLOAT, attributes));
+
+        attributes = new ArrayList<>();
+        attributes.add(new Attribute(CF_UNITS_NAME, "hPa"));
+        attributes.add(new Attribute(CF_STANDARD_NAME, "air_pressure_at_mean_sea_level"));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, -9.9));
+        variables.add(new VariableProxy("BARO", DataType.FLOAT, attributes));
+
+        attributes = new ArrayList<>();
+        attributes.add(new Attribute(CF_UNITS_NAME, "mm/hour"));
+        attributes.add(new Attribute(CF_STANDARD_NAME, "rainfall_rate"));
+        attributes.add(new Attribute(CF_FILL_VALUE_NAME, -9.99));
+        variables.add(new VariableProxy("RAIN", DataType.FLOAT, attributes));
+
+        attributes = new ArrayList<>();
+        attributes.add(new Attribute(CF_LONG_NAME, "Data Quality Codes"));
+        variables.add(new VariableProxy("Q", DataType.INT, attributes));
+/*
+@todo 1 tb/tb move this to documentation 2023-04-28
+        Data Quality Codes(Q):
+        0 = unknown
+        1 = good data
+        2 = probably good data
+        3 = questionable data
+        4 = bad data
+        5 = adjusted data
+        9 = missing data
+ */
+        attributes = new ArrayList<>();
+        attributes.add(new Attribute(CF_LONG_NAME, "Data Mode Codes"));
+        variables.add(new VariableProxy("M", DataType.STRING, attributes));
+
+        /*
+        @todo 1 tb/tb move this to documentation 2023-04-28
+        Data Mode Codes(M):
+R = real-time data
+P = provisional data
+D = delayed mode data
+M = mixed real-time and delayed mode data
+         */
+
         return variables;
     }
 
     @Override
     public Dimension getProductSize() throws IOException {
-        throw new RuntimeException("not implemented");
+        return new Dimension("product_size", 1, records.size());
     }
 
     @Override
@@ -107,5 +261,17 @@ class TaoReader implements Reader {
     @Override
     public String getLatitudeVariableName() {
         return "latitude";
+    }
+
+    private void createTimeLocator() {
+        long[] timeArray = new long[records.size()];
+
+        int i = 0;
+        for (final TaoRecord record : records) {
+            timeArray[i] = record.time * 1000L;
+            i++;
+        }
+
+        timeLocator = new TimeLocator_MillisSince1970(timeArray);
     }
 }
