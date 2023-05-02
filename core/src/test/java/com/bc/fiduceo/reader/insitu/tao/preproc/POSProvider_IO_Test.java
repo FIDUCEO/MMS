@@ -16,7 +16,7 @@ public class POSProvider_IO_Test {
     @Test
     public void testOpenAndGet_matchTime() throws IOException {
         final POSProvider posProvider = new POSProvider();
-        final File testFile = TestUtil.getTestDataFileAsserted("insitu/tao/TAO_T2N165E_R_POS.ascii");
+        final File testFile = TestUtil.getTestDataFileAsserted("insitu/tao-sss/TAO_T2N165E_R_POS.ascii");
 
         posProvider.open(testFile, 165.f, 2.f);
 
@@ -34,7 +34,7 @@ public class POSProvider_IO_Test {
     @Test
     public void testOpenAndGet_interpolate() throws IOException {
         final POSProvider posProvider = new POSProvider();
-        final File testFile = TestUtil.getTestDataFileAsserted("insitu/tao/TAO_T2N165E_R_POS.ascii");
+        final File testFile = TestUtil.getTestDataFileAsserted("insitu/tao-sss/TAO_T2N165E_R_POS.ascii");
 
         posProvider.open(testFile,165.f, 2.f);
 
@@ -52,7 +52,7 @@ public class POSProvider_IO_Test {
     @Test
     public void testOpenAndGet_noTimeMatch() throws IOException {
         final POSProvider posProvider = new POSProvider();
-        final File testFile = TestUtil.getTestDataFileAsserted("insitu/tao/TAO_T2N165E_R_POS.ascii");
+        final File testFile = TestUtil.getTestDataFileAsserted("insitu/tao-sss/TAO_T2N165E_R_POS.ascii");
 
         posProvider.open(testFile,165.f, 2.f);
 
@@ -62,7 +62,7 @@ public class POSProvider_IO_Test {
     }
 
     @Test
-    public void testOpenWithNullFileAndGet() throws IOException {
+    public void testOpenWithNullFileAndGet() {
         final POSProvider posProvider = new POSProvider();
 
         posProvider.open(null,165.f, 2.f);

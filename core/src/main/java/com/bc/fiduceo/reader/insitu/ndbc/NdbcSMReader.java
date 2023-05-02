@@ -116,6 +116,7 @@ class NdbcSMReader extends NdbcReader {
     @Override
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
         final SmRecord record = records.get(centerY);
+        // @todo 2 tb/tb handle positions out of range 2023-05-02
 
         switch (variableName) {
             case STATION_ID:
