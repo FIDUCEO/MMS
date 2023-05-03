@@ -155,7 +155,15 @@ class TaoReader implements Reader {
 
     @Override
     public int[] extractYearMonthDayFromFilename(String fileName) {
-        throw new RuntimeException("not implemented");
+        final int endIdx = fileName.indexOf(".txt");
+        final String yearString = fileName.substring(endIdx - 7, endIdx - 3);
+        final String monthString = fileName.substring(endIdx - 2, endIdx);
+
+        final int[] ymd = new int[3];
+        ymd[0] = Integer.parseInt(yearString);
+        ymd[1] = Integer.parseInt(monthString);
+        ymd[2] = 1;
+        return ymd;
     }
 
     @Override
