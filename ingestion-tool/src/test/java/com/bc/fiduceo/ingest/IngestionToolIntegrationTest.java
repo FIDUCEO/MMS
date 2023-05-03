@@ -344,6 +344,7 @@ public class IngestionToolIntegrationTest {
         final MultiPolygon multiPolygon = (MultiPolygon) geoBounds;
         final List<Polygon> polygons = multiPolygon.getPolygons();
         assertEquals(2, polygons.size());
+
         assertEquals(TestData.MHS_N18_GEOMETRIES[0], geometryFactory.format(polygons.get(0)));
         assertEquals(TestData.MHS_N18_GEOMETRIES[1], geometryFactory.format(polygons.get(1)));
 
@@ -1111,6 +1112,27 @@ public class IngestionToolIntegrationTest {
         TestUtil.assertCorrectUTCDate(2017, 10, 19, 1, 0, 0, observation.getStopTime());
 
         assertEquals("ndbc-sm-cb", observation.getSensor().getName());
+        assertEquals("v1", observation.getVersion());
+        assertEquals(NodeType.UNDEFINED, observation.getNodeType());
+
+        assertNull(observation.getGeoBounds());
+        assertNull(observation.getTimeAxes());
+    }
+
+    @Test
+    public void testIngest_TAO() throws SQLException, ParseException {
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "tao-sss", "-start", "2017-275", "-end", "2017-275", "-v", "v1"};
+
+        IngestionToolMain.main(args);
+
+        final List<SatelliteObservation> observations = storage.get();
+        assertEquals(1, observations.size());
+
+        final SatelliteObservation observation = getSatelliteObservation("TRITON_TR0N156E_1998_2017-10.txt", observations);
+        TestUtil.assertCorrectUTCDate(2017, 10, 1, 12, 0, 0, observation.getStartTime());
+        TestUtil.assertCorrectUTCDate(2017, 10, 31, 12, 0, 0, observation.getStopTime());
+
+        assertEquals("tao-sss", observation.getSensor().getName());
         assertEquals("v1", observation.getVersion());
         assertEquals(NodeType.UNDEFINED, observation.getNodeType());
 

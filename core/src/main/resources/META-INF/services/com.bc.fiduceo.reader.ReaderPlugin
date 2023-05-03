@@ -41,3 +41,4 @@ com.bc.fiduceo.reader.insitu.sic_cci.DTUSIC1SicInsituReaderPlugin
 com.bc.fiduceo.reader.windsat.WindsatReaderPlugin
 com.bc.fiduceo.reader.insitu.ndbc.NdbcCWReaderPlugin
 com.bc.fiduceo.reader.insitu.ndbc.NdbcSMReaderPlugin
+com.bc.fiduceo.reader.insitu.tao.TaoReaderPlugin
