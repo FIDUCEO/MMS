@@ -299,29 +299,10 @@ class TaoReader implements Reader {
         attributes = new ArrayList<>();
         attributes.add(new Attribute(CF_LONG_NAME, "Data Quality Codes"));
         variables.add(new VariableProxy(Q, DataType.INT, attributes));
-/*
-@todo 1 tb/tb move this to documentation 2023-04-28
-        Data Quality Codes(Q):
-        0 = unknown
-        1 = good data
-        2 = probably good data
-        3 = questionable data
-        4 = bad data
-        5 = adjusted data
-        9 = missing data
- */
+
         attributes = new ArrayList<>();
         attributes.add(new Attribute(CF_LONG_NAME, "Data Mode Codes"));
         variables.add(new StringVariable(new VariableProxy(M, DataType.STRING, attributes), 8));
-
-        /*
-        @todo 1 tb/tb move this to documentation 2023-04-28
-        Data Mode Codes(M):
-R = real-time data
-P = provisional data
-D = delayed mode data
-M = mixed real-time and delayed mode data
-         */
 
         return variables;
     }
