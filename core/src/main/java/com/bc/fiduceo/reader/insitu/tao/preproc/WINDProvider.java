@@ -1,7 +1,5 @@
 package com.bc.fiduceo.reader.insitu.tao.preproc;
 
-import org.esa.snap.core.util.StringUtils;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -23,6 +21,7 @@ class WINDProvider {
             final BufferedReader bufferedReader = new BufferedReader(fileReader);
             String line;
             while ((line = bufferedReader.readLine()) != null) {
+                line = line.trim();
                 if (!Character.isDigit(line.charAt(0))) {
                     continue;
                 }
@@ -32,8 +31,13 @@ class WINDProvider {
                 windRecord.date = TaoPreProcessor.toUnixEpoch(tokens[0], tokens[1]);
                 windRecord.WSPD = tokens[4];
                 windRecord.WDIR = tokens[5];
-                windRecord.Q = tokens[6].substring(2, 4);
-                windRecord.M = tokens[7].substring(2, 4);
+                if (tokens[6].length() > 2) {
+                    windRecord.Q = tokens[6].substring(2, 4);
+                    windRecord.M = tokens[7].substring(2, 4);
+                } else {
+                    windRecord.Q = tokens[6];
+                    windRecord.M = tokens[7];
+                }
 
                 windMap.put(windRecord.date, windRecord);
             }

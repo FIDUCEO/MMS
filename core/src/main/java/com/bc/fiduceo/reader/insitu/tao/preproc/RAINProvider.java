@@ -21,9 +21,12 @@ class RAINProvider {
             final BufferedReader bufferedReader = new BufferedReader(fileReader);
             String line;
             while ((line = bufferedReader.readLine()) != null) {
+                line = line.trim();
                 if (!Character.isDigit(line.charAt(0))) {
                     continue;
                 }
+
+                System.out.println("line = " + line);
 
                 final RAINRecord rainRecord = new RAINRecord();
                 final String[] tokens = TaoPreProcessor.tokenize(line);

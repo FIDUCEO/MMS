@@ -28,6 +28,7 @@ class POSProvider {
             final BufferedReader bufferedReader = new BufferedReader(fileReader);
             String line;
             while ((line = bufferedReader.readLine()) != null) {
+                line = line.trim();
                 if (!Character.isDigit(line.charAt(0))) {
                     continue;
                 }

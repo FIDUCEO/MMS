@@ -1,7 +1,5 @@
 package com.bc.fiduceo.reader.insitu.tao.preproc;
 
-import org.esa.snap.core.util.StringUtils;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -23,6 +21,7 @@ class RHProvider {
             final BufferedReader bufferedReader = new BufferedReader(fileReader);
             String line;
             while ((line = bufferedReader.readLine()) != null) {
+                line = line.trim();
                 if (!Character.isDigit(line.charAt(0))) {
                     continue;
                 }

@@ -11,19 +11,19 @@ public class TaoPreProcessor {
 
     public static void main(String[] args) throws IOException {
         final Configuration configuration = new Configuration();
-        configuration.sourceDir = "C:\\Satellite\\CIMR\\TAO_buoy";
-        configuration.targetDir = "C:\\Satellite\\CIMR\\TAO_merged";
-        configuration.filePrefix = "TRITON_TR8N137E";
-        configuration.sssFileName = "TRITON_TR8N137E_M_SALT_daily.ascii";
-        configuration.sstFileName = "TRITON_TR8N137E_M_SST_daily.ascii";
-        configuration.airtFileName = "TRITON_TR8N137E_M_AIRT_daily.ascii";
-        configuration.rhFileName = "TRITON_TR8N137E_M_RH_daily.ascii";
-        configuration.windFileName = "TRITON_TR8N137E_M_WIND_daily.ascii";
-        configuration.baroFileName = "TRITON_TR8N137E_M_BARO_daily.ascii";
-        configuration.rainFileName = "TRITON_TR8N137E_M_RAIN_daily.ascii";
+        configuration.sourceDir = "C:\\Satellite\\CIMR\\rama\\15n90e";
+        configuration.targetDir = "C:\\Satellite\\CIMR\\rama_merged";
+        configuration.filePrefix = "RAMA_15N90E";
+        configuration.sssFileName = "sss15n90e_hr.ascii";
+        configuration.sstFileName = "sst15n90e_10m.ascii";
+        configuration.airtFileName = "airt15n90e_10m.ascii";
+        configuration.rhFileName = "rh15n90e_10m.ascii";
+        configuration.windFileName = "w15n90e_10m.ascii";
+        configuration.baroFileName = "bp15n90e_hr.ascii";
+        configuration.rainFileName = "rain15n90e_10m.ascii";
         configuration.posFileName = null;
-        configuration.nominalLon = 137.f;
-        configuration.nominalLat = 8.f;
+        configuration.nominalLon = 90.f;
+        configuration.nominalLat = 15.f;
 
         // --- read all we need ---
         final File sourceDir = new File(configuration.sourceDir);
@@ -193,16 +193,17 @@ public class TaoPreProcessor {
         try (final FileReader fileReader = new FileReader(sssFile)) {
             final BufferedReader bufferedReader = new BufferedReader(fileReader);
             String line;
-            ArrayList<SSSRecord> records = null;
+            ArrayList<SSSRecord> records = new ArrayList<>();
             while ((line = bufferedReader.readLine()) != null) {
-                if (line.startsWith("Platform") || line.startsWith("Parameter") || line.startsWith("YYYY")) {
+                line = line.trim();
+                if (line.startsWith("Platform") || line.startsWith("Parameter") || line.startsWith("YYYY")
+                        || line.startsWith("Location") || line.startsWith("Units") || line.startsWith("Time")) {
                     continue;   // skip these tb 2023-03-30
                 }
 
                 if (line.startsWith("Deployment")) {
                     // parse deployment and start new record-container
                     final String[] tokens = StringUtils.split(line, new char[]{' '}, true);
-                    records = new ArrayList<>();
                     sssMap.put(tokens[1], records);
                     continue;
                 }
@@ -240,6 +241,9 @@ public class TaoPreProcessor {
 
                 records.add(sssRecord);
             }
+            if (sssMap.isEmpty()) {
+                sssMap.put("sss", records);
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -276,7 +280,10 @@ public class TaoPreProcessor {
 
         int hour = Integer.parseInt(hhmmss.substring(0, 2));
         int minute = Integer.parseInt(hhmmss.substring(2, 4));
-        int second = Integer.parseInt(hhmmss.substring(4, 6));
+        int second = 0;
+        if (hhmmss.length() > 4) {
+            second = Integer.parseInt(hhmmss.substring(4, 6));
+        }
 
         final Calendar calendar = TimeUtils.getUTCCalendar();
         calendar.set(Calendar.YEAR, year);
