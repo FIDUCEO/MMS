@@ -29,7 +29,7 @@ public class TaoReaderTest {
 
     @Test
     public void testGetRegEx() {
-        final String expected = "(?:TAO|TRITON)_\\w+_\\w+(-\\w+)??\\d{4}-\\d{2}.txt";
+        final String expected = "(?:TAO|TRITON|RAMA|PIRATA)_\\w+_\\w+(-\\w+)??\\d{4}-\\d{2}.txt";
 
         assertEquals(expected, reader.getRegEx());
         final Pattern pattern = java.util.regex.Pattern.compile(expected);
@@ -41,6 +41,15 @@ public class TaoReaderTest {
         assertTrue(matcher.matches());
 
         matcher = pattern.matcher("TAO_T2S110W_DM233A-20170608_2018-02.txt");
+        assertTrue(matcher.matches());
+
+        matcher = pattern.matcher("PIRATA_0N35W_sss_2017-08.txt");
+        assertTrue(matcher.matches());
+
+        matcher = pattern.matcher("RAMA_4S805E_sss_2017-10.txt");
+        assertTrue(matcher.matches());
+
+        matcher = pattern.matcher("PIRATA_0N35W_sss_2016-10.txt");
         assertTrue(matcher.matches());
     }
 

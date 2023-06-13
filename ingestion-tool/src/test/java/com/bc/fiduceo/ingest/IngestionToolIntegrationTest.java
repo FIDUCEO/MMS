@@ -83,8 +83,11 @@ public class IngestionToolIntegrationTest {
 
     @After
     public void tearDown() throws SQLException {
-        storage.clear();
-        storage.close();
+        if (storage != null) {
+            storage.clear();
+            storage.close();
+            storage = null;
+        }
         TestUtil.deleteTestDirectory();
     }
 
@@ -1133,6 +1136,27 @@ public class IngestionToolIntegrationTest {
         TestUtil.assertCorrectUTCDate(2017, 10, 31, 12, 0, 0, observation.getStopTime());
 
         assertEquals("tao-sss", observation.getSensor().getName());
+        assertEquals("v1", observation.getVersion());
+        assertEquals(NodeType.UNDEFINED, observation.getNodeType());
+
+        assertNull(observation.getGeoBounds());
+        assertNull(observation.getTimeAxes());
+    }
+
+    @Test
+    public void testIngest_PIRATA() throws SQLException, ParseException {
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "pirata-sss", "-start", "2016-275", "-end", "2016-275", "-v", "v1"};
+
+        IngestionToolMain.main(args);
+
+        final List<SatelliteObservation> observations = storage.get();
+        assertEquals(1, observations.size());
+
+        final SatelliteObservation observation = getSatelliteObservation("PIRATA_0N35W_sss_2016-10.txt", observations);
+        TestUtil.assertCorrectUTCDate(2016, 10, 1, 0, 0, 0, observation.getStartTime());
+        TestUtil.assertCorrectUTCDate(2016, 10, 31, 23, 0, 0, observation.getStopTime());
+
+        assertEquals("pirata-sss", observation.getSensor().getName());
         assertEquals("v1", observation.getVersion());
         assertEquals(NodeType.UNDEFINED, observation.getNodeType());
 

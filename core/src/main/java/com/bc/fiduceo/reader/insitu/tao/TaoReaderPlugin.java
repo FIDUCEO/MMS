@@ -7,7 +7,7 @@ import com.bc.fiduceo.reader.ReaderPlugin;
 
 public class TaoReaderPlugin implements ReaderPlugin {
 
-    private final static String[] SENSOR_KEYS = {"tao-sss"};
+    private final static String[] SENSOR_KEYS = {"tao-sss", "pirata-sss", "rama-sss"};
 
     @Override
     public Reader createReader(ReaderContext readerContext) {

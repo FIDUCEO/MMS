@@ -32,7 +32,7 @@ import static com.bc.fiduceo.util.NetCDFUtils.*;
 
 class TaoReader implements Reader {
 
-    private final static String REG_EX = "(?:TAO|TRITON)_\\w+_\\w+(-\\w+)??\\d{4}-\\d{2}.txt";
+    private final static String REG_EX = "(?:TAO|TRITON|RAMA|PIRATA)_\\w+_\\w+(-\\w+)??\\d{4}-\\d{2}.txt";
     private static final String TIME = "time";
     private static final String LONGITUDE = "longitude";
     private static final String LATITUDE = "latitude";

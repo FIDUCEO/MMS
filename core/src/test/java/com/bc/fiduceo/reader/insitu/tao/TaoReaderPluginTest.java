@@ -18,7 +18,7 @@ public class TaoReaderPluginTest {
 
     @Test
     public void testGetSupportedKeys() {
-        final String[] expected = {"tao-sss"};
+        final String[] expected = {"tao-sss", "pirata-sss", "rama-sss"};
 
         assertArrayEquals(expected, plugin.getSupportedSensorKeys());
     }

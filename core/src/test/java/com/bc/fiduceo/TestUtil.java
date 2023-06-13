@@ -161,7 +161,7 @@ public class TestUtil {
                 "        <rule sensors=\"ndbc-sm-cb, ndbc-sm-cs\">\n" +
                 "            insitu/ndbc/SENSOR/VERSION/YEAR\n" +
                 "        </rule>" +
-                "        <rule sensors=\"tao-sss\">\n" +
+                "        <rule sensors=\"tao-sss, pirata-sss\">\n" +
                 "            insitu/SENSOR/VERSION/YEAR/MONTH\n" +
                 "        </rule>" +
                 "    </archive>" +
