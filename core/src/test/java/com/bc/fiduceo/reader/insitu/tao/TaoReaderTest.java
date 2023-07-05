@@ -236,10 +236,16 @@ public class TaoReaderTest {
 
     @Test
     public void testExtractYMDFromFileName() {
-        final int[] ymd = reader.extractYearMonthDayFromFilename("TRITON_TR0N156E_1998_2017-10.txt");
+        int[] ymd = reader.extractYearMonthDayFromFilename("TRITON_TR0N156E_1998_2017-10.txt");
         assertEquals(3, ymd.length);
         assertEquals(2017, ymd[0]);
         assertEquals(10, ymd[1]);
+        assertEquals(1, ymd[2]);
+
+        ymd = reader.extractYearMonthDayFromFilename("RAMA_12N90E_sss_2017-09.txt");
+        assertEquals(3, ymd.length);
+        assertEquals(2017, ymd[0]);
+        assertEquals(9, ymd[1]);
         assertEquals(1, ymd[2]);
     }
 }
