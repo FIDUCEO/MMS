@@ -1,0 +1,37 @@
+cff-version: 1.2.0
+title: Multisensor Matchup System (MMS)
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Thomas
+    family-names: Block
+    email: tom.block@brockmann-consult.de
+    affiliation: Brockmann Consult GmbH
+  - given-names: Sabine
+    family-names: Embacher
+    email: sabine.embacher@brockmann-consult.de
+    affiliation: Brockmann Consult GmbH
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.8116892
+repository-code: 'https://github.com/bcdev/MMS'
+url: 'https://www.brockmann-consult.de/'
+abstract: >-
+  The Multisensor matchup System (MMS) is a software suite
+  that allows to detect simulatneous measurements of remote
+  sensing (satellite) and in-situ instruments. 
+
+
+  Its main purpose is to support the validation of satellite
+  based instruments by generating cross-sensor matches of
+  either instruments from different satellite platforms or
+  between satellite and ground-based measurements.
+keywords:
+  - matchup
+  - calibration
+  - validation
+  - earth observation
+  - satellite
+license: GPL-3.0
