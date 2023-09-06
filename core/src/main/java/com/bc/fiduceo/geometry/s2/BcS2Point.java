@@ -103,7 +103,11 @@ class BcS2Point implements Point {
     }
 
     @Override
-    public boolean equals(Point other) {
+    public boolean equals(Object o) {
+        if (o == null || !(o instanceof BcS2Point)) {
+            return false;
+        }
+        final BcS2Point other = (BcS2Point) o;
         return other == this || other.getLon() == getLon() && other.getLat() == getLat();
     }
 

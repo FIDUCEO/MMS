@@ -67,15 +67,15 @@ public class SmapReader_IO_Test {
             Point[] coordinates = boundingGeometry.getCoordinates();
             assertEquals(5, coordinates.length);
             assertEquals(-179.98402404785156, coordinates[0].getLon(), 1e-8);
-            assertEquals(86.34670257568361, coordinates[0].getLat(), 1e-8);
+            assertEquals(-86.61946868896484, coordinates[0].getLat(), 1e-8);
             assertEquals(179.99179077148438, coordinates[1].getLon(), 1e-8);
-            assertEquals(86.34670257568361, coordinates[1].getLat(), 1e-8);
+            assertEquals(-86.61946868896484, coordinates[1].getLat(), 1e-8);
             assertEquals(179.99179077148438, coordinates[2].getLon(), 1e-8);
-            assertEquals(-86.5008316040039, coordinates[2].getLat(), 1e-8);
+            assertEquals(86.40682220458984, coordinates[2].getLat(), 1e-8);
             assertEquals(-179.98402404785156, coordinates[3].getLon(), 1e-8);
-            assertEquals(-86.5008316040039, coordinates[3].getLat(), 1e-8);
+            assertEquals(86.40682220458984, coordinates[3].getLat(), 1e-8);
             assertEquals(-179.98402404785156, coordinates[4].getLon(), 1e-8);
-            assertEquals(86.34670257568361, coordinates[4].getLat(), 1e-8);
+            assertEquals(-86.61946868896484, coordinates[4].getLat(), 1e-8);
 
             final Date sensingStart = info.getSensingStart();
             TestUtil.assertCorrectUTCDate(2018, 2, 4, 20, 23, 11, sensingStart);
@@ -91,8 +91,12 @@ public class SmapReader_IO_Test {
             assertEquals(4, coordinates.length);
             assertEquals(-179.98402404785156, coordinates[0].getLon(), 1e-8);
             assertEquals(0.0, coordinates[0].getLat(), 1e-8);
+            assertEquals(179.99179077148438, coordinates[1].getLon(), 1e-8);
+            assertEquals(0.0, coordinates[1].getLat(), 1e-8);
+            assertEquals(0.0, coordinates[2].getLon(), 1e-8);
+            assertEquals(86.40682220458984, coordinates[2].getLat(), 1e-8);
             assertEquals(0.0, coordinates[3].getLon(), 1e-8);
-            assertEquals(86.34670257568361, coordinates[3].getLat(), 1e-8);
+            assertEquals(-86.61946868896484, coordinates[3].getLat(), 1e-8);
 
             assertEquals(NodeType.UNDEFINED, info.getNodeType());
         } finally {

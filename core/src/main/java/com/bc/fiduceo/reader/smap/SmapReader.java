@@ -409,21 +409,23 @@ class SmapReader extends NetCDFReader {
                     lonMax = minMax.max;
                 }
             }
-            for (int i = 0; i < height; i++) { // top down
+            // Find latitude maximum --> the product is mirrored vertically --> positive values are at the lower end.
+            for (int i = height - 1; i >= 0; i--) { // bottom up
                 latOrigin[dimIdxY] = i;
                 final Array section = latArr.section(latOrigin, horizontalSection);
                 final MAMath.MinMax minMax = MAMath.getMinMaxSkipMissingData(section, fillValue);
-                if (minMax.min == Double.MAX_VALUE) {
+                if (minMax.max == latMax) {
                     continue;
                 }
                 latMax = minMax.max;
                 break;
             }
-            for (int i = height - 1; i >= 0; i--) { // bottom up
+            // Find latitude minimum --> the product is mirrored vertically --> negative values are at the upper end.
+            for (int i = 0; i < height; i++) { // top down
                 latOrigin[dimIdxY] = i;
                 final Array section = latArr.section(latOrigin, horizontalSection);
                 final MAMath.MinMax minMax = MAMath.getMinMaxSkipMissingData(section, fillValue);
-                if (minMax.min == Double.MAX_VALUE) {
+                if (minMax.min == latMin) {
                     continue;
                 }
                 latMin = minMax.min;

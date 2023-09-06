@@ -80,7 +80,11 @@ class JTSPoint implements Point {
     }
 
     @Override
-    public boolean equals(Point other) {
+    public boolean equals(Object o) {
+        if (o == null || !(o instanceof JTSPoint)) {
+            return false;
+        }
+        final JTSPoint other = (JTSPoint) o;
         return other == this || other.getLon() == getLon() && other.getLat() == getLat();
     }
 }
