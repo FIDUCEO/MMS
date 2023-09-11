@@ -4,6 +4,7 @@ import com.bc.fiduceo.reader.DataType;
 import com.bc.fiduceo.reader.Reader;
 import com.bc.fiduceo.reader.ReaderContext;
 import com.bc.fiduceo.reader.ReaderPlugin;
+import com.bc.fiduceo.reader.smap.SmapReader.LOOK;
 
 /**
  * Aft look Reader Plugin for SMAP Salinity data products.
@@ -16,9 +17,7 @@ public class SmapReaderPluginAftLook implements ReaderPlugin {
 
     @Override
     public Reader createReader(ReaderContext readerContext) {
-        // Since index positions are zero based, 1 means "look 2". And "look 2" means "aft look".
-        final int aftLook = 1;
-        return new SmapReader(readerContext, aftLook);
+        return new SmapReader(readerContext, LOOK.AFT);
     }
 
     @Override

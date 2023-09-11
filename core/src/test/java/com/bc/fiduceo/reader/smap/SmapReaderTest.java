@@ -18,7 +18,7 @@ public class SmapReaderTest {
 
     @Before
     public void setUp() {
-        reader = new SmapReader(new ReaderContext(), 1); // empty context sufficient in this test tb 2022-11-17
+        reader = new SmapReader(new ReaderContext(), SmapReader.LOOK.AFT); // empty context sufficient in this test tb 2022-11-17
     }
 
     @Test

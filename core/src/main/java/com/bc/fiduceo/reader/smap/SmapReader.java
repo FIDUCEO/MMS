@@ -41,10 +41,30 @@ import java.util.Map;
 
 class SmapReader extends NetCDFReader {
 
+    /**
+     * For detailed information about the meaning of "look" please see page 56 in the document:
+     * https://data.remss.com/smap/SSS/V05.0/documents/SMAP_NASA_RSS_Salinity_Release_V5.0.pdf
+     */
+    public enum LOOK {
+        // Since index positions are zero based, 0 means "look 1". And "look 1" means "for look".
+        FOR(0),
+        // Since index positions are zero based, 1 means "look 2". And "look 2" means "aft look".
+        AFT(1);
+
+        private final int index;
+
+        LOOK(int val) {
+            this.index = val;
+        }
+
+        public int getIndex() {
+            return index;
+        }
+    }
+
     private static final String DIM_NAME_X = "xdim_grid";
     private static final String DIM_NAME_Y = "ydim_grid";
     private static final String CF_FillValue = NetCDFUtils.CF_FILL_VALUE_NAME;
-
 
     // DATA FORMAT SPECIFICATION
     // at: https://data.remss.com/smap/SSS/V05.0/documents/SMAP_NASA_RSS_Salinity_Release_V5.0.pdf
@@ -102,14 +122,10 @@ class SmapReader extends NetCDFReader {
      * @param readerContext
      * @param look
      */
-    SmapReader(ReaderContext readerContext, int look) {
+    SmapReader(ReaderContext readerContext, LOOK look) {
         this.geometryFactory = readerContext.getGeometryFactory();
 
-        if (look < 0 || look > 1) {
-            throw new RuntimeException("look must be 0 or 1");
-        }
-
-        this.lookValue = look;
+        this.lookValue = look.getIndex();
         this.lookExtName = LOOKS[lookValue];
     }
 
@@ -206,10 +222,8 @@ class SmapReader extends NetCDFReader {
     public Array readRaw(int centerX, int centerY, Interval interval, String variableName) throws IOException, InvalidRangeException {
         final VariableInfo variableInfo = variableInfos.get(variableName);
         final int[] offset = variableInfo.offset;
-        final int[] fullXYShape = new int[offset.length];
-        Arrays.fill(fullXYShape, 1);
-        fullXYShape[variableInfo.xDimIndex] = pWidth;
-        fullXYShape[variableInfo.yDimIndex] = pHeight;
+        final int[] windowShape = new int[offset.length];
+        Arrays.fill(windowShape, 1);
 
         final Variable variable = netcdfFile.findVariable(variableInfo.ncVarName);
 
@@ -221,16 +235,16 @@ class SmapReader extends NetCDFReader {
         if (isWindowInside) {
             offset[variableInfo.xDimIndex] = offsetX;
             offset[variableInfo.yDimIndex] = offsetY;
-            fullXYShape[variableInfo.xDimIndex] = winWith;
-            fullXYShape[variableInfo.yDimIndex] = winHeight;
-            return variable.read(offset, fullXYShape).reduce();
+            windowShape[variableInfo.xDimIndex] = winWith;
+            windowShape[variableInfo.yDimIndex] = winHeight;
+            return variable.read(offset, windowShape).reduce();
         } else {
             final Rectangle2D insideWindow = RawDataReader.getInsideWindow(offsetX, offsetY, winWith, winHeight, pWidth, pHeight);
             offset[variableInfo.xDimIndex] = (int) insideWindow.getX();
             offset[variableInfo.yDimIndex] = (int) insideWindow.getY();
-            fullXYShape[variableInfo.xDimIndex] = (int) insideWindow.getWidth();
-            fullXYShape[variableInfo.yDimIndex] = (int) insideWindow.getHeight();
-            final Array insideRead = variable.read(offset, fullXYShape).reduce();
+            windowShape[variableInfo.xDimIndex] = (int) insideWindow.getWidth();
+            windowShape[variableInfo.yDimIndex] = (int) insideWindow.getHeight();
+            final Array insideRead = variable.read(offset, windowShape).reduce();
             final Array a = NetCDFUtils.create(insideRead.getDataType(), new int[]{winHeight, winWith}, variableInfo.fillValue);
             final int targetOffsY = Math.min(offsetY, 0);
             final int targetOffsX = Math.min(offsetX, 0);

@@ -1173,7 +1173,7 @@ public class IngestionToolIntegrationTest {
         IngestionToolMain.main(args);
 
         final List<SatelliteObservation> observations = storage.get();
-        assertEquals(1, observations.size());
+        assertEquals(2, observations.size());
 
         final SatelliteObservation observation = getSatelliteObservation("RSS_SMAP_SSS_L2C_r16092_20180204T202311_2018035_FNL_V05.0.nc", observations);
         TestUtil.assertCorrectUTCDate(2018, 2, 4, 20, 23, 11, observation.getStartTime());
