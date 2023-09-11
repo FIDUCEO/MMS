@@ -25,6 +25,7 @@ import com.bc.fiduceo.util.NetCDFUtils;
 import ucar.ma2.*;
 
 import java.awt.*;
+import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 
 /**
@@ -131,10 +132,16 @@ public class RawDataReader {
         }
     }
 
-    private static boolean isWindowInside(int winOffSetX, int winOffSetY, int windowWidth, int windowHeight, int rawWidth, int rawHeight) {
+    public static boolean isWindowInside(int winOffSetX, int winOffSetY, int windowWidth, int windowHeight, int rawWidth, int rawHeight) {
         final Rectangle windowRec = new Rectangle(winOffSetX, winOffSetY, windowWidth, windowHeight);
         final Rectangle arrayRectangle = new Rectangle(0, 0, rawWidth, rawHeight);
         return arrayRectangle.contains(windowRec);
+    }
+
+    public static Rectangle2D getInsideWindow(int winOffSetX, int winOffSetY, int windowWidth, int windowHeight, int rawWidth, int rawHeight) {
+        final Rectangle windowRec = new Rectangle(winOffSetX, winOffSetY, windowWidth, windowHeight);
+        final Rectangle arrayRectangle = new Rectangle(0, 0, rawWidth, rawHeight);
+        return arrayRectangle.createIntersection(windowRec);
     }
 
     // package access for testing only tb 2016-04-18

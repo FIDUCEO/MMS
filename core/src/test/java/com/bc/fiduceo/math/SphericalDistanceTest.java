@@ -35,5 +35,14 @@ public class SphericalDistanceTest {
         assertEquals(1.0, Math.toDegrees(distanceMeasure.distance(1.0, 0.0)), 1.0e-10);
         assertEquals(1.0, Math.toDegrees(distanceMeasure.distance(0.0, 1.0)), 1.0e-10);
     }
+
+    @Test
+    public void testDistanceHalfDegree() {
+        final double lat = 60.0;
+        final DistanceMeasure distanceMeasure = new SphericalDistance(0.0, lat);
+
+        assertEquals(0.0, distanceMeasure.distance(0.0, lat), 0.0);
+        assertEquals(0.5, Math.toDegrees(distanceMeasure.distance(1.0, lat)), 1e-5);
+    }
 }
 

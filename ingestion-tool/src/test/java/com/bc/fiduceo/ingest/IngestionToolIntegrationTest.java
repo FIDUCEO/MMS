@@ -1095,6 +1095,8 @@ public class IngestionToolIntegrationTest {
         final Geometry geoBounds = observation.getGeoBounds();
         assertEquals("POLYGON((-179.93750000000003 -89.9375,179.93750000000003 -89.9375,179.93750000000003 89.9375,-179.93750000000003 89.9375,-179.93750000000003 -89.9375))",
                 geometryFactory.format(geoBounds));
+        final Geometry intersection = geoBounds.getIntersection(geometryFactory.createPoint(0, 0));
+        assertEquals(geometryFactory.createPoint(0, 0), intersection);
         final TimeAxis timeAxis = observation.getTimeAxes()[0];
         assertTrue(timeAxis instanceof L3TimeAxis);
         assertEquals("MULTILINESTRING((-179.93750000000003 0.0,179.93750000000003 0.0),(0.0 89.9375,0.0 -89.9375))", geometryFactory.format(timeAxis.getGeometry()));
@@ -1162,6 +1164,34 @@ public class IngestionToolIntegrationTest {
 
         assertNull(observation.getGeoBounds());
         assertNull(observation.getTimeAxes());
+    }
+
+    @Test
+    public void testIngest_smap_sss__for_look() throws SQLException, ParseException {
+        final String[] args = new String[]{"-c", configDir.getAbsolutePath(), "-s", "smap-sss-for", "-start", "2018-031", "-end", "2018-040", "-v", "v05.0"};
+
+        IngestionToolMain.main(args);
+
+        final List<SatelliteObservation> observations = storage.get();
+        assertEquals(2, observations.size());
+
+        final SatelliteObservation observation = getSatelliteObservation("RSS_SMAP_SSS_L2C_r16092_20180204T202311_2018035_FNL_V05.0.nc", observations);
+        TestUtil.assertCorrectUTCDate(2018, 2, 4, 20, 23, 11, observation.getStartTime());
+        TestUtil.assertCorrectUTCDate(2018, 2, 4, 22, 4, 56, observation.getStopTime());
+
+        assertEquals("smap-sss-for", observation.getSensor().getName());
+        assertEquals("v05.0", observation.getVersion());
+        assertEquals(NodeType.UNDEFINED, observation.getNodeType());
+
+        final Geometry geoBounds = observation.getGeoBounds();
+        assertEquals("POLYGON((-179.9690856933594 -86.61936950683594,179.9915313720703 -86.61936950683594,179.9915313720703 86.40787506103517,-179.9690856933594 86.40787506103517,-179.9690856933594 -86.61936950683594))",
+                     geometryFactory.format(geoBounds));
+        final Geometry intersection = geoBounds.getIntersection(geometryFactory.createPoint(0, 0));
+        assertEquals(geometryFactory.createPoint(0, 0), intersection);
+        final TimeAxis timeAxis = observation.getTimeAxes()[0];
+        assertTrue(timeAxis instanceof L3TimeAxis);
+        assertEquals("MULTILINESTRING((-179.9690856933594 0.0,179.9915313720703 0.0),(0.0 86.40787506103517,0.0 -86.61936950683594))", geometryFactory.format(timeAxis.getGeometry()));
+
     }
 
     private void callMainAndValidateSystemOutput(String[] args, boolean errorOutputExpected) throws ParseException {

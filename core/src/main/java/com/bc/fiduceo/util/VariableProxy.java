@@ -81,4 +81,9 @@ public class VariableProxy extends VariablePrototype {
     public int[] getShape() {
         return this.shape;
     }
+
+    @Override
+    public String toString() {
+        return "VariableProxy{ " + dataType + " " + name + "'(...)\r\n" +  attributes + " }";
+    }
 }

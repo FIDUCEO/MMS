@@ -1,7 +1,6 @@
 package com.bc.fiduceo.reader;
 
 import com.bc.fiduceo.archive.Archive;
-import com.bc.fiduceo.archive.ArchiveConfig;
 import com.bc.fiduceo.geometry.GeometryFactory;
 import com.bc.fiduceo.util.TempFileUtils;
 import org.junit.Before;

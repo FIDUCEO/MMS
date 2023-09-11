@@ -32,5 +32,5 @@ public interface Point extends Geometry {
 
     void setLat(double lat);
 
-    boolean equals(Point other);
+    boolean equals(Object other);
 }

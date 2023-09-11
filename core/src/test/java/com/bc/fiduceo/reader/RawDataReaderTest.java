@@ -23,7 +23,13 @@ package com.bc.fiduceo.reader;
 
 import org.junit.Test;
 
+import java.awt.*;
+import java.awt.geom.Rectangle2D;
+
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class RawDataReaderTest {
 
@@ -42,5 +48,33 @@ public class RawDataReaderTest {
 
         assertEquals(RawDataReader.InputDimension.THREE_D_FALSE_DIMENSION, RawDataReader.getInputDimension(3, new int[]{1, 409, 4443}));
         assertEquals(RawDataReader.InputDimension.THREE_D_FALSE_DIMENSION, RawDataReader.getInputDimension(3, new int[]{1, 10, 10}));
+    }
+
+    @Test
+    public void testGetInsideWindow() {
+        // Assumptions:
+        // Given is a source array with a width of 200 and a height of 100
+        // It is to be read from different areas from the array
+        // Mostly somewhere inside the array. But sometimes also areas that are partially outside.
+
+        Rectangle2D insideWindow;
+
+        // case: inside
+        insideWindow = RawDataReader.getInsideWindow(50, 40, 4, 3, 200, 100);
+        assertThat(insideWindow, is(not(nullValue())));
+        assertThat(insideWindow, is(instanceOf(Rectangle.class)));
+        assertThat(insideWindow, is(equalTo(new Rectangle(50, 40, 4, 3))));
+
+        // case: partly outside top left
+        insideWindow = RawDataReader.getInsideWindow(-1, -1, 4, 3, 200, 100);
+        assertThat(insideWindow, is(not(nullValue())));
+        assertThat(insideWindow, is(instanceOf(Rectangle.class)));
+        assertThat(insideWindow, is(equalTo(new Rectangle(0, 0, 3, 2))));
+
+        // case: partly outside lower right
+        insideWindow = RawDataReader.getInsideWindow(197, 98, 4, 3, 200, 100);
+        assertThat(insideWindow, is(not(nullValue())));
+        assertThat(insideWindow, is(instanceOf(Rectangle.class)));
+        assertThat(insideWindow, is(equalTo(new Rectangle(197, 98, 3, 2))));
     }
 }

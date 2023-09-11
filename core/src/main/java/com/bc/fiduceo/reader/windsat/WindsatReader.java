@@ -15,9 +15,12 @@ import com.bc.fiduceo.reader.time.TimeLocator_SecondsSince2000;
 import com.bc.fiduceo.util.NetCDFUtils;
 import com.bc.fiduceo.util.TimeUtils;
 import com.bc.fiduceo.util.VariableProxy;
+import org.esa.snap.dataio.netcdf.PartialDataCopier;
 import ucar.ma2.*;
+import ucar.nc2.AttributeContainer;
 import ucar.nc2.Variable;
 
+import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,6 +38,10 @@ class WindsatReader extends NetCDFReader {
 
     private PixelLocator pixelLocator;
     private TimeLocator timeLocator;
+
+    private Dimension productSize;
+    private int productWidth;
+    private int productHeight;
 
     WindsatReader(ReaderContext readerContext) {
         this.geometryFactory = readerContext.getGeometryFactory();
@@ -74,6 +81,7 @@ class WindsatReader extends NetCDFReader {
     @Override
     public void open(File file) throws IOException {
         super.open(file);
+        initProductSize();
     }
 
     @Override
@@ -134,15 +142,15 @@ class WindsatReader extends NetCDFReader {
     @Override
     public TimeLocator getTimeLocator() throws IOException {
         if (timeLocator == null) {
-            final Array timeArray = arrayCache.get("time");
-            final Number fillValue = getFillValue("time", timeArray);
+            final Variable variable = netcdfFile.findVariable("time");
+            final Number fillValue = NetCDFUtils.getFillValue(variable);
             final int[] origin = {0, 0, 0, 2};  // select layer for "fore" and 18 GHz tb 2022-11-28
-            final int[] shape = timeArray.getShape();
+            final int[] shape = variable.getShape();
             shape[2] = 1;   // one view layer tb 2022-11-28
             shape[3] = 1;   // one frequency layer tb 2022-11-28
 
             try {
-                final Array timeArraySection = timeArray.section(origin, shape).reduce();
+                final Array timeArraySection = variable.read(origin, shape).reduce();
                 timeLocator = new TimeLocator_SecondsSince2000(timeArraySection, fillValue.doubleValue());
             } catch (InvalidRangeException e) {
                 throw new IOException(e.getMessage());
@@ -192,48 +200,82 @@ class WindsatReader extends NetCDFReader {
             }
 
             return resultArray;
-        } else if (variables2D.contains(variableName)) {
-            final Array array = arrayCache.get(variableName);
-            final Number fillValue = getFillValue(variableName, array);
-            return RawDataReader.read(centerX, centerY, interval, fillValue, array, getProductSize());
-        } else {
-            // extract layer indices and NetCDF file variable name from variable name
-            final ArrayInfo arrayInfo = extractArrayInfo(variableName);
+        }
+        final int winWith = interval.getX();
+        final int winHeight = interval.getY();
+        final int offsetX = centerX - winWith / 2;
+        final int offsetY = centerY - winHeight / 2;
+        final boolean isWindowInside = RawDataReader.isWindowInside(offsetX, offsetY, winWith, winHeight, productWidth, productHeight);
 
-            final Array array = arrayCache.get(arrayInfo.ncVarName);
-            final Number fillValue = getFillValue(arrayInfo.ncVarName, array);
-
-            final int[] origin;
-            final int[] shape;
-            if (arrayInfo.freqIdx >= 0) {
-                origin = new int[4];
-                origin[2] = arrayInfo.lookIdx;
-                origin[3] = arrayInfo.freqIdx;
-
-                shape = array.getShape();
-                shape[2] = 1;
-                shape[3] = 1;
+        if (variables2D.contains(variableName)) {
+            final Variable variable = netcdfFile.findVariable(variableName);
+            if (isWindowInside) {
+                return variable.read(new int[]{offsetY, offsetX}, new int[]{winHeight, winWith});
             } else {
-                origin = new int[4];
-                origin[0] = arrayInfo.polIdx;
-                origin[1] = arrayInfo.lookIdx;
-
-                shape = array.getShape();
-                shape[0] = 1;
-                shape[1] = 1;
+                final Rectangle2D insideWindow = RawDataReader.getInsideWindow(offsetX, offsetY, winWith, winHeight, productWidth, productHeight);
+                final int[] origin = {(int) insideWindow.getY(), (int) insideWindow.getX()};
+                final int[] shape = {(int) insideWindow.getHeight(), (int) insideWindow.getWidth()};
+                final Array insideRead = variable.read(origin, shape);
+                final Number fillValue = NetCDFUtils.getFillValue(variable);
+                final Array array = NetCDFUtils.create(insideRead.getDataType(), new int[]{winHeight, winWith}, fillValue);
+                final int targetOffsY = Math.min(offsetY, 0);
+                final int targetOffsX = Math.min(offsetX, 0);
+                PartialDataCopier.copy(new int[]{targetOffsY, targetOffsX}, insideRead, array);
+                return array;
             }
-
-            final Array section = array.section(origin, shape).copy();
-            return RawDataReader.read(centerX, centerY, interval, fillValue, section, getProductSize());
         }
-    }
 
-    private Number getFillValue(String variableName, Array array) throws IOException {
-        Number fillValue = arrayCache.getNumberAttributeValue(NetCDFUtils.CF_FILL_VALUE_NAME, variableName);
-        if (fillValue == null) {
-            fillValue = NetCDFUtils.getDefaultFillValue(array);
+        // extract layer indices and NetCDF file variable name from variable name
+        final ArrayInfo arrayInfo = extractArrayInfo(variableName);
+        final Variable variable = netcdfFile.findVariable(arrayInfo.ncVarName);
+        final int[] shape = variable.getShape();
+        final int[] origin = new int[4];
+        final int xDimPos;
+        final int yDimPos;
+        final int lookPos;
+        final int freqPolPos;
+        if (arrayInfo.freqIdx >= 0) {
+            yDimPos = 0;
+            xDimPos = 1;
+            lookPos = 2;
+            freqPolPos = 3;
+        } else {
+            freqPolPos = 0;
+            lookPos = 1;
+            yDimPos = 2;
+            xDimPos = 3;
         }
-        return fillValue;
+        if (arrayInfo.freqIdx >= 0) {
+            origin[lookPos] = arrayInfo.lookIdx;
+            origin[freqPolPos] = arrayInfo.freqIdx;
+            shape[lookPos] = 1;
+            shape[freqPolPos] = 1;
+        } else {
+            origin[freqPolPos] = arrayInfo.polIdx;
+            origin[lookPos] = arrayInfo.lookIdx;
+            shape[freqPolPos] = 1;
+            shape[lookPos] = 1;
+        }
+        if (isWindowInside) {
+            origin[xDimPos] = offsetX;
+            origin[yDimPos] = offsetY;
+            shape[xDimPos] = winWith;
+            shape[yDimPos] = winHeight;
+            return variable.read(origin, shape).reduce();
+        } else {
+            final Rectangle2D insideWindow = RawDataReader.getInsideWindow(offsetX, offsetY, winWith, winHeight, productWidth, productHeight);
+            origin[xDimPos] = (int) insideWindow.getX();
+            origin[yDimPos] = (int) insideWindow.getY();
+            shape[xDimPos] = (int) insideWindow.getWidth();
+            shape[yDimPos] = (int) insideWindow.getHeight();
+            final Array insideRead = variable.read(origin, shape).reduce();
+            final Number fillValue = NetCDFUtils.getFillValue(variable);
+            final Array array = NetCDFUtils.create(insideRead.getDataType(), new int[]{winHeight, winWith}, fillValue);
+            final int targetOffsY = Math.min(offsetY, 0);
+            final int targetOffsX = Math.min(offsetX, 0);
+            PartialDataCopier.copy(new int[]{targetOffsY, targetOffsX}, insideRead, array);
+            return array;
+        }
     }
 
     @Override
@@ -245,8 +287,10 @@ class WindsatReader extends NetCDFReader {
         }
 
         final ArrayInfo arrayInfo = extractArrayInfo(variableName);
-        final double scaleFactor = arrayCache.getNumberAttributeValue("scale_factor", arrayInfo.ncVarName).doubleValue();
-        final double offset = arrayCache.getNumberAttributeValue("add_offset", arrayInfo.ncVarName).doubleValue();
+        final Variable variable = netcdfFile.findVariable(arrayInfo.ncVarName);
+        final AttributeContainer attributes = variable.attributes();
+        final double scaleFactor = attributes.findAttributeDouble("scale_factor", 1.0);
+        final double offset = attributes.findAttributeDouble("add_offset", 0.0);
         final MAMath.ScaleOffset scaleOffset = new MAMath.ScaleOffset(scaleFactor, offset);
         return MAMath.convert2Unpacked(rawArray, scaleOffset);
     }
@@ -281,10 +325,14 @@ class WindsatReader extends NetCDFReader {
 
     @Override
     public Dimension getProductSize() throws IOException {
-        final Array longitudes = arrayCache.get("longitude");
-        final int[] shape = longitudes.getShape();
+        return productSize;
+    }
 
-        return new Dimension("size", shape[1], shape[0]);
+    public void initProductSize() {
+        final int[] shape = netcdfFile.findVariable("longitude").getShape();
+        productWidth = shape[1];
+        productHeight = shape[0];
+        productSize = new Dimension("size", productWidth, productHeight);
     }
 
     @Override
