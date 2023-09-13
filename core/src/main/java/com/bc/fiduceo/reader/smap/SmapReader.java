@@ -142,6 +142,8 @@ class SmapReader extends NetCDFReader {
         super.close();
         pixelLocator = null;
         timeLocator = null;
+        variableInfos.clear();
+        variables.clear();
     }
 
     @Override
