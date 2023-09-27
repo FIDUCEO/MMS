@@ -1,5 +1,7 @@
 ### Updates from version 1.5.7 to 1.5.8
+* added support for SMAP Salinity L2C data  
 * added functionality to configure several global attributes before computing MMD files.
+* added support for NOAA TAO insitu data 
 * added support for NOAA NDBC insitu data
 * added support for Windsat Coriolis data
 * added conda environment
