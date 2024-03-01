@@ -408,7 +408,7 @@ class Workflow:
 
         monitor.wait_for_completion()
 
-    def run_post_processing(self, hosts, num_parallel_tasks, simulation=False, logdir='trace'):
+    def run_post_processing(self, hosts, num_parallel_tasks, simulation=False, logdir='trace', synchronous=False):
         """
 
         :param hosts: list
@@ -417,7 +417,13 @@ class Workflow:
         :param logdir: str
         :return:
         """
-        monitor = self._get_monitor(hosts, [('post_processing_start.sh', num_parallel_tasks)], logdir, simulation)
+
+        if synchronous:
+            runs_script = 'post_processing_run.sh'
+        else:
+            runs_script = 'post_processing_start.sh'
+
+        monitor = self._get_monitor(hosts, [(runs_script, num_parallel_tasks)], logdir, simulation)
         production_period = self.get_production_period()
         date = production_period.get_start_date()
         while date < production_period.get_end_date():
